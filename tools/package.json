@@ -1,0 +1,7 @@
+{
+  "name": "garvits-notes-tools",
+  "private": true,
+  "type": "module",
+  "description": "Builds the static site from content/. No dependencies.",
+  "scripts": { "build": "node build.mjs" }
+}

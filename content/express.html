@@ -1,0 +1,356 @@
+<section class="note-section">
+<h2 id="what">What Express is</h2>
+<p> Node can already run a web server — the built-in <code>http</code> module does it in ten lines. What it cannot do is tell you <i>which</i> address was asked for, read the body of the request, or run the same check before forty different endpoints. Express is a thin layer that adds exactly those things and stays out of the way otherwise. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Express is the receptionist for your server. Requests arrive at the desk; the receptionist checks who you are, decides which department handles what you asked for, and makes sure somebody always answers — even if the answer is no. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>A complete Express server</div><pre><code>import express from 'express';
+
+const app = express();
+app.use(express.json());                    // parse JSON request bodies
+
+app.get('/health', (req, res) =&gt; {
+  res.json({ ok: true });
+});
+
+app.listen(5000, () =&gt; console.log('listening on 5000'));</code></pre></div>
+<p> It is deliberately unopinionated: it does not choose your database, your folder layout or your validation library. That freedom is why two Express codebases can look nothing alike, and why the conventions a team picks matter more than the framework does. </p>
+
+</section>
+
+<section class="note-section">
+<h2 id="cycle">The request and response cycle</h2>
+<p> Every handler receives the same three things: the request, the response, and the way to pass along. The rule underneath all of it is simple and unforgiving — <strong>exactly one response per request</strong>. Zero and the caller hangs until it times out; two and Node throws “headers already sent”. </p>
+<div class="code-block"><div class="code-head"><span class="lang">json</span>req, res, next</div><pre><code>app.post('/projects/:id/publish', (req, res, next) =&gt; {
+  req.params.id;      // "/projects/abc/publish" -&gt; "abc"
+  req.query.force;    // "?force=true" -&gt; "true"  (always a string)
+  req.body;           // the parsed JSON body — needs express.json()
+  req.headers;        // lower-cased header names
+  req.user;           // not built in: put there by our auth middleware
+
+  res.status(202).json({ jobId });   // status + body, and we are done
+  // res.send(...)     — a string or a buffer
+  // res.redirect(302, '/somewhere')
+  // res.status(204).end()          — success, nothing to say
+
+  next();             // WRONG here: the response already went out
+});</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"> The commonest form of this bug is a missing <code>return</code>. A validation branch that responds with a 400 and then falls through into the success path sends two responses. Get into the habit: <code>return res.status(400).json(...)</code>. </div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="routes">Routes and routers</h2>
+<p> A route is a method plus a path plus a handler. A <strong>router</strong> is a group of routes that can be mounted under a prefix, which is how an API stays navigable past about twenty endpoints. </p>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>One router per resource, mounted under a prefix</div><pre><code>// routes/projects.ts
+import { Router } from 'express';
+const router = Router();
+
+router.get('/', listProjects);          // GET  /api/v1/projects
+router.post('/', createProject);        // POST /api/v1/projects
+router.get('/:id', getProject);         // GET  /api/v1/projects/abc
+router.patch('/:id', updateProject);
+router.delete('/:id', deleteProject);
+
+export default router;
+
+// routes/index.ts
+router.use('/projects', projectRoutes);
+router.use('/auth', authRoutes);
+
+// app.ts
+app.use('/api/v1', apiRoutes);          // everything lives under one version prefix</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Order matters, and it is a real source of lost afternoons.</strong> Express takes the first route that matches. Register <code>/projects/:id</code> before <code>/projects/export</code> and a request for the export is handled as a project whose id happens to be the word “export”. Specific paths first, parameterised paths after. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><strong>This backend has no controllers folder, on purpose.</strong> Handlers live inline in the route files, and the reusable work lives in <code>src/services/</code>. A controller layer existed once and was deleted: it had become a directory of one-line functions that only forwarded to a service, so every change meant editing three files to add nothing. If you are following a tutorial that insists on the layer, this is why you will not find it. </div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="middleware">Middleware: the one idea to actually learn</h2>
+<p> Middleware is a function that runs <i>before</i> your handler and can do three things: look at the request, change it, or stop it. It receives the same three arguments, and calling <code>next()</code> passes control to whatever is next in line. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A parcel on a sorting belt. Each station can inspect it, put a sticker on it, or take it off the belt entirely. Reaching the end of the belt means reaching your handler — and a station that neither passes it along nor answers leaves the parcel sitting there, which is exactly what a hung request is. </div></div>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">One real request through this product's stack</span></div><div class="figure-stage"><pre class="ascii-art">  POST /api/v1/projects        (with a Bearer token and a JSON body)
+        |
+        v
+  [ helmet ]        security headers on the way out
+        |
+  [ cors ]          is this origin allowed to call us?
+        |
+  [ express.json ]  parse the body — and cap it at 10mb
+        |
+  [ rate limit ]    has this caller asked too often?     --&gt; 429
+        |
+  [ auth ]          verify token, re-read the user       --&gt; 401
+        |
+  [ handler ]       validate input, write to the database
+        |                                    |
+        v                                    v (throws)
+   201 Created                        [ error handler ]  --&gt; 500
+                                       one shape, one place</pre></div></figure>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>Writing one</div><pre><code>function requestLogger(req, res, next) {
+  const started = Date.now();
+
+  // Register work for when the response finishes, then get out of the way.
+  res.on('finish', () =&gt; {
+    logger.info({
+      method: req.method,
+      path: req.originalUrl,
+      status: res.statusCode,
+      ms: Date.now() - started,
+    });
+  });
+
+  next();   // forget this line and every request hangs forever
+}
+
+app.use(requestLogger);              // everything
+app.use('/api/v1/admin', requireAdmin);   // only this prefix
+router.get('/:id', requireAuth, getProject);   // only this route</code></pre></div>
+<p><strong>The order they are registered is the order they run</strong>, and the stack in this product’s <code>app.ts</code> is a good reading of what a real one looks like: </p>
+<div class="table-wrap"><table><thead><tr><th>#</th><th>Middleware</th><th>Why it is there, and why in that position</th></tr></thead><tbody><tr><td>1</td><td><code>helmet()</code></td><td>Security headers on every response, including the error ones. First, so nothing can answer without them.</td></tr>
+<tr><td>2</td><td><code>cors(...)</code></td><td>Decides which other origins may call this API. Before anything expensive, because a rejected origin should cost nothing.</td></tr>
+<tr><td>3</td><td><code>express.json({ limit })</code></td><td>Parses the body — and caps its size, so a huge payload cannot exhaust memory.</td></tr>
+<tr><td>4</td><td><code>compression()</code></td><td>Shrinks responses on the way out.</td></tr>
+<tr><td>5</td><td><code>rateLimitMiddleware</code></td><td>Counts requests per caller and refuses the ones over the line.</td></tr>
+<tr><td>6</td><td>The routes</td><td>The actual work.</td></tr>
+<tr><td>7</td><td>The 404 handler</td><td>Nothing matched, so say so — a request must always get an answer.</td></tr>
+<tr><td>8</td><td>The error handler</td><td><span>Last, always. It only sees what the layers above passed to <code>next(error)</code>.</span></td></tr></tbody></table></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="input">Reading and validating input</h2>
+<p> Input arrives in four places and every one of them is written by whoever is calling you: </p>
+<div class="table-wrap"><table><thead><tr><th>Where</th><th>Reached by</th><th>Notes</th></tr></thead><tbody><tr><td>Path</td><td><code>req.params.id</code></td><td>From the pattern — /projects/:id.</td></tr>
+<tr><td>Query string</td><td><code>req.query.page</code></td><td>Always strings, and can arrive as arrays if repeated. Convert deliberately.</td></tr>
+<tr><td>Body</td><td><code>req.body</code></td><td><span>Undefined unless a parser like <code>express.json()</code> ran.</span></td></tr>
+<tr><td>Headers &amp; cookies</td><td><code>req.headers.authorization</code></td><td>Header names are lower-cased for you.</td></tr></tbody></table></div>
+<p> Validate before you use any of it, at the edge, in one place — not scattered through the handler as a series of <code>if</code> statements that each forgot a case. </p>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; trusting the caller</div><pre><code>router.patch('/:id', async (req, res) =&gt; {
+  // Whatever was sent goes straight into the row —
+  // including "role": "ADMIN" and "credits": 999999.
+  const user = await db.user.update({
+    where: { id: req.params.id },
+    data: req.body,
+  });
+  res.json(user);
+});</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; accept only what you meant</div><pre><code>router.patch('/:id', async (req, res) =&gt; {
+  const { name, email } = req.body;
+
+  if (typeof name !== 'string' || name.trim().length === 0) {
+    return res.status(400).json({ error: 'name is required' });
+  }
+
+  const user = await db.user.update({
+    where: { id: req.params.id },
+    data: { name: name.trim(), email },   // an explicit list of fields
+  });
+  res.json(user);
+});</code></pre></div>
+</div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Mass assignment</strong> — the left-hand version above — is one of the most reliably exploitable bugs in any API. The caller does not need a form; they need one extra key in a JSON body. Name the fields you accept, every time. </div></div>
+<p> Pagination belongs in this section too, because an endpoint that returns everything is fine for the first year and then is not. Take <code>page</code> and <code>limit</code>, clamp the limit to something sane, and return the total so the caller can draw the controls. </p>
+
+</section>
+
+<section class="note-section">
+<h2 id="auth">Authentication and authorisation</h2>
+<figure class="figure is-flow" id="flow-1">
+<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Signing in, then staying signed in</span>
+  <button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button>
+</div>
+<div class="figure-stage"><ol class="flow flow-column"><li class="flow-step dg-step" data-tone="plain" style="--i:0">
+  <span class="flow-num">1</span>
+  <div class="flow-text">
+    <span class="flow-label">Sign in</span>
+    <span class="flow-detail">Email and password arrive once, over HTTPS.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:1">
+  <span class="flow-num">2</span>
+  <div class="flow-text">
+    <span class="flow-label">Verify the hash</span>
+    <span class="flow-detail">The stored value is a hash, never the password itself.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:2">
+  <span class="flow-num">3</span>
+  <div class="flow-text">
+    <span class="flow-label">Issue a token</span>
+    <span class="flow-detail">Signed with the server key, carrying the user id and an expiry.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:3">
+  <span class="flow-num">4</span>
+  <div class="flow-text">
+    <span class="flow-label">Client stores it</span>
+    <span class="flow-detail">And sends it as Authorization: Bearer on every later request.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:4">
+  <span class="flow-num">5</span>
+  <div class="flow-text">
+    <span class="flow-label">Verify per request</span>
+    <span class="flow-detail">Signature, expiry — then re-read the account from the database.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:5">
+  <span class="flow-num">6</span>
+  <div class="flow-text">
+    <span class="flow-label">Authorise</span>
+    <span class="flow-detail">Is this person allowed to touch this record? A separate question, every time.</span>
+  </div>
+</li></ol></div>
+</figure>
+<p> Two different questions, and confusing them is how access-control bugs get written. <strong>Authentication</strong> is “who are you”. <strong>Authorisation</strong> is “are you allowed to do this”. Signing in proves the first and settles nothing about the second. </p>
+<p> The usual mechanism is a <strong>JWT</strong>: a signed token the server hands out at sign-in and the client sends back on every request. Signed, not encrypted — anybody can read what is in it; nobody can change it without the secret. </p>
+<div class="code-block"><div class="code-head"><span class="lang">json</span>Auth middleware, close to this product's</div><pre><code>export const authMiddleware = async (req, res, next) =&gt; {
+  const header = req.headers.authorization;
+  if (!header?.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Not signed in' });
+  }
+
+  try {
+    const decoded = jwt.verify(header.slice(7), process.env.JWT_SECRET);
+
+    // The database decides, not the token. A suspended or deleted account
+    // must stop working immediately, not when its token happens to expire.
+    const user = await db.user.findUnique({ where: { id: decoded.userId } });
+    if (!user || !user.isActive) {
+      return res.status(401).json({ error: 'Not signed in' });
+    }
+
+    req.user = { userId: user.id, role: user.role };
+    next();
+  } catch {
+    return res.status(401).json({ error: 'Not signed in' });
+  }
+};</code></pre></div>
+<p>Four rules are doing the real work there:</p>
+<ol><li><strong>Never trust a claim inside the token for authorisation.</strong> A token saying <code>role: admin</code> means the account was an admin when it was issued. Re-read the role from the database, which is what this product does. </li><li><strong>Every failure returns the same message.</strong> “No such account” versus “wrong password” tells someone probing which half they got right. </li><li><strong>Check ownership on every record, not just identity.</strong> Being signed in does not make project <code>abc</code> yours — the query has to be scoped to the caller. </li><li><strong>The server is the boundary.</strong> Hiding a button in the frontend is courtesy; the endpoint behind it is the control. </li></ol>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; authenticated, but not authorised</div><pre><code>router.get('/:id', requireAuth, async (req, res) =&gt; {
+  // Signed in, so... here is any project at all.
+  const project = await db.project.findUnique({
+    where: { id: req.params.id },
+  });
+  res.json(project);
+});</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; scoped to the caller</div><pre><code>router.get('/:id', requireAuth, async (req, res) =&gt; {
+  const project = await db.project.findFirst({
+    where: { id: req.params.id, userId: req.user.userId },
+  });
+  if (!project) return res.status(404).json({ error: 'Not found' });
+  res.json(project);
+});</code></pre></div>
+</div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Answering <strong>404 rather than 403</strong> for somebody else’s record is deliberate: a 403 confirms the record exists, which is itself information. Same reason the sign-in errors above are identical. </div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="errors">Error handling</h2>
+<details class="selfcheck"><summary><span class="sc-q">An endpoint returns nothing at all — no response, no error in the logs — and the caller eventually times out. Where do you look first?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Two candidates, and both are in this note. Either a middleware neither responded nor called <code>next()</code>, so the request is parked on the conveyor belt; or an async handler threw without a wrapper, so the rejection went nowhere Express looks. Both produce exactly this silence, which is why <code>asyncHandler</code> exists. </p>
+</div></details>
+<p> An error handler is middleware with <strong>four</strong> arguments. That extra argument is not decoration — it is how Express recognises the function as an error handler at all, so removing an unused <code>next</code> silently turns it back into ordinary middleware. </p>
+<div class="code-block"><div class="code-head"><span class="lang">json</span>One handler, registered last</div><pre><code>export const errorHandler = (error, req, res, next) =&gt; {
+  if (error instanceof ApiError) {
+    return res.status(error.status).json({ error: error.message, code: error.code });
+  }
+
+  logger.error({ error, path: req.originalUrl }, 'unhandled error');
+
+  // Never send a stack trace to a caller: it names your files, your
+  // libraries and their versions.
+  res.status(500).json({ error: 'Something went wrong' });
+};
+
+app.use(errorHandler);   // after every route
+</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Express 4 does not catch errors thrown in async handlers.</strong> An <code>await</code> that rejects produces a rejected promise Express never looks at: no response, no log, a hung request. Either wrap every async handler, or use Express 5, where this was finally fixed. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">json</span>The wrapper this backend uses</div><pre><code>export const asyncHandler = (fn) =&gt; (req, res, next) =&gt; {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+// Now a throw anywhere inside reaches the error handler:
+router.get('/:id', asyncHandler(async (req, res) =&gt; {
+  const project = await db.project.findUnique({ where: { id: req.params.id } });
+  if (!project) throw new ApiError(404, 'Project not found');
+  res.json(project);
+}));</code></pre></div>
+<p> With that in place, handlers stop being defensive: they describe the happy path and throw when reality disagrees. One place decides what an error looks like on the wire, so the shape is consistent and the frontend can rely on it. </p>
+
+</section>
+
+<section class="note-section">
+<h2 id="security">Hardening an Express app</h2>
+<div class="table-wrap"><table><thead><tr><th>Concern</th><th>Answer</th><th>What goes wrong without it</th></tr></thead><tbody><tr><td><span><strong>CORS</strong></span></td><td><code>cors({ origin: [...] })</code></td><td>Either any website can call your API with a visitor’s cookies, or — set too tightly — your own frontend is blocked and the error names none of that.</td></tr>
+<tr><td><span><strong>Headers</strong></span></td><td><code>helmet()</code></td><td>Clickjacking, MIME sniffing, referrer leakage. One line covers a dozen of these.</td></tr>
+<tr><td><span><strong>Rate limits</strong></span></td><td>Per-IP and per-account counters</td><td>Passwords get brute-forced, password-reset emails get used as a spam cannon, one caller monopolises the server.</td></tr>
+<tr><td><span><strong>Body size</strong></span></td><td><code>express.json({ limit })</code></td><td>A single large request exhausts memory.</td></tr>
+<tr><td><span><strong>SQL injection</strong></span></td><td>Parameterised queries, or an ORM</td><td>Text from a form becomes part of a query and reads the whole database.</td></tr>
+<tr><td><span><strong>Secrets</strong></span></td><td>Environment variables</td><td>A signing key in the repository is public forever.</td></tr>
+<tr><td><span><strong>HTTPS</strong></span></td><td>Terminated at the platform</td><td>Tokens and passwords travel readable on any network they cross.</td></tr></tbody></table></div>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">A real bug this ordering prevents</span></div><div class="example-body"><p> Suppose the rate limiter is registered <i>after</i> the routes. Every request now runs the route first, so a flood of sign-in attempts reaches the database and the password hashing before anything counts them — and password hashing is deliberately expensive. The limiter still returns 429 afterwards, and the server has already done all the work. </p>
+<p> The limit has to sit in front of the cost it is protecting. That is the whole reason the stack has an order rather than a list. </p>
+</div></div>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">Why rate limiting is not optional on sign-in</span></div><div class="example-body"><p> An unlimited login endpoint can be tried a thousand times a second. Common passwords number in the hundreds, so it is arithmetic rather than skill. A limit of a handful of attempts per minute per address turns an afternoon into several years and costs an honest user nothing — they mistype twice, not forty times. </p>
+<p> The same reasoning covers password reset, invitation acceptance and email verification: any endpoint that sends a message or checks a secret. </p>
+</div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="design">Designing the API</h2>
+<div class="card-grid cols-2"><div class="card"><div class="card-title key-term">Idempotent</div><p>Running it twice is the same as once. GET, PUT and DELETE should be; POST usually is not, which is why double-clicks create two of things.</p></div><div class="card"><div class="card-title key-term">Stateless</div><p>The server keeps no per-caller memory between requests. Everything needed arrives with the request.</p></div><div class="card"><div class="card-title key-term">Versioning</div><p>A prefix like /api/v1 so a breaking change can ship beside the old one instead of instead of it.</p></div><div class="card"><div class="card-title key-term">One error shape</div><p>Every failure looks the same on the wire, so the frontend has one thing to handle.</p></div></div>
+<p><strong>REST</strong> is a convention: the path names a thing, the method says what to do with it. Following it means a new endpoint is guessable rather than documented. </p>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>Nouns in the path, verbs in the method</div><pre><code>GET    /api/v1/projects            list
+POST   /api/v1/projects            create
+GET    /api/v1/projects/:id        read one
+PATCH  /api/v1/projects/:id        change some fields
+PUT    /api/v1/projects/:id        replace
+DELETE /api/v1/projects/:id        remove
+
+GET    /api/v1/projects/:id/versions      a sub-resource
+
+# Not this — the verb belongs in the method:
+POST   /api/v1/getProjectById
+POST   /api/v1/deleteProject</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>Status</th><th>Means</th><th>Use for</th></tr></thead><tbody><tr><td>200 / 201 / 204</td><td>It worked</td><td>201 when something was created, 204 when there is nothing to return</td></tr>
+<tr><td>400</td><td>The request is malformed</td><td>Missing or invalid fields</td></tr>
+<tr><td>401</td><td>Not signed in</td><td>Missing, expired or invalid token</td></tr>
+<tr><td>403</td><td>Signed in, not allowed</td><td><span>Only where the caller may know the thing exists — otherwise 404</span></td></tr>
+<tr><td>404</td><td>No such thing</td><td>Also: a record that is not yours</td></tr>
+<tr><td>409</td><td>Conflict</td><td>An email already registered; an edit against a stale version</td></tr>
+<tr><td>422</td><td>Understood, but unprocessable</td><td>Semantic validation failures, where 400 feels too blunt</td></tr>
+<tr><td>429</td><td>Too many requests</td><td>Rate limit hit</td></tr>
+<tr><td>500</td><td>We broke</td><td>Never for a bad request — that is the caller’s 400</td></tr></tbody></table></div>
+<p> Two more conventions worth adopting early: <strong>version the API</strong> in the path — this one is at <code>/api/v1</code> — so a breaking change can ship alongside the old one rather than instead of it; and keep <strong>one error shape</strong> everywhere, so the frontend has a single thing to handle. </p>
+
+</section>
+
+<section class="note-section">
+<h2 id="testing">Testing and debugging</h2>
+<p> An HTTP API is unusually pleasant to test, because a test is just a request and an assertion about the answer. <code>curl</code> is enough to start. </p>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>Poking at it by hand</div><pre><code>curl http://localhost:5000/api/v1/health
+
+curl -X POST http://localhost:5000/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"a@b.com","password":"secret"}'
+
+curl http://localhost:5000/api/v1/projects \
+  -H 'Authorization: Bearer eyJhbGciOi...'
+
+# -i to see the status and headers; -v when you need the whole conversation.</code></pre></div>
+<ul><li><strong>A request hangs forever</strong> — some middleware neither responded nor called <code>next()</code>, or an async handler threw without a wrapper. </li><li><strong>“Cannot set headers after they are sent”</strong> — two responses. Look for a missing <code>return</code>. </li><li><strong><code>req.body</code> is undefined</strong> — no body parser, or the caller did not send <code>Content-Type: application/json</code>. </li><li><strong>A CORS error in the browser, but curl works</strong> — the browser is enforcing something curl does not. It is a configuration problem on the server, never a frontend one. </li><li><strong>The wrong handler runs</strong> — route order; a parameterised path is shadowing a literal one. </li></ul>
+
+</section>
+
+<section class="note-section">
+<h2 id="here">Express in this product</h2>
+<ul><li><code>backend/src/app.ts</code> — the middleware stack in the table above, with the reasoning for each layer written next to it. </li><li><code>backend/src/middleware/auth.ts</code> — <code>authMiddleware</code>, <code>optionalAuthMiddleware</code> and <code>adminMiddleware</code>, including the re-read of the role from the database. </li><li><code>backend/src/middleware/errorHandler.ts</code> — <code>ApiError</code>, <code>asyncHandler</code> and the single handler at the end of the chain. </li><li><code>backend/src/routes/</code> — one file per resource. Start with <code>auth.ts</code>, then <code>projects.ts</code>. </li></ul>
+<div class="callout is-note is-practice"><span class="callout-icon">&#9654;</span><div class="callout-body"><div class="callout-title">Practice</div><ol><li> Write a twenty-line Express server with a <code>GET /hello</code> that answers with JSON. Call it with curl. </li><li> Add a middleware that logs the method, path and duration of every request — and once it works, delete its <code>next()</code> and watch the request hang. That is the shape of a real outage. </li><li> Add <code>POST /echo</code> that returns the body. Call it without <code>express.json()</code> registered and see <code>undefined</code>; add the parser and see it work. </li><li> Throw an error inside an async handler with no wrapper, and confirm nothing comes back. Then add <code>asyncHandler</code> and see the 500 arrive properly. </li></ol>
+</div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>One response per request — no more, and never none.</li><li>Middleware runs in registration order; the error handler is last and takes four arguments.</li><li>Name the fields you accept instead of spreading the body into a row.</li><li>Authentication is not authorisation: scope every query to the caller.</li><li>Wrap async handlers on Express 4, or errors vanish silently.</li></ul></div>
+
+</section>

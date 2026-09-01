@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Garvit's Notes — the stack, and the AI track</title>
+<meta name="description" content="Plain-language notes on the stack I build on, and on LLMs, RAG, agents, MCP, evals, security and governance.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){try{var t=localStorage.getItem('gn-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="">
+<header class="site-header">
+  <button class="icon-btn" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <a class="brand" href="index.html"><span class="brand-mark">GN</span><span>Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search notes&hellip;  /" autocomplete="off" aria-label="Search notes">
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="Notes"></nav>
+  <main class="main"><div class="content">
+<section class="hero">
+  <span class="eyebrow">The stack I build on, and the one I am building toward</span>
+  <h1>Garvit&rsquo;s Notes</h1>
+  <p class="lede">Notes on the technologies behind the products I ship, and on the AI systems I am learning to build &mdash; written in plain language first, then a real example, then the features and the mistakes that actually matter.</p>
+  <div class="hero-stats">
+    <div><div class="stat-num">14</div><div class="stat-label">notes</div></div>
+    <div><div class="stat-num">9h</div><div class="stat-label">of reading</div></div>
+    <div><div class="stat-num">129</div><div class="stat-label">sections</div></div>
+  </div>
+</section>
+
+<h2 id="how-to-read">How to read these</h2>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">In order, if you are starting out</div><p>Notes 01&ndash;05 walk up the diagram below. Each assumes the one before it and nothing else.</p></div>
+  <div class="card"><div class="card-title">Type the examples out</div><p>Every snippet is short on purpose and runs on its own. Reading code teaches you to recognise it; typing it teaches you to write it.</p></div>
+  <div class="card"><div class="card-title">Answer before you open</div><p>Each note has collapsed self-checks. Committing to an answer first is the difference between recognising an idea and knowing it.</p></div>
+  <div class="card"><div class="card-title">Then read the real codebase</div><p>Each note ends by naming the files that do what it just described, so the second example you see is always a real one.</p></div>
+</div>
+
+<h2 id="the-stack">Part one &mdash; the stack</h2>
+<p>How one request crosses four systems, and what each of them is responsible for.</p>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">Where each note sits in the path a request takes</span></div><div class="figure-stage"><pre class="ascii-art">  somebody's browser
+        |
+        |  1. asks for a page
+        v
+  +-------------------------------+
+  |  Next.js  (React inside it)   |   what the visitor sees and clicks
+  +-------------------------------+
+        |
+        |  2. asks for data over HTTP
+        v
+  +-------------------------------+
+  |  Express  (Node.js under it)  |   rules, permissions, answers
+  +-------------------------------+
+        |
+        |  3. reads and writes rows
+        v
+  +-------------------------------+
+  |  PostgreSQL (Prisma on top)   |   the memory: what is still true tomorrow
+  +-------------------------------+</pre></div></figure>
+<div class="card-grid cols-2">
+<a class="card path-card" href="notes/react.html">
+  <div class="card-kicker">Note 01 &middot; 30 min</div>
+  <div class="card-title">React</div>
+  <p>How a screen is built out of small pieces that redraw themselves when the data changes.</p>
+  <div class="tag-row"><span class="tag">11 sections</span><span class="tag">No experience needed</span></div>
+</a>
+<a class="card path-card" href="notes/nextjs.html">
+  <div class="card-kicker">Note 02 &middot; 30 min</div>
+  <div class="card-title">Next.js</div>
+  <p>The framework around React: routing by folder, rendering on the server, and shipping less JavaScript.</p>
+  <div class="tag-row"><span class="tag">12 sections</span><span class="tag">Some experience helps</span></div>
+</a>
+<a class="card path-card" href="notes/nodejs.html">
+  <div class="card-kicker">Note 03 &middot; 35 min</div>
+  <div class="card-title">Node.js</div>
+  <p>JavaScript outside the browser, and the one idea — never wait, never block — the whole thing is built on.</p>
+  <div class="tag-row"><span class="tag">11 sections</span><span class="tag">No experience needed</span></div>
+</a>
+<a class="card path-card" href="notes/express.html">
+  <div class="card-kicker">Note 04 &middot; 35 min</div>
+  <div class="card-title">Express</div>
+  <p>Turning an HTTP request into an answer: routes, middleware, authentication and error handling.</p>
+  <div class="tag-row"><span class="tag">11 sections</span><span class="tag">Some experience helps</span></div>
+</a>
+<a class="card path-card" href="notes/postgresql.html">
+  <div class="card-kicker">Note 05 &middot; 40 min</div>
+  <div class="card-title">PostgreSQL &amp; Prisma</div>
+  <p>Where the data actually lives: tables, relations, SQL, indexes, transactions and migrations.</p>
+  <div class="tag-row"><span class="tag">11 sections</span><span class="tag">No experience needed</span></div>
+</a>
+</div>
+
+<h2 id="the-ai-track">Part two &mdash; the AI track</h2>
+<p>What a model is, how to give it your knowledge and your tools, how to prove it works, and how it gets attacked. Note 06 stands alone and can be read first.</p>
+<div class="card-grid cols-2">
+<a class="card path-card" href="notes/ai.html">
+  <div class="card-kicker">Note 06 &middot; 100 min</div>
+  <div class="card-title">AI, Models, RAG &amp; Security</div>
+  <p>What a language model is, how to give it your own knowledge, how to ship it, and how it gets attacked.</p>
+  <div class="tag-row"><span class="tag">24 sections</span><span class="tag">No experience needed</span></div>
+</a>
+<a class="card path-card" href="notes/agents.html">
+  <div class="card-kicker">Note 07 &middot; 45 min</div>
+  <div class="card-title">Agents &amp; Workflows</div>
+  <p>The loop where the model decides what to do next — when that is the right answer, when a plain workflow beats it, and how to keep one on a leash.</p>
+  <div class="tag-row"><span class="tag">10 sections</span><span class="tag">Some experience helps</span></div>
+</a>
+<a class="card path-card" href="notes/mcp.html">
+  <div class="card-kicker">Note 08 &middot; 35 min</div>
+  <div class="card-title">MCP — Model Context Protocol</div>
+  <p>The plug shape that lets any model use any tool: write the integration once, and every host that speaks the protocol can use it.</p>
+  <div class="tag-row"><span class="tag">9 sections</span><span class="tag">Some experience helps</span></div>
+</a>
+<a class="card path-card" href="notes/skills-artifacts.html">
+  <div class="card-kicker">Note 09 &middot; 25 min</div>
+  <div class="card-title">Skills &amp; Artifacts</div>
+  <p>Four different ways to extend a model, and how to tell which one your problem actually needs.</p>
+  <div class="tag-row"><span class="tag">4 sections</span><span class="tag">No experience needed</span></div>
+</a>
+<a class="card path-card" href="notes/model-landscape.html">
+  <div class="card-kicker">Note 10 &middot; 25 min</div>
+  <div class="card-title">The Model Landscape</div>
+  <p>Claude, OpenAI, Gemini, Copilot and the open-weight world — what actually differs, without a horse race or a price list.</p>
+  <div class="tag-row"><span class="tag">5 sections</span><span class="tag">No experience needed</span></div>
+</a>
+<a class="card path-card" href="notes/evals.html">
+  <div class="card-kicker">Note 11 &middot; 35 min</div>
+  <div class="card-title">Evaluating AI Systems</div>
+  <p>The only way to know whether a change made things better. Without it, every prompt edit is a gamble.</p>
+  <div class="tag-row"><span class="tag">5 sections</span><span class="tag">Some experience helps</span></div>
+</a>
+<a class="card path-card" href="notes/ai-security.html">
+  <div class="card-kicker">Note 12 &middot; 35 min</div>
+  <div class="card-title">AI Security</div>
+  <p>Prompt injection has no complete fix. What that means for how you design, rather than how you word things.</p>
+  <div class="tag-row"><span class="tag">5 sections</span><span class="tag">Some experience helps</span></div>
+</a>
+<a class="card path-card" href="notes/governance.html">
+  <div class="card-kicker">Note 13 &middot; 30 min</div>
+  <div class="card-title">AI Governance</div>
+  <p>Risk tiers, the frameworks by name, and the one page per feature that answers most of what anyone will ask.</p>
+  <div class="tag-row"><span class="tag">5 sections</span><span class="tag">No experience needed</span></div>
+</a>
+</div>
+
+<h2 id="whats-next">Part three &mdash; where this goes</h2>
+<p>The honest version of what to learn after this, in what order, and how to tell you have actually learned it.</p>
+<div class="card-grid cols-2">
+<a class="card path-card" href="notes/roadmap.html">
+  <div class="card-kicker">Note 14 &middot; 25 min</div>
+  <div class="card-title">What to Learn Next</div>
+  <p>Where you are now, the four stages that take you further, and how to tell you have actually learned it rather than just read it.</p>
+  <div class="tag-row"><span class="tag">6 sections</span><span class="tag">No experience needed</span></div>
+</a>
+</div>
+</div></main>
+  
+</div>
+<script src="assets/js/site-data.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

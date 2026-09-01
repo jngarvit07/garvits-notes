@@ -1,0 +1,393 @@
+<section class="note-section">
+<h2 id="what">What a relational database is</h2>
+<p> Everything else in this stack forgets. Restart the server and its memory is empty; close the browser tab and the screen is gone. The database is the part that remembers, and it is the only part where a mistake cannot be fixed by deploying again. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A spreadsheet with rules that are actually enforced. Each sheet is a table with named columns; each row is one thing. The difference from a real spreadsheet is that the database refuses to accept a row that breaks its rules — you cannot type “maybe” into a date column, and you cannot delete a customer who still has orders. </div></div>
+<p><strong>Relational</strong> means rows point at other rows instead of repeating them. A project stores the id of its owner, not a copy of the owner’s name and email — so changing an email changes it everywhere at once, because there was only ever one copy. </p>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>Two tables, one link</div><pre><code>users
+  id      email             name
+  u_1     ada@example.com   Ada
+  u_2     lin@example.com   Lin
+
+projects
+  id      name          user_id     &lt;- points at users.id
+  p_1     Portfolio     u_1
+  p_2     Cafe menu     u_1
+  p_3     Wedding       u_2</code></pre></div>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">This product's core tables, and how they point at each other</span></div><div class="figure-stage"><pre class="ascii-art">   User ---------------&lt; Project ---------------&lt; PublishJob
+    |   1            many     |   1          many
+    |                         |
+    |  1                      |  many
+    v                         v
+  UserSite                ProjectAsset &gt;------- Asset
+  (at most one                                (an upload)
+   per user)
+
+   ---&lt;   means "one on the left, many on the right"
+   Every "many" side stores the id of the "one" side.
+   Delete rules travel along these lines: removing a user
+   cascades to their projects, and on to those projects' jobs.</pre></div></figure>
+<p> PostgreSQL is one particular relational database: free, extremely reliable, and unusually rich — JSON, full-text search, geographic data and vector search all live inside it, which means a lot of separate services never need to be added. </p>
+
+</section>
+
+<section class="note-section">
+<h2 id="tables">Tables, keys and constraints</h2>
+<p> A table is defined by its columns, each with a <strong>type</strong> that decides what may be stored and what may be done with it. Types are not paperwork: a date stored as text cannot be compared or sorted correctly, and finding that out later means rewriting every row. </p>
+<div class="table-wrap"><table><thead><tr><th>Type</th><th>For</th><th>Note</th></tr></thead><tbody><tr><td><code>text</code></td><td>Any string</td><td>In Postgres there is no speed penalty over varchar(n). Use text.</td></tr>
+<tr><td><code>integer</code></td><td>Whole numbers</td><td>Counts, ages.</td></tr>
+<tr><td><code>numeric</code></td><td>Money, exact decimals</td><td><span>Never use a float for money — <code>0.1 + 0.2</code> is famously not <code>0.3</code>.</span></td></tr>
+<tr><td><code>boolean</code></td><td>True or false</td><td>And null, unless you forbid it.</td></tr>
+<tr><td><code>timestamptz</code></td><td>A moment in time</td><td>Always the "tz" version. A timestamp without a zone is a number nobody can interpret.</td></tr>
+<tr><td><code>uuid</code></td><td>Identifiers</td><td>Unguessable, and generatable without asking the database.</td></tr>
+<tr><td><code>jsonb</code></td><td>Structured data with no fixed shape</td><td>Indexable and queryable, unlike plain json.</td></tr>
+<tr><td><code>enum</code></td><td>A fixed set of values</td><td><span>This product’s <code>Role</code> is one: USER or ADMIN, and nothing else is representable.</span></td></tr></tbody></table></div>
+<p><strong>Constraints</strong> are the rules. They are the reason a database is trustworthy, and every one of them is a bug class that becomes impossible: </p>
+<div class="code-block"><div class="code-head"><span class="lang">sql</span>A table with its rules</div><pre><code>CREATE TABLE projects (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name        text NOT NULL,
+  slug        text NOT NULL,
+  is_public   boolean NOT NULL DEFAULT false,
+  created_at  timestamptz NOT NULL DEFAULT now(),
+
+  UNIQUE (user_id, slug),                    -- unique per owner, not globally
+  CHECK (char_length(name) BETWEEN 1 AND 120)
+);</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>Constraint</th><th>Prevents</th></tr></thead><tbody><tr><td><code>PRIMARY KEY</code></td><td>Two rows you cannot tell apart. Every table needs one.</td></tr>
+<tr><td><code>NOT NULL</code></td><td>A missing value where the code will assume one exists.</td></tr>
+<tr><td><code>UNIQUE</code></td><td>Two accounts with the same email — the classic duplicate-signup bug.</td></tr>
+<tr><td><code>REFERENCES</code></td><td>A project owned by a user id that does not exist. This is the "foreign key".</td></tr>
+<tr><td><code>CHECK</code></td><td>Values that are the right type and still nonsense — a negative price, an empty name.</td></tr>
+<tr><td><code>DEFAULT</code></td><td>Every insert having to remember to set the same thing.</td></tr></tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Enforce it in the database, not only in the application.</strong> Application checks are skipped by an admin script, a data import, a second service, or a bug in one branch of an if-statement. The database check is skipped by nothing. Validate in both places — but if you only get one, this is the one. </div></div>
+<p><code>ON DELETE CASCADE</code> above answers a question every schema must answer: what happens to the children when the parent goes? Cascade deletes them. <code>RESTRICT</code>  refuses to delete the parent. <code>SET NULL</code> orphans them deliberately. Choosing nothing means choosing whatever the default was, and finding out during a deletion. </p>
+
+</section>
+
+<section class="note-section">
+<h2 id="sql">The SQL you will actually write</h2>
+<p> Four statements cover almost everything. SQL reads like a sentence, which is the whole idea behind it. </p>
+<div class="code-block"><div class="code-head"><span class="lang">sql</span>Reading</div><pre><code>SELECT id, email, created_at        -- name the columns; SELECT * in application code
+FROM users                          -- breaks the day somebody adds one
+WHERE is_active = true
+  AND created_at &gt; now() - interval '30 days'
+ORDER BY created_at DESC
+LIMIT 20;
+
+-- Counting and grouping: "how many projects does each user have?"
+SELECT user_id, count(*) AS project_count
+FROM projects
+GROUP BY user_id
+HAVING count(*) &gt; 5                 -- HAVING filters groups; WHERE filters rows
+ORDER BY project_count DESC;</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="lang">sql</span>Writing</div><pre><code>INSERT INTO projects (user_id, name, slug)
+VALUES ('u_1', 'Portfolio', 'portfolio')
+RETURNING id, created_at;           -- Postgres hands back the row it just made
+
+UPDATE projects
+SET name = 'New name', updated_at = now()
+WHERE id = 'p_1';                   -- forget the WHERE and you rename every project
+
+DELETE FROM projects
+WHERE id = 'p_1';</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Run the <code>WHERE</code> as a <code>SELECT</code> first.</strong> An <code>UPDATE</code> or <code>DELETE</code> with a mistaken condition is instant and total. Select with the same condition, look at the count, then change the verb. In production, do it inside a transaction so a wrong number can be rolled back. </div></div>
+<p> Two more worth knowing early. <code>ON CONFLICT</code> is the atomic insert-or-update — the correct way to do “create if missing” without a race between checking and inserting: </p>
+<div class="code-block"><div class="code-head"><span class="lang">sql</span>Upsert</div><pre><code>INSERT INTO settings (key, value)
+VALUES ('theme', 'dark')
+ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;</code></pre></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="relations">Relations and joins</h2>
+<p> Three shapes cover essentially every relationship, and picking the wrong one is a schema problem you feel for years. </p>
+<div class="table-wrap"><table><thead><tr><th>Shape</th><th>Example here</th><th>How it is stored</th></tr></thead><tbody><tr><td>One to many</td><td>A user has many projects</td><td>The child holds the parent id: projects.user_id.</td></tr>
+<tr><td>One to one</td><td>A user has at most one site</td><td>Same, plus a UNIQUE on the foreign key.</td></tr>
+<tr><td>Many to many</td><td>Components belong to many templates</td><td>A third table holding the two ids.</td></tr></tbody></table></div>
+<p> A <strong>join</strong> reads across a relationship — one query, one round trip, instead of a query per row. </p>
+<div class="code-block"><div class="code-head"><span class="lang">sql</span>Joins</div><pre><code>-- Every project, with its owner's email.
+SELECT p.name, u.email
+FROM projects p
+JOIN users u ON u.id = p.user_id;        -- INNER: only rows with a match
+
+-- Every user, and their projects if they have any.
+SELECT u.email, p.name
+FROM users u
+LEFT JOIN projects p ON p.user_id = u.id;  -- keeps users with none; p.name is NULL
+
+-- Users who have never made a project.
+SELECT u.email
+FROM users u
+LEFT JOIN projects p ON p.user_id = u.id
+WHERE p.id IS NULL;</code></pre></div>
+<p> The performance trap here has a name — <strong>the N+1 query</strong> — and it is the single most common cause of a page that is fine in development and unusable with real data. </p>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; 1 + 100 queries</div><pre><code>const projects = await db.project.findMany();
+
+for (const project of projects) {
+  // One database round trip per project.
+  project.owner = await db.user.findUnique({
+    where: { id: project.userId },
+  });
+}</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; 1 query</div><pre><code>const projects = await db.project.findMany({
+  include: { user: true },
+});
+
+// Prisma fetches the related rows together
+// instead of once per project.</code></pre></div>
+</div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> It hides well: with ten test rows the loop version is imperceptibly slower. With ten thousand rows it is thousands of round trips, and the fix is one word. Any loop containing an <code>await</code> on the database deserves a second look. </div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="indexes">Indexes: why queries are fast or slow</h2>
+<figure class="figure is-flow" id="flow-1">
+<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">What the database does with your query</span>
+  <button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button>
+</div>
+<div class="figure-stage"><ol class="flow flow-column"><li class="flow-step dg-step" data-tone="plain" style="--i:0">
+  <span class="flow-num">1</span>
+  <div class="flow-text">
+    <span class="flow-label">Parse</span>
+    <span class="flow-detail">Is this valid SQL, and do these tables and columns exist?</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:1">
+  <span class="flow-num">2</span>
+  <div class="flow-text">
+    <span class="flow-label">Plan</span>
+    <span class="flow-detail">Which indexes exist, how big is each table, which order of joins is cheapest?</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:2">
+  <span class="flow-num">3</span>
+  <div class="flow-text">
+    <span class="flow-label">Execute</span>
+    <span class="flow-detail">Read rows — through an index if the plan found one usable, otherwise all of them.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:3">
+  <span class="flow-num">4</span>
+  <div class="flow-text">
+    <span class="flow-label">Return</span>
+    <span class="flow-detail">Send the rows back. EXPLAIN ANALYZE shows every step above with real timings.</span>
+  </div>
+</li></ol></div>
+</figure>
+<p> Without an index, answering “which user has this email” means reading every row. An index is a sorted structure the database maintains so it can jump straight there. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The index at the back of a book. Finding every mention of a word without one means reading the book. The index makes the lookup instant, costs some pages, and has to be reprinted whenever the book changes — which is exactly the trade-off, including the cost. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">sql</span>Adding one, and proving it helps</div><pre><code>CREATE INDEX idx_projects_user_id ON projects (user_id);
+
+-- Ask Postgres what it will actually do:
+EXPLAIN ANALYZE SELECT * FROM projects WHERE user_id = 'u_1';
+
+-- "Seq Scan on projects"     -&gt; reading every row. No usable index.
+-- "Index Scan using idx_..." -&gt; the index is being used.</code></pre></div>
+<ul><li><strong>Index what you filter, join and sort on.</strong> Foreign keys almost always deserve one; Postgres does not create them automatically. </li><li><strong>Do not index everything.</strong> Every index must be updated on every write, so a table with twelve indexes is slow to insert into and expensive to keep. </li><li><strong>Order matters in a composite index.</strong> An index on <code>(user_id, created_at)</code>  helps a query filtering by user and sorting by date; it does not help one that only sorts by date. </li><li><strong><code>UNIQUE</code> creates an index for free.</strong> It has to, to check uniqueness. </li></ul>
+<details class="selfcheck"><summary><span class="sc-q">A query filters on user_id and sorts by created_at. You add an index on (created_at, user_id). Why does it barely help?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Composite indexes are ordered, like a phone book sorted by surname then first name. Sorted by <code>created_at</code> first, the rows for one user are scattered throughout, so the database still has to scan. <code>(user_id, created_at)</code> puts each user’s rows together and already in date order — the filter and the sort are both satisfied by one walk of the index. </p>
+</div></details>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">What a missing index looks like from the outside</span></div><div class="example-body"><p> The admin Users screen loads in 80ms with fifty accounts and takes nine seconds with fifty thousand. Nothing in the code changed. The query filters on a column with no index, so the work grew with the table while the test data did not. </p>
+<p> This is why <code>EXPLAIN ANALYZE</code> is worth learning before you need it: it is the difference between guessing and reading what the database says it did. </p>
+</div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="transactions">Transactions: all of it, or none of it</h2>
+<p> A transaction groups several statements so they either all happen or none do. It is the answer to “what if the server dies halfway through”. </p>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>The canonical example</div><pre><code>BEGIN;
+  UPDATE accounts SET balance = balance - 100 WHERE id = 'a';
+  UPDATE accounts SET balance = balance + 100 WHERE id = 'b';
+COMMIT;      -- both, or ROLLBACK: neither. Money is never in flight.</code></pre></div>
+<p> The guarantees have a well-known acronym, and each letter is a real promise: </p>
+<div class="table-wrap"><table><thead><tr><th></th><th>Means</th></tr></thead><tbody><tr><td>Atomic</td><td>All of the statements, or none. There is no halfway.</td></tr>
+<tr><td>Consistent</td><td>Constraints hold at the end. A transaction cannot leave broken rules behind.</td></tr>
+<tr><td>Isolated</td><td>Concurrent transactions do not see each other’s half-finished work.</td></tr>
+<tr><td>Durable</td><td>Once it commits, it survives the power going out.</td></tr></tbody></table></div>
+<div class="card-grid cols-2"><div class="card"><div class="card-title key-term">Lock</div><p>A claim on a row while you change it. Other transactions touching the same row wait — which is correct, and why long transactions hurt.</p></div><div class="card"><div class="card-title key-term">Deadlock</div><p>Two transactions each holding what the other needs. Postgres kills one; the fix is to touch rows in a consistent order.</p></div><div class="card"><div class="card-title key-term">Race condition</div><p>Check-then-act with a gap. Two requests both see "no row yet" and both insert. Use a UNIQUE constraint or ON CONFLICT rather than checking first.</p></div><div class="card"><div class="card-title key-term">Isolation level</div><p>How much concurrent transactions can see of each other. The default is sensible; raise it only with a reason.</p></div></div>
+<div class="code-block"><div class="code-head"><span class="lang">prisma</span>In Prisma</div><pre><code>await prisma.$transaction(async (tx) =&gt; {
+  const project = await tx.project.create({ data: { name, userId } });
+  await tx.auditLog.create({
+    data: { action: 'project.create', targetId: project.id, userId },
+  });
+  // Throw anywhere in here and both are undone.
+});</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Keep transactions short, and never await a network call inside one.</strong> An open transaction holds locks; other requests touching the same rows queue behind it. Calling an email provider inside a transaction means a slow provider becomes a database-wide stall. Do the database work, commit, then send the email. </div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="postgres">What Postgres gives you beyond plain SQL</h2>
+<div class="table-wrap"><table><thead><tr><th>Feature</th><th>What it is for</th></tr></thead><tbody><tr><td><code>jsonb</code></td><td>Store a whole structure in one column — page content, settings — and still query inside it. This product keeps page structures this way, because their shape is defined by the editor, not by the schema.</td></tr>
+<tr><td><code>arrays</code></td><td>A list in a column: tags, allowed origins. Simpler than a side table when the list is short and never joined against.</td></tr>
+<tr><td><code>enum types</code></td><td>A column that can only ever hold one of a fixed set. Illegal states become unrepresentable rather than merely discouraged.</td></tr>
+<tr><td><code>full-text search</code></td><td>Real search — stemming, ranking, phrases — without adding a separate search service.</td></tr>
+<tr><td><code>generated columns</code></td><td>A column computed from others and kept correct automatically.</td></tr>
+<tr><td><code>pgvector</code></td><td>An extension for storing embeddings and finding nearest neighbours. The foundation of retrieval for AI features — see the AI note.</td></tr>
+<tr><td><code>LISTEN / NOTIFY</code></td><td>Lightweight pub-sub inside the database, for waking a worker when a row changes.</td></tr></tbody></table></div>
+<div class="code-block"><div class="code-head"><span class="lang">sql</span>Querying inside JSON</div><pre><code>-- Rows whose settings say the theme is dark
+SELECT id FROM projects WHERE settings -&gt;&gt; 'theme' = 'dark';
+
+-- Indexed, so it stays fast
+CREATE INDEX idx_projects_settings ON projects USING gin (settings);</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><strong>JSONB is a tool, not a shortcut.</strong> Anything you filter on, join on, or must guarantee the shape of belongs in a column with a type and a constraint. Put a user’s role in JSON and you have a permission system with no rules — the database cannot check what it does not model. </div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="migrations">Changing the schema safely</h2>
+<figure class="figure is-flow" id="flow-2">
+<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Adding a required column to a live table, without downtime</span>
+  <button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button>
+</div>
+<div class="figure-stage"><ol class="flow flow-column"><li class="flow-step dg-step" data-tone="plain" style="--i:0">
+  <span class="flow-num">1</span>
+  <div class="flow-text">
+    <span class="flow-label">Add it nullable</span>
+    <span class="flow-detail">Deploy. Nothing reads it yet, so nothing can break.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:1">
+  <span class="flow-num">2</span>
+  <div class="flow-text">
+    <span class="flow-label">Write to both</span>
+    <span class="flow-detail">New code fills the new column as well as the old one.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:2">
+  <span class="flow-num">3</span>
+  <div class="flow-text">
+    <span class="flow-label">Backfill in batches</span>
+    <span class="flow-detail">Fill existing rows a few thousand at a time, not in one statement that locks the table.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:3">
+  <span class="flow-num">4</span>
+  <div class="flow-text">
+    <span class="flow-label">Add the constraint</span>
+    <span class="flow-detail">Once every row has a value, NOT NULL is instant and safe.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:4">
+  <span class="flow-num">5</span>
+  <div class="flow-text">
+    <span class="flow-label">Stop reading the old one</span>
+    <span class="flow-detail">Deploy again. Only now is the old column unused.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="danger" style="--i:5">
+  <span class="flow-num">6</span>
+  <div class="flow-text">
+    <span class="flow-label">Drop it</span>
+    <span class="flow-detail">A separate, boring migration — and the only irreversible step.</span>
+  </div>
+</li></ol></div>
+</figure>
+<p> The schema changes as the product does, and the change has to reach every environment in the same order. A <strong>migration</strong> is a recorded, versioned step: a file of SQL that has been applied, or has not. </p>
+<div class="code-block"><div class="code-head"><span class="lang">sql</span>The cycle with Prisma</div><pre><code># 1. Edit prisma/schema.prisma — add a field.
+# 2. Generate a migration and apply it to the development database:
+npx prisma migrate dev --name add_project_slug
+
+# 3. It writes prisma/migrations/&lt;timestamp&gt;_add_project_slug/migration.sql
+#    Read that file. It is what will run against real data.
+
+# 4. In production, apply the recorded migrations — never 'migrate dev':
+npx prisma migrate deploy</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Never edit a migration that has already been applied.</strong> Databases record which ones they have run by name; changing an old file means the change never runs anywhere it has already been. Write a new migration instead — always forward, never sideways. </div></div>
+<p> Some changes are safe on a live table and some hold a lock while every row is rewritten. The pattern for the dangerous ones is the same everywhere: <strong>expand, migrate, contract</strong>. </p>
+<ol><li>Add the new column as nullable. Deploy. Nothing breaks — nothing uses it yet.</li><li>Backfill it in batches, and write to both old and new from the application.</li><li>Once every row has a value, add the <code>NOT NULL</code>.</li><li>Only when nothing reads the old column any more, drop it.</li></ol>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><strong>In this product, production migrations are run by hand.</strong> Nothing in the deployment pipeline runs <code>migrate deploy</code> — it is <code>npm run db:prod:status</code> to see what is pending and <code>npm run db:prod:migrate</code> to apply it, both from <code>backend/</code>. Shipping code that expects a column before running the migration is therefore an outage you can cause yourself, and the order — migrate first, then deploy — matters. </div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="prisma">Prisma: the layer this product actually types</h2>
+<p> Prisma is an ORM: you describe your tables once in a schema file, and it generates a typed client. Your editor then knows every model and field, and a typo is a build error instead of a runtime one. </p>
+<div class="code-block"><div class="code-head"><span class="lang">prisma</span>prisma/schema.prisma</div><pre><code>model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  role      Role      @default(USER)
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+
+  projects  Project[]           // the other side of the relation
+
+  @@index([email])
+}
+
+model Project {
+  id       String @id @default(cuid())
+  name     String
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+enum Role {
+  USER
+  ADMIN
+}</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="lang">prisma</span>Querying</div><pre><code>// One row
+const user = await prisma.user.findUnique({ where: { email } });
+
+// A page of rows, with a related record, choosing the fields
+const projects = await prisma.project.findMany({
+  where: { userId, name: { contains: search, mode: 'insensitive' } },
+  select: { id: true, name: true, user: { select: { email: true } } },
+  orderBy: { createdAt: 'desc' },
+  skip: (page - 1) * 20,
+  take: 20,
+});
+
+// Create, update, upsert
+await prisma.project.create({ data: { name, userId } });
+await prisma.project.update({ where: { id }, data: { name } });
+await prisma.project.upsert({
+  where: { id },
+  create: { id, name, userId },
+  update: { name },
+});
+
+// Counting and aggregating
+const total = await prisma.project.count({ where: { userId } });</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>Prisma</th><th>SQL it becomes</th></tr></thead><tbody><tr><td><code>findMany</code></td><td>SELECT ... FROM ... WHERE ...</td></tr>
+<tr><td><code>include</code></td><td>A join, or a second query — Prisma decides. Fetches the whole related row.</td></tr>
+<tr><td><code>select</code></td><td>SELECT with named columns. Prefer it: fetching what you need is faster and leaks less.</td></tr>
+<tr><td><code>skip / take</code></td><td>OFFSET and LIMIT.</td></tr>
+<tr><td><code>$transaction</code></td><td>BEGIN ... COMMIT.</td></tr>
+<tr><td><code>$queryRaw</code></td><td>Raw SQL, for what the client cannot express.</td></tr></tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Raw SQL must still be parameterised.</strong> Prisma’s <code>$queryRaw</code> tagged-template form is safe because the values travel separately from the query text. Building a query by concatenating strings — in any language, with any library — is how SQL injection happens, and it is the one mistake in this note that can hand over the entire database. </div></div>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; string concatenation</div><pre><code>// email = "x'; DROP TABLE users; --"
+const rows = await prisma.$queryRawUnsafe(
+  "SELECT * FROM users WHERE email = '" + email + "'"
+);</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; parameterised</div><pre><code>const rows = await prisma.$queryRaw`
+  SELECT * FROM users WHERE email = ${email}
+`;
+// The value is sent as a parameter, never as query text.</code></pre></div>
+</div>
+
+</section>
+
+<section class="note-section">
+<h2 id="ops">Backups, connections and safety</h2>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">The bug that only appears with real data</span></div><div class="example-body"><p> An admin screen lists every user with their project count. In development, with fifty accounts, it answers instantly. In production it times out — because the code fetched all users, then ran one count query per user. Fifty round trips is nothing; fifty thousand is a page nobody can open. </p>
+<p> The fix is not a faster server. It is one grouped query, or a single Prisma call with the count included. Test on data the shape of production, or discover this on the day you cannot afford to. </p>
+</div></div>
+<ul><li><strong>A backup you have not restored is not a backup.</strong> The failure mode is always the same: backups ran for a year and nobody checked that the file could be read. </li><li><strong>Connections are a limited resource.</strong> Postgres allows a fixed number; each serverless function that opens its own can exhaust them. A pooler sits in front and hands out a shared set — which is why this product’s schema declares both a pooled <code>url</code> and a <code>directUrl</code>, since migrations cannot run through a pooler. </li><li><strong>Least privilege.</strong> The application user does not need to drop tables. A read-only account for analytics costs nothing and removes a whole category of accident. </li><li><strong>Know which database your shell is pointed at.</strong> The most expensive database mistakes are not clever attacks; they are a correct command run against production because the terminal looked the same. </li></ul>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"> This repository has a scar to prove that last point. The Prisma schema names a <code>shadowDatabaseUrl</code> explicitly because leaving it unset means passing a URL on the command line every time — and <code>prisma migrate diff</code> <strong>wipes</strong> whatever it is handed. Passing the real development database there destroyed it once, in August 2026. The comment in <code>prisma/schema.prisma</code> says so, at length, on purpose. </div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="here">The database in this product</h2>
+<ul><li><code>backend/prisma/schema.prisma</code> — every model, heavily commented. Start at <code>User</code> and follow the relations out. </li><li><code>backend/prisma/migrations/</code> — the history of every schema change, in order. </li><li><code>npm run db:studio</code> — a browser view of the development data. The fastest way to understand a schema is to look at real rows in it. </li><li><code>npm run db:prod:status</code> — what is pending in production. Safe: it reads. </li></ul>
+<div class="callout is-note is-practice"><span class="callout-icon">&#9654;</span><div class="callout-body"><div class="callout-title">Practice</div><ol><li> Open <code>db:studio</code>, find your own user row, and follow it to a project. That is a foreign key, in the flesh. </li><li> In <code>psql</code> or a SQL console, write a query that returns each user’s email and their project count, highest first. You will need a <code>LEFT JOIN</code>, <code>GROUP BY</code> and <code>ORDER BY</code>. </li><li> Run <code>EXPLAIN ANALYZE</code> on it. Find whether any step says <code>Seq Scan</code>, and on which table. </li><li> Add a field to a model in the schema, run <code>migrate dev</code>, and read the generated SQL before it runs. Then revert both. </li></ol>
+</div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>The database is the only layer where a mistake is permanent — put the rules in it.</li><li>Constraints prevent bad rows; application checks only discourage them.</li><li>Index what you filter, join and sort on; prove it with EXPLAIN ANALYZE.</li><li>A loop with an await on the database is an N+1 query waiting for real data.</li><li>Migrations only go forward, and in production here they are run by hand, first.</li></ul></div>
+
+</section>

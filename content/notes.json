@@ -1,0 +1,142 @@
+[
+  {
+    "id": "react",
+    "n": "01",
+    "label": "React",
+    "title": "React",
+    "tagline": "How a screen is built out of small pieces that redraw themselves when the data changes.",
+    "description": "How a screen is built out of small pieces that redraw themselves when the data changes. No prior JavaScript framework experience assumed.",
+    "level": "No experience needed",
+    "minutes": 30
+  },
+  {
+    "id": "nextjs",
+    "n": "02",
+    "label": "Next.js",
+    "title": "Next.js",
+    "tagline": "The framework around React: routing by folder, rendering on the server, and shipping less JavaScript.",
+    "description": "The framework around React: routing by folder, rendering on the server, and shipping less JavaScript. Written against Next 14's App Router, which is what this product runs.",
+    "level": "Some experience helps",
+    "minutes": 30
+  },
+  {
+    "id": "nodejs",
+    "n": "03",
+    "label": "Node.js",
+    "title": "Node.js",
+    "tagline": "JavaScript outside the browser, and the one idea \u2014 never wait, never block \u2014 the whole thing is built on.",
+    "description": "JavaScript outside the browser, and the one idea \u2014 never wait, never block \u2014 that the whole thing is built on. Everything on this product's server runs inside it.",
+    "level": "No experience needed",
+    "minutes": 35
+  },
+  {
+    "id": "express",
+    "n": "04",
+    "label": "Express",
+    "title": "Express",
+    "tagline": "Turning an HTTP request into an answer: routes, middleware, authentication and error handling.",
+    "description": "Turning an HTTP request into an answer: routes, middleware, authentication, validation and error handling. This product's entire API is an Express application.",
+    "level": "Some experience helps",
+    "minutes": 35
+  },
+  {
+    "id": "postgresql",
+    "n": "05",
+    "label": "PostgreSQL & Prisma",
+    "title": "PostgreSQL & Prisma",
+    "tagline": "Where the data actually lives: tables, relations, SQL, indexes, transactions and migrations.",
+    "description": "Where the data actually lives: tables, relations, SQL, indexes, transactions and migrations \u2014 and the layer this product uses to talk to them.",
+    "level": "No experience needed",
+    "minutes": 40
+  },
+  {
+    "id": "ai",
+    "n": "06",
+    "label": "AI, RAG & Security",
+    "title": "AI, Models, RAG & Security",
+    "tagline": "What a language model is, how to give it your own knowledge, how to ship it, and how it gets attacked.",
+    "description": "What a language model actually is, how to give it knowledge it was never trained on, and the ways these systems get attacked. Written for somebody deciding what to build, not for somebody training models.",
+    "level": "No experience needed",
+    "minutes": 100
+  },
+  {
+    "id": "agents",
+    "n": "07",
+    "label": "Agents & Workflows",
+    "title": "Agents & Workflows",
+    "tagline": "The loop where the model decides what to do next \u2014 when that is the right answer, when a plain workflow beats it, and how to keep one on a leash.",
+    "description": "The ladder from a single call to a full agent, five workflow patterns worth knowing by name, the agent loop drawn and coded, and a production folder structure you can copy.",
+    "level": "Some experience helps",
+    "minutes": 45
+  },
+  {
+    "id": "mcp",
+    "n": "08",
+    "label": "MCP",
+    "title": "MCP \u2014 Model Context Protocol",
+    "tagline": "The plug shape that lets any model use any tool: write the integration once, and every host that speaks the protocol can use it.",
+    "description": "What MCP is and the N\u00d7M problem it solves, host vs client vs server, tools and resources and prompts, a complete working server, and the security you cannot skip.",
+    "level": "Some experience helps",
+    "minutes": 35
+  },
+  {
+    "id": "skills-artifacts",
+    "n": "09",
+    "label": "Skills & Artifacts",
+    "title": "Skills & Artifacts",
+    "tagline": "Four different ways to extend a model, and how to tell which one your problem actually needs.",
+    "description": "Tools add ability, RAG adds facts, skills add know-how, artifacts give output a home. What each one is, how skills load themselves, and a decision tree that resolves most cases.",
+    "level": "No experience needed",
+    "minutes": 25
+  },
+  {
+    "id": "model-landscape",
+    "n": "10",
+    "label": "The Model Landscape",
+    "title": "The Model Landscape",
+    "tagline": "Claude, OpenAI, Gemini, Copilot and the open-weight world \u2014 what actually differs, without a horse race or a price list.",
+    "description": "Products, models and platforms are three different layers, and most confused comparisons are a layer mix-up. The families, where Copilot fits, and how to choose without benchmarks.",
+    "level": "No experience needed",
+    "minutes": 25
+  },
+  {
+    "id": "evals",
+    "n": "11",
+    "label": "Evaluation",
+    "title": "Evaluating AI Systems",
+    "tagline": "The only way to know whether a change made things better. Without it, every prompt edit is a gamble.",
+    "description": "Building a set of real cases, four kinds of grader and when to use each, making an LLM judge trustworthy, scoring RAG and agents, and wiring the whole thing into CI.",
+    "level": "Some experience helps",
+    "minutes": 35
+  },
+  {
+    "id": "ai-security",
+    "n": "12",
+    "label": "AI Security",
+    "title": "AI Security",
+    "tagline": "Prompt injection has no complete fix. What that means for how you design, rather than how you word things.",
+    "description": "The threat model in one sentence, direct versus indirect injection, the three ingredients that turn a curiosity into an incident, the defences that actually hold, and how to attack your own system.",
+    "level": "Some experience helps",
+    "minutes": 35
+  },
+  {
+    "id": "governance",
+    "n": "13",
+    "label": "AI Governance",
+    "title": "AI Governance",
+    "tagline": "Risk tiers, the frameworks by name, and the one page per feature that answers most of what anyone will ask.",
+    "description": "Why governance lands on the developer, how obligations scale with harm, what the EU AI Act and NIST and GDPR actually want, and a system card that fits on a page.",
+    "level": "No experience needed",
+    "minutes": 30
+  },
+  {
+    "id": "roadmap",
+    "n": "14",
+    "label": "What to Learn Next",
+    "title": "What to Learn Next",
+    "tagline": "Where you are now, the four stages that take you further, and how to tell you have actually learned it rather than just read it.",
+    "description": "A path rather than a syllabus: what to build at each stage, which foundations earn their time, where to specialise, what is genuinely changing, and the checklist that resists self-deception.",
+    "level": "No experience needed",
+    "minutes": 25
+  }
+]

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Governance — Garvit's Notes</title>
+<meta name="description" content="Why governance lands on the developer, how obligations scale with harm, what the EU AI Act and NIST and GDPR actually want, and a system card that fits on a page.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){try{var t=localStorage.getItem('gn-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../">
+<header class="site-header">
+  <button class="icon-btn" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <a class="brand" href="../index.html"><span class="brand-mark">GN</span><span>Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search notes&hellip;  /" autocomplete="off" aria-label="Search notes">
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="Notes"></nav>
+  <main class="main"><article class="content">
+<span class="eyebrow">Note 13</span>
+<h1>AI Governance</h1>
+<p class="lede">Why governance lands on the developer, how obligations scale with harm, what the EU AI Act and NIST and GDPR actually want, and a system card that fits on a page.</p>
+<div class="page-meta">
+  <span>No experience needed</span>
+  <span>30 min read</span>
+  <span>5 sections</span>
+</div>
+<section class="note-section">
+<h2 id="why">Why a developer should care about this</h2>
+<p>Governance sounds like somebody else&rsquo;s job &mdash; legal&rsquo;s, compliance&rsquo;s, a committee&rsquo;s. It arrives as your problem for a simple reason: <strong>the obligations attach to the system, and you are the one who knows what the system does.</strong> Nobody else can tell an auditor what data went into the retrieval index or what the model is allowed to act on.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>Governance is the paperwork that proves you were careful, and the process that makes you actually be careful. Most of it is not a legal question at all &mdash; it is writing down what the system does, what it must not do, who decided that, and how you would know if it stopped being true.</p></div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>The good news: if you have done notes 11 and 12 &mdash; an eval set, a threat model, traces, gates on irreversible actions &mdash; you have already produced most of the evidence any framework asks for. Governance is largely a matter of writing down what you did and keeping it current.</p></div></div>
+</section>
+
+<section class="note-section">
+<h2 id="risk">Risk tiers: the idea behind every framework</h2>
+<p>Regulations differ in detail and agree on the core move: <strong>obligations scale with potential harm, not with technical sophistication.</strong> A model deciding what music to play and a model deciding who gets a loan are treated very differently, however similar the code.</p>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">The shape every framework shares</span></div><div class="figure-stage"><pre class="ascii-art">  UNACCEPTABLE     Banned outright.
+                   Social scoring, manipulation of vulnerable people,
+                   certain biometric surveillance.
+                        |
+  HIGH RISK        Heavy obligations before you may ship.
+                   Employment, credit, education, healthcare, essential
+                   services, law enforcement, critical infrastructure.
+                   -> risk assessment, data governance, documentation,
+                      human oversight, accuracy + robustness testing,
+                      logging, registration.
+                        |
+  LIMITED RISK     Transparency obligations.
+                   Chatbots, emotion recognition, synthetic media.
+                   -> tell people they are dealing with AI;
+                      label generated content.
+                        |
+  MINIMAL RISK     No specific obligations.
+                   Spam filters, recommendations, most internal tooling.
+                   -> ordinary software rules still apply.
+
+  Ask first: what decision does this influence, and about whom?
+  That question — not the model, not the architecture — sets the tier.</pre></div></figure>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>The tier is set by the use case, not the technology.</strong> The same model, the same prompt and the same code can be minimal risk in one product and high risk in another. A CV summariser is a summariser; a CV summariser that ranks candidates influences employment decisions and is a different regulatory object entirely.</p></div></div>
+</section>
+
+<section class="note-section">
+<h2 id="frameworks">The frameworks you will hear named</h2>
+<div class="table-wrap"><table><thead><tr><th>Framework</th><th>What it is</th><th>Applies when</th></tr></thead><tbody>
+<tr><td><strong>EU AI Act</strong></td><td>Binding law with the risk tiers above. Phased in over several years, with real penalties.</td><td>You place a system on the EU market or its output is used in the EU &mdash; regardless of where you are.</td></tr>
+<tr><td><strong>NIST AI RMF</strong></td><td>A voluntary US framework organised around four functions: Govern, Map, Measure, Manage.</td><td>Useful anywhere as a structure. Often what US customers ask you to align with.</td></tr>
+<tr><td><strong>ISO/IEC 42001</strong></td><td>A certifiable management-system standard for AI &mdash; the AI equivalent of ISO 27001.</td><td>Enterprise procurement starts asking once you sell to large organisations.</td></tr>
+<tr><td><strong>GDPR</strong> and similar</td><td>Data protection law. Predates the AI rules and applies fully to them.</td><td>Any personal data anywhere in training, retrieval, prompts or logs. This one probably already applies to you.</td></tr>
+<tr><td><strong>Sector rules</strong></td><td>Financial, medical, legal and employment regulators each have their own requirements.</td><td>Often stricter and more specific than the general AI rules. Check these before the AI-specific ones.</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>This is orientation, not legal advice, and the details move &mdash; the EU AI Act in particular phases obligations in over several years. When a real obligation is in play, the question goes to somebody qualified. What you need is enough to recognise which conversation you are in.</p></div></div>
+<h3>GDPR is the one that catches people first</h3>
+<div class="table-wrap"><table><thead><tr><th>Question</th><th>Where it bites in an AI system</th></tr></thead><tbody>
+<tr><td>What is your lawful basis for this processing?</td><td>Personal data in a retrieval corpus is processing. &ldquo;It was already in our database&rdquo; is not a basis for a new purpose.</td></tr>
+<tr><td>Can you delete one person&rsquo;s data on request?</td><td>Easy in Postgres, harder in a vector index, effectively impossible from a fine-tuned model. Design for this before you fine-tune.</td></tr>
+<tr><td>Where is it processed, and by whom?</td><td>An API call sends data to a provider, possibly across a border. That is a processor relationship needing a contract.</td></tr>
+<tr><td>How long do you keep prompts and outputs?</td><td>Debug logs full of prompts are a personal-data store with no retention policy. This is extremely common.</td></tr>
+<tr><td>Is there a solely automated decision with legal effect?</td><td>If so, people have specific rights &mdash; including meaningful human review. A human who rubber-stamps is not review.</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Your logs are the quiet problem.</strong> Teams think hard about the retrieval corpus and then log every prompt and completion to a service with no retention policy, indefinitely. Prompts contain whatever users typed, which is frequently personal and sometimes special-category data. Decide retention deliberately, and redact before writing rather than after.</p></div></div>
+</section>
+
+<section class="note-section">
+<h2 id="practice">What this looks like in a repository</h2>
+<p>The practical translation. None of this needs a committee, and all of it is the evidence a review will ask for.</p>
+<div class="card-grid cols-2">
+<div class="card"><div class="card-title key-term">A system card</div><p>One page per AI feature: what it does, what it must not do, what data it touches, which model, who owns it, what happens when it fails. Kept in the repository, reviewed like code.</p></div>
+<div class="card"><div class="card-title key-term">Data lineage</div><p>What went into the index, where it came from, what basis you had, when it expires. &ldquo;We are not sure what is in there&rdquo; is the answer that ends a procurement conversation.</p></div>
+<div class="card"><div class="card-title key-term">Human oversight, specified</div><p>Which decisions require a person, what that person sees, and what they can actually change. Oversight that cannot alter the outcome is not oversight.</p></div>
+<div class="card"><div class="card-title key-term">Traces you can produce</div><p>For a given decision on a given day: the input, the retrieved context, the model version, the output. This is the difference between explaining an incident and apologising for one.</p></div>
+<div class="card"><div class="card-title key-term">Measured accuracy</div><p>Your eval scores, with dates, including the failures. &ldquo;It works well&rdquo; is not a claim anyone can accept; a tracked number with a method is.</p></div>
+<div class="card"><div class="card-title key-term">Disclosure</div><p>People told when they are talking to a machine, and generated content labelled. Cheap, increasingly required, and it protects trust more than it costs.</p></div>
+</div>
+<div class="code-block"><div class="code-head"><span class="lang">md</span>docs/ai/support-assistant.md &mdash; a system card that fits on a page</div><pre><code># Support assistant
+
+**Owner:** platform team · **Reviewed:** 2026-08-14 · **Next review:** 2027-02-14
+
+## What it does
+Answers customer questions from our public help centre and the customer's own
+account data. Drafts a reply; a support agent sends it.
+
+## What it must not do
+- Never send a reply without a human pressing send.
+- Never access an account other than the one on the ticket.
+- Never state a refund decision. It may explain the policy.
+
+## Risk tier
+Limited. It informs a human's reply; it makes no decision about a person.
+Users are told they are reading an AI-drafted response.
+
+## Data
+- Help centre articles (public, ours).
+- The requesting customer's own account record, scoped by session.
+- Retention: prompts and outputs 30 days, redacted of card and address data.
+- Basis: contract performance. DPA in place with the model provider.
+
+## Model
+`claude-sonnet-5`, pinned. Changes go through the eval suite first.
+
+## How we know it works
+`evals/cases/support-qa.json` — 68 cases. Last run 2026-08-14:
+retrieval 94%, grounding 97%, correct refusal 100%.
+
+## Failure modes and handling
+- Not in the corpus -> explicit refusal, escalate to a human.
+- Retrieval empty -> no draft offered at all, rather than a guess.
+- Provider outage -> feature hidden; the queue works as it did before.</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>That page took twenty minutes and answers most of what any framework, auditor or enterprise customer will ask. The reason it is credible is that every claim in it points at something real &mdash; a scoped query, a pinned model id, an eval file with a number.</p></div></div>
+<details class="selfcheck"><summary><span class="sc-q">Your CV-screening tool "only summarises" applications and a recruiter makes every decision. Is it high risk?</span><span class="sc-cue">Answer</span></summary><div class="sc-body">
+<p>Very likely yes, and &ldquo;a human decides&rdquo; is a weaker defence than it sounds. Employment is a listed high-risk domain, and what matters is whether the output <em>materially influences</em> the decision. A summary that determines which applications get read has already made the decision that matters most.</p>
+<p>The test for genuine human oversight is whether the person has the information, the time and the authority to reach a different conclusion. Someone reviewing 400 summaries an hour is not overseeing the system; they are ratifying it. If the answer is a rubber stamp, treat the system as making the decision, because in practice it is.</p>
+</div></details>
+</section>
+
+<section class="note-section">
+<h2 id="bias">Bias, and why it is an engineering problem</h2>
+<p>A model learns from text people wrote, and reproduces the patterns in it &mdash; including the ones nobody wanted. This is not fixed by intent, and it is not detected by reading the code.</p>
+<div class="table-wrap"><table><thead><tr><th>Where it enters</th><th>What to do about it</th></tr></thead><tbody>
+<tr><td>Training data reflects historical patterns.</td><td>You cannot change this. You can decide not to use a model for decisions where it matters, or measure the disparity and act.</td></tr>
+<tr><td>Your retrieval corpus over-represents some groups.</td><td>Audit what is actually in the index. This is inspectable, unlike the model.</td></tr>
+<tr><td>Your prompt carries assumptions.</td><td>Cheap to test: run the same case with names, genders and locations varied and compare outcomes.</td></tr>
+<tr><td>Your eval set only contains typical cases.</td><td>Build cases specifically for the groups you might disadvantage. Absent from the set means invisible in the score.</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>The engineering move is to make it measurable. Take a set of cases, vary only the attribute you are worried about, and compare outcomes. A disparity you can put a number on is a bug you can work on; one you cannot measure is one you will argue about.</p></div></div>
+<div class="callout is-note is-practice"><span class="callout-icon">&#9654;</span><div class="callout-body"><div class="callout-title">Practice</div>
+<p>Write a system card for something you have already shipped. Give it twenty minutes and do not aim for polish.</p>
+<p>The value is in the questions you cannot answer. &ldquo;What is our retention on prompt logs?&rdquo; and &ldquo;what happens when the provider is down?&rdquo; are usually the two that produce an uncomfortable pause &mdash; and both are real gaps you can close this week.</p>
+</div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul>
+<li>Obligations scale with potential harm, and the use case sets the tier &mdash; not the model or the architecture.</li>
+<li>The question that decides everything: what decision does this influence, and about whom?</li>
+<li>GDPR probably applies to you already. Deletion, retention and lawful basis are the parts that bite.</li>
+<li>Prompt and completion logs are a personal-data store. Set retention deliberately; redact on write.</li>
+<li>Human oversight only counts if the person can realistically reach a different conclusion.</li>
+<li>A one-page system card per feature answers most of what anyone will ask &mdash; if every claim points at something real.</li>
+<li>Bias is measurable: vary one attribute across your eval cases and compare. A number is a bug you can fix.</li>
+</ul></div>
+</section>
+
+<nav class="page-nav">
+<a class="pn-prev" href="ai-security.html"><span class="pn-dir">&larr; Previous</span><span class="pn-title">AI Security</span></a>
+<a class="pn-next" href="roadmap.html"><span class="pn-dir">Next &rarr;</span><span class="pn-title">What to Learn Next</span></a>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../assets/js/site-data.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

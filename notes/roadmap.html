@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What to Learn Next — Garvit's Notes</title>
+<meta name="description" content="A path rather than a syllabus: what to build at each stage, which foundations earn their time, where to specialise, what is genuinely changing, and the checklist that resists self-deception.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){try{var t=localStorage.getItem('gn-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../">
+<header class="site-header">
+  <button class="icon-btn" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <a class="brand" href="../index.html"><span class="brand-mark">GN</span><span>Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search notes&hellip;  /" autocomplete="off" aria-label="Search notes">
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="Notes"></nav>
+  <main class="main"><article class="content">
+<span class="eyebrow">Note 14</span>
+<h1>What to Learn Next</h1>
+<p class="lede">A path rather than a syllabus: what to build at each stage, which foundations earn their time, where to specialise, what is genuinely changing, and the checklist that resists self-deception.</p>
+<div class="page-meta">
+  <span>No experience needed</span>
+  <span>25 min read</span>
+  <span>6 sections</span>
+</div>
+<section class="note-section">
+<h2 id="where">Where you are now</h2>
+<p>If you have read the notes before this one, you know more than most people writing about AI on the internet. Specifically, you can now answer these &mdash; and knowing what you know is the precondition for choosing what to learn next.</p>
+<div class="card-grid cols-2">
+<div class="card"><div class="card-title">What a model is doing</div><p>Next-token prediction, attention, context windows, why hallucination is structural rather than a bug to be patched.</p></div>
+<div class="card"><div class="card-title">How to give it knowledge</div><p>Embeddings, chunking, retrieval, grounding, citations &mdash; and where in that pipeline it actually goes wrong.</p></div>
+<div class="card"><div class="card-title">How to give it abilities</div><p>Tools, the agent loop, workflow patterns, MCP, skills &mdash; and the ladder that says which one to reach for.</p></div>
+<div class="card"><div class="card-title">How to know it works</div><p>Eval sets, graders, scoring retrieval and generation separately, wiring it into CI.</p></div>
+<div class="card"><div class="card-title">How it gets attacked</div><p>Prompt injection, the three-ingredient rule, and why architecture beats prompt wording every time.</p></div>
+<div class="card"><div class="card-title">What the rules are</div><p>Risk tiers, the frameworks by name, and the one-page artefact that answers most of what anyone asks.</p></div>
+</div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Reading is not the same as knowing.</strong> The honest test for every item above is whether you have built something that used it and watched it fail. If not, that gap is the next thing to close &mdash; not the next note.</p></div></div>
+</section>
+
+<section class="note-section">
+<h2 id="path">The path, in the order that works</h2>
+<p>Not a syllabus. Four stages, each with a thing you build, because the building is what moves the knowledge from recognisable to usable.</p>
+<figure class="figure is-flow"><div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">From reading about it to being paid for it</span><button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button></div><div class="figure-stage"><ol class="flow flow-column">
+<li class="flow-step dg-step" data-tone="accent" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Ship one small thing end to end</span><span class="flow-detail">A single feature, in something real, that a person other than you uses. One call, a good prompt, structured output, error handling. Weeks, not months — and it teaches more than the next three books.</span></div></li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">Add retrieval, then measure it</span><span class="flow-detail">Put your own documents behind it. Then build the thirty-case eval set and discover your retrieval is worse than you assumed. This stage is where most people's real understanding actually forms.</span></div></li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Give it tools, carefully</span><span class="flow-detail">Two tools, an iteration cap, a gate on anything irreversible, a trace of every step. Then attack it yourself using note 12 and fix what you find.</span></div></li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">Run it in production and watch the bill</span><span class="flow-detail">Caching, routing, latency, retries, a provider outage. Nothing here is glamorous and all of it is what distinguishes someone who has shipped AI from someone who has demoed it.</span></div></li>
+</ol></div><div class="figure-caption">Stage two is where people give up, because it is the first honest feedback. Push through it.</div></figure>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>The fastest route is not more reading. It is one small system you keep making better, with a number that tells you whether it got better. Everything worth knowing shows up when you try to move that number.</p></div></div>
+</section>
+
+<section class="note-section">
+<h2 id="foundations">The foundations worth filling in</h2>
+<p>You can build a great deal without these. They are what separates someone who can wire an API from someone who can debug why the wiring is not working.</p>
+<div class="table-wrap"><table><thead><tr><th>Topic</th><th>Why it earns its time</th><th>Depth needed</th></tr></thead><tbody>
+<tr><td><strong>Python</strong></td><td>The ecosystem is Python-first. Every paper, notebook, evaluation harness and data tool assumes it, even when your product is TypeScript.</td><td>Enough to read a notebook and modify it. Not a second career.</td></tr>
+<tr><td><strong>Data handling</strong></td><td>Most of the real work in an AI system is getting data into a usable shape. Cleaning, joining, sampling, inspecting.</td><td>Practical fluency. This is the highest-value item on the list.</td></tr>
+<tr><td><strong>Statistics</strong></td><td>Sampling, distributions, confidence. Why thirty cases can mislead you and how to tell when a difference is noise.</td><td>Enough to not fool yourself with a percentage.</td></tr>
+<tr><td><strong>Vectors and similarity</strong></td><td>What an embedding is geometrically, what cosine similarity measures, why nearest-neighbour search needs an index.</td><td>Intuition, not linear algebra. Half a day.</td></tr>
+<tr><td><strong>How transformers work</strong></td><td>Attention, layers, why context is quadratic and therefore expensive. Explains behaviour rather than enabling it.</td><td>Conceptual. Watch a good explainer; do not implement one unless you want to.</td></tr>
+<tr><td><strong>Distributed systems basics</strong></td><td>AI systems are slow, failure-prone network calls. Queues, retries, idempotency, backpressure, timeouts.</td><td>Working knowledge. This is where production AI actually breaks.</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>You do not need to train a model.</strong> The instinct is to think real understanding starts with training, and for the overwhelming majority of applied work it is the least useful thing on this page. Fine-tuning is a specialist tool with a narrow set of cases; almost everything is prompting, retrieval, tools and evaluation.</p></div></div>
+</section>
+
+<section class="note-section">
+<h2 id="deeper">Where to go deeper, once the basics hold</h2>
+<div class="table-wrap"><table><thead><tr><th>Direction</th><th>What it involves</th><th>Suits you if</th></tr></thead><tbody>
+<tr><td><strong>AI engineering</strong></td><td>Building the products. Retrieval quality, agent design, evals, cost, latency, reliability.</td><td>You like shipping things people use. This is the closest step from where you are, and the widest job market.</td></tr>
+<tr><td><strong>AI infrastructure</strong></td><td>Serving models, GPUs, inference optimisation, running open-weight models at scale.</td><td>You enjoy systems and performance work. Deep, specialised, well paid, fewer roles.</td></tr>
+<tr><td><strong>Data engineering for AI</strong></td><td>Pipelines that keep a corpus fresh, permissioned and versioned. Unglamorous, and it decides whether the product is any good.</td><td>You already like databases. Note 05 is genuinely half of this.</td></tr>
+<tr><td><strong>AI security</strong></td><td>Red-teaming agents, injection research, building the defences in note 12 as a discipline.</td><td>You enjoy breaking things. Small field, growing fast, very few people are actually good at it.</td></tr>
+<tr><td><strong>Governance and assurance</strong></td><td>Turning frameworks into practice: risk assessment, audit, documentation, policy that engineers will follow.</td><td>You like the intersection of engineering and process. Demand is rising sharply with regulation.</td></tr>
+</tbody></table></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>Given where you already are &mdash; a working full-stack developer with a shipped product &mdash; AI engineering is the shortest path and the one that compounds fastest. You would be adding a layer to something you can already do, not starting again.</p></div></div>
+</section>
+
+<section class="note-section">
+<h2 id="watching">What is actually changing, and what is not</h2>
+<p>Predicting AI is a poor use of anyone&rsquo;s time. Directions that are already visible are a better guide than forecasts.</p>
+<div class="table-wrap"><table><thead><tr><th>Direction</th><th>What it changes for you</th></tr></thead><tbody>
+<tr><td><strong>Longer context, cheaper</strong></td><td>Some things RAG exists for stop needing RAG. Retrieval will still win on cost, freshness, permissions and citation &mdash; but the threshold moves.</td></tr>
+<tr><td><strong>Better reasoning</strong></td><td>More tasks move from &ldquo;not viable&rdquo; to viable. Re-test the things you rejected a year ago; the answer changes.</td></tr>
+<tr><td><strong>Agents that run for hours</strong></td><td>Long-horizon work becomes real, and everything in note 07 about budgets, gates and traces gets more important, not less.</td></tr>
+<tr><td><strong>Standardisation</strong></td><td>MCP and similar protocols mean less bespoke integration. Portability gets easier; lock-in gets weaker.</td></tr>
+<tr><td><strong>Regulation arriving</strong></td><td>Documentation and evaluation shift from good practice to requirement. Note 13 stops being optional.</td></tr>
+<tr><td><strong>Small models getting good</strong></td><td>More work runs locally, cheaply and privately. Routing gets more valuable, not less.</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>What has not changed in three years, and shows no sign of it:</strong> models predict text and cannot verify it; the quality of your data decides the quality of your system; evaluation is the only way to know anything; and the security problem is architectural. Anything you learn in those four areas keeps its value regardless of what ships next.</p></div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Do not chase releases.</strong> The pace makes it tempting to spend every week reading about the newest thing and never building anything. The people who get good pick a problem and stay with it while models improve underneath them. Depth compounds; novelty does not.</p></div></div>
+</section>
+
+<section class="note-section">
+<h2 id="honest">How to tell you have actually learned it</h2>
+<p>A checklist that resists self-deception better than a course completion does. Each of these is a thing you have done, not a thing you have read.</p>
+<div class="table-wrap"><table><thead><tr><th>You can genuinely say&hellip;</th><th>Which proves</th></tr></thead><tbody>
+<tr><td>&ldquo;I shipped an AI feature people use, and I know its failure rate.&rdquo;</td><td>You have met reality, and you measure rather than assume.</td></tr>
+<tr><td>&ldquo;I have an eval set, and I have watched a change make it worse.&rdquo;</td><td>You understand why evals exist, which only lands once one saves you.</td></tr>
+<tr><td>&ldquo;I found a retrieval bug I had blamed on the model.&rdquo;</td><td>You can localise a fault in a pipeline instead of tuning the prompt and hoping.</td></tr>
+<tr><td>&ldquo;I successfully injected my own agent, then made it impossible.&rdquo;</td><td>You understand that the fix is architectural.</td></tr>
+<tr><td>&ldquo;I cut cost significantly without hurting quality.&rdquo;</td><td>You understand caching and routing &mdash; and you had the eval to prove quality held.</td></tr>
+<tr><td>&ldquo;I explained to a non-technical person why it cannot be certain.&rdquo;</td><td>You understand the mechanism well enough to be honest about it, which is rarer than it should be.</td></tr>
+</tbody></table></div>
+<div class="callout is-note is-practice"><span class="callout-icon">&#9654;</span><div class="callout-body"><div class="callout-title">Practice &mdash; the only one that matters</div>
+<p>Pick one real problem in something you already own. Not a tutorial, not a demo &mdash; a thing that annoys you or a customer weekly.</p>
+<p>Build the smallest version that helps. Put it in front of one person. Write thirty eval cases from what they actually ask. Then spend a month making the number go up.</p>
+<p>You will touch every note on this site doing that, in the order the problem demands rather than the order they are numbered &mdash; and at the end you will have both the understanding and something to point at.</p>
+</div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul>
+<li>Reading is not knowing. The test is whether you built something with it and watched it fail.</li>
+<li>Ship small, add retrieval, measure, add tools, then run it in production. In that order.</li>
+<li>Stage two &mdash; building the eval set &mdash; is where the real understanding forms and where most people quit.</li>
+<li>Data handling is the highest-value foundation. You do not need to train a model.</li>
+<li>AI engineering is the shortest path from where you already are, and it compounds fastest.</li>
+<li>Four things have not changed in three years: models cannot verify, data quality decides quality, evaluation is the only proof, security is architectural. Learn those.</li>
+<li>Depth compounds, novelty does not. Pick one problem and stay with it while the models improve underneath you.</li>
+</ul></div>
+</section>
+
+<nav class="page-nav">
+<a class="pn-prev" href="governance.html"><span class="pn-dir">&larr; Previous</span><span class="pn-title">AI Governance</span></a>
+
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../assets/js/site-data.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

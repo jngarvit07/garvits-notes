@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Model Landscape — Garvit's Notes</title>
+<meta name="description" content="Products, models and platforms are three different layers, and most confused comparisons are a layer mix-up. The families, where Copilot fits, and how to choose without benchmarks.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){try{var t=localStorage.getItem('gn-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../">
+<header class="site-header">
+  <button class="icon-btn" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <a class="brand" href="../index.html"><span class="brand-mark">GN</span><span>Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search notes&hellip;  /" autocomplete="off" aria-label="Search notes">
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="Notes"></nav>
+  <main class="main"><article class="content">
+<span class="eyebrow">Note 10</span>
+<h1>The Model Landscape</h1>
+<p class="lede">Products, models and platforms are three different layers, and most confused comparisons are a layer mix-up. The families, where Copilot fits, and how to choose without benchmarks.</p>
+<div class="page-meta">
+  <span>No experience needed</span>
+  <span>25 min read</span>
+  <span>5 sections</span>
+</div>
+<section class="note-section">
+<h2 id="layers">First, sort out what is actually being compared</h2>
+<p>Most confusing conversations about AI happen because two people are comparing things at different layers. &ldquo;Is Copilot better than Claude?&rdquo; is a bit like asking whether a car is better than an engine.</p>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">Three layers, routinely mistaken for one</span></div><div class="figure-stage"><pre class="ascii-art">  LAYER 3   PRODUCTS you use
+            ChatGPT · Claude apps & Claude Code · Gemini app
+            GitHub Copilot · Cursor · Microsoft 365 Copilot
+              |
+              |  each is built on top of one or more...
+              v
+  LAYER 2   MODELS you call
+            Claude (Opus / Sonnet / Haiku)
+            GPT family · Gemini family
+            Llama · Mistral · Qwen · DeepSeek (open weights)
+              |
+              |  each is served through...
+              v
+  LAYER 1   PLATFORMS you buy it from
+            Anthropic API · OpenAI API · Google AI Studio / Vertex
+            Amazon Bedrock · Azure / Microsoft Foundry
+
+  The same model appears on several platforms.
+  The same product can switch which model it uses — often silently.</pre></div><div class="figure-caption">When someone says &ldquo;we use Copilot&rdquo;, that is layer 3, and it tells you almost nothing about layer 2.</div></figure>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>A <strong>model</strong> is the engine. A <strong>platform</strong> is the dealership and the service contract. A <strong>product</strong> is the finished car. GitHub Copilot is a car; Claude and GPT are engines it has been fitted with at various points. Comparing them directly produces an answer to a question nobody asked.</p></div></div>
+</section>
+
+<section class="note-section">
+<h2 id="families">The model families</h2>
+<p>Four groups matter in practice. Every one of them ships new versions on a cadence of months, so treat this as the shape of the landscape rather than a snapshot of who is ahead this week.</p>
+<div class="table-wrap"><table><thead><tr><th>Family</th><th>Who</th><th>Character</th><th>Typically strongest at</th></tr></thead><tbody>
+<tr><td><strong>Claude</strong></td><td>Anthropic</td><td>Tiered by capability &mdash; Opus, Sonnet, Haiku &mdash; sharing one API. Long context, strong tool use, deliberately conservative behaviour.</td><td>Coding and agentic work, long-document reasoning, following complex instructions, tasks where you want it to say &ldquo;I don&rsquo;t know&rdquo;.</td></tr>
+<tr><td><strong>GPT</strong></td><td>OpenAI</td><td>The broadest ecosystem and the most third-party integrations. Large range from small fast models to frontier reasoning ones.</td><td>General-purpose work, image generation and voice in one place, the widest selection of tutorials and community code.</td></tr>
+<tr><td><strong>Gemini</strong></td><td>Google</td><td>Natively multimodal and tightly wired into Google&rsquo;s own products and cloud. Very large context windows.</td><td>Video and audio understanding, anything already inside Google Workspace or GCP, huge-input tasks.</td></tr>
+<tr><td><strong>Open weights</strong></td><td>Meta (Llama), Mistral, Alibaba (Qwen), DeepSeek and others</td><td>Downloadable. You can run them on your own hardware, inspect them, fine-tune them freely.</td><td>Data residency and privacy requirements, offline or air-gapped deployment, high volume where you own the GPUs, research.</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Benchmark leadership rotates every few months and rarely predicts your result.</strong> A published score says a model did well on somebody else&rsquo;s task. Thirty of your own real examples are worth more than every leaderboard put together &mdash; and building that set is the subject of note 11.</p></div></div>
+</section>
+
+<section class="note-section">
+<h2 id="copilot">Where Copilot fits, and why the name confuses everyone</h2>
+<p>&ldquo;Copilot&rdquo; is a brand Microsoft applies across several unrelated products. It is not a model, and the products sharing the name differ enormously.</p>
+<div class="table-wrap"><table><thead><tr><th>Product</th><th>What it actually is</th></tr></thead><tbody>
+<tr><td><strong>GitHub Copilot</strong></td><td>A coding assistant in your editor &mdash; completions, chat, and agent modes. Runs on models from several vendors, and in recent versions you can pick which one.</td></tr>
+<tr><td><strong>Microsoft 365 Copilot</strong></td><td>An assistant inside Word, Excel, Outlook and Teams, grounded in your organisation&rsquo;s own documents and mail.</td></tr>
+<tr><td><strong>Copilot Studio</strong></td><td>A low-code builder for making your own assistants and connecting them to business systems.</td></tr>
+<tr><td><strong>Windows Copilot</strong></td><td>The assistant built into the operating system.</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>The practical consequence: when a colleague says &ldquo;Copilot got this wrong&rdquo;, your first question is <em>which</em> Copilot, and on which underlying model. The answer often explains the result entirely.</p></div></div>
+<h3>Coding assistants, compared honestly</h3>
+<div class="table-wrap"><table><thead><tr><th>Tool</th><th>Shape</th><th>Best at</th></tr></thead><tbody>
+<tr><td><strong>GitHub Copilot</strong></td><td>Editor extension. Strong inline completion; increasingly agentic.</td><td>Staying in flow while typing. Deep GitHub integration &mdash; issues, pull requests, reviews.</td></tr>
+<tr><td><strong>Claude Code</strong></td><td>Terminal-first agent that reads and edits a whole repository, runs commands, and iterates.</td><td>Multi-file changes, refactors, debugging with real test runs, work you describe rather than type.</td></tr>
+<tr><td><strong>Cursor and similar</strong></td><td>A whole editor built around the model, with repository-wide context.</td><td>People who want the agentic experience inside a familiar IDE window.</td></tr>
+</tbody></table></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>Completion tools finish the sentence you are already typing. Agentic tools take a paragraph of intent and go and do it across many files, then show you the diff. They suit different moments of the same day, and most people who use both keep both.</p></div></div>
+</section>
+
+<section class="note-section">
+<h2 id="choosing">Choosing, without the horse race</h2>
+<p>The question &ldquo;which model is best&rdquo; has no answer. These do.</p>
+<figure class="figure is-flow"><div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Picking a model for one job</span><button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button></div><div class="figure-stage"><ol class="flow flow-column">
+<li class="flow-step dg-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Is there a hard constraint?</span><span class="flow-detail">Data residency, an air-gapped network, a procurement rule, an existing cloud commitment. Constraints decide this before quality does — and often the answer is open weights, or whichever family your cloud already sells.</span></div></li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">Write thirty real examples</span><span class="flow-detail">Actual inputs from your actual problem, with the outcomes you would accept. This is the only comparison that predicts anything.</span></div></li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Start with the smallest model</span><span class="flow-detail">Run the set. If a small model passes, you are finished, and it costs a fraction of the alternative. Most teams never try this and pay for it monthly.</span></div></li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">Step up only where it fails</span><span class="flow-detail">Route the hard cases to a bigger model rather than sending everything there. One product sensibly uses three models.</span></div></li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:4"><span class="flow-num">5</span><div class="flow-text"><span class="flow-label">Keep the switch cheap</span><span class="flow-detail">Put the model id in config, keep prompts in files, keep the eval set current. Then next year's better model is a config change and one test run.</span></div></li>
+</ol></div></figure>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">Three models in one product</span></div><div class="example-body">
+<p>Classifying inbound contact messages as spam or genuine is narrow and well defined: a small fast model, called on everything, cheap enough to ignore. Drafting page copy is open-ended and a customer sees the result: the frontier tier, called rarely. Summarising a support thread sits between them: the balanced tier.</p>
+<p>Picking one model for the whole product is the common mistake. It shows up as a bill rather than a bug, which is why it survives so long.</p>
+</div></div>
+<details class="selfcheck"><summary><span class="sc-q">Your team is on Azure with a signed commitment, and legal will not allow customer data to leave the tenancy. How much does model quality matter to the decision?</span><span class="sc-cue">Answer</span></summary><div class="sc-body">
+<p>Less than the constraint does. Start from what is actually available inside that boundary &mdash; which families your platform serves, and under what data-handling terms &mdash; and choose the best option from that shortlist. Evaluating a model you are not permitted to send data to is time spent on a decision you cannot make.</p>
+<p>The order is always: constraints first, then your own evaluation set, then cost. Benchmarks come last, if at all.</p>
+</div></details>
+</section>
+
+<section class="note-section">
+<h2 id="portability">Staying portable</h2>
+<p>Models improve, prices move, vendors change terms, and the best choice today is not the best choice in eighteen months. The goal is not to pick correctly forever &mdash; it is to make being wrong cheap.</p>
+<div class="table-wrap"><table><thead><tr><th>Practice</th><th>What it buys you</th></tr></thead><tbody>
+<tr><td>Model ids in config, never inline in code.</td><td>Switching is a deploy, not a refactor. It also lets you pin a version in production and test a new one alongside.</td></tr>
+<tr><td>Prompts as files, not string literals.</td><td>They get reviewed and reverted like code &mdash; and prompts genuinely need re-tuning between models.</td></tr>
+<tr><td>An evaluation set you actually maintain.</td><td>The only way to know a switch was an improvement. Without it you are choosing on vibes and vendor blog posts.</td></tr>
+<tr><td>A thin wrapper over the SDK call.</td><td>One place to change when a request shape differs. Do not build a heavy abstraction &mdash; the APIs are similar enough that a large one costs more than it saves.</td></tr>
+<tr><td>Pin the exact model version in production.</td><td>A newer version is better on average and not identical. Move deliberately, after running your evals &mdash; not because it appeared.</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Do not over-abstract.</strong> The temptation is a grand provider-agnostic interface supporting every vendor equally. In practice it converges on the least capable common denominator, and you lose the features you chose the model for &mdash; caching, thinking, structured outputs, tool semantics. A thin seam is portability. A framework is a second product to maintain.</p></div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul>
+<li>Products, models and platforms are three layers. Most confused comparisons are a layer mix-up.</li>
+<li>Copilot is a brand across several unrelated products, not a model. Ask which one, and on what.</li>
+<li>Benchmark leadership rotates and rarely predicts your result. Thirty real examples beat every leaderboard.</li>
+<li>Hard constraints &mdash; residency, cloud commitments, procurement &mdash; usually decide this before quality does.</li>
+<li>Start with the smallest model and step up only where it fails. One product sensibly uses three.</li>
+<li>Model ids in config, prompts in files, evals maintained. Make being wrong cheap rather than trying to be right forever.</li>
+</ul></div>
+</section>
+
+<nav class="page-nav">
+<a class="pn-prev" href="skills-artifacts.html"><span class="pn-dir">&larr; Previous</span><span class="pn-title">Skills &amp; Artifacts</span></a>
+<a class="pn-next" href="evals.html"><span class="pn-dir">Next &rarr;</span><span class="pn-title">Evaluating AI Systems</span></a>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../assets/js/site-data.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

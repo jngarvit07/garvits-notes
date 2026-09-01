@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Node.js — Garvit's Notes</title>
+<meta name="description" content="JavaScript outside the browser, and the one idea — never wait, never block — that the whole thing is built on. Everything on this product's server runs inside it.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){try{var t=localStorage.getItem('gn-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../">
+<header class="site-header">
+  <button class="icon-btn" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <a class="brand" href="../index.html"><span class="brand-mark">GN</span><span>Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search notes&hellip;  /" autocomplete="off" aria-label="Search notes">
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="Notes"></nav>
+  <main class="main"><article class="content">
+<span class="eyebrow">Note 03</span>
+<h1>Node.js</h1>
+<p class="lede">JavaScript outside the browser, and the one idea — never wait, never block — that the whole thing is built on. Everything on this product's server runs inside it.</p>
+<div class="page-meta">
+  <span>No experience needed</span>
+  <span>35 min read</span>
+  <span>11 sections</span>
+</div>
+<section class="note-section">
+<h2 id="what">What Node.js is</h2>
+<p> JavaScript was invented to run inside a browser tab. Node.js is that same language taken out of the tab and given a computer instead: it can read files, open network connections, talk to a database and listen for requests. Nothing about the language changes; what changes is what it is allowed to touch. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A browser is a locked room with a window. JavaScript in there can rearrange the furniture and shout through the glass, and that is all. Node.js is the same person, outside, with keys to the building. </div></div>
+<div class="table-wrap"><table><thead><tr><th>In a browser</th><th>In Node.js</th></tr></thead><tbody><tr><td><span><code>window</code>, <code>document</code>, the DOM</span></td><td><span><code>process</code>, <code>fs</code>, <code>http</code>, the filesystem and network</span></td></tr>
+<tr><td>Cannot read your files</td><td>Can read and write any file the process has rights to</td></tr>
+<tr><td>Sandboxed away from secrets</td><td>Holds the secrets — database URLs, API keys, signing keys</td></tr>
+<tr><td>One copy per tab, per visitor</td><td>One process, serving everybody at once</td></tr></tbody></table></div>
+<p> That last row is the one with consequences. A browser tab holds one person’s data; a Node process holds a variable that <strong>every request can see</strong>. Storing “the current user” in a module-level variable works flawlessly while you are the only person testing, and hands one customer another customer’s data the moment two requests overlap. </p>
+
+</section>
+
+<section class="note-section">
+<h2 id="loop">The event loop: one worker who never waits</h2>
+<p> Node runs your JavaScript on <strong>one thread</strong>. One. Ten thousand people can be connected and there is still a single line of execution — which sounds like a crippling limitation and is the reason Node is good at what it does. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A good waiter with twenty tables does not stand beside table four while the kitchen cooks. They take the order, hand it to the kitchen, and go to table five. When the food is ready the kitchen calls them back. One waiter, twenty tables, because the waiting is done by somebody else. Node’s kitchen is the operating system: disks, networks, databases. </div></div>
+<p> So the rule that governs everything: <strong>never make the waiter stand still</strong>. Anything slow must be handed off, not waited on. Handing off is what <code>await</code> does — it says “come back to this line when the answer arrives” and lets the thread go do other work in the meantime. </p>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>What the single thread means, concretely</div><pre><code>// SLOW, but fine. The thread is free the whole time it waits.
+const user = await db.user.findUnique({ where: { id } });   // 40ms, handed off
+
+// FAST to write, catastrophic to run. This is arithmetic, not waiting:
+// nothing can hand it off, so every other request in the process is frozen
+// until it finishes.
+let total = 0;
+for (let i = 0; i &lt; 5_000_000_000; i++) total += i;          // ~10s of frozen server</code></pre></div>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">The event loop, drawn</span></div><div class="figure-stage"><pre class="ascii-art">   your code (ONE thread)
+        |
+        |  starts something slow  -&gt;  +----------------------+
+        |                             |  the operating system |
+        |  ... keeps serving          |  disk / network / db  |
+        |      other requests         +----------------------+
+        |                                        |
+        |  &lt;---- "your answer is ready" ---------+
+        |
+        v
+   callback queue  -&gt;  the loop picks the next ready item and runs it
+
+   Nothing is parallel here. The loop is fast because it is never idle,
+   not because there is more than one of it — so any single piece of
+   work that refuses to pause stops everything.</pre></div></figure>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Blocking the loop stops the entire server, not one request.</strong> Health checks fail, every connected user hangs, and the process looks alive to your monitoring the whole time. The usual culprits are real work rather than silly loops: parsing a 200 MB JSON file, resizing an image, hashing a password with too high a cost factor, or a regular expression that backtracks. Anything CPU-heavy belongs in a worker thread or a separate service. </div></div>
+<p> The same rule explains the <code>fs.readFileSync</code> family. Every synchronous API in Node stops the world while it runs. They are there for start-up — reading a config file once before the server listens — and are a bug anywhere inside a request. </p>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; blocking inside a request</div><pre><code>app.get('/report', (req, res) =&gt; {
+  // Every other user waits for this disk read.
+  const data = fs.readFileSync('./big.csv', 'utf8');
+  res.send(summarise(data));
+});</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; handed off</div><pre><code>app.get('/report', async (req, res) =&gt; {
+  // The thread serves other people while the disk works.
+  const data = await fs.promises.readFile('./big.csv', 'utf8');
+  res.send(summarise(data));
+});</code></pre></div>
+</div>
+
+</section>
+
+<section class="note-section">
+<h2 id="async">Promises and async/await</h2>
+<p> A <strong>promise</strong> is a receipt for a value that does not exist yet. It is in one of three states — pending, fulfilled with a value, or rejected with an error — and it never goes back. </p>
+<p><code>async</code> and <code>await</code> are the readable way to use them. <code>await</code> pauses <i>this function</i> until the promise settles, without pausing the thread; <code>async</code> marks a function as one that can do that, and makes it return a promise. </p>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>The same operation, three generations of syntax</div><pre><code>// 1. Callbacks — how Node started. Nesting grows sideways forever.
+fs.readFile('a.txt', 'utf8', (err, data) =&gt; {
+  if (err) return done(err);
+  db.save(data, (err2, row) =&gt; {
+    if (err2) return done(err2);
+    done(null, row);
+  });
+});
+
+// 2. Promises — flat, but the flow is still written backwards.
+fs.promises.readFile('a.txt', 'utf8')
+  .then((data) =&gt; db.save(data))
+  .then((row) =&gt; done(null, row))
+  .catch(done);
+
+// 3. async/await — reads top to bottom, errors use try/catch.
+try {
+  const data = await fs.promises.readFile('a.txt', 'utf8');
+  const row = await db.save(data);
+} catch (error) {
+  // every failure above lands here
+}</code></pre></div>
+<p><strong>Sequential awaits are the most common accidental slowdown in a codebase.</strong> Three independent queries awaited on three lines take the sum of their times; run together they take the longest of them. </p>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; 300ms — one after another</div><pre><code>const user = await getUser(id);        // 100ms
+const sites = await getSites(id);      // 100ms
+const usage = await getUsage(id);      // 100ms
+// None of them needed the others' results.</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; 100ms — all at once</div><pre><code>const [user, sites, usage] = await Promise.all([
+  getUser(id),
+  getSites(id),
+  getUsage(id),
+]);</code></pre></div>
+</div>
+<details class="selfcheck"><summary><span class="sc-q">A request handler calls await save(draft) but the response says success while nothing was written. What is the likeliest cause?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> An <code>await</code> missing somewhere further in: a promise was created, never waited on, and the function returned before the write finished. Nothing throws, nothing logs, and it usually only shows up under load or on a slow database — which is why the habit of awaiting or explicitly writing <code>void promise.catch(log)</code> matters more than it looks. </p>
+</div></details>
+<div class="table-wrap"><table><thead><tr><th>Combinator</th><th>Settles when</th><th>Use for</th></tr></thead><tbody><tr><td><code>Promise.all</code></td><td>All succeed, or the first one fails</td><td>Work you need every result of</td></tr>
+<tr><td><code>Promise.allSettled</code></td><td>All finish, however they finish</td><td>Best-effort fan-out where one failure must not sink the rest</td></tr>
+<tr><td><code>Promise.race</code></td><td>The first one settles</td><td>Timeouts: race the real work against a timer</td></tr>
+<tr><td><code>Promise.any</code></td><td>The first one succeeds</td><td>Several sources, any answer will do</td></tr></tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>A promise nobody awaits is a bug with no error message.</strong> Forget the <code>await</code> on a save and the function returns before the write happens: the response says success, the data is not there, and if it later rejects you get an unhandled rejection that can take the process down. If you deliberately do not want to wait, say so — <code>void doThing().catch(log)</code> — so the next reader knows it was a decision. </div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="modules">Modules, npm and package.json</h2>
+<p> A file is a module. It shares things by exporting them and uses other files by importing them. There are two systems, and mixing them up produces the single most confusing class of Node error. </p>
+<div class="table-wrap"><table><thead><tr><th></th><th>CommonJS (older)</th><th>ES Modules (current)</th></tr></thead><tbody><tr><td>Import</td><td><code>const x = require('./x')</code></td><td><code>import x from './x.js'</code></td></tr>
+<tr><td>Export</td><td><code>module.exports = x</code></td><td><code>export default x</code></td></tr>
+<tr><td>Turned on by</td><td>The default</td><td><span><code>"type": "module"</code> in package.json</span></td></tr>
+<tr><td>File extension in imports</td><td>Optional</td><td>Required — and it is the compiled .js, even from TypeScript</td></tr></tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> This product’s backend is ES Modules, which is why its imports read <code>import app from './app.js'</code> even though the file on disk is <code>app.ts</code>. The extension names the file that will exist after the build, not the one you are editing. Dropping it is an error that only appears when you run the built output — a genuinely annoying half hour if nobody warned you. </div></div>
+<p><strong>npm</strong> is the package manager: <code>npm install express</code> downloads a library into <code>node_modules/</code> and records it in <code>package.json</code>. </p>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>What the fields mean</div><pre><code>{
+  "type": "module",              // ES Modules, as above
+  "scripts": {
+    "dev": "tsx watch src/index.ts",   // npm run dev
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {              // needed to RUN in production
+    "express": "^4.18.2"
+  },
+  "devDependencies": {           // needed only to BUILD or test
+    "typescript": "^5.0.0"
+  }
+}</code></pre></div>
+<p> The <code>^</code> is a version range: <code>^4.18.2</code> accepts any 4.x from 4.18.2 up, on the promise that those releases do not break anything. <code>package-lock.json</code> records the exact versions that were actually installed, which is why it is committed and why <code>npm ci</code> — install exactly the lock file — is what runs in a deployment. </p>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"> A dependency in the wrong section fails at the worst time: put a build-only tool in <code>dependencies</code> and the production image is fat but works; put a runtime library in <code>devDependencies</code> and everything passes locally, then crashes on the deployed server with “cannot find module”. </div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="core">The built-in toolkit</h2>
+<p> Node ships with modules you never install. The ones worth recognising: </p>
+<div class="table-wrap"><table><thead><tr><th>Module</th><th>For</th><th>Typical use</th></tr></thead><tbody><tr><td><code>fs</code></td><td>Files</td><td><span>Always the <code>fs/promises</code> version inside a request.</span></td></tr>
+<tr><td><code>path</code></td><td>Building file paths</td><td><span><code>path.join(dir, name)</code> — never string concatenation, or Windows breaks.</span></td></tr>
+<tr><td><code>http</code></td><td>A web server, at the lowest level</td><td>What Express is built on top of.</td></tr>
+<tr><td><code>crypto</code></td><td>Hashing, random values, signing</td><td><span><code>crypto.randomUUID()</code>, secure random tokens.</span></td></tr>
+<tr><td><code>events</code></td><td>The emit/listen pattern</td><td>Underneath streams, sockets, and much of the ecosystem.</td></tr>
+<tr><td><code>url</code></td><td>Parsing URLs and query strings</td><td>Reading parameters without regular expressions.</td></tr>
+<tr><td><code>os</code></td><td>The machine</td><td>CPU count, temp directory, memory.</td></tr></tbody></table></div>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>Things you will actually type</div><pre><code>import { randomUUID, randomBytes, createHash } from 'node:crypto';
+import path from 'node:path';
+import fs from 'node:fs/promises';
+
+const id = randomUUID();                                   // an id for a new row
+const token = randomBytes(32).toString('hex');             // an unguessable token
+const fingerprint = createHash('sha256').update(body).digest('hex');
+
+const target = path.join(process.cwd(), 'uploads', name);  // safe path building
+await fs.writeFile(target, buffer);</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Never use <code>Math.random()</code> for anything security-related.</strong> It is fast and predictable — fine for shuffling, useless for a password-reset token, an invitation code or a session id. <code>crypto.randomBytes</code> and <code>crypto.randomUUID</code> exist for exactly this. </div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="streams">Streams and buffers</h2>
+<p> A <strong>buffer</strong> is a chunk of raw bytes — an image, a PDF, anything that is not text. A <strong>stream</strong> is data that arrives or leaves a piece at a time instead of all at once. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Reading a file normally is filling a bucket at the tap and then carrying it. Streaming is connecting a hose. For a glass of water it makes no difference; for a swimming pool, the bucket approach means finding a bucket the size of a swimming pool — which, on a server, is your memory. </div></div>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; a 2 GB file in memory</div><pre><code>// Loads the entire file before sending a single byte.
+// Two people doing this at once can exhaust the server.
+const file = await fs.readFile('./huge.zip');
+res.send(file);</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; streamed through</div><pre><code>// Constant memory, whatever the size, and the download
+// starts immediately.
+createReadStream('./huge.zip').pipe(res);</code></pre></div>
+</div>
+<p> Streams are why an upload limit exists in the first place. This product sets <code>express.json({ limit: '10mb' })</code>: without a limit, one request with a large body is a way to exhaust the server’s memory on purpose. </p>
+
+</section>
+
+<section class="note-section">
+<h2 id="env">Configuration and the process lifecycle</h2>
+<figure class="figure is-flow" id="flow-1">
+<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">The life of a server process</span>
+  <button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button>
+</div>
+<div class="figure-stage"><ol class="flow flow-column"><li class="flow-step dg-step" data-tone="accent" style="--i:0">
+  <span class="flow-num">1</span>
+  <div class="flow-text">
+    <span class="flow-label">Boot</span>
+    <span class="flow-detail">Read the environment, validate it, refuse to start if a required value is missing.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:1">
+  <span class="flow-num">2</span>
+  <div class="flow-text">
+    <span class="flow-label">Connect</span>
+    <span class="flow-detail">Open the database pool and anything else long-lived — once, not per request.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:2">
+  <span class="flow-num">3</span>
+  <div class="flow-text">
+    <span class="flow-label">Listen</span>
+    <span class="flow-detail">Accept connections. The event loop now runs until told to stop.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:3">
+  <span class="flow-num">4</span>
+  <div class="flow-text">
+    <span class="flow-label">SIGTERM</span>
+    <span class="flow-detail">The platform is deploying. Stop accepting new connections.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:4">
+  <span class="flow-num">5</span>
+  <div class="flow-text">
+    <span class="flow-label">Drain</span>
+    <span class="flow-detail">Let in-flight requests finish. This is the step everyone skips.</span>
+  </div>
+</li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:5">
+  <span class="flow-num">6</span>
+  <div class="flow-text">
+    <span class="flow-label">Exit 0</span>
+    <span class="flow-detail">Close the pool and end cleanly, so nothing is cut mid-write.</span>
+  </div>
+</li></ol></div>
+</figure>
+<p> Configuration comes from the environment, not from the code, so the same build can run against a development database on your machine and a real one in production without being edited. <code>process.env</code> is how you read it. </p>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>Validate configuration at boot, not at 3am</div><pre><code>const required = ['DATABASE_URL', 'JWT_SECRET'];
+const missing = required.filter((name) =&gt; !process.env[name]);
+
+if (missing.length &gt; 0) {
+  // Refuse to start. A server that boots without a signing secret
+  // is a server that fails on its first login instead of its first second.
+  console.error('Missing environment variables: ' + missing.join(', '));
+  process.exit(1);
+}
+
+const port = Number(process.env.PORT ?? 5000);</code></pre></div>
+<p> A server is a long-running process, and it needs to end properly. When a platform deploys a new version it sends <code>SIGTERM</code> and waits: a well-behaved process stops accepting new connections, lets the in-flight ones finish, closes the database pool and exits. </p>
+<div class="code-block"><div class="code-head"><span class="lang">prisma</span>Graceful shutdown</div><pre><code>const server = app.listen(port);
+
+process.on('SIGTERM', async () =&gt; {
+  server.close(async () =&gt; {        // stop taking new requests, drain the current ones
+    await prisma.$disconnect();
+    process.exit(0);
+  });
+});</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Without this, a deployment cuts off whatever was mid-flight. Usually that is a page load somebody retries. Occasionally it is a payment or a publish, and “occasionally” is doing a lot of work in that sentence. </div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="errors">The errors that actually kill servers</h2>
+<p> There are three, and they are all quiet until they are not. </p>
+<ol><li><strong>An unhandled promise rejection.</strong> A promise fails and nothing catches it. On modern Node this terminates the process by default. </li><li><strong>An error thrown inside an async handler.</strong> The framework never sees it, so the request hangs until it times out — no response, no log, nothing in the error tracker. </li><li><strong>An error thrown in a callback or a timer.</strong> There is no <code>try</code> block up the stack to catch it, because the stack it was created on is long gone. </li></ol>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>The safety net at the top of the process</div><pre><code>process.on('unhandledRejection', (reason) =&gt; {
+  logger.error({ reason }, 'unhandled rejection');
+  process.exit(1);   // deliberate: an unknown state is worse than a restart
+});
+
+process.on('uncaughtException', (error) =&gt; {
+  logger.error({ error }, 'uncaught exception');
+  process.exit(1);
+});</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"> These handlers are for <strong>logging then exiting</strong>, not for carrying on. After an uncaught exception the process is in a state nobody reasoned about: half-written files, open transactions, listeners that will never fire. Log it, exit, let the platform start a clean one. A process that swallows these and continues is how a service ends up serving wrong answers for hours. </div></div>
+<p> Logging is part of error handling, not separate from it. <code>console.log</code> is fine while you are developing and poor in production: no levels, no timestamps, no structure to search on. A structured logger prints JSON that a log tool can filter — and it lets you attach a request id so one user’s journey can be pulled out of a million lines. </p>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Never log secrets.</strong> Logging a whole request body captures passwords and tokens, logs are kept for months, and they are readable by more people than the database is. Log the fields you need by name rather than the object. </div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="perf">Performance and scaling</h2>
+<p> One Node process uses one CPU core. A machine with four cores running one process is leaving three quarters of the machine idle. </p>
+<div class="table-wrap"><table><thead><tr><th>Tool</th><th>What it does</th><th>When</th></tr></thead><tbody><tr><td><code>cluster</code></td><td>Forks one process per core, sharing the same port</td><td>The default way to use the whole machine</td></tr>
+<tr><td><code>worker_threads</code></td><td>A real thread for CPU work</td><td>Image processing, big parses — anything that would block the loop</td></tr>
+<tr><td>A queue</td><td>Moves slow jobs out of the request entirely</td><td>Sending email, publishing a site, generating a report</td></tr>
+<tr><td>A cache</td><td>Stops recomputing what has not changed</td><td>Anything expensive and repeatedly asked for</td></tr></tbody></table></div>
+<div class="card-grid cols-2"><div class="card"><div class="card-title key-term">Concurrency</div><p>Many things in progress at once, one at a time. What the event loop gives you for free.</p></div><div class="card"><div class="card-title key-term">Parallelism</div><p>Many things actually running at once. Needs cluster or worker threads.</p></div><div class="card"><div class="card-title key-term">Blocking</div><p>Work that will not yield. The only thing that can genuinely break the model.</p></div><div class="card"><div class="card-title key-term">Backpressure</div><p>Slowing intake when you cannot keep up — the reason streams exist rather than buffers.</p></div></div>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">Why publishing a site is a job here, not a request</span></div><div class="example-body"><p> Publishing builds files and pushes them to a hosting provider. Done inside the request, the browser waits half a minute on a connection that may time out, a retry starts the whole thing twice, and the user learns nothing about progress. </p>
+<p> So this product records a <code>PublishJob</code>, answers immediately with its id, and works through it separately — writing <code>PublishJobEvent</code> rows the screen can poll. The rule generalises: <strong>if it can take longer than a few seconds, it is a job, not a request.</strong></p>
+</div></div>
+
+</section>
+
+<section class="note-section">
+<h2 id="security">Security basics</h2>
+<ul><li><strong>Secrets live in the environment</strong>, never in the repository. A key committed once is in the history forever; the fix is rotation, not deletion. </li><li><strong>Never build a shell command from user input.</strong> <code>exec('convert ' + filename)</code> with a filename somebody chose is a way to run their commands on your server. Use the argument-array form, which never goes through a shell. </li><li><strong>Treat every input as hostile</strong> — body, query, headers, cookies, uploads. Validate shape and size before use. </li><li><strong>Keep dependencies current.</strong> <code>npm audit</code> lists known holes in what you installed. Most real Node compromises come through a package, not through your code. </li><li><strong>Run as an unprivileged user.</strong> Root in a container is still root when something escapes the process. </li></ul>
+
+</section>
+
+<section class="note-section">
+<h2 id="here">Node in this product</h2>
+<ul><li><code>backend/src/index.ts</code> and <code>backend/src/app.ts</code> — the entry point, and the assembled application it starts. </li><li><code>backend/src/middleware/errorHandler.ts</code> — the <code>asyncHandler</code>  wrapper exists precisely because of failure mode two above. </li><li><code>backend/.env.example</code> — every variable the server expects, with nothing secret in it. </li><li><code>backend/package.json</code> — the scripts, and the dependency split. </li></ul>
+<div class="callout is-note is-practice"><span class="callout-icon">&#9654;</span><div class="callout-body"><div class="callout-title">Practice</div><ol><li> Write a file that reads its own source with <code>fs/promises</code> and prints the line count. Run it with <code>node</code>. That is the whole loop: no framework, no build. </li><li> Add a 5-billion-iteration <code>for</code> loop before the read, and notice that nothing else in the process happens until it ends. That is the event loop, blocked. </li><li> Fetch three URLs sequentially with <code>await</code>, time it, then switch to <code>Promise.all</code> and time it again. </li></ol>
+</div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Node is JavaScript with access to the machine — including every secret you hold.</li><li>One thread serves everybody, so slow work must be awaited and CPU work moved out.</li><li>Independent awaits belong in Promise.all; a forgotten await is a silent bug.</li><li>Validate configuration at boot and shut down gracefully on SIGTERM.</li><li>Log, then exit, on an uncaught error. Do not carry on in an unknown state.</li></ul></div>
+
+</section>
+
+<nav class="page-nav">
+<a class="pn-prev" href="nextjs.html"><span class="pn-dir">&larr; Previous</span><span class="pn-title">Next.js</span></a>
+<a class="pn-next" href="express.html"><span class="pn-dir">Next &rarr;</span><span class="pn-title">Express</span></a>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../assets/js/site-data.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

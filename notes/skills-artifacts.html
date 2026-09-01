@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills &amp; Artifacts — Garvit's Notes</title>
+<meta name="description" content="Tools add ability, RAG adds facts, skills add know-how, artifacts give output a home. What each one is, how skills load themselves, and a decision tree that resolves most cases.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){try{var t=localStorage.getItem('gn-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../">
+<header class="site-header">
+  <button class="icon-btn" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <a class="brand" href="../index.html"><span class="brand-mark">GN</span><span>Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search notes&hellip;  /" autocomplete="off" aria-label="Search notes">
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="Notes"></nav>
+  <main class="main"><article class="content">
+<span class="eyebrow">Note 09</span>
+<h1>Skills &amp; Artifacts</h1>
+<p class="lede">Tools add ability, RAG adds facts, skills add know-how, artifacts give output a home. What each one is, how skills load themselves, and a decision tree that resolves most cases.</p>
+<div class="page-meta">
+  <span>No experience needed</span>
+  <span>25 min read</span>
+  <span>4 sections</span>
+</div>
+<section class="note-section">
+<h2 id="what">Four ways to extend a model, and how they differ</h2>
+<p>By this point in the notes you have met several things that all sound like &ldquo;giving the model more abilities&rdquo;. They are genuinely different mechanisms, and choosing wrongly is the most common architectural mistake in applied AI.</p>
+<div class="table-wrap"><table><thead><tr><th>Mechanism</th><th>What it adds</th><th>Who invokes it</th><th>Lives where</th></tr></thead><tbody>
+<tr><td><strong>Tools</strong></td><td>The ability to <em>do</em> something &mdash; read a row, send an email, run a query.</td><td>The model, mid-conversation.</td><td>Your code, or an MCP server.</td></tr>
+<tr><td><strong>RAG</strong></td><td>Knowledge the model was never trained on, retrieved per question.</td><td>Your code, before the call.</td><td>A vector store you own.</td></tr>
+<tr><td><strong>Skills</strong></td><td><em>Know-how</em> &mdash; procedures, conventions, and files for doing a task properly.</td><td>The model, when the task calls for it.</td><td>A folder with a <code>SKILL.md</code>.</td></tr>
+<tr><td><strong>Artifacts</strong></td><td>A place to <em>put</em> substantial output, so it is a document rather than a wall of chat.</td><td>The model, when output warrants it.</td><td>The host application.</td></tr>
+</tbody></table></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>Think of hiring someone. <strong>Tools</strong> are the keys and logins you give them. <strong>RAG</strong> is the filing cabinet they can look things up in. <strong>Skills</strong> are the &ldquo;how we do things here&rdquo; handbook they read when a relevant job comes up. <strong>Artifacts</strong> are the difference between telling you the answer across a noisy desk and handing you a written report.</p></div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p>The frequent error is reaching for RAG when the problem is know-how. If the model gets facts right but does the <em>procedure</em> wrong &mdash; wrong format, wrong sequence, missing the step your team always does &mdash; retrieval will not fix it. That is a skill.</p></div></div>
+</section>
+
+<section class="note-section">
+<h2 id="skills">Skills: instructions that load themselves</h2>
+<p>A skill is a folder. At its root is a <code>SKILL.md</code> whose front matter carries a name and a one-line description; below that is whatever the task needs &mdash; longer instructions, reference documents, scripts, templates.</p>
+<p>The mechanism that makes it useful is <strong>progressive disclosure</strong>. Only the description sits in context all the time. The model reads the full file &mdash; and any files it points to &mdash; only when a task actually calls for it.</p>
+<figure class="figure is-flow"><div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Why a skill costs almost nothing until it is needed</span><button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button></div><div class="figure-stage"><ol class="flow flow-column">
+<li class="flow-step dg-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Always in context: one line</span><span class="flow-detail">Just the name and description of every installed skill. Twenty skills cost a couple of hundred tokens in total.</span></div></li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">A relevant task arrives</span><span class="flow-detail">The model matches the request against those one-line descriptions. This is why the description is the highest-value line in the whole file.</span></div></li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">The body is read</span><span class="flow-detail">Now the full SKILL.md enters context — the procedure, the conventions, the worked example.</span></div></li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">Referenced files, only if needed</span><span class="flow-detail">A long reference document or a script is read only when the body points at it for this particular job.</span></div></li>
+</ol></div><div class="figure-caption">The alternative — putting all of it in the system prompt — costs the full amount on every request, relevant or not.</div></figure>
+<div class="code-block"><div class="code-head"><span class="lang">md</span>skills/invoice-review/SKILL.md</div><pre><code>---
+name: invoice-review
+description: >
+  Review a supplier invoice against our purchase-order rules before it is
+  approved for payment. Use whenever someone asks to check, review, or approve
+  an invoice, or asks whether an invoice looks right.
+---
+
+# Reviewing a supplier invoice
+
+Work through these in order. Stop at the first hard failure and say which.
+
+1. **Match the PO.** Every line must map to a line on the referenced purchase
+   order. A line with no PO line is a hard failure — never "probably fine".
+2. **Check the totals.** Recompute from the line items. Do not trust the stated
+   total; the whole point of this check is that it is sometimes wrong.
+3. **Check the tax treatment** against `reference/tax-rules.md`. Read that file
+   only when the supplier is outside the UK — domestic invoices never need it.
+4. **Flag anything over £10,000** for a second human approver, regardless of
+   whether it passes everything else.
+
+## Output
+
+A short verdict — `approve`, `query`, or `reject` — then the reasons as bullets.
+Quote the invoice line number for every problem. Never approve with unresolved
+queries; "approve with caveats" is not one of the three options.
+
+## What not to do
+
+- Do not contact the supplier. That is a person's decision, not this task's.
+- Do not adjust figures to make them match. Report the mismatch.</code></pre></div>
+<h3>What makes a skill good</h3>
+<div class="table-wrap"><table><thead><tr><th>Rule</th><th>Why</th></tr></thead><tbody>
+<tr><td><strong>The description is a trigger, not a summary.</strong> Say when to use it, in the words someone would actually use.</td><td>It is the only part always in context. If it does not match how people phrase the request, the skill never loads and everything below it is wasted.</td></tr>
+<tr><td><strong>Write procedure, not background.</strong> Steps, order, decision points.</td><td>The model already knows what an invoice is. It does not know that you always recompute the total.</td></tr>
+<tr><td><strong>Say what not to do.</strong></td><td>Negative instructions prevent the confident, plausible, wrong action &mdash; which is the failure mode that costs you.</td></tr>
+<tr><td><strong>Push detail into referenced files.</strong></td><td>Keeps the always-read body short, and the rarely-needed reference out of context until the day it matters.</td></tr>
+<tr><td><strong>One skill, one job.</strong></td><td>A skill covering &ldquo;finance tasks&rdquo; matches everything and helps with nothing.</td></tr>
+</tbody></table></div>
+<h3>Using skills from the API</h3>
+<p>On the Messages API, skills run inside the code-execution container, so they are enabled through <code>container</code> alongside the code-execution tool. This is the path that produces real <code>.pptx</code>, <code>.xlsx</code> or <code>.docx</code> files.</p>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>a skill that produces a real file</div><pre><code>const response = await client.beta.messages.create({
+  model: 'claude-opus-5',
+  max_tokens: 16000,
+  betas: ['code-execution-2025-08-25'],
+
+  // Which skills are available inside the container for this request.
+  container: {
+    skills: [{ type: 'anthropic', skill_id: 'pptx', version: 'latest' }],
+  },
+
+  // Skills execute via code execution — both parts are needed.
+  tools: [{ type: 'code_execution_20260521', name: 'code_execution' }],
+
+  messages: [{ role: 'user', content: 'Build a 3-slide deck summarising Q3 revenue.' }],
+});
+
+// The file is written inside the container; the response carries a file id.
+// Fetch the bytes through the Files API.
+// const file = await client.files.download(fileId);</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>Agent Skills are not Managed Agents.</strong> Both involve the word &ldquo;agent&rdquo; and they are unrelated surfaces. Skills go through <code>container</code> on a normal Messages call, as above. Managed Agents is a separate product where Anthropic runs the loop and hosts a session workspace. Reaching for <code>client.beta.agents</code> to generate a PowerPoint is a wrong turn that costs an afternoon.</p></div></div>
+<details class="selfcheck"><summary><span class="sc-q">Your model keeps producing correct figures in the wrong report format, no matter how much you add to the system prompt. Skill, tool, or RAG?</span><span class="sc-cue">Answer</span></summary><div class="sc-body">
+<p>A skill. The facts are right, so retrieval is not the gap; nothing needs <em>doing</em>, so a tool is not the gap. What is missing is the procedure &mdash; your format, your section order, your conventions &mdash; which is exactly what a skill carries.</p>
+<p>The reason the system prompt is not working is usually length. Formatting rules added there compete with everything else for attention on every request. In a skill they arrive as the focused, relevant instruction at the moment the task calls for them.</p>
+</div></details>
+</section>
+
+<section class="note-section">
+<h2 id="artifacts">Artifacts: output that is a document, not a message</h2>
+<p>An artifact is substantial output rendered as its own thing &mdash; a page, a document, an app &mdash; instead of scrolling past in a conversation. It has a URL, it persists, it can be revised in place, and it can be shared.</p>
+<p>The distinction that matters is not technical, it is about <strong>audience</strong>.</p>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not an artifact &middot; advice for you, now</div><pre><code>"Why is this query slow?"
+
+  -> An answer in the conversation.
+     You read it, you change the
+     query, you move on.
+
+     Nobody else ever needs it.
+     A document would be overhead.</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">An artifact &middot; work with an audience</div><pre><code>"Write the migration plan for
+ moving us off the old schema."
+
+  -> A page other people will read,
+     follow, and refer back to.
+
+     It outlives the conversation.
+     It needs a link.</code></pre></div>
+</div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>The test: <strong>does anyone other than the person asking need to see this, or will the person asking need it again next week?</strong> If yes, it wants to be a document. If it is a fix you are about to apply and forget, it wants to be a sentence.</p></div></div>
+<h3>What this means for what you build</h3>
+<p>You will mostly meet artifacts as a user of AI tools rather than as something you implement. The transferable lesson is about your own products: when your AI feature produces something substantial, giving it a home &mdash; a URL, a version, a share button &mdash; changes it from a novelty into something a team uses. Output that only exists inside a chat transcript is output that gets lost.</p>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">The site you are reading</span></div><div class="example-body">
+<p>These notes are the case in point. As chat messages they would have been read once and lost. As files with URLs, a search index and a build script, they are something to return to, extend, and hand to somebody else.</p>
+<p>Nothing about that required an AI feature. It required deciding that the output had an audience and a future, and then giving it a shape that matched.</p>
+</div></div>
+</section>
+
+<section class="note-section">
+<h2 id="choosing">Choosing between them</h2>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">A decision tree that resolves most cases</span></div><div class="figure-stage"><pre class="ascii-art">  What is actually missing?
+        |
+        +-- The model lacks FACTS it was never trained on
+        |     (your data, your docs, anything after the cutoff)
+        |         -> RAG.  Retrieve it and put it in context.
+        |
+        +-- The model needs to DO something in the world
+        |     (read a row, send a mail, deploy, call an API)
+        |         -> A tool.  Yours, or over MCP if it is reused.
+        |
+        +-- The model knows the facts but does the JOB wrong
+        |     (wrong format, wrong order, skips your steps)
+        |         -> A skill.  Procedure, not information.
+        |
+        +-- The output is substantial and has an AUDIENCE
+              (a plan, a report, a page others will read)
+                  -> An artifact.  Give it a URL.
+
+  These compose. A real system usually has all four:
+  tools to act, RAG to know, skills to know HOW, artifacts to deliver.</pre></div></figure>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul>
+<li>Tools add ability, RAG adds facts, skills add know-how, artifacts add a place to put the result. Different problems.</li>
+<li>If the facts are right but the procedure is wrong, no amount of retrieval will fix it. That is a skill.</li>
+<li>A skill&rsquo;s description is the only part always in context &mdash; write it as a trigger in the words people actually use.</li>
+<li>Progressive disclosure is the point: one line always, the body on demand, references only when needed.</li>
+<li>Agent Skills go through <code>container</code> on a normal Messages call. That is not Managed Agents.</li>
+<li>Output with an audience deserves a URL. Output that only lives in a transcript gets lost.</li>
+</ul></div>
+</section>
+
+<nav class="page-nav">
+<a class="pn-prev" href="mcp.html"><span class="pn-dir">&larr; Previous</span><span class="pn-title">MCP — Model Context Protocol</span></a>
+<a class="pn-next" href="model-landscape.html"><span class="pn-dir">Next &rarr;</span><span class="pn-title">The Model Landscape</span></a>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../assets/js/site-data.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>
