@@ -27,6 +27,17 @@ const esc = (s) => String(s)
 const attr = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 
 /* --- Load fragments and read their headings ------------------------------- */
+const ENTITIES = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
+  mdash: '\u2014', ndash: '\u2013', hellip: '\u2026', middot: '\u00b7',
+  lsquo: '\u2018', rsquo: '\u2019', ldquo: '\u201c', rdquo: '\u201d',
+  times: '\u00d7', larr: '\u2190', rarr: '\u2192', pound: '\u00a3',
+};
+const decodeEntities = (t) => t
+  .replace(/&#(\d+);/g, (_, d) => String.fromCharCode(Number(d)))
+  .replace(/&([a-zA-Z]+);/g, (whole, name) =>
+    Object.prototype.hasOwnProperty.call(ENTITIES, name) ? ENTITIES[name] : whole);
+
 const load = (note) => {
   const file = path.join(CONTENT, `${note.id}.html`);
   if (!fs.existsSync(file)) { console.error(`missing content: ${file}`); process.exit(1); }
@@ -37,7 +48,9 @@ const load = (note) => {
   const re = /<h2 id="([^"]+)"[^>]*>([\s\S]*?)<\/h2>/g;
   let m;
   while ((m = re.exec(body)) !== null) {
-    toc.push({ id: m[1], title: m[2].replace(/<[^>]+>/g, '').trim() });
+    // Decode entities here: these titles are re-escaped when the search results
+    // render them, so a raw &mdash; would reach the reader as literal text.
+    toc.push({ id: m[1], title: decodeEntities(m[2].replace(/<[^>]+>/g, '')).trim() });
   }
   if (!toc.length) console.error(`  warning: ${note.id} has no <h2 id> sections`);
   return { body, toc };

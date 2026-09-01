@@ -126,7 +126,7 @@ window.GN_SECTIONS = [
   "slug": "react",
   "hash": "#components",
   "note": "React",
-  "section": "Components &amp; JSX",
+  "section": "Components & JSX",
   "text": "Components JSX A component is a function that returns a description of some screen. That is genuinely all it is: a function whose name starts with a capital letter and which returns markup. js A component The markup inside the function is JSX . It looks like HTML and is not: it is JavaScript that a build step turns into function calls. The differences that bite: HTML JSX Why class=\"box\" className=\"box\" class is a reserved word in JavaScript. onclick=\"save()\" onClick={save} Events are camelCase, and you pass the function itself — no quotes, no parentheses. br br / Every tag must close. JSX is parsed strictly. Text is text {name} Curly braces drop out of markup and back into JavaScript. Any ex"
  },
  {
@@ -147,14 +147,14 @@ window.GN_SECTIONS = [
   "slug": "react",
   "hash": "#lists",
   "note": "React",
-  "section": "Lists &amp; keys",
+  "section": "Lists & keys",
   "text": "Lists keys A list of data becomes a list of elements with map — the array method that turns each item into something else. Ninety per cent of React screens are this. js Rendering a list The key is not decoration. It is how React tells one row from another between redraws, so it can move a row rather than rebuild it. Get it wrong and the symptoms are bizarre rather than obvious: text typed into one row appearing in another after a sort, checkboxes staying ticked on the wrong item, animations firing on rows that did not change. ! Do not use the array index as a key in any list that can be reordered, filtered or added to at the front. Index 0 means “whatever is first now”, so React concludes th"
  },
  {
   "slug": "react",
   "hash": "#forms",
   "note": "React",
-  "section": "Events &amp; forms",
+  "section": "Events & forms",
   "text": "Events forms An event handler is a function passed to a prop like onClick or onChange . Pass the function, do not call it: onClick={save} runs it when clicked, onClick={save()} runs it immediately during rendering, which is a classic and confusing bug. Inputs are usually controlled : state holds the value, the input displays it, and typing updates the state. The state is the single truth, so validation, resetting and pre-filling are all just state changes. tsx A controlled form i Validation on the screen is a courtesy, never a control. Anybody can send a request without ever loading your form. The server has to check the same things again — which is why this product validates in the browser "
  },
  {
@@ -798,7 +798,7 @@ window.GN_SECTIONS = [
   "slug": "mcp",
   "hash": "#security",
   "note": "MCP — Model Context Protocol",
-  "section": "MCP security &mdash; read this part twice",
+  "section": "MCP security — read this part twice",
   "text": "MCP security read this part twice MCP does not introduce new categories of vulnerability; it makes the existing ones much easier to reach. Installing a server is closer to installing a browser extension than to adding a library it runs with your permissions and can act on your behalf. Untrusted server A server you did not write can expose whatever tools it likes, with whatever descriptions it likes. The descriptions go into the model s context, so a malicious one is a prompt injection with a delivery mechanism . Read what you install. Untrusted results Everything a tool returns is untrusted text. If your server returns a support ticket, and the ticket body says ignore previous instructions a"
  },
  {
@@ -882,7 +882,7 @@ window.GN_SECTIONS = [
   "slug": "evals",
   "hash": "#dataset",
   "note": "Evaluating AI Systems",
-  "section": "Building the set &mdash; the part that matters",
+  "section": "Building the set — the part that matters",
   "text": "Building the set the part that matters Almost all the value is here, and almost all the effort goes to the wrong place: people build elaborate scoring machinery on top of twelve examples they invented at their desk. Flow How to get a set worth having Replay 1 Take real inputs From your logs, your support queue, your actual users. Invented examples are always tidier than reality and they hide exactly the failures you need to find. 2 Start at thirty Thirty real cases beat three hundred synthetic ones. You can build thirty in an afternoon, and that is enough to catch a regression. 3 Include the nasty ones Ambiguous questions, questions with no answer in your data, hostile input, empty input, th"
  },
  {
