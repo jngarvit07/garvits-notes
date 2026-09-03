@@ -16,6 +16,7 @@
 
 <section class="note-section">
 <h2 id="dataset">Building the set &mdash; the part that matters</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> An eval set is a collection of real cases with an agreed answer for each. This is the part people skip because it is unglamorous, and it is the part that determines whether any of it works. Twenty cases taken from things users actually asked are worth more than five hundred you invented, because invented cases are drawn from what you already thought of. </div></div>
 <p>Almost all the value is here, and almost all the effort goes to the wrong place: people build elaborate scoring machinery on top of twelve examples they invented at their desk.</p>
 <figure class="figure is-flow"><div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">How to get a set worth having</span>{{replay}}</div><div class="figure-stage"><ol class="flow flow-column">
 <li class="flow-step dg-step" data-tone="accent" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Take real inputs</span><span class="flow-detail">From your logs, your support queue, your actual users. Invented examples are always tidier than reality and they hide exactly the failures you need to find.</span></div></li>
@@ -25,10 +26,13 @@
 <li class="flow-step dg-step" data-tone="accent" style="--i:4"><span class="flow-num">5</span><div class="flow-text"><span class="flow-label">Add every bug you ever fix</span><span class="flow-detail">The moment a real failure is reported, it becomes a case. This is how the set grows into something that genuinely protects you, and it costs nothing.</span></div></li>
 </ol></div><div class="figure-caption">Step five is the one that compounds. A year of it gives you a set no competitor can copy.</div></figure>
 <div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>Your eval set is a real asset.</strong> Prompts get rewritten, models get replaced, frameworks come and go. The set of real cases with agreed-correct outcomes is the thing that stays valuable and gets more valuable every month. Keep it in the repository, next to the code it tests.</p></div></div>
+<details class="selfcheck"><summary><span class="sc-q">Where should the cases in an eval set come from?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Real usage — logs, support tickets, the complaints. Especially the failures, because a set made only of cases you handle well cannot tell you when you have got worse. </p>
+<p> Deliberately include the awkward ones: ambiguous questions, questions with no good answer, and questions the system should decline. A set of easy cases scores high and measures nothing. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="graders">How to score an answer</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Four ways to score an answer, from cheap and rigid to expensive and flexible. Exact match, when there is one right string. A rule or regular expression, when you can describe correctness. A human, which is the ground truth and does not scale. Or another model as judge — which works, provided you have checked the judge against human scores first. </div></div>
 <p>Four kinds of grader, cheapest and most reliable first. Use the simplest one that can actually judge your task &mdash; and use several together, because most tasks have both a checkable part and a judgeable part.</p>
 <div class="table-wrap"><table><thead><tr><th>Grader</th><th>How it works</th><th>Good for</th><th>Watch out</th></tr></thead><tbody>
 <tr><td><strong>Exact / structural</strong></td><td>String match, JSON schema validation, a regex.</td><td>Classification, extraction, routing, anything with one right answer.</td><td>Nothing &mdash; use it wherever it applies. It is free and it never lies.</td></tr>
@@ -71,6 +75,7 @@
 
 <section class="note-section">
 <h2 id="running">Running them, and running them automatically</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> An eval set nobody runs is a document. The value appears when it runs automatically — on every change to a prompt, and on a schedule against production — so a regression is caught by a pipeline rather than by a customer. </div></div>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>evals/run.ts &mdash; small enough that it actually gets used</div><pre><code>import cases from './cases/support-qa.json';
 import { answer } from '../src/answer.js';
 import { judgeGrounded } from './graders.js';

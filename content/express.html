@@ -18,6 +18,7 @@ app.listen(5000, () =&gt; console.log('listening on 5000'));</code></pre></div>
 
 <section class="note-section">
 <h2 id="cycle">The request and response cycle</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Every interaction on the web is a letter and a reply. The browser sends a letter — a method saying what it wants, an address, some headers, sometimes a body. Your server sends one letter back — a status code, headers, a body. One request, one response, and then it is over: the server remembers nothing unless you deliberately wrote it down somewhere. </div></div>
 <p> Every handler receives the same three things: the request, the response, and the way to pass along. The rule underneath all of it is simple and unforgiving — <strong>exactly one response per request</strong>. Zero and the caller hangs until it times out; two and Node throws “headers already sent”. </p>
 <div class="code-block"><div class="code-head"><span class="lang">json</span>req, res, next</div><pre><code>app.post('/projects/:id/publish', (req, res, next) =&gt; {
   req.params.id;      // "/projects/abc/publish" -&gt; "abc"
@@ -35,10 +36,13 @@ app.listen(5000, () =&gt; console.log('listening on 5000'));</code></pre></div>
 });</code></pre></div>
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"> The commonest form of this bug is a missing <code>return</code>. A validation branch that responds with a 400 and then falls through into the success path sends two responses. Get into the habit: <code>return res.status(400).json(...)</code>. </div></div>
 
+<details class="selfcheck"><summary><span class="sc-q">Why does a server &ldquo;remember&rdquo; that you are logged in if each request is independent?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> It does not. Every request carries the proof with it — a cookie or a token the browser attaches to each letter. The server checks it afresh every single time and then forgets you again. </p>
+<p> That is why authentication is something you do <em>per request</em>, and why a token that leaks is enough for someone else to be you: possession of the proof is the whole of the identity. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="routes">Routes and routers</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A route is one line in a directory: &ldquo;a GET to <code>/projects</code> is handled by this function&rdquo;. A router is a sheet of those lines that you can move around as a unit — all the project routes in one file, all the user routes in another — so a large API stays navigable instead of becoming one enormous file. </div></div>
 <p> A route is a method plus a path plus a handler. A <strong>router</strong> is a group of routes that can be mounted under a prefix, which is how an API stays navigable past about twenty endpoints. </p>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>One router per resource, mounted under a prefix</div><pre><code>// routes/projects.ts
 import { Router } from 'express';
@@ -118,6 +122,7 @@ router.get('/:id', requireAuth, getProject);   // only this route</code></pre></
 
 <section class="note-section">
 <h2 id="input">Reading and validating input</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Input arrives in three places: in the address itself, in the query string after the question mark, and in the body of the request. All three come from outside your control, which means all three are claims rather than facts until you have checked them. Validation is where you turn a claim into something you are willing to act on. </div></div>
 <p> Input arrives in four places and every one of them is written by whoever is calling you: </p>
 <div class="table-wrap"><table><thead><tr><th>Where</th><th>Reached by</th><th>Notes</th></tr></thead><tbody><tr><td>Path</td><td><code>req.params.id</code></td><td>From the pattern — /projects/:id.</td></tr>
 <tr><td>Query string</td><td><code>req.query.page</code></td><td>Always strings, and can arrive as arrays if repeated. Convert deliberately.</td></tr>
@@ -151,10 +156,13 @@ router.get('/:id', requireAuth, getProject);   // only this route</code></pre></
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Mass assignment</strong> — the left-hand version above — is one of the most reliably exploitable bugs in any API. The caller does not need a form; they need one extra key in a JSON body. Name the fields you accept, every time. </div></div>
 <p> Pagination belongs in this section too, because an endpoint that returns everything is fine for the first year and then is not. Take <code>page</code> and <code>limit</code>, clamp the limit to something sane, and return the total so the caller can draw the controls. </p>
 
+<details class="selfcheck"><summary><span class="sc-q">Your endpoint expects <code>{ quantity: 3 }</code> and receives <code>{ quantity: "3; DROP TABLE orders" }</code>. Where should that be stopped?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> At the edge, by a schema that says quantity is an integer between 1 and some maximum. It never reaches your business logic, so nothing downstream has to be defensive about it. </p>
+<p> Validating at the boundary rather than at the point of use is what lets the rest of the codebase assume its inputs are sane. Scattering checks through the middle is how one gets missed. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="auth">Authentication and authorisation</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Two different questions that get run together. <strong>Authentication</strong> is &ldquo;who are you?&rdquo; — checking the ticket at the door. <strong>Authorisation</strong> is &ldquo;are you allowed to do <em>this</em>?&rdquo; — a valid ticket for the concert does not admit you to the dressing room. Systems that verify the first and assume the second are how one user ends up reading another user&rsquo;s data. </div></div>
 <figure class="figure is-flow" id="flow-1">
 <div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Signing in, then staying signed in</span>
   <button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button>
@@ -246,10 +254,13 @@ router.get('/:id', requireAuth, getProject);   // only this route</code></pre></
 </div>
 <div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Answering <strong>404 rather than 403</strong> for somebody else’s record is deliberate: a 403 confirms the record exists, which is itself information. Same reason the sign-in errors above are identical. </div></div>
 
+<details class="selfcheck"><summary><span class="sc-q">A signed-in user changes the id in <code>GET /api/invoices/8412</code> to <code>8413</code> and sees somebody else&rsquo;s invoice. Which of the two failed?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Authorisation. They were genuinely who they claimed to be, and the token was valid — the server simply never asked whether <em>this</em> user owns <em>that</em> invoice. </p>
+<p> This is among the most common serious flaws in real APIs, and the fix is a habit rather than a library: every query that fetches a record by id also filters by the owner, so an id that is not yours returns nothing rather than someone else&rsquo;s data. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="errors">Error handling</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Something will go wrong on every route you write, and you do not want the same handling copied into all of them. One error handler at the end of the chain catches everything, decides what the user is told, and makes sure the internal detail goes to your logs rather than into the response. </div></div>
 <details class="selfcheck"><summary><span class="sc-q">An endpoint returns nothing at all — no response, no error in the logs — and the caller eventually times out. Where do you look first?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Two candidates, and both are in this note. Either a middleware neither responded nor called <code>next()</code>, so the request is parked on the conveyor belt; or an async handler threw without a wrapper, so the rejection went nowhere Express looks. Both produce exactly this silence, which is why <code>asyncHandler</code> exists. </p>
 </div></details>
 <p> An error handler is middleware with <strong>four</strong> arguments. That extra argument is not decoration — it is how Express recognises the function as an error handler at all, so removing an unused <code>next</code> silently turns it back into ordinary middleware. </p>
@@ -284,6 +295,7 @@ router.get('/:id', asyncHandler(async (req, res) =&gt; {
 
 <section class="note-section">
 <h2 id="security">Hardening an Express app</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A short list of things that are cheap to add and expensive to have skipped: security headers, a limit on how many requests one caller can make, a cap on body size, and never revealing internal detail in an error message. None of it is clever. All of it is the difference between a scan finding nothing and a scan finding a way in. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Concern</th><th>Answer</th><th>What goes wrong without it</th></tr></thead><tbody><tr><td><span><strong>CORS</strong></span></td><td><code>cors({ origin: [...] })</code></td><td>Either any website can call your API with a visitor’s cookies, or — set too tightly — your own frontend is blocked and the error names none of that.</td></tr>
 <tr><td><span><strong>Headers</strong></span></td><td><code>helmet()</code></td><td>Clickjacking, MIME sniffing, referrer leakage. One line covers a dozen of these.</td></tr>
 <tr><td><span><strong>Rate limits</strong></span></td><td>Per-IP and per-account counters</td><td>Passwords get brute-forced, password-reset emails get used as a spam cannon, one caller monopolises the server.</td></tr>
@@ -302,6 +314,7 @@ router.get('/:id', asyncHandler(async (req, res) =&gt; {
 
 <section class="note-section">
 <h2 id="design">Designing the API</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> An API is a user interface for programmers, and it is judged the same way: is it predictable? Consistent naming, consistent shapes, consistent status codes, and errors that say what to do about them. The cost of getting this wrong is not aesthetic — it is every future developer, including you, having to look up how each endpoint behaves because none of them behave the same way. </div></div>
 <div class="card-grid cols-2"><div class="card"><div class="card-title key-term">Idempotent</div><p>Running it twice is the same as once. GET, PUT and DELETE should be; POST usually is not, which is why double-clicks create two of things.</p></div><div class="card"><div class="card-title key-term">Stateless</div><p>The server keeps no per-caller memory between requests. Everything needed arrives with the request.</p></div><div class="card"><div class="card-title key-term">Versioning</div><p>A prefix like /api/v1 so a breaking change can ship beside the old one instead of instead of it.</p></div><div class="card"><div class="card-title key-term">One error shape</div><p>Every failure looks the same on the wire, so the frontend has one thing to handle.</p></div></div>
 <p><strong>REST</strong> is a convention: the path names a thing, the method says what to do with it. Following it means a new endpoint is guessable rather than documented. </p>
 <div class="code-block"><div class="code-head"><span class="lang">js</span>Nouns in the path, verbs in the method</div><pre><code>GET    /api/v1/projects            list
@@ -331,6 +344,7 @@ POST   /api/v1/deleteProject</code></pre></div>
 
 <section class="note-section">
 <h2 id="testing">Testing and debugging</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The useful test for an API is not &ldquo;does this function return the right value&rdquo; but &ldquo;if I send this request, do I get the right response&rdquo;. That kind of test goes through the real routing, the real middleware and the real validation, so it catches the wiring mistakes that unit tests step around entirely. </div></div>
 <p> An HTTP API is unusually pleasant to test, because a test is just a request and an assertion about the answer. <code>curl</code> is enough to start. </p>
 <div class="code-block"><div class="code-head"><span class="lang">js</span>Poking at it by hand</div><pre><code>curl http://localhost:5000/api/v1/health
 
@@ -344,10 +358,12 @@ curl http://localhost:5000/api/v1/projects \
 # -i to see the status and headers; -v when you need the whole conversation.</code></pre></div>
 <ul><li><strong>A request hangs forever</strong> — some middleware neither responded nor called <code>next()</code>, or an async handler threw without a wrapper. </li><li><strong>“Cannot set headers after they are sent”</strong> — two responses. Look for a missing <code>return</code>. </li><li><strong><code>req.body</code> is undefined</strong> — no body parser, or the caller did not send <code>Content-Type: application/json</code>. </li><li><strong>A CORS error in the browser, but curl works</strong> — the browser is enforcing something curl does not. It is a configuration problem on the server, never a frontend one. </li><li><strong>The wrong handler runs</strong> — route order; a parameterised path is shadowing a literal one. </li></ul>
 
+<details class="selfcheck"><summary><span class="sc-q">Why is a test that sends a real HTTP request to your app usually worth more than a test that calls the route handler function directly?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because most bugs in an API are not inside the handler — they are in the wiring around it. Middleware in the wrong order, a validator not applied, an auth check missing on one route, a body parser absent. Calling the function directly bypasses every one of those and passes happily while the endpoint is broken. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="here">Express in this product</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The same structure, in the actual API: where routes live, the order the middleware runs in, and where errors end up. </div></div>
 <ul><li><code>backend/src/app.ts</code> — the middleware stack in the table above, with the reasoning for each layer written next to it. </li><li><code>backend/src/middleware/auth.ts</code> — <code>authMiddleware</code>, <code>optionalAuthMiddleware</code> and <code>adminMiddleware</code>, including the re-read of the role from the database. </li><li><code>backend/src/middleware/errorHandler.ts</code> — <code>ApiError</code>, <code>asyncHandler</code> and the single handler at the end of the chain. </li><li><code>backend/src/routes/</code> — one file per resource. Start with <code>auth.ts</code>, then <code>projects.ts</code>. </li></ul>
 <div class="callout is-note is-practice"><span class="callout-icon">&#9654;</span><div class="callout-body"><div class="callout-title">Practice</div><ol><li> Write a twenty-line Express server with a <code>GET /hello</code> that answers with JSON. Call it with curl. </li><li> Add a middleware that logs the method, path and duration of every request — and once it works, delete its <code>next()</code> and watch the request hang. That is the shape of a real outage. </li><li> Add <code>POST /echo</code> that returns the body. Call it without <code>express.json()</code> registered and see <code>undefined</code>; add the parser and see it work. </li><li> Throw an error inside an async handler with no wrapper, and confirm nothing comes back. Then add <code>asyncHandler</code> and see the 500 arrive properly. </li></ol>
 </div></div>

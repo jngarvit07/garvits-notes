@@ -21,6 +21,7 @@
 
 <section class="note-section">
 <h2 id="shape">Host, client, server</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Three roles that are easy to mix up. The <strong>host</strong> is the application a person uses. The <strong>client</strong> is the piece inside it that speaks the protocol. The <strong>server</strong> is your integration — the thing that actually knows how to read those files or query that system. You write servers; you rarely write the other two. </div></div>
 <p>Three words that get used loosely, and the confusion costs people an afternoon. They are precise.</p>
 <div class="card-grid cols-3">
 <div class="card"><div class="card-title key-term">Host</div><p>The application the human is using &mdash; Claude Code, Claude Desktop, your own app. It owns the model conversation and decides what the model is allowed to reach.</p></div>
@@ -40,6 +41,7 @@
 
 <section class="note-section">
 <h2 id="primitives">The three things a server can expose</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A server can expose three kinds of thing, and the distinction is about who decides to use them. <strong>Tools</strong> are actions the model can choose to take. <strong>Resources</strong> are data the application can read. <strong>Prompts</strong> are templates the user can pick. Most servers are mostly tools, and knowing the other two exist stops you forcing everything into that shape. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Primitive</th><th>What it is</th><th>Who decides to use it</th><th>Example</th></tr></thead><tbody>
 <tr><td><strong>Tools</strong></td><td>Actions with side effects, or lookups with arguments. The workhorse.</td><td><strong>The model</strong>, during a conversation.</td><td><code>create_invoice</code>, <code>search_orders</code>, <code>deploy_branch</code></td></tr>
 <tr><td><strong>Resources</strong></td><td>Readable data identified by a URI. Passive &mdash; no side effects, no arguments beyond the URI.</td><td><strong>The host or the user</strong>, usually by attaching it.</td><td>A file, a schema dump, a wiki page at <code>docs://runbook/deploy</code></td></tr>
@@ -50,6 +52,7 @@
 
 <section class="note-section">
 <h2 id="transport">How it gets across the wire</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Two ways the messages travel. Over standard input and output, when the server runs as a process on the same machine as the application — simple, and nothing is exposed to a network. Or over HTTP, when the server is remote — which means authentication, transport security and everything else that comes with being reachable. </div></div>
 <p>Two transports, and the choice is mostly decided for you by where the server needs to run.</p>
 <div class="table-wrap"><table><thead><tr><th></th><th>stdio</th><th>Streamable HTTP</th></tr></thead><tbody>
 <tr><td><strong>Shape</strong></td><td>The host launches your server as a child process and talks over stdin/stdout.</td><td>Your server is a web service; the host connects to a URL.</td></tr>
@@ -63,6 +66,7 @@
 
 <section class="note-section">
 <h2 id="build">Building a server</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Building a server is smaller than it sounds. You declare what your tools are called, what arguments they take and what they do, then write an ordinary function for each. The protocol handles the conversation; you are really just writing well-described functions. </div></div>
 <p>Smaller than you think. This is a complete, working stdio server exposing two tools over your existing Prisma database.</p>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>mcp/invoices/src/index.ts &mdash; a whole server</div><pre><code>import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
@@ -145,6 +149,7 @@ await server.connect(new StdioServerTransport());</code></pre></div>
 
 <section class="note-section">
 <h2 id="connect">Connecting it up</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Connecting a server is a small configuration file telling the host how to start it and what it needs. This is also the step where most first attempts fail, almost always for the same two reasons: the path is wrong, or an environment variable the server needs was not passed through. </div></div>
 <h3>To Claude Code, or any local host</h3>
 <p>A JSON file naming the command to run. Project-scoped config lives in <code>.mcp.json</code> at the repository root, which means the server travels with the codebase and every developer gets it.</p>
 <div class="code-block"><div class="code-head"><span class="lang">json</span>.mcp.json</div><pre><code>{
@@ -181,6 +186,7 @@ await server.connect(new StdioServerTransport());</code></pre></div>
 
 <section class="note-section">
 <h2 id="design">Designing a server people can actually use</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A server people can use is mostly a matter of restraint. Few tools rather than many, each doing one clearly-named thing. Errors that say what to do rather than what failed. Descriptions written for a reader who has no other documentation — because they have none. </div></div>
 <p>The protocol is the easy part. What separates a useful server from an annoying one is the same judgement as tool design in note 07, with one addition: <strong>your server will be used by hosts you did not write, in conversations you cannot see.</strong></p>
 <div class="table-wrap"><table><thead><tr><th>Do</th><th>Because</th></tr></thead><tbody>
 <tr><td>Bound every result. Take 20, not all.</td><td>An unbounded query fills the context window with rows nobody reads, and you pay for every one of them on every subsequent turn.</td></tr>
@@ -194,6 +200,7 @@ await server.connect(new StdioServerTransport());</code></pre></div>
 
 <section class="note-section">
 <h2 id="security">MCP security &mdash; read this part twice</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> An MCP server is code you are letting a model drive. Everything from the AI Security note applies here in its sharpest form: the model deciding to call your tool may be acting on text it read somewhere, so the server has to check permissions itself rather than trusting that it was called for a good reason. </div></div>
 <p>MCP does not introduce new categories of vulnerability; it makes the existing ones much easier to reach. Installing a server is closer to installing a browser extension than to adding a library &mdash; it runs with your permissions and can act on your behalf.</p>
 <div class="card-grid cols-2">
 <div class="card"><div class="card-title key-term">Untrusted server</div><p>A server you did not write can expose whatever tools it likes, with whatever descriptions it likes. The descriptions go into the model&rsquo;s context, so a malicious one is <strong>a prompt injection with a delivery mechanism</strong>. Read what you install.</p></div>
@@ -207,10 +214,13 @@ await server.connect(new StdioServerTransport());</code></pre></div>
 <p>The tool takes <code>customerId</code> as an argument, and the system prompt says &ldquo;only query the current customer&rsquo;s data&rdquo;. That is the bug. The model supplies that argument, and the model can be talked into supplying a different one &mdash; by a user who guesses an id, or by text inside a ticket the model happens to read.</p>
 <p>The fix is not a better prompt. The server should take the customer id from the <em>authenticated session</em>, not from the model, and refuse any argument that disagrees. Identity is a property of the connection, never a parameter the model fills in.</p>
 </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Your MCP server exposes <code>read_file(path)</code> so the assistant can read project files. What is wrong with it?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> It will read <em>any</em> file the process can reach — <code>~/.ssh/id_rsa</code>, the environment file, anything. The model was given a general capability when it needed a specific one, and text hidden in a document it processes can steer it to ask for exactly the wrong path. </p>
+<p> The fix is to bound the tool rather than to warn the model: resolve the path, confirm it is inside an allowed directory, and refuse otherwise. Constraints belong in the tool, where they cannot be talked around. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="when">When MCP is worth it</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> MCP is worth it when more than one application needs the same integration, or when someone else will use what you build. For a single tool used by a single app you control, a plain function is less work and there is no shame in it. The protocol earns its overhead through reuse. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Situation</th><th>Verdict</th></tr></thead><tbody>
 <tr><td>One application, one integration, no plans to reuse it.</td><td><strong>Skip it.</strong> A plain tool definition in your own agent loop is less machinery and less to secure.</td></tr>
 <tr><td>The same capability is needed in Claude Code, Claude Desktop and your app.</td><td><strong>Use it.</strong> This is precisely the case it exists for &mdash; write once, three hosts.</td></tr>

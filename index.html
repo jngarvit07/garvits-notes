@@ -4,49 +4,70 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Garvit's Notes — the stack, and the AI track</title>
-<meta name="description" content="Plain-language notes on the stack I build on, and on LLMs, RAG, agents, MCP, evals, security and governance.">
+<meta name="description" content="Plain-language notes on the stack I build on, and on LLMs, RAG, agents, MCP, evals, security, governance, architecture and cloud.">
 <meta name="color-scheme" content="light dark">
-<script>(function(){try{var t=localStorage.getItem('gn-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script>(function(){var d=document.documentElement;
+try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
+if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');}catch(e){}
+try{if(localStorage.getItem('gn-auth')!=='v11xb7'){
+var depth=(''.match(/\.\.\//g)||[]).length;
+var parts=location.pathname.split('/').filter(Boolean).slice(-(depth+1));
+location.replace('login.html?next='+encodeURIComponent(parts.join('/')));}}catch(e){}
+})();</script>
 <link rel="stylesheet" href="assets/css/main.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
 </head>
-<body data-base="">
+<body data-base="" class="is-wide">
 <header class="site-header">
-  <button class="icon-btn" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
-  <a class="brand" href="index.html"><span class="brand-mark">GN</span><span>Garvit&rsquo;s Notes</span></a>
+  <button class="icon-btn nav-only" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <button class="icon-btn rail-only" id="rail-toggle" type="button" aria-label="Hide the sidebar" aria-pressed="false" title="Hide the sidebar  ⌘\"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg></button>
+  <a class="brand" href="index.html"><span class="brand-mark">GN</span><span class="brand-text">Garvit&rsquo;s Notes</span></a>
   <div class="header-spacer"></div>
   <div class="search-wrap">
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-    <input class="search-input" id="search" type="search" placeholder="Search notes&hellip;  /" autocomplete="off" aria-label="Search notes">
+    <input class="search-input" id="search" type="search" placeholder="Search every topic&hellip;" autocomplete="off" aria-label="Search notes">
+    <kbd class="search-kbd">/</kbd>
     <div class="search-results" id="search-results" hidden></div>
   </div>
   <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <button class="icon-btn" id="sign-out" type="button" aria-label="Sign out" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg></button>
+  <div class="read-progress" id="read-progress"><span></span></div>
 </header>
 <div class="layout">
-  <nav class="sidebar" id="sidebar" aria-label="Notes"></nav>
-  <main class="main"><div class="content">
+  <nav class="sidebar" id="sidebar" aria-label="All notes"></nav>
+  <main class="main" id="main"><div class="content home">
 <section class="hero">
+  <div class="hero-glow" aria-hidden="true"></div>
   <span class="eyebrow">The stack I build on, and the one I am building toward</span>
-  <h1>Garvit&rsquo;s Notes</h1>
+  <h1 class="hero-title">Garvit&rsquo;s Notes</h1>
   <p class="lede">Notes on the technologies behind the products I ship, and on the AI systems I am learning to build &mdash; written in plain language first, then a real example, then the features and the mistakes that actually matter.</p>
   <div class="hero-stats">
-    <div><div class="stat-num">14</div><div class="stat-label">notes</div></div>
-    <div><div class="stat-num">9h</div><div class="stat-label">of reading</div></div>
-    <div><div class="stat-num">129</div><div class="stat-label">sections</div></div>
+    <div><div class="stat-num" data-count="18">0</div><div class="stat-label">notes</div></div>
+    <div><div class="stat-num" data-count="163">0</div><div class="stat-label">topics</div></div>
+    <div><div class="stat-num" data-count="6" data-suffix="h">0</div><div class="stat-label">of reading</div></div>
+  </div>
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="notes/react/what.html">Start reading
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <a class="btn btn-ghost" href="#how-to-read">How to read these</a>
   </div>
 </section>
 
 <h2 id="how-to-read">How to read these</h2>
 <div class="card-grid cols-2">
-  <div class="card"><div class="card-title">In order, if you are starting out</div><p>Notes 01&ndash;05 walk up the diagram below. Each assumes the one before it and nothing else.</p></div>
-  <div class="card"><div class="card-title">Type the examples out</div><p>Every snippet is short on purpose and runs on its own. Reading code teaches you to recognise it; typing it teaches you to write it.</p></div>
-  <div class="card"><div class="card-title">Answer before you open</div><p>Each note has collapsed self-checks. Committing to an answer first is the difference between recognising an idea and knowing it.</p></div>
-  <div class="card"><div class="card-title">Then read the real codebase</div><p>Each note ends by naming the files that do what it just described, so the second example you see is always a real one.</p></div>
+  <div class="card reveal"><div class="card-title">One topic, one page</div><p>Every note is a folder in the sidebar. Open it and each topic inside is its own short page &mdash; so you finish something in ten minutes rather than abandoning something long.</p></div>
+  <div class="card reveal"><div class="card-title">Type the examples out</div><p>Every snippet is short on purpose and runs on its own. Reading code teaches you to recognise it; typing it teaches you to write it.</p></div>
+  <div class="card reveal"><div class="card-title">Answer before you open</div><p>Each topic ends with a collapsed self-check. Committing to an answer first is the difference between recognising an idea and knowing it.</p></div>
+  <div class="card reveal"><div class="card-title">Then read the real codebase</div><p>Each note ends by naming the files that do what it just described, so the second example you see is always a real one.</p></div>
 </div>
 
-<h2 id="the-stack">Part one &mdash; the stack</h2>
-<p>How one request crosses four systems, and what each of them is responsible for.</p>
-<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">Where each note sits in the path a request takes</span></div><div class="figure-stage"><pre class="ascii-art">  somebody's browser
+<section class="part">
+<div class="part-head reveal">
+  <span class="part-tag">Part one — the stack</span>
+  <h2 id="stack">Part one — the stack</h2>
+  <p class="part-lede">How one request crosses four systems, and what each of them is responsible for. Read these in order if you are starting out: each assumes the one before it and nothing else.</p>
+</div>
+<figure class="figure is-ascii reveal"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">Where each note sits in the path a request takes</span></div><div class="figure-stage"><pre class="ascii-art">  somebody's browser
         |
         |  1. asks for a page
         v
@@ -65,102 +86,209 @@
   +-------------------------------+
   |  PostgreSQL (Prisma on top)   |   the memory: what is still true tomorrow
   +-------------------------------+</pre></div></figure>
-<div class="card-grid cols-2">
-<a class="card path-card" href="notes/react.html">
-  <div class="card-kicker">Note 01 &middot; 30 min</div>
-  <div class="card-title">React</div>
-  <p>How a screen is built out of small pieces that redraw themselves when the data changes.</p>
-  <div class="tag-row"><span class="tag">11 sections</span><span class="tag">No experience needed</span></div>
-</a>
-<a class="card path-card" href="notes/nextjs.html">
-  <div class="card-kicker">Note 02 &middot; 30 min</div>
-  <div class="card-title">Next.js</div>
-  <p>The framework around React: routing by folder, rendering on the server, and shipping less JavaScript.</p>
-  <div class="tag-row"><span class="tag">12 sections</span><span class="tag">Some experience helps</span></div>
-</a>
-<a class="card path-card" href="notes/nodejs.html">
-  <div class="card-kicker">Note 03 &middot; 35 min</div>
-  <div class="card-title">Node.js</div>
-  <p>JavaScript outside the browser, and the one idea — never wait, never block — the whole thing is built on.</p>
-  <div class="tag-row"><span class="tag">11 sections</span><span class="tag">No experience needed</span></div>
-</a>
-<a class="card path-card" href="notes/express.html">
-  <div class="card-kicker">Note 04 &middot; 35 min</div>
-  <div class="card-title">Express</div>
-  <p>Turning an HTTP request into an answer: routes, middleware, authentication and error handling.</p>
-  <div class="tag-row"><span class="tag">11 sections</span><span class="tag">Some experience helps</span></div>
-</a>
-<a class="card path-card" href="notes/postgresql.html">
-  <div class="card-kicker">Note 05 &middot; 40 min</div>
-  <div class="card-title">PostgreSQL &amp; Prisma</div>
-  <p>Where the data actually lives: tables, relations, SQL, indexes, transactions and migrations.</p>
-  <div class="tag-row"><span class="tag">11 sections</span><span class="tag">No experience needed</span></div>
-</a>
+<div class="note-grid">
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/react/index.html">
+    <div class="nc-kicker"><span class="nc-n">01</span>No experience needed</div>
+    <h3 class="nc-title">React</h3>
+    <p class="nc-tagline">How a screen is built out of small pieces that redraw themselves when the data changes.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/react/what.html">What React is</a></li><li><a href="notes/react/components.html">Components &amp; JSX</a></li><li><a href="notes/react/props.html">Props: data passed in</a></li><li><a href="notes/react/state.html">State: data that changes</a></li></ul>
+  <a class="nc-all" href="notes/react/index.html">All 11 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/redux/index.html">
+    <div class="nc-kicker"><span class="nc-n">02</span>Read React first</div>
+    <h3 class="nc-title">State Management &amp; Redux</h3>
+    <p class="nc-tagline">When component state stops being enough, and the four tools that take over — Context, Redux Toolkit, Zustand and React Query.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/redux/problem.html">The problem, before any tool</a></li><li><a href="notes/redux/lifting.html">Lifting state up, and where it stops</a></li><li><a href="notes/redux/context.html">Context: skipping the chain</a></li><li><a href="notes/redux/server-client.html">The distinction that decides everything</a></li></ul>
+  <a class="nc-all" href="notes/redux/index.html">All 11 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/nextjs/index.html">
+    <div class="nc-kicker"><span class="nc-n">03</span>Some experience helps</div>
+    <h3 class="nc-title">Next.js</h3>
+    <p class="nc-tagline">The framework around React: routing by folder, rendering on the server, and shipping less JavaScript.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/nextjs/what.html">What Next.js adds to React</a></li><li><a href="notes/nextjs/routing.html">Routing by folder</a></li><li><a href="notes/nextjs/server-client.html">Server Components vs Client Components</a></li><li><a href="notes/nextjs/layouts.html">Layouts, loading and error states</a></li></ul>
+  <a class="nc-all" href="notes/nextjs/index.html">All 12 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/nodejs/index.html">
+    <div class="nc-kicker"><span class="nc-n">04</span>No experience needed</div>
+    <h3 class="nc-title">Node.js</h3>
+    <p class="nc-tagline">JavaScript outside the browser, and the one idea — never wait, never block — the whole thing is built on.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/nodejs/what.html">What Node.js is</a></li><li><a href="notes/nodejs/loop.html">The event loop: one worker who never waits</a></li><li><a href="notes/nodejs/async.html">Promises and async/await</a></li><li><a href="notes/nodejs/modules.html">Modules, npm and package.json</a></li></ul>
+  <a class="nc-all" href="notes/nodejs/index.html">All 11 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/express/index.html">
+    <div class="nc-kicker"><span class="nc-n">05</span>Some experience helps</div>
+    <h3 class="nc-title">Express</h3>
+    <p class="nc-tagline">Turning an HTTP request into an answer: routes, middleware, authentication and error handling.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/express/what.html">What Express is</a></li><li><a href="notes/express/cycle.html">The request and response cycle</a></li><li><a href="notes/express/routes.html">Routes and routers</a></li><li><a href="notes/express/middleware.html">Middleware: the one idea to actually learn</a></li></ul>
+  <a class="nc-all" href="notes/express/index.html">All 11 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/postgresql/index.html">
+    <div class="nc-kicker"><span class="nc-n">06</span>No experience needed</div>
+    <h3 class="nc-title">PostgreSQL &amp; Prisma</h3>
+    <p class="nc-tagline">Where the data actually lives: tables, relations, SQL, indexes, transactions and migrations.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/postgresql/what.html">What a relational database is</a></li><li><a href="notes/postgresql/tables.html">Tables, keys and constraints</a></li><li><a href="notes/postgresql/sql.html">The SQL you will actually write</a></li><li><a href="notes/postgresql/relations.html">Relations and joins</a></li></ul>
+  <a class="nc-all" href="notes/postgresql/index.html">All 11 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+</div>
+</section>
+<section class="part">
+<div class="part-head reveal">
+  <span class="part-tag">Part two — the AI track</span>
+  <h2 id="ai">Part two — the AI track</h2>
+  <p class="part-lede">What a model is, how to give it your knowledge and your tools, how to prove it works, how it gets attacked, how to draw it, and how to run it. Note 07 stands alone and can be read first.</p>
 </div>
 
-<h2 id="the-ai-track">Part two &mdash; the AI track</h2>
-<p>What a model is, how to give it your knowledge and your tools, how to prove it works, and how it gets attacked. Note 06 stands alone and can be read first.</p>
-<div class="card-grid cols-2">
-<a class="card path-card" href="notes/ai.html">
-  <div class="card-kicker">Note 06 &middot; 100 min</div>
-  <div class="card-title">AI, Models, RAG &amp; Security</div>
-  <p>What a language model is, how to give it your own knowledge, how to ship it, and how it gets attacked.</p>
-  <div class="tag-row"><span class="tag">24 sections</span><span class="tag">No experience needed</span></div>
-</a>
-<a class="card path-card" href="notes/agents.html">
-  <div class="card-kicker">Note 07 &middot; 45 min</div>
-  <div class="card-title">Agents &amp; Workflows</div>
-  <p>The loop where the model decides what to do next — when that is the right answer, when a plain workflow beats it, and how to keep one on a leash.</p>
-  <div class="tag-row"><span class="tag">10 sections</span><span class="tag">Some experience helps</span></div>
-</a>
-<a class="card path-card" href="notes/mcp.html">
-  <div class="card-kicker">Note 08 &middot; 35 min</div>
-  <div class="card-title">MCP — Model Context Protocol</div>
-  <p>The plug shape that lets any model use any tool: write the integration once, and every host that speaks the protocol can use it.</p>
-  <div class="tag-row"><span class="tag">9 sections</span><span class="tag">Some experience helps</span></div>
-</a>
-<a class="card path-card" href="notes/skills-artifacts.html">
-  <div class="card-kicker">Note 09 &middot; 25 min</div>
-  <div class="card-title">Skills &amp; Artifacts</div>
-  <p>Four different ways to extend a model, and how to tell which one your problem actually needs.</p>
-  <div class="tag-row"><span class="tag">4 sections</span><span class="tag">No experience needed</span></div>
-</a>
-<a class="card path-card" href="notes/model-landscape.html">
-  <div class="card-kicker">Note 10 &middot; 25 min</div>
-  <div class="card-title">The Model Landscape</div>
-  <p>Claude, OpenAI, Gemini, Copilot and the open-weight world — what actually differs, without a horse race or a price list.</p>
-  <div class="tag-row"><span class="tag">5 sections</span><span class="tag">No experience needed</span></div>
-</a>
-<a class="card path-card" href="notes/evals.html">
-  <div class="card-kicker">Note 11 &middot; 35 min</div>
-  <div class="card-title">Evaluating AI Systems</div>
-  <p>The only way to know whether a change made things better. Without it, every prompt edit is a gamble.</p>
-  <div class="tag-row"><span class="tag">5 sections</span><span class="tag">Some experience helps</span></div>
-</a>
-<a class="card path-card" href="notes/ai-security.html">
-  <div class="card-kicker">Note 12 &middot; 35 min</div>
-  <div class="card-title">AI Security</div>
-  <p>Prompt injection has no complete fix. What that means for how you design, rather than how you word things.</p>
-  <div class="tag-row"><span class="tag">5 sections</span><span class="tag">Some experience helps</span></div>
-</a>
-<a class="card path-card" href="notes/governance.html">
-  <div class="card-kicker">Note 13 &middot; 30 min</div>
-  <div class="card-title">AI Governance</div>
-  <p>Risk tiers, the frameworks by name, and the one page per feature that answers most of what anyone will ask.</p>
-  <div class="tag-row"><span class="tag">5 sections</span><span class="tag">No experience needed</span></div>
-</a>
+<div class="note-grid">
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/ai/index.html">
+    <div class="nc-kicker"><span class="nc-n">07</span>No experience needed</div>
+    <h3 class="nc-title">AI, Models, RAG &amp; Security</h3>
+    <p class="nc-tagline">What a language model is, how to give it your own knowledge, how to ship it, and how it gets attacked.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/ai/what.html">AI, machine learning and language models</a></li><li><a href="notes/ai/landscape.html">The wider AI family</a></li><li><a href="notes/ai/how.html">How a model actually works</a></li><li><a href="notes/ai/training.html">How a model is made, and why that matters to you</a></li></ul>
+  <a class="nc-all" href="notes/ai/index.html">All 24 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/agents/index.html">
+    <div class="nc-kicker"><span class="nc-n">08</span>Some experience helps</div>
+    <h3 class="nc-title">Agents &amp; Workflows</h3>
+    <p class="nc-tagline">The loop where the model decides what to do next — when that is the right answer, when a plain workflow beats it, and how to keep one on a leash.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/agents/what.html">What an agent actually is</a></li><li><a href="notes/agents/ladder.html">The ladder: start at the bottom</a></li><li><a href="notes/agents/workflows.html">Five workflow patterns worth knowing by name</a></li><li><a href="notes/agents/loop.html">The agent loop, drawn</a></li></ul>
+  <a class="nc-all" href="notes/agents/index.html">All 10 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/mcp/index.html">
+    <div class="nc-kicker"><span class="nc-n">09</span>Some experience helps</div>
+    <h3 class="nc-title">MCP — Model Context Protocol</h3>
+    <p class="nc-tagline">The plug shape that lets any model use any tool: write the integration once, and every host that speaks the protocol can use it.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/mcp/what.html">The problem MCP solves</a></li><li><a href="notes/mcp/shape.html">Host, client, server</a></li><li><a href="notes/mcp/primitives.html">The three things a server can expose</a></li><li><a href="notes/mcp/transport.html">How it gets across the wire</a></li></ul>
+  <a class="nc-all" href="notes/mcp/index.html">All 9 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/skills-artifacts/index.html">
+    <div class="nc-kicker"><span class="nc-n">10</span>No experience needed</div>
+    <h3 class="nc-title">Skills &amp; Artifacts</h3>
+    <p class="nc-tagline">Four different ways to extend a model, and how to tell which one your problem actually needs.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/skills-artifacts/what.html">Four ways to extend a model, and how they differ</a></li><li><a href="notes/skills-artifacts/skills.html">Skills: instructions that load themselves</a></li><li><a href="notes/skills-artifacts/artifacts.html">Artifacts: output that is a document, not a message</a></li><li><a href="notes/skills-artifacts/choosing.html">Choosing between them</a></li></ul>
+  <a class="nc-all" href="notes/skills-artifacts/index.html">All 4 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/model-landscape/index.html">
+    <div class="nc-kicker"><span class="nc-n">11</span>No experience needed</div>
+    <h3 class="nc-title">The Model Landscape</h3>
+    <p class="nc-tagline">Claude, OpenAI, Gemini, Copilot and the open-weight world — what actually differs, without a horse race or a price list.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/model-landscape/layers.html">First, sort out what is actually being compared</a></li><li><a href="notes/model-landscape/families.html">The model families</a></li><li><a href="notes/model-landscape/copilot.html">Where Copilot fits, and why the name confuses everyone</a></li><li><a href="notes/model-landscape/choosing.html">Choosing, without the horse race</a></li></ul>
+  <a class="nc-all" href="notes/model-landscape/index.html">All 5 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/evals/index.html">
+    <div class="nc-kicker"><span class="nc-n">12</span>Some experience helps</div>
+    <h3 class="nc-title">Evaluating AI Systems</h3>
+    <p class="nc-tagline">The only way to know whether a change made things better. Without it, every prompt edit is a gamble.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/evals/why.html">Why you cannot ship without this</a></li><li><a href="notes/evals/dataset.html">Building the set — the part that matters</a></li><li><a href="notes/evals/graders.html">How to score an answer</a></li><li><a href="notes/evals/rag-agents.html">Evaluating RAG and agents specifically</a></li></ul>
+  <a class="nc-all" href="notes/evals/index.html">All 5 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/ai-security/index.html">
+    <div class="nc-kicker"><span class="nc-n">13</span>Some experience helps</div>
+    <h3 class="nc-title">AI Security</h3>
+    <p class="nc-tagline">Prompt injection has no complete fix. What that means for how you design, rather than how you word things.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/ai-security/model.html">The threat model in one sentence</a></li><li><a href="notes/ai-security/lethal.html">The combination that causes real damage</a></li><li><a href="notes/ai-security/defences.html">Defences that actually hold</a></li><li><a href="notes/ai-security/risks.html">The rest of the risk surface</a></li></ul>
+  <a class="nc-all" href="notes/ai-security/index.html">All 5 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/governance/index.html">
+    <div class="nc-kicker"><span class="nc-n">14</span>No experience needed</div>
+    <h3 class="nc-title">AI Governance</h3>
+    <p class="nc-tagline">Risk tiers, the frameworks by name, and the one page per feature that answers most of what anyone will ask.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/governance/why.html">Why a developer should care about this</a></li><li><a href="notes/governance/risk.html">Risk tiers: the idea behind every framework</a></li><li><a href="notes/governance/frameworks.html">The frameworks you will hear named</a></li><li><a href="notes/governance/practice.html">What this looks like in a repository</a></li></ul>
+  <a class="nc-all" href="notes/governance/index.html">All 5 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/architecture/index.html">
+    <div class="nc-kicker"><span class="nc-n">15</span>Some experience helps</div>
+    <h3 class="nc-title">AI System Architecture</h3>
+    <p class="nc-tagline">How to draw the system before you build it: the layers, the boundaries, and the trade-off waiting at each one.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/architecture/what.html">What architecture actually means here</a></li><li><a href="notes/architecture/layers.html">The five layers every AI feature has</a></li><li><a href="notes/architecture/reference.html">Four reference architectures</a></li><li><a href="notes/architecture/boundaries.html">The six boundaries, and the trade at each</a></li></ul>
+  <a class="nc-all" href="notes/architecture/index.html">All 7 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/cloud-gcp/index.html">
+    <div class="nc-kicker"><span class="nc-n">16</span>No experience needed</div>
+    <h3 class="nc-title">Cloud &amp; GCP Deployment</h3>
+    <p class="nc-tagline">Getting it off your laptop: Cloud Run, Vertex AI, storage, networking, IAM, secrets and the bill.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/cloud-gcp/what.html">What a cloud actually rents you</a></li><li><a href="notes/cloud-gcp/compute.html">Where your code runs</a></li><li><a href="notes/cloud-gcp/cloudrun.html">Deploying to Cloud Run, properly</a></li><li><a href="notes/cloud-gcp/storage.html">Storing things</a></li></ul>
+  <a class="nc-all" href="notes/cloud-gcp/index.html">All 9 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/aiops/index.html">
+    <div class="nc-kicker"><span class="nc-n">17</span>Some experience helps</div>
+    <h3 class="nc-title">AI Ops — Running It in Production</h3>
+    <p class="nc-tagline">The half of the work that starts the day you ship: tracing, versioning, rollouts, incidents, cost and the pager.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/aiops/different.html">Why this is not normal ops</a></li><li><a href="notes/aiops/logging.html">What to log on every call</a></li><li><a href="notes/aiops/tracing.html">Tracing a request through the whole chain</a></li><li><a href="notes/aiops/prompts.html">Prompts are code, so version them like code</a></li></ul>
+  <a class="nc-all" href="notes/aiops/index.html">All 7 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+</div>
+</section>
+<section class="part">
+<div class="part-head reveal">
+  <span class="part-tag">Part three — where this goes</span>
+  <h2 id="next">Part three — where this goes</h2>
+  <p class="part-lede">The honest version of what to learn after this, in what order, and how to tell you have actually learned it rather than just read it.</p>
 </div>
 
-<h2 id="whats-next">Part three &mdash; where this goes</h2>
-<p>The honest version of what to learn after this, in what order, and how to tell you have actually learned it.</p>
-<div class="card-grid cols-2">
-<a class="card path-card" href="notes/roadmap.html">
-  <div class="card-kicker">Note 14 &middot; 25 min</div>
-  <div class="card-title">What to Learn Next</div>
-  <p>Where you are now, the four stages that take you further, and how to tell you have actually learned it rather than just read it.</p>
-  <div class="tag-row"><span class="tag">6 sections</span><span class="tag">No experience needed</span></div>
-</a>
+<div class="note-grid">
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/roadmap/index.html">
+    <div class="nc-kicker"><span class="nc-n">18</span>No experience needed</div>
+    <h3 class="nc-title">What to Learn Next</h3>
+    <p class="nc-tagline">Where you are now, the four stages that take you further, and how to tell you have actually learned it rather than just read it.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/roadmap/where.html">Where you are now</a></li><li><a href="notes/roadmap/path.html">The path, in the order that works</a></li><li><a href="notes/roadmap/foundations.html">The foundations worth filling in</a></li><li><a href="notes/roadmap/deeper.html">Where to go deeper, once the basics hold</a></li></ul>
+  <a class="nc-all" href="notes/roadmap/index.html">All 6 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
 </div>
+</section>
 </div></main>
   
 </div>

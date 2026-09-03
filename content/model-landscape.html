@@ -25,6 +25,7 @@
 
 <section class="note-section">
 <h2 id="families">The model families</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A handful of organisations train the models nearly everything is built on, and each family has a recognisable character rather than a rank. What actually differs between them is context length, tool-calling behaviour, how they handle refusals, availability in your region, and licensing. Those are the things worth comparing, because they change what you can build. </div></div>
 <p>Four groups matter in practice. Every one of them ships new versions on a cadence of months, so treat this as the shape of the landscape rather than a snapshot of who is ahead this week.</p>
 <div class="table-wrap"><table><thead><tr><th>Family</th><th>Who</th><th>Character</th><th>Typically strongest at</th></tr></thead><tbody>
 <tr><td><strong>Claude</strong></td><td>Anthropic</td><td>Tiered by capability &mdash; Opus, Sonnet, Haiku &mdash; sharing one API. Long context, strong tool use, deliberately conservative behaviour.</td><td>Coding and agentic work, long-document reasoning, following complex instructions, tasks where you want it to say &ldquo;I don&rsquo;t know&rdquo;.</td></tr>
@@ -56,6 +57,7 @@
 
 <section class="note-section">
 <h2 id="choosing">Choosing, without the horse race</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Choosing without a horse race. Benchmarks measure general ability on somebody else&rsquo;s problems, and the model that ranks third overall is regularly first on the narrow thing you actually do. Your own small eval set, on your own real cases, beats any leaderboard for the only question that matters — which is better <em>here</em>. </div></div>
 <p>The question &ldquo;which model is best&rdquo; has no answer. These do.</p>
 <figure class="figure is-flow"><div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Picking a model for one job</span>{{replay}}</div><div class="figure-stage"><ol class="flow flow-column">
 <li class="flow-step dg-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Is there a hard constraint?</span><span class="flow-detail">Data residency, an air-gapped network, a procurement rule, an existing cloud commitment. Constraints decide this before quality does — and often the answer is open weights, or whichever family your cloud already sells.</span></div></li>
@@ -76,6 +78,7 @@
 
 <section class="note-section">
 <h2 id="portability">Staying portable</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The models change every few months. The way to survive that is not to pick correctly — it is to make the choice cheap to revisit. One function in your codebase that every model call goes through turns &ldquo;switch provider&rdquo; from a rewrite into a configuration change, and it costs you about twenty lines. </div></div>
 <p>Models improve, prices move, vendors change terms, and the best choice today is not the best choice in eighteen months. The goal is not to pick correctly forever &mdash; it is to make being wrong cheap.</p>
 <div class="table-wrap"><table><thead><tr><th>Practice</th><th>What it buys you</th></tr></thead><tbody>
 <tr><td>Model ids in config, never inline in code.</td><td>Switching is a deploy, not a refactor. It also lets you pin a version in production and test a new one alongside.</td></tr>
@@ -93,4 +96,6 @@
 <li>Start with the smallest model and step up only where it fails. One product sensibly uses three.</li>
 <li>Model ids in config, prompts in files, evals maintained. Make being wrong cheap rather than trying to be right forever.</li>
 </ul></div>
+<details class="selfcheck"><summary><span class="sc-q">Why is being able to switch models quickly worth more than picking the best one today?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because today&rsquo;s ranking has a shelf life measured in months, while the code you write around it lasts years. A system that can change model in an afternoon gets to take advantage of every improvement; one with provider-specific calls scattered through it is stuck with a decision made when it knew least. </p>
+<p> It is also your outage plan. A provider having a bad day is a config change rather than an incident. </p></div></details>
 </section>

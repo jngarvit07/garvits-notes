@@ -57,6 +57,7 @@ for (let i = 0; i &lt; 5_000_000_000; i++) total += i;          // ~10s of froze
 
 <section class="note-section">
 <h2 id="async">Promises and async/await</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A promise is a receipt. You order a coffee, you get a ticket, and you carry on with your morning instead of standing at the counter. Later the ticket is exchanged for the coffee — or for an apology that the machine is broken. <code>await</code> is standing still until your ticket is called; the point of a promise is that you did not <em>have</em> to. </div></div>
 <p> A <strong>promise</strong> is a receipt for a value that does not exist yet. It is in one of three states — pending, fulfilled with a value, or rejected with an error — and it never goes back. </p>
 <p><code>async</code> and <code>await</code> are the readable way to use them. <code>await</code> pauses <i>this function</i> until the promise settles, without pausing the thread; <code>async</code> marks a function as one that can do that, and makes it return a promise. </p>
 <div class="code-block"><div class="code-head"><span class="lang">js</span>The same operation, three generations of syntax</div><pre><code>// 1. Callbacks — how Node started. Nesting grows sideways forever.
@@ -105,6 +106,7 @@ const usage = await getUsage(id);      // 100ms
 
 <section class="note-section">
 <h2 id="modules">Modules, npm and package.json</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A module is one file that decides what it lets other files see. <code>package.json</code> is the list of every outside package your project depends on, and the lock file beside it records the exact versions that were actually installed — which is what makes the same code behave the same on your laptop and on a server. </div></div>
 <p> A file is a module. It shares things by exporting them and uses other files by importing them. There are two systems, and mixing them up produces the single most confusing class of Node error. </p>
 <div class="table-wrap"><table><thead><tr><th></th><th>CommonJS (older)</th><th>ES Modules (current)</th></tr></thead><tbody><tr><td>Import</td><td><code>const x = require('./x')</code></td><td><code>import x from './x.js'</code></td></tr>
 <tr><td>Export</td><td><code>module.exports = x</code></td><td><code>export default x</code></td></tr>
@@ -129,10 +131,13 @@ const usage = await getUsage(id);      // 100ms
 <p> The <code>^</code> is a version range: <code>^4.18.2</code> accepts any 4.x from 4.18.2 up, on the promise that those releases do not break anything. <code>package-lock.json</code> records the exact versions that were actually installed, which is why it is committed and why <code>npm ci</code> — install exactly the lock file — is what runs in a deployment. </p>
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"> A dependency in the wrong section fails at the worst time: put a build-only tool in <code>dependencies</code> and the production image is fat but works; put a runtime library in <code>devDependencies</code> and everything passes locally, then crashes on the deployed server with “cannot find module”. </div></div>
 
+<details class="selfcheck"><summary><span class="sc-q">Why commit the lock file when <code>package.json</code> already lists the dependencies?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because <code>package.json</code> usually names a <em>range</em> — &ldquo;version 4 point anything&rdquo; — so two installs a month apart can produce different code. The lock file pins the exact version of every package, including the packages your packages depend on. </p>
+<p> Without it, &ldquo;works on my machine&rdquo; becomes a real and very hard-to-diagnose category of bug, because the difference is not in anything you wrote. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="core">The built-in toolkit</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Node arrives with a toolbox: reading files, making network requests, working with paths, hashing, compressing. Knowing what is already there stops you installing a package for something that is one line of built-in code — and every package you do not install is one less thing to update, audit and trust. </div></div>
 <p> Node ships with modules you never install. The ones worth recognising: </p>
 <div class="table-wrap"><table><thead><tr><th>Module</th><th>For</th><th>Typical use</th></tr></thead><tbody><tr><td><code>fs</code></td><td>Files</td><td><span>Always the <code>fs/promises</code> version inside a request.</span></td></tr>
 <tr><td><code>path</code></td><td>Building file paths</td><td><span><code>path.join(dir, name)</code> — never string concatenation, or Windows breaks.</span></td></tr>
@@ -174,6 +179,7 @@ createReadStream('./huge.zip').pipe(res);</code></pre></div>
 
 <section class="note-section">
 <h2 id="env">Configuration and the process lifecycle</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Configuration is what differs between your laptop and the live server. Keeping it outside the code means one codebase runs everywhere. The lifecycle half of this is what happens when the server is asked to stop: a well-behaved process finishes the requests it is already handling before it exits, rather than dropping them. </div></div>
 <figure class="figure is-flow" id="flow-1">
 <div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">The life of a server process</span>
   <button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button>
@@ -244,10 +250,13 @@ process.on('SIGTERM', async () =&gt; {
 });</code></pre></div>
 <div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Without this, a deployment cuts off whatever was mid-flight. Usually that is a page load somebody retries. Occasionally it is a payment or a publish, and “occasionally” is doing a lot of work in that sentence. </div></div>
 
+<details class="selfcheck"><summary><span class="sc-q">Why should a server read and validate all its configuration at startup rather than when each value is first needed?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> So that a missing or malformed value stops the process immediately, loudly, before any traffic reaches it. The alternative is a server that starts fine and then fails hours later on the first request that happens to need the value nobody set — at which point the failure is a user-facing 500 rather than a failed deploy. </p>
+<p> The general principle: fail at the earliest moment you can detect the problem, because that is when it is cheapest and clearest. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="errors">The errors that actually kill servers</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> In Node, an error in the wrong place does not produce a broken page — it can take the whole server down, disconnecting every user, not just the one whose request failed. That is the price of one process serving everybody. This topic is the short list of the mistakes that actually cause it. </div></div>
 <p> There are three, and they are all quiet until they are not. </p>
 <ol><li><strong>An unhandled promise rejection.</strong> A promise fails and nothing catches it. On modern Node this terminates the process by default. </li><li><strong>An error thrown inside an async handler.</strong> The framework never sees it, so the request hangs until it times out — no response, no log, nothing in the error tracker. </li><li><strong>An error thrown in a callback or a timer.</strong> There is no <code>try</code> block up the stack to catch it, because the stack it was created on is long gone. </li></ol>
 <div class="code-block"><div class="code-head"><span class="lang">js</span>The safety net at the top of the process</div><pre><code>process.on('unhandledRejection', (reason) =&gt; {
@@ -263,10 +272,13 @@ process.on('uncaughtException', (error) =&gt; {
 <p> Logging is part of error handling, not separate from it. <code>console.log</code> is fine while you are developing and poor in production: no levels, no timestamps, no structure to search on. A structured logger prints JSON that a log tool can filter — and it lets you attach a request id so one user’s journey can be pulled out of a million lines. </p>
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Never log secrets.</strong> Logging a whole request body captures passwords and tokens, logs are kept for months, and they are readable by more people than the database is. Log the fields you need by name rather than the object. </div></div>
 
+<details class="selfcheck"><summary><span class="sc-q">Why is a rejected promise with no <code>catch</code> more dangerous in Node than a thrown error in a browser?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> In a browser the damage is contained to one person&rsquo;s tab. In Node, one process is serving every user at once, so an unhandled rejection that terminates the process disconnects all of them. A bug on one rare code path becomes a full outage. </p>
+<p> That is why every async path needs an error handler, and why a top-level handler that logs and exits deliberately — rather than crashing at random — is worth having. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="perf">Performance and scaling</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Node is fast at waiting and slow at thinking. Thousands of requests that are mostly waiting on a database are exactly what it is built for. One request doing heavy computation blocks the single worker, and every other user waits behind it. Almost all Node performance advice is a variation on that one sentence. </div></div>
 <p> One Node process uses one CPU core. A machine with four cores running one process is leaving three quarters of the machine idle. </p>
 <div class="table-wrap"><table><thead><tr><th>Tool</th><th>What it does</th><th>When</th></tr></thead><tbody><tr><td><code>cluster</code></td><td>Forks one process per core, sharing the same port</td><td>The default way to use the whole machine</td></tr>
 <tr><td><code>worker_threads</code></td><td>A real thread for CPU work</td><td>Image processing, big parses — anything that would block the loop</td></tr>
@@ -281,12 +293,16 @@ process.on('uncaughtException', (error) =&gt; {
 
 <section class="note-section">
 <h2 id="security">Security basics</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Most server security is one habit: never trust anything that came from outside. Not the request body, not a header, not a filename, not a value from another service. Check its shape before you use it, and never build a command, a query or a file path by gluing user input into a string. </div></div>
 <ul><li><strong>Secrets live in the environment</strong>, never in the repository. A key committed once is in the history forever; the fix is rotation, not deletion. </li><li><strong>Never build a shell command from user input.</strong> <code>exec('convert ' + filename)</code> with a filename somebody chose is a way to run their commands on your server. Use the argument-array form, which never goes through a shell. </li><li><strong>Treat every input as hostile</strong> — body, query, headers, cookies, uploads. Validate shape and size before use. </li><li><strong>Keep dependencies current.</strong> <code>npm audit</code> lists known holes in what you installed. Most real Node compromises come through a package, not through your code. </li><li><strong>Run as an unprivileged user.</strong> Root in a container is still root when something escapes the process. </li></ul>
 
+<details class="selfcheck"><summary><span class="sc-q">A user sends a filename and your code reads <code>./uploads/</code> plus that filename. What can they send?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Something like <code>../../.env</code>. The path is joined without checking, so it climbs out of the uploads folder and reads a file you never intended to expose — your configuration, including your secrets. </p>
+<p> The defence is not to filter for <code>..</code>, which is a game of patching individual tricks. It is to resolve the final path and confirm it still sits inside the folder you meant, rejecting it if not. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="here">Node in this product</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Where these ideas show up in the actual server — the entry point, how it is configured, and what happens when it is told to shut down. </div></div>
 <ul><li><code>backend/src/index.ts</code> and <code>backend/src/app.ts</code> — the entry point, and the assembled application it starts. </li><li><code>backend/src/middleware/errorHandler.ts</code> — the <code>asyncHandler</code>  wrapper exists precisely because of failure mode two above. </li><li><code>backend/.env.example</code> — every variable the server expects, with nothing secret in it. </li><li><code>backend/package.json</code> — the scripts, and the dependency split. </li></ul>
 <div class="callout is-note is-practice"><span class="callout-icon">&#9654;</span><div class="callout-body"><div class="callout-title">Practice</div><ol><li> Write a file that reads its own source with <code>fs/promises</code> and prints the line count. Run it with <code>node</code>. That is the whole loop: no framework, no build. </li><li> Add a 5-billion-iteration <code>for</code> loop before the read, and notice that nothing else in the process happens until it ends. That is the event loop, blocked. </li><li> Fetch three URLs sequentially with <code>await</code>, time it, then switch to <code>Promise.all</code> and time it again. </li></ol>
 </div></div>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The event loop: one worker who never waits — Node.js — Garvit's Notes</title>
+<meta name="description" content="Node runs your JavaScript on one thread .">
+<meta name="color-scheme" content="light dark">
+<script>(function(){var d=document.documentElement;
+try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
+if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');}catch(e){}
+try{if(localStorage.getItem('gn-auth')!=='v11xb7'){
+var depth=('../../'.match(/\.\.\//g)||[]).length;
+var parts=location.pathname.split('/').filter(Boolean).slice(-(depth+1));
+location.replace('../../login.html?next='+encodeURIComponent(parts.join('/')));}}catch(e){}
+})();</script>
+<link rel="stylesheet" href="../../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../../" data-note="nodejs" data-topic="loop">
+<header class="site-header">
+  <button class="icon-btn nav-only" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <button class="icon-btn rail-only" id="rail-toggle" type="button" aria-label="Hide the sidebar" aria-pressed="false" title="Hide the sidebar  ⌘\"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg></button>
+  <a class="brand" href="../../index.html"><span class="brand-mark">GN</span><span class="brand-text">Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search every topic&hellip;" autocomplete="off" aria-label="Search notes">
+    <kbd class="search-kbd">/</kbd>
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <button class="icon-btn" id="sign-out" type="button" aria-label="Sign out" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg></button>
+  <div class="read-progress" id="read-progress"><span></span></div>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="All notes"></nav>
+  <main class="main" id="main"><article class="content">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/nodejs/index.html">Node.js</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">The event loop: one worker who never waits</span></nav>
+<header class="topic-head reveal">
+  <span class="eyebrow">Note 04 &middot; Node.js &middot; Topic 2 of 11</span>
+  <h1>The event loop: one worker who never waits</h1>
+  <div class="page-meta">
+    <span>2 min read</span>
+    <span>No experience needed</span>
+  </div>
+</header>
+<div class="topic-body">
+<p> Node runs your JavaScript on <strong>one thread</strong>. One. Ten thousand people can be connected and there is still a single line of execution — which sounds like a crippling limitation and is the reason Node is good at what it does. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A good waiter with twenty tables does not stand beside table four while the kitchen cooks. They take the order, hand it to the kitchen, and go to table five. When the food is ready the kitchen calls them back. One waiter, twenty tables, because the waiting is done by somebody else. Node’s kitchen is the operating system: disks, networks, databases. </div></div>
+<p> So the rule that governs everything: <strong>never make the waiter stand still</strong>. Anything slow must be handed off, not waited on. Handing off is what <code>await</code> does — it says “come back to this line when the answer arrives” and lets the thread go do other work in the meantime. </p>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>What the single thread means, concretely</div><pre><code>// SLOW, but fine. The thread is free the whole time it waits.
+const user = await db.user.findUnique({ where: { id } });   // 40ms, handed off
+
+// FAST to write, catastrophic to run. This is arithmetic, not waiting:
+// nothing can hand it off, so every other request in the process is frozen
+// until it finishes.
+let total = 0;
+for (let i = 0; i &lt; 5_000_000_000; i++) total += i;          // ~10s of frozen server</code></pre></div>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">The event loop, drawn</span></div><div class="figure-stage"><pre class="ascii-art">   your code (ONE thread)
+        |
+        |  starts something slow  -&gt;  +----------------------+
+        |                             |  the operating system |
+        |  ... keeps serving          |  disk / network / db  |
+        |      other requests         +----------------------+
+        |                                        |
+        |  &lt;---- "your answer is ready" ---------+
+        |
+        v
+   callback queue  -&gt;  the loop picks the next ready item and runs it
+
+   Nothing is parallel here. The loop is fast because it is never idle,
+   not because there is more than one of it — so any single piece of
+   work that refuses to pause stops everything.</pre></div></figure>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Blocking the loop stops the entire server, not one request.</strong> Health checks fail, every connected user hangs, and the process looks alive to your monitoring the whole time. The usual culprits are real work rather than silly loops: parsing a 200 MB JSON file, resizing an image, hashing a password with too high a cost factor, or a regular expression that backtracks. Anything CPU-heavy belongs in a worker thread or a separate service. </div></div>
+<p> The same rule explains the <code>fs.readFileSync</code> family. Every synchronous API in Node stops the world while it runs. They are there for start-up — reading a config file once before the server listens — and are a bug anywhere inside a request. </p>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; blocking inside a request</div><pre><code>app.get('/report', (req, res) =&gt; {
+  // Every other user waits for this disk read.
+  const data = fs.readFileSync('./big.csv', 'utf8');
+  res.send(summarise(data));
+});</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; handed off</div><pre><code>app.get('/report', async (req, res) =&gt; {
+  // The thread serves other people while the disk works.
+  const data = await fs.promises.readFile('./big.csv', 'utf8');
+  res.send(summarise(data));
+});</code></pre></div>
+</div>
+</div>
+<nav class="page-nav">
+<a class="pn-prev" href="what.html">
+  <span class="pn-dir">&larr; Previous</span>
+  <span class="pn-title">What Node.js is</span>
+  
+</a>
+<a class="pn-next" href="async.html">
+  <span class="pn-dir">Next &rarr;</span>
+  <span class="pn-title">Promises and async/await</span>
+  
+</a>
+</nav>
+<nav class="siblings" aria-label="Other topics in this note">
+  <div class="sib-head">More in <a href="index.html">Node.js</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What Node.js is</a><a class="sib is-current" href="loop.html"><span class="sib-n">02</span>The event loop: one worker who never waits</a><a class="sib" href="async.html"><span class="sib-n">03</span>Promises and async/await</a><a class="sib" href="modules.html"><span class="sib-n">04</span>Modules, npm and package.json</a><a class="sib" href="core.html"><span class="sib-n">05</span>The built-in toolkit</a><a class="sib" href="streams.html"><span class="sib-n">06</span>Streams and buffers</a><a class="sib" href="env.html"><span class="sib-n">07</span>Configuration and the process lifecycle</a><a class="sib" href="errors.html"><span class="sib-n">08</span>The errors that actually kill servers</a><a class="sib" href="perf.html"><span class="sib-n">09</span>Performance and scaling</a><a class="sib" href="security.html"><span class="sib-n">10</span>Security basics</a><a class="sib" href="here.html"><span class="sib-n">11</span>Node in this product</a></div>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../../assets/js/site-data.js"></script>
+<script src="../../assets/js/app.js"></script>
+</body>
+</html>

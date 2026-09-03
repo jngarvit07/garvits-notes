@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bias, law and telling people — AI, RAG &amp; Security — Garvit's Notes</title>
+<meta name="description" content="In plain English Three practical obligations rather than a philosophical position.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){var d=document.documentElement;
+try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
+if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');}catch(e){}
+try{if(localStorage.getItem('gn-auth')!=='v11xb7'){
+var depth=('../../'.match(/\.\.\//g)||[]).length;
+var parts=location.pathname.split('/').filter(Boolean).slice(-(depth+1));
+location.replace('../../login.html?next='+encodeURIComponent(parts.join('/')));}}catch(e){}
+})();</script>
+<link rel="stylesheet" href="../../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../../" data-note="ai" data-topic="ethics">
+<header class="site-header">
+  <button class="icon-btn nav-only" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <button class="icon-btn rail-only" id="rail-toggle" type="button" aria-label="Hide the sidebar" aria-pressed="false" title="Hide the sidebar  ⌘\"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg></button>
+  <a class="brand" href="../../index.html"><span class="brand-mark">GN</span><span class="brand-text">Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search every topic&hellip;" autocomplete="off" aria-label="Search notes">
+    <kbd class="search-kbd">/</kbd>
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <button class="icon-btn" id="sign-out" type="button" aria-label="Sign out" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg></button>
+  <div class="read-progress" id="read-progress"><span></span></div>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="All notes"></nav>
+  <main class="main" id="main"><article class="content">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/ai/index.html">AI, RAG &amp; Security</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Bias, law and telling people</span></nav>
+<header class="topic-head reveal">
+  <span class="eyebrow">Note 07 &middot; AI, RAG &amp; Security &middot; Topic 21 of 24</span>
+  <h1>Bias, law and telling people</h1>
+  <div class="page-meta">
+    <span>2 min read</span>
+    <span>No experience needed</span>
+  </div>
+</header>
+<div class="topic-body">
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Three practical obligations rather than a philosophical position. Do not let the system make decisions about people that you could not explain or defend. Follow the law where you operate — which increasingly has specific things to say about AI. And tell people when they are talking to a machine, because most of the resentment these systems generate comes from having been fooled about that. </div></div>
+<p> These systems are trained on text written by people, and they reproduce what is in it — including the parts nobody would defend. This is not a moral aside; it is a product risk with legal consequences, and it shows up in ordinary features. </p>
+<ul><li><strong>Bias is inherited and invisible.</strong> A model asked to screen applicants, rank complaints or judge tone will carry patterns from its training data. If a decision affects somebody’s money, employment, housing or health, a model is an input to a human decision — never the decision. </li><li><strong>Explanations are not reasons.</strong> Ask why it answered that and you get a plausible account, generated the same way the answer was. It is a hypothesis, not an audit trail. Where you need a real reason, use rules you wrote. </li><li><strong>Copyright is unsettled.</strong> Training data, generated output and who owns it are all in active litigation in several countries. For a small product the practical rules are boring and sufficient: do not ask for imitations of a living artist or a specific brand, keep generated media out of your trademarks, and check your provider’s indemnity terms. </li><li><strong>Regulation has arrived.</strong> The EU AI Act phases in obligations by risk tier, and several jurisdictions require disclosure when a person is talking to a machine. If you operate in the EU, the classification of your feature is a question for the beginning of the project, not the end. </li><li><strong>Privacy law still applies, unchanged.</strong> Personal data in a prompt is processing. It needs a basis, a processor agreement, a retention answer and a line in the privacy notice. </li></ul>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><strong>Say that it is AI.</strong> Label generated content, make it obvious when a reply is not from a person, and offer a route to one. It is required in more places every year, and it is the difference between a user forgiving a wrong answer and feeling deceived by it. </div></div>
+<p> One more, less discussed: <strong>the environmental and human cost is real but not the one people usually name</strong>. Training is expensive and happens once; your feature’s footprint is inference, repeated millions of times. Caching, smaller models and not calling the model when a rule would do are the levers — and they are the same levers that make the bill smaller. </p>
+</div>
+<nav class="page-nav">
+<a class="pn-prev" href="security.html">
+  <span class="pn-dir">&larr; Previous</span>
+  <span class="pn-title">AI security</span>
+  
+</a>
+<a class="pn-next" href="cases.html">
+  <span class="pn-dir">Next &rarr;</span>
+  <span class="pn-title">Four case studies, with the part that goes wrong</span>
+  
+</a>
+</nav>
+<nav class="siblings" aria-label="Other topics in this note">
+  <div class="sib-head">More in <a href="index.html">AI, RAG &amp; Security</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>AI, machine learning and language models</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>The wider AI family</a><a class="sib" href="how.html"><span class="sib-n">03</span>How a model actually works</a><a class="sib" href="training.html"><span class="sib-n">04</span>How a model is made, and why that matters to you</a><a class="sib" href="sampling.html"><span class="sib-n">05</span>Decoding: the settings on the request</a><a class="sib" href="models.html"><span class="sib-n">06</span>Choosing a model</a><a class="sib" href="multimodal.html"><span class="sib-n">07</span>Beyond text: images, documents and voice</a><a class="sib" href="prompting.html"><span class="sib-n">08</span>Prompting that actually works</a><a class="sib" href="context.html"><span class="sib-n">09</span>Context engineering: what the model can see</a><a class="sib" href="limits.html"><span class="sib-n">10</span>What models get wrong, and why</a><a class="sib" href="evaluation.html"><span class="sib-n">11</span>Evaluation: what turns this into engineering</a><a class="sib" href="embeddings.html"><span class="sib-n">12</span>Embeddings and vector search</a><a class="sib" href="rag.html"><span class="sib-n">13</span>RAG, in detail</a><a class="sib" href="choose.html"><span class="sib-n">14</span>RAG, fine-tuning, or just a better prompt</a><a class="sib" href="tuning.html"><span class="sib-n">15</span>Fine-tuning, when it is genuinely the answer</a><a class="sib" href="agents.html"><span class="sib-n">16</span>Tools and agents</a><a class="sib" href="patterns.html"><span class="sib-n">17</span>Agent patterns worth knowing by name</a><a class="sib" href="production.html"><span class="sib-n">18</span>Shipping it: the unglamorous half</a><a class="sib" href="cost.html"><span class="sib-n">19</span>Cost and latency, engineered rather than hoped for</a><a class="sib" href="security.html"><span class="sib-n">20</span>AI security</a><a class="sib is-current" href="ethics.html"><span class="sib-n">21</span>Bias, law and telling people</a><a class="sib" href="cases.html"><span class="sib-n">22</span>Four case studies, with the part that goes wrong</a><a class="sib" href="build.html"><span class="sib-n">23</span>Building it here — a worked design</a><a class="sib" href="glossary.html"><span class="sib-n">24</span>The jargon, decoded</a></div>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../../assets/js/site-data.js"></script>
+<script src="../../assets/js/app.js"></script>
+</body>
+</html>

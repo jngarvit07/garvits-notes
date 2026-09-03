@@ -55,6 +55,7 @@ change the data  -&gt;  React runs your component again
 
 <section class="note-section">
 <h2 id="components">Components &amp; JSX</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A component is a recipe. &ldquo;Save button&rdquo; is written once, and then used wherever a save button belongs — the way a recipe for bread is written once and baked a hundred times. What makes it more than copy-and-paste is that changing the recipe changes every loaf: fix the button in one place and it is fixed on every screen that uses it. </div></div>
 <p> A <strong>component</strong> is a function that returns a description of some screen. That is genuinely all it is: a function whose name starts with a capital letter and which returns markup. </p>
 <div class="code-block"><div class="code-head"><span class="lang">js</span>A component</div><pre><code>function SaveButton() {
   return &lt;button className="s-btn"&gt;Save&lt;/button&gt;;
@@ -83,10 +84,12 @@ change the data  -&gt;  React runs your component again
 }</code></pre></div>
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Zero is not nothing.</strong> <code>{count &amp;&amp; &lt;Badge /&gt;}</code> renders a literal <code>0</code> on the screen when <code>count</code> is 0, because <code>0</code> is falsy but still a valid thing to render. Write <code>{count &gt; 0 &amp;&amp; ...}</code> and the problem disappears. </div></div>
 
+<details class="selfcheck"><summary><span class="sc-q">Why does JSX use <code>className</code> instead of <code>class</code>?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because JSX is not HTML — it is JavaScript in disguise, and <code>class</code> is already a reserved word in JavaScript for declaring a class. The same reason gives you <code>htmlFor</code> instead of <code>for</code>. Everything else about JSX that looks arbitrary has a similar cause: it is describing HTML using a language that already has its own rules. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="props">Props: data passed in</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Props are the arguments you hand a function, and they work exactly like a job order given to a workshop. The order says &ldquo;a blue chair, seat height 45cm&rdquo;; the workshop builds to the order and does not get to change it. If a different chair is wanted, a new order is sent — the workshop never edits the one it was given. </div></div>
 <p> A component takes arguments, called <strong>props</strong>. They arrive as one object, and are almost always destructured in the parameter list so the names are visible at the top of the function. </p>
 <div class="code-block"><div class="code-head"><span class="lang">js</span>Props in, markup out</div><pre><code>function SaveButton({ label, disabled, onSave }) {
   return (
@@ -127,6 +130,8 @@ change the data  -&gt;  React runs your component again
   &lt;p&gt;Anything at all goes here.&lt;/p&gt;
 &lt;/Card&gt;</code></pre></div>
 
+<details class="selfcheck"><summary><span class="sc-q">A child component receives <code>count</code> as a prop and wants to increase it. Why can it not just do <code>count = count + 1</code>?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because the child does not own that value — the parent does. Changing it in the child would change a copy, so the parent, and every other component reading the same value, would carry on showing the old one. The screen and the data would disagree, which is exactly what React exists to prevent. </p>
+<p> The fix is for the parent to pass down a function as well: the child calls <code>onIncrement()</code>, and the parent — which owns the value — does the changing. Data flows down, events flow up. </p></div></details>
 </section>
 
 <section class="note-section">
@@ -203,6 +208,7 @@ setItems(items.filter((i) =&gt; i.id !== id));</code></pre></div>
 
 <section class="note-section">
 <h2 id="lists">Lists &amp; keys</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A key is a name tag. When you redraw a list, React has to work out which items on the new list are the same items it drew before. With name tags it can see that Ada simply moved from third place to first. Without them it can only count positions — so it concludes that everything from position one onwards changed, and rebuilds rows that did not need touching. </div></div>
 <p> A list of data becomes a list of elements with <code>map</code> — the array method that turns each item into something else. Ninety per cent of React screens are this. </p>
 <div class="code-block"><div class="code-head"><span class="lang">js</span>Rendering a list</div><pre><code>function UserList({ users }) {
   return (
@@ -216,10 +222,13 @@ setItems(items.filter((i) =&gt; i.id !== id));</code></pre></div>
 <p> The <code>key</code> is not decoration. It is how React tells one row from another between redraws, so it can move a row rather than rebuild it. Get it wrong and the symptoms are bizarre rather than obvious: text typed into one row appearing in another after a sort, checkboxes staying ticked on the wrong item, animations firing on rows that did not change. </p>
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Do not use the array index as a key</strong> in any list that can be reordered, filtered or added to at the front. Index 0 means “whatever is first now”, so React concludes the first row simply changed its contents and keeps the state that belonged to the old one. Use a genuine id from the data. </div></div>
 
+<details class="selfcheck"><summary><span class="sc-q">Why is <code>key={index}</code> a bug rather than merely untidy?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because the index describes a <em>position</em>, not a <em>thing</em>. Delete the first row and every remaining item takes a new index, so React believes every row changed identity. Anything React was holding per row — the text typed into an input, whether a checkbox was ticked, a half-finished animation — now belongs to the wrong row. </p>
+<p> It is invisible in a list that never reorders and never has items removed, which is why it survives review and then appears as a bizarre bug later. Use the item&rsquo;s own id. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="forms">Events &amp; forms</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> There are two ways to run a form. Either the input box remembers what was typed and you ask it later — which is how plain HTML works — or <em>you</em> remember it and the box just displays what you are holding. React prefers the second: you hold the value, the box shows it back. It sounds like more work, and it is the reason you can validate as somebody types, disable the button until the form is valid, and fill fields in from elsewhere. </div></div>
 <p> An event handler is a function passed to a prop like <code>onClick</code> or <code>onChange</code>. Pass the function, do not call it: <code>onClick={save}</code>  runs it when clicked, <code>onClick={save()}</code> runs it immediately during rendering, which is a classic and confusing bug. </p>
 <p> Inputs are usually <strong>controlled</strong>: state holds the value, the input displays it, and typing updates the state. The state is the single truth, so validation, resetting and pre-filling are all just state changes. </p>
 <div class="code-block"><div class="code-head"><span class="lang">tsx</span>A controlled form</div><pre><code>function ContactForm({ onSubmit }) {
@@ -260,10 +269,13 @@ setItems(items.filter((i) =&gt; i.id !== id));</code></pre></div>
 }</code></pre></div>
 <div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><strong>Validation on the screen is a courtesy, never a control.</strong> Anybody can send a request without ever loading your form. The server has to check the same things again — which is why this product validates in the browser <i>and</i> in the API, and why the API is the one that decides. </div></div>
 
+<details class="selfcheck"><summary><span class="sc-q">An input will not let you type into it at all. What is the most likely cause?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> It has a <code>value</code> but no <code>onChange</code>. You told React &ldquo;this box always shows this value&rdquo; and never gave it a way to change — so every keystroke is immediately overwritten by the value you pinned. Add the handler that stores what was typed, and the box comes to life. </p>
+<p> If the field is genuinely meant to be fixed, say so with <code>readOnly</code> instead, which expresses the intent rather than producing it as a side effect. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="effects">Effects: talking to the outside world</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Everything else in React happens <em>inside</em> React: data goes in, a description of the screen comes out. An effect is the door to the outside world — fetching from a server, starting a timer, listening to the browser window. And whatever you start when the door opens, you have to stop when it closes; that is what the cleanup function is for, and forgetting it is where most effect bugs come from. </div></div>
 <p> Rendering must be pure: given the same props and state, a component returns the same markup and touches nothing else. Everything that breaks that rule — fetching, timers, subscriptions, listening to the browser — is a <strong>side effect</strong>, and goes in <code>useEffect</code>. </p>
 <div class="code-block"><div class="code-head"><span class="lang">tsx</span>Fetching when the screen appears</div><pre><code>import { useEffect, useState } from 'react';
 
@@ -304,6 +316,7 @@ function UserProfile({ userId }) {
 
 <section class="note-section">
 <h2 id="hooks">The other hooks worth knowing</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A hook is a function starting with <code>use</code> that lets a component borrow one of React&rsquo;s abilities — remembering a value, reaching outside, holding on to something between renders. There are only a handful worth knowing, and the rest of the list can wait until you have a problem that names itself. </div></div>
 <p> A <strong>hook</strong> is a function starting with <code>use</code> that lets a component remember something between renders. Two rules apply to every one of them, and breaking either produces baffling bugs rather than errors: </p>
 <ol><li><strong>Only at the top level.</strong> Never inside an <code>if</code>, a loop or a nested function. React matches hooks to their stored values by call order, so a hook that sometimes runs shifts every hook after it onto the wrong value. </li><li><strong>Only in components or other hooks.</strong> Not in plain functions, not in event handlers. </li></ol>
 <div class="table-wrap"><table><thead><tr><th>Hook</th><th>Use it for</th><th>Example</th></tr></thead><tbody><tr><td><code>useState</code></td><td>A value that changes and should redraw the screen.</td><td><code>const [open, setOpen] = useState(false)</code></td></tr>
@@ -336,6 +349,7 @@ useEffect(() =&gt; { search(debouncedQuery); }, [debouncedQuery]);</code></pre><
 
 <section class="note-section">
 <h2 id="sharing">Sharing state between components</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Two components need to agree about one fact. The answer is not to give each of them a copy — two copies drift apart. It is to decide who owns it. Move the fact up to the nearest component that contains them both, and let it hand the value down. One owner, one truth, and no way for the two to disagree. </div></div>
 <p> When two components need the same value, the value moves <strong>up</strong> to their closest common parent, which passes it down to both. This is called lifting state up, and it is the default answer. </p>
 <div class="code-block"><div class="code-head"><span class="lang">tsx</span>Lifting state up</div><pre><code>function Filters() {
   // The search box types into it; the table reads it. So it lives here,
@@ -368,10 +382,13 @@ function Header() {
 }</code></pre></div>
 <div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Context is for things almost everything needs — who is signed in, the theme, the language. It is not a general store: every component reading a context redraws when any part of that value changes, so a large, frequently-changing context is a performance problem waiting to happen. Split it, or keep the busy state local. </div></div>
 
+<details class="selfcheck"><summary><span class="sc-q">Two sibling components each keep their own <code>useState</code> for the same filter setting, and the screen sometimes shows two different filters. What is the fix?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Delete both and put one <code>useState</code> in their shared parent, passing the value down to both and a setter to whichever one changes it. The bug is not a synchronisation failure to be patched — it is the inevitable result of storing one fact in two places. </p>
+<p> When the nearest shared parent is many levels up, that is when Context or a store starts to earn its place. See the State Management note, which is about exactly this question. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="mistakes">The mistakes everybody makes</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> None of these are exotic. They are the four or five things that every person learning React gets wrong, including people who have been writing it for years. Knowing them by name is most of the cure, because each one has a distinctive symptom — and recognising the symptom takes you straight to the cause instead of an afternoon of guessing. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead><tbody><tr><td>The screen does not update, though the data changed.</td><td>State was edited in place, so it is still the same object.</td><td><span>Replace it: <code>setItems([...items, x])</code>.</span></td></tr>
 <tr><td>"Too many re-renders" and the tab freezes.</td><td><span>A handler was called instead of passed — <code>onClick={save()}</code> — or an effect sets state it also depends on.</span></td><td><span>Pass the function: <code>onClick={save}</code>. Fix the effect’s dependencies.</span></td></tr>
 <tr><td>A value is one step behind.</td><td>State was read straight after setting it.</td><td><span>Use the updater form: <code>setX((current) =&gt; ...)</code>.</span></td></tr>
@@ -384,6 +401,7 @@ function Header() {
 
 <section class="note-section">
 <h2 id="here">React in this product</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Everything above was the idea. This is where it lands in a real codebase — which files, doing which job. Reading the note and then reading the actual code is worth far more than reading the note twice: the second example you meet should always be a real one. </div></div>
 <p> Every screen you are looking at right now is React. Some places worth opening once you have the ideas above, in increasing order of difficulty: </p>
 <ul><li><code>components/admin/GuideDocument.tsx</code> — small components, props and <code>children</code>, plus one <code>useEffect</code> that watches which section is on screen. Nothing else. </li><li><code>app/contexts/AuthContext.tsx</code> — the context that holds who is signed in. Every page that greets you by name reads it. </li><li><code>components/system/AdminShell.tsx</code> — the sidebar around this page: state for what is open, an effect for the narrow-screen behaviour, and lists keyed by id. </li><li><code>app/studio/[draftId]/</code> — the editor. Large, and a fair demonstration of what happens when a lot of state has to stay consistent at once. </li></ul>
 <div class="callout is-note is-practice"><span class="callout-icon">&#9654;</span><div class="callout-body"><div class="callout-title">Practice</div><p> Build a to-do list in a single component, and do not look anything up until you are stuck. It needs: state for the items, state for the input, adding on submit, removing by id, a <code>key</code> on each row, and a count of what is left. It is about forty lines, and it uses every idea in this note except context. </p>

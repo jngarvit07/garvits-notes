@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — Garvit's Notes</title>
+<meta name="description" content="Sign in to Garvit's Notes.">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<script>(function(){try{var t=localStorage.getItem('gn-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body class="login-page">
+<div class="login-bg" aria-hidden="true"></div>
+
+<main class="login-card">
+  <div class="login-brand">
+    <span class="brand-mark">GN</span>
+    <span>Garvit&rsquo;s Notes</span>
+  </div>
+
+  <h1>Sign in</h1>
+  <p class="login-sub">Eighteen notes on the stack and the AI track. Sign in to pick up where you left off.</p>
+
+  <div class="login-error" id="err" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:16px;height:16px;flex:0 0 auto">
+      <circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.01"/></svg>
+    <span id="err-text">That email and password do not match.</span>
+  </div>
+
+  <form id="login-form" novalidate>
+    <div class="field">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" autocomplete="username"
+             placeholder="you@example.com" required autofocus>
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" autocomplete="current-password"
+             placeholder="Your password" required>
+    </div>
+    <button class="btn btn-primary" type="submit">
+      Sign in
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </form>
+
+  <p class="login-foot">
+    This site is static &mdash; there is no server and no database, so the check
+    below happens entirely in your browser. It keeps the notes out of the way of
+    a casual visitor; it is not a security boundary, and anyone who reads the
+    page source can get past it.
+  </p>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* Salted djb2-xor. The credentials are stored as hashes rather than plain
+     text so they are not readable at a glance in view-source. This is
+     obfuscation, not security: a static page has nowhere to keep a secret,
+     and anyone determined enough to read this file can work around it. Said
+     plainly on the page above, too, rather than implied. */
+  var SALT = 'gn::2026::';
+  function h(s) {
+    var x = 5381;
+    for (var i = 0; i < s.length; i++) x = (((x << 5) + x) ^ s.charCodeAt(i)) >>> 0;
+    return x.toString(36);
+  }
+
+  var EMAIL_HASH = '339rgg';
+  var PASS_HASH  = 'rx40y1';
+  var TOKEN      = 'v11xb7';
+
+  var form = document.getElementById('login-form');
+  var err = document.getElementById('err');
+  var errText = document.getElementById('err-text');
+
+  var fail = function (msg) {
+    errText.textContent = msg;
+    err.classList.remove('is-shown');
+    void err.offsetWidth;          // restart the shake
+    err.classList.add('is-shown');
+  };
+
+  // Where to go after signing in. Only ever a path within this site — an
+  // open redirect is the one real vulnerability a login page can introduce
+  // on its own, so anything absolute or protocol-relative is discarded.
+  var next = (function () {
+    try {
+      var raw = new URLSearchParams(location.search).get('next') || '';
+      if (!raw || raw.charAt(0) === '/' || raw.indexOf('//') !== -1 || raw.indexOf(':') !== -1) return '';
+      return raw;
+    } catch (e) { return ''; }
+  })();
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = document.getElementById('email').value.toLowerCase().trim();
+    var pass  = document.getElementById('password').value;
+
+    if (!email || !pass) return fail('Fill in both fields.');
+
+    if (h(SALT + email) !== EMAIL_HASH || h(SALT + pass) !== PASS_HASH) {
+      document.getElementById('password').value = '';
+      return fail('That email and password do not match.');
+    }
+
+    try {
+      localStorage.setItem('gn-auth', TOKEN);
+    } catch (e) {
+      return fail('Your browser is blocking storage, so signing in cannot be remembered.');
+    }
+    location.replace(next || 'index.html');
+  });
+})();
+</script>
+</body>
+</html>

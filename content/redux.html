@@ -1,0 +1,364 @@
+<section class="note-section" data-tagline="Two components need the same fact, and neither owns it. Everything in this note is a different answer to that one sentence.">
+<h2 id="problem">The problem, before any tool</h2>
+<p> Every state-management library exists because of one sentence: <strong>two components need the same fact, and neither of them owns it</strong>. Until that sentence is true of your app, you do not need any of this, and adding it makes your code worse. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Think of a household whiteboard. While only one person cares what is on it, they can keep it in their head. The moment three people need to agree on the shopping list, you put it on the fridge where all three can read and change it. State management is deciding <em>which facts go on the fridge</em> — and resisting the urge to put everything there. </div></div>
+<p> Here is the situation in code. A header shows the number of items in a cart. A product page adds to the cart. They are nowhere near each other in the tree. </p>
+<div class="code-block"><div class="code-head"><span class="lang">tsx</span>The shape of the problem</div><pre><code>&lt;App&gt;
+  &lt;Header /&gt;            &lt;- needs to READ  cart.length
+    &lt;CartBadge /&gt;
+  &lt;Main&gt;
+    &lt;ProductPage&gt;
+      &lt;AddToCartButton /&gt;  &lt;- needs to WRITE cart</code></pre></div>
+<p> <code>useState</code> inside <code>AddToCartButton</code> cannot help: state in React flows <em>down</em>, and <code>CartBadge</code> is not below it. So the fact has to live somewhere both of them can reach. </p>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Notice that this is a <strong>structural</strong> problem, not a scale problem. It appears in a fifty-line app and is absent from a fifty-thousand-line one where every screen is independent. &ldquo;My app is getting big, I should add Redux&rdquo; is the wrong instinct. &ldquo;These two distant components disagree about the same fact&rdquo; is the right one. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">You have a modal whose open/closed state is used only by the button that opens it and the modal itself, which is rendered right beside it. Do you need a state library?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> No. Both components have a common parent one level up, so a <code>useState</code> in that parent reaches both. That is the whole solution and it should stay the whole solution. Reaching for a global store here adds a file, an import and an indirection to replace one line. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="Move the state to the nearest common parent. The right answer surprisingly often — and the exact point where it stops being the right answer.">
+<h2 id="lifting">Lifting state up, and where it stops</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The first answer is not a library, it is moving the value. Put it in the nearest component that contains everybody who needs it and hand it down. For most shared state this is correct, final, and needs nothing installed. </div></div>
+<p> The first answer is not a library. Move the state <strong>up</strong> to the nearest component that contains everybody who needs it, then pass it down as props. React calls this <em>lifting state up</em>, and for most shared state it is correct and final. </p>
+<div class="code-block"><div class="code-head"><span class="lang">tsx</span>Lifting: the state moves up, the values come down</div><pre><code>function Checkout() {
+  // The one owner of this fact.
+  const [coupon, setCoupon] = useState(null);
+
+  return (
+    &lt;&gt;
+      &lt;CouponField value={coupon} onApply={setCoupon} /&gt;
+      &lt;OrderTotal coupon={coupon} /&gt;
+    &lt;/&gt;
+  );
+}</code></pre></div>
+<p> Both children now agree about the coupon, because there is only one coupon and it lives above them both. Note the shape: the child that <em>changes</em> the value receives a function, the child that <em>reads</em> it receives the value. </p>
+<h3>Where it stops working</h3>
+<p> It stops when the nearest common parent is far away, because then every component in between has to accept a prop it does not use and pass it on. This is <strong>prop drilling</strong>. </p>
+<div class="code-block"><div class="code-head"><span class="lang">tsx</span>Prop drilling &mdash; four components handling a prop none of them want</div><pre><code>&lt;App user={user}&gt;
+  &lt;Layout user={user}&gt;            // does not use it
+    &lt;Sidebar user={user}&gt;         // does not use it
+      &lt;NavSection user={user}&gt;    // does not use it
+        &lt;Avatar user={user} /&gt;    // finally
+</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Drilling is a cost, not a crime.</strong> Two levels of it are fine and clearer than any abstraction you would replace them with. Four levels through components that never read the value is a genuine smell &mdash; the middle components can no longer be understood or moved on their own. That is the point at which the next tool earns its keep. </div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Lift first. Reach for a library only when lifting produces a long chain of pass-through props.</li><li>The owner of a piece of state is the nearest component that contains everyone who needs it.</li><li>Readers get the value; writers get the setter.</li></ul></div>
+</section>
+
+<section class="note-section" data-tagline="React's own answer to prop drilling: put a value on a wire that any component below can tap into, without the components in between knowing.">
+<h2 id="context">Context: skipping the chain</h2>
+<p> <strong>Context</strong> is React's built-in fix for drilling. A provider puts a value on a wire; any component below it, at any depth, taps that wire directly. The components in between never see it. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Props are handing a note person to person down a line. Context is the public address system: one announcement, and anyone in the building who is listening for it hears it. Everyone standing in the corridor between you and the listener is not involved. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">tsx</span>Context in three parts: create, provide, consume</div><pre><code>// 1. Create the wire.
+const ThemeContext = createContext('light');
+
+// 2. Provide a value, once, near the top.
+function App() {
+  const [theme, setTheme] = useState('light');
+  return (
+    &lt;ThemeContext.Provider value={{ theme, setTheme }}&gt;
+      &lt;Layout /&gt;
+    &lt;/ThemeContext.Provider&gt;
+  );
+}
+
+// 3. Consume it, at any depth, with no props in between.
+function ThemeToggle() {
+  const { theme, setTheme } = useContext(ThemeContext);
+  return &lt;button onClick={() =&gt; setTheme(theme === 'light' ? 'dark' : 'light')}&gt;
+    {theme}
+  &lt;/button&gt;;
+}</code></pre></div>
+<h3>The trap everybody hits</h3>
+<p> Context has no idea which part of its value you actually used. When the provider's value changes, <strong>every consumer re-renders</strong> &mdash; even one that only reads a field that did not change. </p>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; one context for everything</div><pre><code>// user, theme, cart, notifications
+// all on one wire.
+&lt;AppContext.Provider value={{
+  user, theme, cart, notifications
+}}&gt;
+
+// A cart change re-renders every
+// component that reads the theme.</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; one context per concern</div><pre><code>&lt;ThemeContext.Provider value={theme}&gt;
+  &lt;UserContext.Provider value={user}&gt;
+    &lt;CartContext.Provider value={cart}&gt;
+
+// A cart change re-renders only
+// what reads the cart.</code></pre></div>
+</div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Never pass a fresh object literal as the value.</strong> <code>value={{ user, setUser }}</code> builds a new object on every render of the provider, so every consumer re-renders every time &mdash; even when <code>user</code> is untouched. Wrap it: <code>const v = useMemo(() =&gt; ({ user, setUser }), [user])</code>. </div></div>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">Where Context is exactly right</span></div><div class="example-body"><p> The signed-in user, the colour theme, the interface language, the current workspace. Notice what these have in common: they are read almost everywhere and they change almost never. That is Context's ideal load. The re-render cost of a change does not matter when the change happens twice a session. </p>
+<p> The inverse &mdash; a value read by three components and changed on every keystroke &mdash; is exactly where Context performs worst and where a real store starts to pay for itself. </p></div></div>
+<details class="selfcheck"><summary><span class="sc-q">Context solves prop drilling. Does it replace Redux?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> It solves <em>distribution</em> &mdash; getting a value to a distant component. It does not solve what a store solves: selective subscription (only re-render the components that read the part that changed), a disciplined way to describe changes, time-travel debugging, or middleware. For low-frequency values, distribution is the entire problem and Context is enough. For high-frequency values, it is the smaller half. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="Most state people fight over is a copy of something on a server. Recognising which kind you are holding decides your tool before you compare any of them.">
+<h2 id="server-client">The distinction that decides everything</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> One question sorts almost everything. Is this fact a <em>copy</em> of something that really lives on a server, or does it exist only in this browser tab? Those two need completely different handling, and teams unhappy with their state management have usually never made the cut. </div></div>
+<p> Before comparing any library, sort your state into two piles. This single cut removes most of the difficulty, and most teams that are unhappy with their state management never made it. </p>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">Server state</div><p>A <strong>copy</strong> of something that really lives in a database somewhere else. The list of orders. The user's profile. A search result. You did not create it, you borrowed it, and the original can change without telling you.</p></div>
+  <div class="card"><div class="card-title">Client state</div><p>A fact that <strong>only exists in this browser tab</strong>. Which tab is selected. Whether the sidebar is open. What is typed into a form that has not been submitted. Close the tab and it is gone, correctly.</p></div>
+</div>
+<p> These have completely different problems. Client state needs to be stored and read. Server state needs caching, re-fetching, deduplication, staleness, retries, loading and error states, and a decision about what to show while it refreshes. </p>
+<figure class="figure is-flow">
+<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Sorting a piece of state in two questions</span>{{replay}}</div>
+<div class="figure-stage"><ol class="flow flow-column">
+<li class="flow-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Could another user change this?</span><span class="flow-detail">If yes, it is server state. It is a cache, and you have a cache-invalidation problem whether you admit it or not.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">Would losing it on refresh be a bug?</span><span class="flow-detail">If no, it is ephemeral client state — useState is very likely enough.</span></div></li>
+<li class="flow-step" data-tone="accent" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Shared, client-owned, and it survives navigation?</span><span class="flow-detail">This — and only this — is what a client store like Redux or Zustand is for.</span></div></li>
+</ol></div>
+</figure>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>The most common architecture mistake in React apps</strong> is putting server state in Redux: fetch in a thunk, store the rows in a slice, then hand-write loading flags, error flags, and a refresh mechanism nobody trusts. You have written a cache library by accident, badly. A server-state library does this correctly in one line. </div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Server state is a cache. Treat it like one and use a tool built for caches.</li><li>Client state is yours alone. It is genuinely simple and needs a simple tool.</li><li>Sort first, choose second. Choosing first is how teams end up with three stores.</li></ul></div>
+</section>
+
+<section class="note-section" data-tagline="Strip away the ceremony and Redux is one object, one function that returns the next version of it, and a list of subscribers. That is the entire idea.">
+<h2 id="redux">Redux, and what it is actually doing</h2>
+<p> Redux has a reputation for complexity that belongs to its <em>boilerplate</em>, not its idea. The idea is small enough to write out in full. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A bank does not let you edit your balance. You submit a <em>transaction</em> &mdash; &ldquo;deposit 50&rdquo; &mdash; and the bank applies it to produce a new balance, keeping the slip. Redux is that: components never change state, they submit a description of what happened, and one function works out the new state from it. The list of slips is why you can replay exactly how you got here. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>Redux from scratch &mdash; the whole idea, no library</div><pre><code>function createStore(reducer, initial) {
+  let state = initial;
+  const listeners = [];
+
+  return {
+    getState: () =&gt; state,
+    // The ONLY way state changes: hand in a description of what happened.
+    dispatch(action) {
+      state = reducer(state, action);      // pure: old + action -&gt; new
+      listeners.forEach((l) =&gt; l());
+    },
+    subscribe(l) { listeners.push(l); },
+  };
+}
+
+// A reducer never edits. It returns the next version.
+function cart(state = { items: [] }, action) {
+  switch (action.type) {
+    case 'cart/added':
+      return { ...state, items: [...state.items, action.payload] };
+    case 'cart/cleared':
+      return { ...state, items: [] };
+    default:
+      return state;
+  }
+}</code></pre></div>
+<p> That is Redux. Twenty lines. Everything else in the ecosystem is tooling around those twenty lines. </p>
+<h3>The three rules, and why each one exists</h3>
+<div class="table-wrap"><table><thead><tr><th>Rule</th><th>What it buys you</th></tr></thead><tbody>
+<tr><td>One store for the whole app</td><td>There is exactly one answer to &ldquo;what is true right now&rdquo;. Two stores can disagree; one cannot.</td></tr>
+<tr><td>State is read-only; you dispatch actions</td><td>Every change has a name and a cause. A log of actions is a log of everything that happened, which is why time-travel debugging is possible at all.</td></tr>
+<tr><td>Reducers are pure functions</td><td>Same input, same output, no side effects. That is what makes them trivially testable and replayable.</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>Why &ldquo;reducer&rdquo;?</strong> Because it has the shape you pass to <code>Array.reduce</code>: <code>(accumulated, next) =&gt; accumulated</code>. Your entire application state is the result of reducing the list of every action ever dispatched. That is not an analogy &mdash; it is literally what happens. </div></div>
+</section>
+
+<section class="note-section" data-tagline="The official modern Redux. Same idea, a third of the code, and mutation-looking syntax that is secretly immutable.">
+<h2 id="toolkit">Redux Toolkit &mdash; the version to actually write</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> If you have seen Redux with constants, action creators and a switch statement in three separate files, you have seen the old version. The modern one is a single file per feature and the official position is not to write it by hand any more. Most of Redux&rsquo;s reputation for pain is attached to code nobody should be writing today. </div></div>
+<p> If you have seen Redux code with action-type constants, action creators, switch statements and three files per feature, you have seen <em>old</em> Redux. <strong>Redux Toolkit (RTK)</strong> is the official current way, and the team's position is unambiguous: do not write Redux by hand any more. </p>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>A whole feature, in one file</div><pre><code>import { createSlice, configureStore } from '@reduxjs/toolkit';
+
+const cartSlice = createSlice({
+  name: 'cart',
+  initialState: { items: [] },
+  reducers: {
+    // This LOOKS like mutation. It is not — see the note below.
+    added(state, action) {
+      state.items.push(action.payload);
+    },
+    cleared(state) {
+      state.items = [];
+    },
+  },
+});
+
+// Action creators are generated for you from the reducer names.
+export const { added, cleared } = cartSlice.actions;
+
+export const store = configureStore({
+  reducer: { cart: cartSlice.reducer },
+});</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>That push is not a mutation.</strong> RTK wraps your reducer in a library called Immer, which hands you a <em>draft</em> &mdash; a proxy that records the changes you make and then produces a brand-new object from them. You write the readable version; you get the immutable result. This works only inside <code>createSlice</code>; the same line in a plain reducer is a real bug. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">tsx</span>Reading and writing from a component</div><pre><code>import { useSelector, useDispatch } from 'react-redux';
+
+function CartBadge() {
+  // A selector picks the ONE piece you need. This component re-renders
+  // only when that number changes — not when anything else in the store does.
+  const count = useSelector((s) =&gt; s.cart.items.length);
+  return &lt;span&gt;{count}&lt;/span&gt;;
+}
+
+function AddToCartButton({ product }) {
+  const dispatch = useDispatch();
+  return &lt;button onClick={() =&gt; dispatch(added(product))}&gt;Add&lt;/button&gt;;
+}</code></pre></div>
+<p> <code>useSelector</code> is the thing Context cannot do. It subscribes to a <em>slice</em> of the store, so a component that reads <code>items.length</code> is untouched by a change to <code>user.name</code>. </p>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>A selector that builds a new object re-renders every time.</strong> <code>useSelector((s) =&gt; s.cart.items.filter(inStock))</code> returns a new array on each run, which never equals the previous one, so the component re-renders on <em>any</em> store change. Either select the raw value and filter during rendering, or memoise the selector with RTK's <code>createSelector</code>. </div></div>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">A multi-step form that survives navigation</span></div><div class="example-body"><p> A five-step onboarding flow where the user can go back, jump to step two, refresh, and where step four's options depend on answers given in step one. This is genuinely Redux-shaped: the state is client-owned, shared across five screens, changed by many actions, and every change benefits from having a name you can read in a devtools log when a customer says &ldquo;it forgot my answers&rdquo;. </p>
+<p> The DevTools extension matters more than people expect here. You get the ordered list of every action, the state before and after each one, and the ability to step backwards through them. When a bug is &ldquo;the total was wrong but only sometimes&rdquo;, that list is the difference between a five-minute fix and an afternoon. </p></div></div>
+</section>
+
+<section class="note-section" data-tagline="A store in about eight lines, no provider, no actions, no ceremony — and where that lack of ceremony starts to cost you.">
+<h2 id="zustand">Zustand: the small one</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The same useful core — one store, and components that only re-render when the part they read changes — with the ceremony removed. What you give up is the enforced trail: anything can change state from anywhere, which is quicker to write and harder to reconstruct six months later. </div></div>
+<p> <strong>Zustand</strong> takes the useful half of Redux &mdash; one store, selective subscription &mdash; and drops the actions, the reducers and the provider. </p>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>The same cart, in Zustand</div><pre><code>import { create } from 'zustand';
+
+export const useCart = create((set) =&gt; ({
+  items: [],
+  add:   (p) =&gt; set((s) =&gt; ({ items: [...s.items, p] })),
+  clear: () =&gt; set({ items: [] }),
+}));
+
+// In a component. No Provider anywhere in the tree.
+function CartBadge() {
+  // Same selective subscription as useSelector.
+  const count = useCart((s) =&gt; s.items.length);
+  return &lt;span&gt;{count}&lt;/span&gt;;
+}
+
+function AddButton({ product }) {
+  const add = useCart((s) =&gt; s.add);
+  return &lt;button onClick={() =&gt; add(product)}&gt;Add&lt;/button&gt;;
+}</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th></th><th>Redux Toolkit</th><th>Zustand</th></tr></thead><tbody>
+<tr><td>Setup</td><td>Store, provider, slices</td><td>One <code>create</code> call</td></tr>
+<tr><td>Provider needed</td><td>Yes</td><td>No</td></tr>
+<tr><td>Every change is named</td><td>Yes, enforced</td><td>Only if you choose to</td></tr>
+<tr><td>DevTools / time travel</td><td>Excellent, built in</td><td>Available via a middleware</td></tr>
+<tr><td>Conventions in a big team</td><td>Strong &mdash; everyone writes it the same way</td><td>Weak &mdash; two developers will structure it differently</td></tr>
+<tr><td>Best at</td><td>Large apps, many contributors, auditable changes</td><td>Small to mid apps, small teams, speed</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> The trade is <strong>ceremony for traceability</strong>. Redux's boilerplate is what produces a readable, ordered history of every change. Zustand lets you call <code>set</code> from anywhere, which is faster to write and harder to reconstruct six months later when something sets a value and you cannot find what. Neither is wrong; they are priced differently. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">When is Redux Toolkit&rsquo;s extra ceremony actually worth paying for?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> When several people work on the codebase and you need every change to state to have a name you can read back. That ordered, reviewable history is what the boilerplate buys, and it is what makes a &ldquo;the total was wrong but only sometimes&rdquo; bug a five-minute job rather than an afternoon. </p>
+<p> For a small app with one or two developers, the same discipline can be kept by convention, and Zustand&rsquo;s smaller surface is the better trade. Neither is the correct answer in general — they are priced differently and you are choosing what to pay for. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="The answer to server state. Caching, refetching, deduplication, retries and loading states — the whole category, in one hook.">
+<h2 id="query">React Query: server state, done properly</h2>
+<p> This is the most consequential thing in the note. Most of what people put in Redux is server state, and a server-state library removes it entirely. </p>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; a hand-built cache</div><pre><code>// A slice, a thunk, three flags,
+// and no answer for "is it stale?"
+const [orders, setOrders] = useState([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState(null);
+
+useEffect(() =&gt; {
+  setLoading(true);
+  fetch('/api/orders')
+    .then((r) =&gt; r.json())
+    .then(setOrders)
+    .catch(setError)
+    .finally(() =&gt; setLoading(false));
+}, []);
+// Two components doing this = two requests.
+// Nothing refetches. Nothing retries.</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; React Query</div><pre><code>const { data, isLoading, error } = useQuery({
+  queryKey: ['orders'],
+  queryFn: () =&gt; fetch('/api/orders')
+                   .then((r) =&gt; r.json()),
+});
+
+// Two components with the same key =
+//   ONE request, both get the data.
+// Refetches when the tab regains focus.
+// Retries failures with backoff.
+// Serves cached data instantly, then
+//   updates in the background.</code></pre></div>
+</div>
+<h3>The idea that makes it click</h3>
+<p> A query is identified by a <strong>key</strong>. Everything follows from that: the same key anywhere in the app is the same cache entry, so two components asking for <code>['orders']</code> share one request and one result. Invalidating that key tells every component holding it to refresh. </p>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>Writing, and telling the cache it is now wrong</div><pre><code>const queryClient = useQueryClient();
+
+const createOrder = useMutation({
+  mutationFn: (order) =&gt; api.post('/orders', order),
+  onSuccess: () =&gt; {
+    // "Everything filed under ['orders'] is now out of date."
+    // Every component showing that list refetches. You wire nothing up.
+    queryClient.invalidateQueries({ queryKey: ['orders'] });
+  },
+});</code></pre></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A library card catalogue. Ask for a book by its reference number and you either get the copy already on the desk, or the librarian fetches it once no matter how many people asked at the same time. When a new edition arrives, the librarian marks that reference as out of date, and everyone holding the old copy gets the new one. You never manage any of that yourself. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> In a Next.js App Router codebase, a Server Component that fetches on the server covers a large share of this need already &mdash; the data arrives with the HTML and there is no client cache to manage. React Query earns its place for data that changes <em>while the user is looking at it</em>: dashboards, inboxes, anything polled or refetched on focus. See the Next.js note for where that line sits. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Your app has a list of projects from the API, a &ldquo;sidebar collapsed&rdquo; flag, and a half-finished form. Which goes where?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Projects are server state &mdash; React Query, keyed <code>['projects']</code>. The sidebar flag is client state used in one place and worth persisting &mdash; a tiny Zustand store or Context, plus localStorage. The half-finished form is ephemeral client state owned by one screen &mdash; <code>useState</code>, and nothing more. Three different tools, and that is the correct outcome, not a failure of consistency. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="A decision tree that resolves most cases in under a minute, and the honest defaults for a new project.">
+<h2 id="choosing">Choosing, honestly</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Four tools and a lot of opinion. The decision is much easier than the internet makes it look, because two questions settle nearly every case: does this data come from a server, and is it used in more than one place? Answer those honestly and the tree below resolves in under a minute. </div></div>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">The decision, top to bottom</span></div><div class="figure-stage"><pre class="ascii-art">  Does this data come from a server?
+        |
+    yes |------------------------------> React Query  (or SWR,
+        |                                 or a Server Component)
+        no
+        |
+  Is it used by more than one component?
+        |
+     no |------------------------------> useState, where it is used
+        |
+        yes
+        |
+  Is a common parent close by?
+        |
+    yes |------------------------------> lift it up, pass props
+        |
+        no
+        |
+  Does it change often?
+        |
+     no |------------------------------> Context  (user, theme, locale)
+        |
+        yes
+        |
+  Big app, many contributors, needs an audit trail?
+        |
+    yes |------------------------------> Redux Toolkit
+     no |------------------------------> Zustand</pre></div></figure>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">Starting something new today</div><p>React Query for everything from the server, <code>useState</code> for everything else, and add a client store the first time you genuinely miss one. Most apps never reach that day, and the ones that do know exactly which state pushed them there.</p></div>
+  <div class="card"><div class="card-title">Joining something that already uses Redux</div><p>Do not campaign to remove it. Learn RTK properly, and if server state is in there, move <em>that</em> out to React Query first. It is the change with the highest ratio of code deleted to risk taken.</p></div>
+</div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Using more than one client store is a real cost.</strong> Redux <em>and</em> Zustand <em>and</em> three Contexts means no one can answer &ldquo;where does this value live?&rdquo; without searching. One client store plus one server-state library is a complete, defensible architecture. Anything beyond that needs a reason you could say out loud. </div></div>
+</section>
+
+<section class="note-section" data-tagline="Global by default, derived state stored instead of computed, and the selector that re-renders on everything. The four that cost the most time.">
+<h2 id="mistakes">The mistakes everybody makes</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Four mistakes account for most of the trouble people have here, and none of them are subtle once named. Storing everything globally, storing a number you could have calculated, editing state in place, and writing a selector that builds something new every time. </div></div>
+<h3>1. Putting everything in the store</h3>
+<p> A store is not a filing cabinet for all your data. State that one component uses belongs in that component. A global store full of single-use values is harder to read than the props it replaced, and every value in it is a value you now have to remember to clear. </p>
+<h3>2. Storing what you could calculate</h3>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; a total that can drift</div><pre><code>{
+  items: [...],
+  total: 240,      // must be updated
+                   // by every single action
+                   // that touches items
+}</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; derive it on read</div><pre><code>{ items: [...] }
+
+// In the selector — cannot be wrong:
+const total = useSelector((s) =&gt;
+  s.cart.items.reduce((n, i) =&gt; n + i.price, 0)
+);</code></pre></div>
+</div>
+<p> Any value stored twice will eventually disagree with itself. If it can be computed from what you already have, compute it. </p>
+<h3>3. Mutating state outside <code>createSlice</code></h3>
+<p> <code>state.items.push(x)</code> is correct inside an RTK slice and a silent bug everywhere else &mdash; in a plain reducer, in a Zustand <code>set</code>, in a <code>useState</code> updater. The array is the same object, so React sees no change and does not redraw. In Zustand, write <code>set((s) =&gt; ({ items: [...s.items, x] }))</code>. </p>
+<h3>4. Selectors that return something new every time</h3>
+<p> Covered above, and worth repeating because it is the number-one cause of &ldquo;Redux made my app slow&rdquo;. A selector returning <code>.filter()</code>, <code>.map()</code>, or an object literal produces a new reference on every store change, so the component re-renders on every store change. </p>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Sort state into server and client before choosing anything.</li><li>Lift first, Context for values that rarely change, a store only for shared client state that changes often.</li><li>Never store what you can derive; never mutate outside a slice.</li><li>Keep selectors returning primitives or stable references.</li><li>One client store and one server-state library is a complete architecture.</li></ul></div>
+</section>
+
+<section class="note-section" data-tagline="Where the lines fall in this codebase, and why there is far less global state here than a React app of this size usually has.">
+<h2 id="here">State in this product</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Where the lines actually fall in this codebase — and why there is far less global state here than a React app of this size usually carries. </div></div>
+<p> The honest answer for this codebase is that there is very little global client state, and that is by design rather than by neglect. </p>
+<div class="table-wrap"><table><thead><tr><th>What</th><th>Where it lives</th><th>Why</th></tr></thead><tbody>
+<tr><td>Page data &mdash; projects, pages, assets</td><td>Fetched in Server Components</td><td>It arrives with the HTML. There is no client cache to keep honest, because the client never holds the authoritative copy.</td></tr>
+<tr><td>Signed-in user</td><td>Context, provided once in the root layout</td><td>Read nearly everywhere, changes on sign-in and sign-out. Context's exact use case.</td></tr>
+<tr><td>Editor draft &mdash; what you are typing</td><td><code>useState</code> in the editor, autosaved</td><td>One screen owns it. Nothing else in the app has a legitimate reason to read a draft mid-keystroke.</td></tr>
+<tr><td>Theme, sidebar open/closed</td><td>Context + localStorage</td><td>Small, rarely changed, and must survive a reload.</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> The rule this codebase follows: <strong>the server is the source of truth, and the client holds as little as it can get away with</strong>. Every piece of state on the client is a copy that can go stale, so the smallest set of copies is the easiest system to reason about. When a screen does need shared, fast-changing client state, that is the moment to add a store &mdash; and to add it for that screen's problem, not as an architecture up front. </div></div>
+<div class="callout is-note is-practice"><span class="callout-icon">&#9998;</span><div class="callout-body"><div class="callout-title">Try this</div> Open any React app you have and list its state on paper in two columns, server and client. Then, for each client item, write the name of the component that owns it. Anything you cannot assign an owner to is either derivable from something else, or is the state that actually needs a store. That exercise takes fifteen minutes and usually settles the question a library comparison cannot. </div></div>
+</section>

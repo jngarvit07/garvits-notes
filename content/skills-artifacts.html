@@ -13,6 +13,7 @@
 
 <section class="note-section">
 <h2 id="skills">Skills: instructions that load themselves</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A skill is a written procedure that loads itself when it becomes relevant, rather than sitting in the prompt all the time taking up room. Think of a shelf of reference cards: the model reaches for the one that matches the task instead of carrying every card at once. </div></div>
 <p>A skill is a folder. At its root is a <code>SKILL.md</code> whose front matter carries a name and a one-line description; below that is whatever the task needs &mdash; longer instructions, reference documents, scripts, templates.</p>
 <p>The mechanism that makes it useful is <strong>progressive disclosure</strong>. Only the description sits in context all the time. The model reads the full file &mdash; and any files it points to &mdash; only when a task actually calls for it.</p>
 <figure class="figure is-flow"><div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Why a skill costs almost nothing until it is needed</span>{{replay}}</div><div class="figure-stage"><ol class="flow flow-column">
@@ -90,6 +91,7 @@ queries; "approve with caveats" is not one of the three options.
 
 <section class="note-section">
 <h2 id="artifacts">Artifacts: output that is a document, not a message</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Some output is a reply and some output is a <em>thing</em> — a document, a page, a spreadsheet. A reply scrolls away; a thing has somewhere to live, can be reopened, revised and shared. Artifacts are the second kind, and choosing between them is really a question about what the person is going to do with what you produce. </div></div>
 <p>An artifact is substantial output rendered as its own thing &mdash; a page, a document, an app &mdash; instead of scrolling past in a conversation. It has a URL, it persists, it can be revised in place, and it can be shared.</p>
 <p>The distinction that matters is not technical, it is about <strong>audience</strong>.</p>
 <div class="compare">
@@ -121,6 +123,7 @@ queries; "approve with caveats" is not one of the three options.
 
 <section class="note-section">
 <h2 id="choosing">Choosing between them</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Four options, and one question each. Does it need to <em>do</em> something? A tool. Does it need to <em>know</em> something it was not trained on? Retrieval. Does it need to know <em>how you do things</em>? A skill. Does the output need to persist as a document? An artifact. Most confusion here dissolves once you ask which of those four you actually have. </div></div>
 <figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">A decision tree that resolves most cases</span></div><div class="figure-stage"><pre class="ascii-art">  What is actually missing?
         |
         +-- The model lacks FACTS it was never trained on
@@ -149,4 +152,6 @@ queries; "approve with caveats" is not one of the three options.
 <li>Agent Skills go through <code>container</code> on a normal Messages call. That is not Managed Agents.</li>
 <li>Output with an audience deserves a URL. Output that only lives in a transcript gets lost.</li>
 </ul></div>
+<details class="selfcheck"><summary><span class="sc-q">Your assistant keeps formatting reports the wrong way, even though the correct format is written in a document it can retrieve. Which of the four do you need?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> A skill, not retrieval. Retrieval puts the format document in front of the model as <em>information</em>, and information competes with everything else in the context. A skill is procedural know-how that loads when the task matches and tells the model how to behave. </p>
+<p> The distinction is facts versus method. &ldquo;What is our refund policy&rdquo; is retrieval; &ldquo;how we write a report&rdquo; is a skill. </p></div></details>
 </section>

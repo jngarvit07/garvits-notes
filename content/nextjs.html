@@ -60,6 +60,7 @@
 
 <section class="note-section">
 <h2 id="routing">Routing by folder</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> In most frameworks you keep a list somewhere saying &ldquo;this address shows that page&rdquo;. Next.js throws the list away and uses your folders instead: the folder path <em>is</em> the web address. A folder called <code>settings</code> with a page in it is the <code>/settings</code> page. Nothing to register, nothing to keep in sync, and the shape of the site is visible in the file tree. </div></div>
 <p> A folder under <code>app/</code> is a URL segment; a <code>page.tsx</code> inside it makes that URL real. Nothing is registered anywhere. The file tree <i>is</i> the routing table, which means you can read the whole site’s map with <code>ls</code>. </p>
 <div class="code-block"><div class="code-head"><span class="lang">tsx</span>This product, abbreviated</div><pre><code>app/
   page.tsx                      -&gt;  /
@@ -112,10 +113,12 @@ router.refresh();     // re-fetch the current route's server data, keeping local
 const pathname = usePathname();                        // "/admin/users"
 const page = useSearchParams().get('page');            // "?page=2" -&gt; "2"</code></pre></div>
 
+<details class="selfcheck"><summary><span class="sc-q">You create <code>app/pricing/page.tsx</code>. What is the URL, and what would you have had to do in a framework without folder routing?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> <code>/pricing</code>, and nothing else. In a framework with a route table you would also have to add an entry mapping that path to that component, and remember to remove it when the page goes. The commonest bug that removes is a route table that has drifted from the files it points at. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="server-client">Server Components vs Client Components</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Two places code can run, and the difference decides most of what you can do. On the <strong>server</strong>, the code runs once on a machine you control before the page is sent — so it can read the database and hold secrets, but it cannot react to a click, because by the time the user clicks, that code has finished and gone. In the <strong>browser</strong>, the code is shipped to the visitor and runs while they use the page — so it can respond to clicks, and everything it knows is public. </div></div>
 <p> This is the idea that makes the App Router different from everything before it, and the one worth reading twice. <strong>By default, your components run on the server only.</strong> They execute during the request, produce HTML, and their code is never sent to the browser. </p>
 <p> Adding <code>'use client'</code> at the top of a file opts that file — and everything it imports — into also running in the browser. That is what buys you state, effects and event handlers, and it is what costs you the download. </p>
 <div class="table-wrap"><table><thead><tr><th></th><th>Server Component (default)</th><th>Client Component ('use client')</th></tr></thead><tbody><tr><td>Runs</td><td>On the server, during the request</td><td>On the server once for the HTML, then in the browser</td></tr>
@@ -157,10 +160,13 @@ export function MenuButton() {
 <div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> A Client Component can still <i>render</i> server-rendered content: pass it as <code>children</code> from a Server Component parent. The child was already rendered on the server, so wrapping it in something interactive does not drag it into the bundle. </div></div>
 <p> Every page in this admin area is a Client Component, and deliberately so: they are behind a login, they are dense with interaction, and they read the session from React context. The pages that a stranger sees first — the public site, published pages — are the ones where the server/client line is worth being strict about. </p>
 
+<details class="selfcheck"><summary><span class="sc-q">Why can a Server Component not use <code>useState</code>?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because state is a value that changes over time in response to a user, and a Server Component has no &ldquo;over time&rdquo;. It runs once, produces HTML, and is finished before the page arrives. There is nothing left to hold a value or re-run when it changes. </p>
+<p> That is also the rule for hearing about it: the moment a component needs <code>useState</code>, an event handler, or a browser API, it needs <code>&#39;use client&#39;</code>. Put that boundary as low in the tree as you can, so the interactive leaf ships to the browser and its parents stay on the server. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="layouts">Layouts, loading and error states</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Three things every screen needs and nobody enjoys wiring up by hand: the frame that stays put while the middle changes, what to show while the data is still coming, and what to show when it does not come at all. Next.js makes each a file with a fixed name, which means they are hard to forget. </div></div>
 <details class="selfcheck"><summary><span class="sc-q">You read an API key in a page and pass it to a chart component marked 'use client'. Who can see the key?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Everybody. The value is serialised into the HTML so the browser can hand it to the component when it hydrates — it is visible in view-source and in the network tab. The file it was read in makes no difference; the prop crossing the boundary is what matters. </p>
 <p> The fix is to keep the key server-side and pass the <i>result</i> of using it: fetch the data on the server, send the numbers to the chart. </p>
 </div></details>
@@ -180,6 +186,7 @@ export function MenuButton() {
 
 <section class="note-section">
 <h2 id="dynamic">Dynamic routes</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> You cannot make a folder per customer. A dynamic route is a folder with a blank in the name — <code>[projectId]</code> — that matches anything in that position and hands you what it matched. One folder serves every project, and the part that varies arrives as a value. </div></div>
 <p> A folder in square brackets matches anything and hands you the value. One file serves every user, every project, every template. </p>
 <div class="code-block"><div class="code-head"><span class="lang">tsx</span>app/admin/users/[userId]/page.tsx</div><pre><code>export default function UserDetailPage({
   params,
@@ -198,6 +205,7 @@ export function MenuButton() {
 
 <section class="note-section">
 <h2 id="rendering">When a page is built</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The real question is <em>when</em> the page gets built, and there are only three answers: when you deploy, when someone asks for it, or in the browser afterwards. Built at deploy time is fastest and can be stale. Built per request is always current and costs a wait. The right answer differs per page, which is why this is a choice and not a setting. </div></div>
 <figure class="figure is-flow" id="flow-2">
 <div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Choosing where a page is rendered</span>
   <button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button>
@@ -255,10 +263,13 @@ export function MenuButton() {
 <p> Get this backwards and the symptoms are opposite and equally bad: a static dashboard shows one person’s data to everybody, and a dynamic landing page burns a server render on a page that never changes. </p>
 </div></div>
 
+<details class="selfcheck"><summary><span class="sc-q">A marketing page and a personal dashboard are both slow. Should the same rendering strategy fix both?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> No, and they need opposite treatment. The marketing page is identical for everyone, so it should be built once and served from a cache — the visitor waits for nothing. The dashboard is different for every user and must be built per request; making it faster means making the data fetch faster, not caching a page that cannot be shared. </p>
+<p> Asking &ldquo;is this page the same for everybody?&rdquo; resolves most rendering decisions on its own. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="data">Fetching and caching</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A cache is a note saying &ldquo;I already looked this up, here is the answer&rdquo;. It makes things fast and it makes them wrong, and the whole craft is deciding how long each answer stays trustworthy. A product price might be fine for an hour; an account balance is not fine for a second. Next.js caches aggressively by default, so most caching bugs here are stale data rather than slow pages. </div></div>
 <p> In a Server Component you fetch data by awaiting it. There is no <code>useEffect</code>, no loading state, no waterfall of requests from the browser — the component is already running on a server that can talk to the database. </p>
 <div class="code-block"><div class="code-head"><span class="lang">js</span>Server Component fetching</div><pre><code>// No 'use client'. This runs on the server only.
 export default async function ProjectsPage() {
@@ -281,6 +292,7 @@ await fetch(url, { cache: 'no-store' });</code></pre></div>
 
 <section class="note-section">
 <h2 id="api">Route handlers and middleware</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Sometimes you do not want a page, you want an answer — a URL that returns data rather than something to look at. That is a route handler. It is the same idea as an Express endpoint living inside your Next.js app, and it is how a webhook from another service, or a form submitted by your own browser code, gets handled. </div></div>
 <p> A <code>route.ts</code> file is an HTTP endpoint: you export a function per method, and it runs on the server. </p>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>app/api/health/route.ts</div><pre><code>import { NextResponse } from 'next/server';
 
@@ -302,6 +314,7 @@ export async function POST(request: Request) {
 
 <section class="note-section">
 <h2 id="seo">Images, fonts and page titles</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> This section is the difference between a site that works and a site that feels professional. An image that loads at the right size instead of a four-megabyte original, a font that does not make the text jump when it arrives, and a page title and preview card that look deliberate when the link is shared. None of it is hard; all of it is noticed when it is missing. </div></div>
 <ul><li><strong><code>next/image</code></strong> — resizes, converts to modern formats, and reserves the space so the page does not jump while it loads. A raw <code>&lt;img&gt;</code> of a 4 MB photo is one of the most common real-world causes of a slow page. </li><li><strong><code>next/font</code></strong> — downloads the font at build time and serves it from your own domain. No request to a font host at page load, and no flash of the wrong typeface. </li><li><strong>Metadata</strong> — a <code>metadata</code> export sets the title, description and social preview. <code>generateMetadata</code> does the same when the values depend on the data. </li></ul>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>Metadata, static and dynamic</div><pre><code>export const metadata = {
   title: 'OnePage Studio',
@@ -318,6 +331,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
 
 <section class="note-section">
 <h2 id="env">Environment variables and deploying</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Some values differ between your laptop and the live site — a database address, an API key. They live outside the code in environment variables, so the same code runs in both places. The rule that matters: anything the browser can see is public. In Next.js, a variable is only sent to the browser if its name starts with <code>NEXT_PUBLIC_</code>, which makes that prefix a decision rather than a convention. </div></div>
 <p> Environment variables keep configuration out of the code. In Next there is one rule that matters more than all the others: </p>
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong><code>NEXT_PUBLIC_</code> means public.</strong> A variable with that prefix is baked into the JavaScript sent to every browser. Anything without it stays on the server. A secret given that prefix — an API key, a database URL — is published the moment you deploy, and rotating it is the only fix. </div></div>
 <div class="code-block"><div class="code-head"><span class="lang">js</span>frontend/.env.local</div><pre><code># Readable by the browser. Only ever put non-secrets here.
@@ -328,10 +342,13 @@ INTERNAL_WEBHOOK_SECRET=...</code></pre></div>
 <p> Also worth knowing: these values are read at <strong>build</strong> time for client-side variables, not at boot. Changing one on a hosting dashboard does nothing until the next deployment — a genuinely confusing hour if you have not met it before. </p>
 <p> Deployment is <code>next build</code> followed by <code>next start</code>, or a platform that does both for you. This frontend deploys to Vercel; the Express API deploys separately, which is why <code>NEXT_PUBLIC_API_URL</code> exists at all. </p>
 
+<details class="selfcheck"><summary><span class="sc-q">You add your model provider&rsquo;s API key as <code>NEXT_PUBLIC_MODEL_KEY</code> so a client component can use it. What have you just done?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Published it. That prefix means the value is baked into the JavaScript sent to every visitor, so anyone can open devtools and read it. It is now spendable by strangers and must be rotated. </p>
+<p> The fix is structural, not a rename: the browser should call <em>your</em> route handler, and your server — holding the unprefixed key — calls the provider. A secret that reaches the browser was never a secret. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="mistakes">The mistakes everybody makes</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Almost every one of these is the same misunderstanding wearing a different hat: forgetting which side of the server/browser line a piece of code is on. Once that line is genuinely clear, most of this list stops happening to you. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead><tbody><tr><td><span><code>useState</code> throws “only works in a Client Component”.</span></td><td>The file is a Server Component — the default.</td><td><span>Add <code>'use client'</code>, to the smallest file that needs it.</span></td></tr>
 <tr><td>The whole app is in the browser bundle.</td><td><span><code>'use client'</code> sits at the top of a page or layout.</span></td><td>Move it down to the interactive leaf component.</td></tr>
 <tr><td><span><code>window is not defined</code> during the build.</span></td><td>Browser APIs touched while rendering on the server.</td><td><span>Read them inside <code>useEffect</code>, which only runs in the browser.</span></td></tr>
@@ -344,6 +361,7 @@ INTERNAL_WEBHOOK_SECRET=...</code></pre></div>
 
 <section class="note-section">
 <h2 id="here">Next.js in this product</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The general version above, now pointed at real files. Open them alongside this — the fastest way to make a framework stop feeling abstract is to see its ideas in a codebase you can change. </div></div>
 <ul><li><code>app/admin/layout.tsx</code> — nine words of routing that protect every admin screen at once. </li><li><code>app/admin/users/[userId]/page.tsx</code> — a dynamic segment feeding a detail screen. </li><li><code>next.config.js</code> — image hosts, redirects and headers, all commented. </li><li><code>services/api.ts</code> — the single place the frontend talks to the Express API, including how the token is attached. </li></ul>
 <div class="callout is-note is-practice"><span class="callout-icon">&#9654;</span><div class="callout-body"><div class="callout-title">Practice</div><ol><li> Add <code>app/admin/learning/scratch/page.tsx</code> exporting a component that renders your name. Visit <code>/admin/learning/scratch</code>. No configuration — that is the point of file routing. </li><li> Delete the <code>'use client'</code> line from a page in this section and add a <code>useState</code>. Read the error carefully: it is the clearest description of the server/client boundary you will find. </li><li> Put it back, then delete your scratch folder. </li></ol>
 </div></div>

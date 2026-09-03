@@ -1,44 +1,79 @@
 # Garvit's Notes
 
-Fourteen notes on the stack I build on, and on the AI systems I am learning to
-build. Written in plain language first, then a real example, then the features
-and the mistakes that actually matter.
+Eighteen notes on the stack I build on, and on the AI systems I am learning to
+build. Every note is a folder; every topic inside it is its own page. Written in
+plain language first, then a real example, then the features and the mistakes
+that actually matter.
 
 **Live:** https://jngarvit07.github.io/garvits-notes/
 
 Plain HTML, CSS and JavaScript. No framework, no runtime dependencies, no
 server. Open `index.html` and it works.
 
+## The shape of it
+
+Each note is a folder in the sidebar. Opening it reveals its topics, and each
+topic is a short page you can finish in a few minutes — so the site reads as a
+tree rather than as eighteen very long documents.
+
+```
+notes/react/index.html        the React note — a list of its topics
+notes/react/props.html        one topic, on its own page
+notes/react/state.html        the next one
+```
+
+Pressing **Next** at the foot of a topic walks the whole site in reading order,
+crossing from the last topic of one note into the first of the next.
+
 ## The notes
 
 **Part one — the stack.** How one request crosses four systems.
 
-| # | Note | |
-|---|------|---|
-| 01 | React | Components, props, state, hooks, lists and forms |
-| 02 | Next.js | App Router, server vs client, rendering, caching |
-| 03 | Node.js | The event loop, async/await, modules, streams |
-| 04 | Express | Routes, middleware, auth, validation, error handling |
-| 05 | PostgreSQL & Prisma | Tables, SQL, joins, indexes, transactions, migrations |
+| # | Note | | Topics |
+|---|------|---|---|
+| 01 | React | Components, props, state, hooks, lists and forms | 11 |
+| 02 | State Management & Redux | Lifting, Context, Redux Toolkit, Zustand, React Query | 11 |
+| 03 | Next.js | App Router, server vs client, rendering, caching | 12 |
+| 04 | Node.js | The event loop, async/await, modules, streams | 11 |
+| 05 | Express | Routes, middleware, auth, validation, error handling | 11 |
+| 06 | PostgreSQL & Prisma | Tables, SQL, joins, indexes, transactions, migrations | 11 |
 
-**Part two — the AI track.** Note 06 stands alone and can be read first.
+**Part two — the AI track.** Note 07 stands alone and can be read first.
 
-| # | Note | |
-|---|------|---|
-| 06 | AI, Models, RAG & Security | How models work, prompting, embeddings, RAG, production |
-| 07 | Agents & Workflows | The agent loop, workflow patterns, tool design, folder structure |
-| 08 | MCP | The protocol, building a server, connecting it, securing it |
-| 09 | Skills & Artifacts | Four ways to extend a model, and which one you need |
-| 10 | The Model Landscape | Claude, OpenAI, Gemini, Copilot — what actually differs |
-| 11 | Evaluating AI Systems | Eval sets, graders, scoring RAG and agents, CI |
-| 12 | AI Security | Prompt injection, the three ingredients, defences that hold |
-| 13 | AI Governance | Risk tiers, the frameworks, a system card that fits on a page |
+| # | Note | | Topics |
+|---|------|---|---|
+| 07 | AI, Models, RAG & Security | How models work, prompting, embeddings, RAG, production | 24 |
+| 08 | Agents & Workflows | The agent loop, workflow patterns, tool design, structure | 10 |
+| 09 | MCP | The protocol, building a server, connecting it, securing it | 9 |
+| 10 | Skills & Artifacts | Four ways to extend a model, and which one you need | 4 |
+| 11 | The Model Landscape | Claude, OpenAI, Gemini, Copilot — what actually differs | 5 |
+| 12 | Evaluating AI Systems | Eval sets, graders, scoring RAG and agents, CI | 5 |
+| 13 | AI Security | Prompt injection, the three ingredients, defences that hold | 5 |
+| 14 | AI Governance | Risk tiers, the frameworks, a system card on a page | 5 |
+| 15 | AI System Architecture | The five layers, four reference shapes, the six boundaries | 7 |
+| 16 | Cloud & GCP Deployment | Cloud Run, storage, IAM, secrets, Vertex, the bill | 9 |
+| 17 | AI Ops | Logging, tracing, prompt versioning, rollouts, incidents | 7 |
 
 **Part three — where this goes.**
 
-| # | Note | |
-|---|------|---|
-| 14 | What to Learn Next | The path, the foundations, and how to tell you have learned it |
+| # | Note | | Topics |
+|---|------|---|---|
+| 18 | What to Learn Next | The path, the foundations, and how to tell you have learned it | 6 |
+
+## Signing in
+
+Opening the site lands on `login.html`, which checks one email and password in
+the browser and stores a flag in `localStorage`.
+
+**This is a gate, not a security boundary.** A static site has nowhere to keep a
+secret: the check runs in JavaScript the visitor has already downloaded, so
+anyone who reads the page source can get past it. It keeps the notes out of the
+way of a casual visitor and does nothing more. The page says so too, rather than
+implying otherwise. If these notes ever need real access control, that requires
+a server.
+
+The credentials are stored as salted hashes in `login.html` and the matching
+token is in `tools/build.mjs` as `AUTH_TOKEN` — change them together.
 
 ## Reading it locally
 
@@ -50,9 +85,10 @@ python3 -m http.server 8000
 ## Editing
 
 The notes are **HTML fragments in `content/`**, one file per note, plus
-`content/notes.json` which is the catalogue in reading order. Edit a fragment,
-rebuild, and the page, the sidebar, the table of contents, the previous/next
-links and the search index all update from it.
+`content/notes.json` which holds the parts and the notes in reading order. Edit
+a fragment, rebuild, and the folder pages, the topic pages, the sidebar tree,
+the breadcrumbs, the previous/next chain and the search index all update from
+it.
 
 ```bash
 cd tools
@@ -63,20 +99,24 @@ There is nothing to install. The build uses Node's standard library only.
 
 ### Adding a note
 
-1. Write `content/<id>.html`. Each section is:
+1. Write `content/<id>.html`. Each section becomes **its own page**:
 
    ```html
-   <section class="note-section">
+   <section class="note-section" data-tagline="One line for the folder card.">
      <h2 id="short-id">The heading</h2>
      <p>…</p>
    </section>
    ```
 
-2. Add an entry to `content/notes.json` — `id`, `n`, `label`, `title`,
-   `tagline`, `description`, `level`, `minutes`.
+   The `id` on the `<h2>` becomes the page's filename, so keep it short and
+   stable — changing it changes a URL. `data-tagline` is optional; without it
+   the build uses the section's opening sentence.
+
+2. Add an entry to `content/notes.json` under `notes` — `id`, `n`, `part`,
+   `label`, `title`, `tagline`, `description`, `level`, `minutes`.
 3. `npm run build`.
 
-Headings become the table of contents automatically. Do not hand-maintain one.
+Reading time per topic is counted from the words. Do not hand-maintain it.
 
 ### The components available in a fragment
 
@@ -85,7 +125,7 @@ Headings become the table of contents automatically. Do not hand-maintain one.
 | `<div class="callout is-note\|is-warn\|is-tip">` | An aside — information, warning, plain-English explainer |
 | `<div class="callout is-note is-practice">` | A "go and do this" block |
 | `<div class="example">` | A real-world worked example with a badge |
-| `<div class="code-block">` + `<div class="code-head">` | A captioned code block |
+| `<div class="code-block">` + `<div class="code-head">` | A captioned code block, with a copy button |
 | `<figure class="figure is-ascii">` + `<pre class="ascii-art">` | A fixed-width diagram |
 | `<figure class="figure is-flow">` + `<ol class="flow flow-column">` | An animated step sequence |
 | `<div class="compare">` with `is-bad` / `is-good` panes | The mistake beside the fix |
@@ -96,6 +136,13 @@ Headings become the table of contents automatically. Do not hand-maintain one.
 
 Write `{{replay}}` inside a flow's `figure-head` and the build expands it into
 the replay button.
+
+### The beginner layer
+
+Every topic opens with an **In plain English** callout — an analogy a
+non-technical reader can follow — before any code appears. `tools/lib/enrich.mjs`
+is the helper that inserted these; it is idempotent, so a topic that already has
+one is skipped rather than given a second.
 
 ## Publishing
 
@@ -109,25 +156,36 @@ domain, or opened straight off disk.
 
 ```
 index.html              the overview
-notes/*.html            generated — do not edit by hand
+login.html              the sign-in gate
+notes/<id>/index.html   generated — a note, listing its topics
+notes/<id>/<topic>.html generated — one topic  ·  do not edit by hand
 content/*.html          the notes themselves, one fragment each
-content/notes.json      the catalogue, in reading order
+content/notes.json      the parts and the catalogue, in reading order
 assets/css/main.css     the whole design system
-assets/js/app.js        theme, sidebar, TOC, search, animations, highlighting
+assets/js/app.js        theme, tree, rail, TOC, search, motion, highlighting
 assets/js/site-data.js  generated — the catalogue and the search index
 tools/build.mjs         the build
+tools/lib/enrich.mjs    the beginner-layer inserter
 ```
 
 ## What the pages do
 
+- **A folder tree** in the sidebar. Every note expands to its topics; what you
+  have opened is remembered per browser, and the note you are reading is always
+  open.
+- **A collapsing sidebar** — the button beside the logo, or <kbd>⌘</kbd> +
+  <kbd>\\</kbd> — which widens the reading column and is remembered.
 - **Light and dark**, following the system by default; the toggle overrides it
   and is remembered per browser.
-- **Search** across every section heading and its body text, showing the
-  sentence the match was found in. `/` focuses it; arrows and Enter navigate.
+- **Search** across every topic heading and its body text, showing the sentence
+  the match was found in. `/` focuses it; arrows and Enter navigate.
+- **`[` and `]`** move to the previous and next topic.
 - **Animated flow diagrams** that reveal a step at a time on scroll, with a
-  replay button.
+  replay button; content that rises into place as you reach it; a reading
+  progress bar; copy buttons on every code block.
 - **Self-checks** that stay collapsed until you commit to an answer.
-- Reduced-motion, keyboard navigation and mobile are all handled.
+- Reduced-motion, keyboard navigation and mobile are all handled. Every
+  animation is switched off under `prefers-reduced-motion`.
 
 ## A note on what is not here
 

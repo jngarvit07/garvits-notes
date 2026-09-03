@@ -6,6 +6,22 @@
 (function () {
   'use strict';
 
+  var BASE = document.body.getAttribute('data-base') || '';
+  var NOTE = document.body.getAttribute('data-note') || '';
+  var TOPIC = document.body.getAttribute('data-topic') || '';
+  var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var store = {
+    get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode */ } },
+    del: function (k) { try { localStorage.removeItem(k); } catch (e) { /* private mode */ } },
+  };
+
+  var svg = function (d, w) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' +
+      (w || 2) + '" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+  };
+
   /* --- 1. Theme ---------------------------------------------------------- */
   // The inline script in <head> has already applied the stored theme to avoid
   // a flash. Here we only wire up the toggle.
@@ -16,18 +32,53 @@
       var current = root.getAttribute('data-theme');
       if (!current) {
         // Following the system: flip to the opposite of what's showing.
-        var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        current = systemDark ? 'dark' : 'light';
+        current = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       }
       var next = current === 'dark' ? 'light' : 'dark';
       root.setAttribute('data-theme', next);
-      try { localStorage.setItem('gn-theme', next); } catch (e) { /* private mode */ }
+      store.set('gn-theme', next);
     });
   }
 
-  /* --- 2. Mobile sidebar -------------------------------------------------- */
-  var navBtn  = document.getElementById('nav-toggle');
-  var sidebar = document.querySelector('.sidebar');
+  /* --- 2. Sign out ------------------------------------------------------- */
+  var signOut = document.getElementById('sign-out');
+  if (signOut) {
+    signOut.addEventListener('click', function () {
+      store.del('gn-auth');
+      location.href = BASE + 'login.html';
+    });
+  }
+
+  /* --- 3. Collapsing the left rail --------------------------------------- */
+  // The state lives on <html> so the boot script in <head> can apply it before
+  // first paint — otherwise the sidebar flashes in and then disappears.
+  var railBtn = document.getElementById('rail-toggle');
+  var setRail = function (closed) {
+    document.documentElement.setAttribute('data-rail', closed ? 'closed' : 'open');
+    store.set('gn-rail', closed ? 'closed' : 'open');
+    if (railBtn) {
+      railBtn.setAttribute('aria-pressed', String(closed));
+      railBtn.setAttribute('aria-label', closed ? 'Show the sidebar' : 'Hide the sidebar');
+      railBtn.setAttribute('title', (closed ? 'Show' : 'Hide') + ' the sidebar  \u2318\\');
+    }
+  };
+  setRail(document.documentElement.getAttribute('data-rail') === 'closed');
+  if (railBtn) {
+    railBtn.addEventListener('click', function () {
+      setRail(document.documentElement.getAttribute('data-rail') !== 'closed');
+    });
+  }
+  // Cmd/Ctrl + \ — the shortcut editors use for the same thing.
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '\\' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      setRail(document.documentElement.getAttribute('data-rail') !== 'closed');
+    }
+  });
+
+  /* --- 4. Mobile sidebar -------------------------------------------------- */
+  var navBtn = document.getElementById('nav-toggle');
+  var sidebar = document.getElementById('sidebar');
   if (navBtn && sidebar) {
     var scrim = null;
     var closeNav = function () {
@@ -35,83 +86,115 @@
       if (scrim) { scrim.remove(); scrim = null; }
     };
     navBtn.addEventListener('click', function () {
-      var open = sidebar.classList.toggle('is-open');
-      if (open) {
+      if (sidebar.classList.toggle('is-open')) {
         scrim = document.createElement('div');
         scrim.className = 'nav-scrim';
         scrim.addEventListener('click', closeNav);
         document.body.appendChild(scrim);
-      } else {
-        closeNav();
-      }
+      } else { closeNav(); }
     });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closeNav();
-    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeNav(); });
   }
 
-  /* --- 3. Render the sidebar from the generated catalogue ----------------- */
-  // One list of notes (site-data.js) drives the sidebar, the search and the
-  // homepage cards, so they cannot drift apart.
+  /* --- 5. The sidebar tree ------------------------------------------------ */
+  // Every note is a folder that opens to its topics. One catalogue
+  // (site-data.js) drives this, the search and the home page, so they cannot
+  // drift apart.
   (function () {
-    var host = document.getElementById('sidebar');
-    if (!host || !window.GN_MODULES) return;
+    if (!sidebar || !window.GN_MODULES) return;
 
-    var base = document.body.getAttribute('data-base') || '';
-    var here = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/, '');
+    var OPEN_KEY = 'gn-open';
+    var open = {};
+    try { open = JSON.parse(store.get(OPEN_KEY) || '{}') || {}; } catch (e) { open = {}; }
+    // The note you are reading is always open, whatever was stored.
+    if (NOTE) open[NOTE] = true;
 
-    var html = '<div class="side-heading">Start here</div>' +
-      '<ul class="side-nav"><li><a href="' + base + 'index.html"' +
-      (here === 'index' || here === '' ? ' class="is-current"' : '') +
-      '><span class="side-num">&#9737;</span><span>Overview</span></a></li></ul>' +
-      '<div class="side-heading">The notes</div><ul class="side-nav">';
+    var CARET = svg('<path d="m9 6 6 6-6 6"/>', 2.2);
+    var esc = function (t) {
+      return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    };
 
-    window.GN_MODULES.forEach(function (m) {
-      var current = m.slug === here;
-      html += '<li><a href="' + base + 'notes/' + m.slug + '.html"' +
-              (current ? ' class="is-current"' : '') + '>' +
-              '<span class="side-num">' + m.n + '</span>' +
-              '<span>' + m.label + '</span></a>';
+    var html = '<a class="tree-home' + (!NOTE ? ' is-current' : '') + '" href="' + BASE + 'index.html">' +
+      svg('<path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5"/>', 1.9) +
+      '<span>Overview</span></a>';
 
-      // The open note expands into its own sections, so the sidebar doubles as
-      // a map of where you are rather than only a list of where you could go.
-      if (current && window.GN_SECTIONS) {
-        var mine = window.GN_SECTIONS.filter(function (s) { return s.slug === m.slug; });
-        if (mine.length) {
-          html += '<ul class="side-sub">';
-          mine.forEach(function (s) {
-            html += '<li><a href="' + s.hash + '">' + s.section + '</a></li>';
-          });
-          html += '</ul>';
-        }
-      }
-      html += '</li>';
+    (window.GN_PARTS || [{ id: null, short: 'The notes' }]).forEach(function (part) {
+      var mine = window.GN_MODULES.filter(function (m) { return !part.id || m.part === part.id; });
+      if (!mine.length) return;
+
+      html += '<div class="tree-part">' + esc(part.short) + '</div>';
+
+      mine.forEach(function (m) {
+        var isOpen = !!open[m.slug];
+        var isHere = m.slug === NOTE;
+        html += '<div class="tree-note' + (isOpen ? ' is-open' : '') +
+                (isHere ? ' is-here' : '') + '" data-note="' + m.slug + '">' +
+          '<div class="tn-row">' +
+            '<button class="tn-caret" type="button" aria-expanded="' + isOpen + '" ' +
+              'aria-label="' + (isOpen ? 'Collapse ' : 'Expand ') + esc(m.label) + '">' + CARET + '</button>' +
+            '<a class="tn-link" href="' + BASE + 'notes/' + m.slug + '/index.html">' +
+              '<span class="tn-num">' + esc(m.n) + '</span>' +
+              '<span class="tn-label">' + esc(m.label) + '</span>' +
+              '<span class="tn-count">' + m.topics.length + '</span>' +
+            '</a>' +
+          '</div>' +
+          '<div class="tn-drawer"><ul class="tn-topics">' +
+            m.topics.map(function (t, i) {
+              var cur = isHere && t.id === TOPIC;
+              return '<li><a' + (cur ? ' class="is-current"' : '') +
+                ' href="' + BASE + 'notes/' + m.slug + '/' + t.id + '.html">' +
+                '<span class="tt-n">' + String(i + 1).padStart(2, '0') + '</span>' +
+                '<span class="tt-t">' + esc(t.title) + '</span></a></li>';
+            }).join('') +
+          '</ul></div>' +
+        '</div>';
+      });
     });
 
-    host.innerHTML = html + '</ul>';
+    sidebar.innerHTML = '<div class="tree">' + html + '</div>';
+
+    // Expand and collapse. The drawer animates via grid-template-rows, which
+    // is the one way to transition to a height you do not know in advance.
+    sidebar.addEventListener('click', function (e) {
+      var caret = e.target.closest('.tn-caret');
+      if (!caret) return;
+      e.preventDefault();
+      var folder = caret.closest('.tree-note');
+      var nowOpen = folder.classList.toggle('is-open');
+      caret.setAttribute('aria-expanded', String(nowOpen));
+      caret.setAttribute('aria-label', (nowOpen ? 'Collapse ' : 'Expand ') +
+        folder.querySelector('.tn-label').textContent);
+      open[folder.getAttribute('data-note')] = nowOpen;
+      store.set(OPEN_KEY, JSON.stringify(open));
+    });
+
+    // Bring the current topic into view without animating the whole way there.
+    var here = sidebar.querySelector('.tn-topics a.is-current') || sidebar.querySelector('.tree-note.is-here');
+    if (here) {
+      var top = here.offsetTop - sidebar.clientHeight / 2;
+      if (top > 0) sidebar.scrollTop = top;
+    }
   })();
 
-  /* --- 4. Build the table of contents from the headings ------------------- */
+  /* --- 6. Table of contents, built from the headings ---------------------- */
   var tocBox = document.getElementById('toc');
   var article = document.querySelector('.content');
   var headings = [];
 
   if (tocBox && article) {
-    headings = Array.prototype.slice.call(article.querySelectorAll('h2, h3'));
+    // On a topic page the <h1> is the topic, so the contents are its h2/h3.
+    headings = Array.prototype.slice.call(article.querySelectorAll('.topic-body h2, .topic-body h3'));
 
     if (headings.length) {
       var list = document.createElement('ul');
 
       headings.forEach(function (h, i) {
         if (!h.id) {
-          h.id = (h.textContent || '')
-            .toLowerCase()
-            .replace(/[^\w\s-]/g, '')
-            .trim()
-            .replace(/\s+/g, '-') || ('section-' + i);
+          h.id = (h.textContent || '').toLowerCase().replace(/[^\w\s-]/g, '')
+            .trim().replace(/\s+/g, '-') || ('section-' + i);
         }
 
-        // Clickable ¶ anchor next to the heading itself.
+        // Clickable anchor next to the heading itself.
         var anchor = document.createElement('a');
         anchor.className = 'anchor';
         anchor.href = '#' + h.id;
@@ -130,11 +213,11 @@
 
       tocBox.appendChild(list);
     } else {
-      tocBox.style.display = 'none';
+      tocBox.classList.add('is-empty');
     }
   }
 
-  /* --- 5. Scrollspy: highlight the heading you're reading ----------------- */
+  /* --- 7. Scrollspy: highlight the heading you're reading ----------------- */
   if (headings.length && tocBox && 'IntersectionObserver' in window) {
     var tocLinks = {};
     tocBox.querySelectorAll('a').forEach(function (a) {
@@ -144,9 +227,7 @@
     var visible = new Set();
     var setActive = function () {
       var best = null;
-      headings.forEach(function (h) {
-        if (visible.has(h.id) && best === null) best = h.id;
-      });
+      headings.forEach(function (h) { if (visible.has(h.id) && best === null) best = h.id; });
       Object.keys(tocLinks).forEach(function (id) {
         tocLinks[id].classList.toggle('is-active', id === best);
       });
@@ -163,7 +244,57 @@
     headings.forEach(function (h) { spy.observe(h); });
   }
 
-  /* --- 6. Diagrams: animate on first view, replay on demand --------------- */
+  /* --- 8. Reading progress ------------------------------------------------ */
+  (function () {
+    var bar = document.querySelector('#read-progress span');
+    if (!bar) return;
+    var tick = function () {
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      var pct = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+      bar.style.transform = 'scaleX(' + pct + ')';
+    };
+    var queued = false;
+    window.addEventListener('scroll', function () {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () { tick(); queued = false; });
+    }, { passive: true });
+    tick();
+  })();
+
+  /* --- 9. Reveal on scroll ------------------------------------------------ */
+  // Blocks rise into place the first time they are seen. Anything below the
+  // fold starts hidden; anything already on screen is shown immediately, so a
+  // reader who never scrolls is never looking at a blank page.
+  (function () {
+    var targets = document.querySelectorAll('.reveal, .content > h2, .content > p, .content > .callout, ' +
+      '.content > .example, .content > .code-block, .content > figure, .content > .card-grid, ' +
+      '.content > .table-wrap, .content > .compare, .content > .recap, .content > details, ' +
+      '.topic-body > h2, .topic-body > h3, .topic-body > p, .topic-body > .callout, ' +
+      '.topic-body > .example, .topic-body > .code-block, .topic-body > figure, ' +
+      '.topic-body > .card-grid, .topic-body > .table-wrap, .topic-body > .compare, ' +
+      '.topic-body > .recap, .topic-body > details');
+
+    if (!targets.length) return;
+    if (REDUCED || !('IntersectionObserver' in window)) {
+      targets.forEach(function (t) { t.classList.add('is-in'); });
+      return;
+    }
+
+    targets.forEach(function (t) { t.classList.add('will-reveal'); });
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-in');
+        io.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.02 });
+
+    targets.forEach(function (t) { io.observe(t); });
+  })();
+
+  /* --- 10. Diagrams: animate on first view, replay on demand -------------- */
   (function () {
     var figures = document.querySelectorAll('.figure-stage');
     if (!figures.length) return;
@@ -181,10 +312,7 @@
     if ('IntersectionObserver' in window) {
       var seen = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            run(entry.target);
-            seen.unobserve(entry.target);
-          }
+          if (entry.isIntersecting) { run(entry.target); seen.unobserve(entry.target); }
         });
       }, { threshold: 0.25 });
       figures.forEach(function (f) { seen.observe(f); });
@@ -201,7 +329,7 @@
     });
   })();
 
-  /* --- 7. Lightweight syntax tinting -------------------------------------- */
+  /* --- 11. Lightweight syntax tinting ------------------------------------- */
   // ONE pass, with alternation. Sequential .replace() calls cannot work here:
   // a later pass matches the markup an earlier one just emitted — a quoted
   // class="tok-com" looks exactly like a string literal — which corrupts every
@@ -222,9 +350,7 @@
 
     document.querySelectorAll('pre code').forEach(function (block) {
       var escaped = block.textContent
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
       block.innerHTML = escaped.replace(PATTERN, function (m, com, str, num, kw) {
         if (com) return '<span class="tok-com">' + com + '</span>';
@@ -236,8 +362,97 @@
     });
   })();
 
-  /* --- 8. Search ---------------------------------------------------------- */
-  // A hand-maintained index. Every new note page adds an entry here.
+  /* --- 12. Copy a code block ---------------------------------------------- */
+  (function () {
+    var COPY = svg('<rect x="9" y="9" width="12" height="12" rx="2"/>' +
+                   '<path d="M5 15V5a2 2 0 0 1 2-2h10"/>', 1.9);
+    var TICK = svg('<path d="m20 6-11 11-5-5"/>', 2.4);
+
+    document.querySelectorAll('.code-block pre, .compare-pane pre').forEach(function (pre) {
+      var btn = document.createElement('button');
+      btn.className = 'copy-btn';
+      btn.type = 'button';
+      btn.innerHTML = COPY;
+      btn.setAttribute('aria-label', 'Copy this code');
+
+      btn.addEventListener('click', function () {
+        var code = pre.querySelector('code');
+        var text = (code || pre).textContent;
+        var done = function (ok) {
+          btn.innerHTML = ok ? TICK : COPY;
+          btn.classList.toggle('is-done', ok);
+          btn.setAttribute('aria-label', ok ? 'Copied' : 'Copy this code');
+          if (ok) setTimeout(function () {
+            btn.innerHTML = COPY;
+            btn.classList.remove('is-done');
+            btn.setAttribute('aria-label', 'Copy this code');
+          }, 1600);
+        };
+
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+        } else {
+          // file:// and plain http have no clipboard API. Select it instead so
+          // the reader can still copy with one keystroke.
+          var range = document.createRange();
+          range.selectNodeContents(code || pre);
+          var sel = window.getSelection();
+          sel.removeAllRanges(); sel.addRange(range);
+          try { done(document.execCommand('copy')); } catch (e) { done(false); }
+        }
+      });
+
+      pre.parentNode.insertBefore(btn, pre);
+    });
+  })();
+
+  /* --- 13. Counting up the hero numbers ----------------------------------- */
+  (function () {
+    var nums = document.querySelectorAll('[data-count]');
+    if (!nums.length) return;
+
+    var run = function (el) {
+      var target = Number(el.getAttribute('data-count')) || 0;
+      var suffix = el.getAttribute('data-suffix') || '';
+      if (REDUCED) { el.textContent = target + suffix; return; }
+
+      var started = null;
+      var step = function (now) {
+        if (started === null) started = now;
+        var p = Math.min(1, (now - started) / 900);
+        // Ease out, so it decelerates into the final number.
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(target * eased) + suffix;
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { run(e.target); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.4 });
+      nums.forEach(function (n) { io.observe(n); });
+    } else {
+      nums.forEach(run);
+    }
+  })();
+
+  /* --- 14. Previous / next by keyboard ------------------------------------ */
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var tag = (document.activeElement.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
+
+    var go = e.key === '[' ? '.pn-prev' : e.key === ']' ? '.pn-next' : null;
+    if (!go) return;
+    var link = document.querySelector(go);
+    if (link && link.href) location.href = link.href;
+  });
+
+  /* --- 15. Search ---------------------------------------------------------- */
   var escapeHtml = function (t) {
     return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   };
@@ -245,37 +460,33 @@
   var INDEX = [];
   (window.GN_MODULES || []).forEach(function (m) {
     INDEX.push({
-      section: m.title, title: m.minutes + ' min \u00b7 whole note',
-      url: 'notes/' + m.slug + '.html', keywords: m.label + ' ' + m.blurb
+      section: m.title, title: m.topics.length + ' topics \u00b7 whole note',
+      url: 'notes/' + m.slug + '/index.html', keywords: m.label + ' ' + m.blurb, kind: 'note',
     });
   });
   (window.GN_SECTIONS || []).forEach(function (s) {
     INDEX.push({
       section: s.section, title: s.note,
-      url: 'notes/' + s.slug + '.html' + s.hash,
-      keywords: s.note, text: s.text || ''
+      url: 'notes/' + s.slug + '/' + s.topic + '.html',
+      keywords: s.note + ' ' + s.noteTitle, text: s.text || '', kind: 'topic',
     });
   });
+
   var input = document.getElementById('search');
-  var out   = document.getElementById('search-results');
+  var out = document.getElementById('search-results');
 
   if (input && out && INDEX.length) {
-    var base = document.body.getAttribute('data-base') || '';
     var hits = [];
     var cursor = -1;
-
     var hide = function () { out.innerHTML = ''; out.hidden = true; cursor = -1; };
 
     var render = function (q) {
       var needle = q.trim().toLowerCase();
       if (needle.length < 2) return hide();
 
-      // Rank by where the match lands. Without this, one note whose *title*
-      // contains the word ("AI, Models, RAG & Security") drowns out the one
-      // section actually about it.
       // Rank by where the match lands: a heading beats a mention in the prose,
       // and one note whose *title* contains the word must not drown out the
-      // section actually about it.
+      // topic actually about it.
       hits = INDEX.map(function (item) {
         var heading = item.section.toLowerCase();
         var pos = heading.indexOf(needle);
@@ -290,11 +501,11 @@
         return { item: item, score: score, at: at };
       }).filter(function (r) { return r.score >= 0; })
         .sort(function (a, b) { return a.score - b.score; })
-        .slice(0, 8);
+        .slice(0, 9);
 
       if (!hits.length) {
         out.innerHTML = '<div class="search-empty">No matches for &ldquo;' +
-          needle.replace(/</g, '&lt;') + '&rdquo;</div>';
+          escapeHtml(needle) + '&rdquo;</div>';
         out.hidden = false;
         return;
       }
@@ -315,11 +526,11 @@
         if (hit.at >= 0) {
           var from = Math.max(0, hit.at - 45);
           var snip = item.text.slice(from, from + 130);
-          meta = escapeHtml(item.title) + ' &mdash; ' +
-                 (from > 0 ? '&hellip;' : '') +
+          meta = escapeHtml(item.title) + ' &mdash; ' + (from > 0 ? '&hellip;' : '') +
                  mark(snip, hit.at - from, needle.length) + '&hellip;';
         }
-        return '<a href="' + base + item.url + '">' +
+        return '<a href="' + BASE + item.url + '">' +
+               '<span class="sr-kind sr-' + item.kind + '">' + (item.kind === 'note' ? 'Note' : 'Topic') + '</span>' +
                '<span class="sr-title">' + heading + '</span>' +
                '<span class="sr-meta">' + meta + '</span></a>';
       }).join('');

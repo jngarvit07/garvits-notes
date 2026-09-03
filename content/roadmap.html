@@ -1,5 +1,6 @@
 <section class="note-section">
 <h2 id="where">Where you are now</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Before choosing what to learn next it is worth being accurate about where you are. Having read something is not the same as being able to build it without the tab open, and the gap between those two is where most people misjudge what they should do next. </div></div>
 <p>If you have read the notes before this one, you know more than most people writing about AI on the internet. Specifically, you can now answer these &mdash; and knowing what you know is the precondition for choosing what to learn next.</p>
 <div class="card-grid cols-2">
 <div class="card"><div class="card-title">What a model is doing</div><p>Next-token prediction, attention, context windows, why hallucination is structural rather than a bug to be patched.</p></div>
@@ -26,6 +27,7 @@
 
 <section class="note-section">
 <h2 id="foundations">The foundations worth filling in</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Some fundamentals keep paying out no matter which framework is fashionable: how HTTP actually works, what a database is doing, how to read a stack trace, git beyond commit and push, and how to write something down so another person can follow it. These age far better than any library. </div></div>
 <p>You can build a great deal without these. They are what separates someone who can wire an API from someone who can debug why the wiring is not working.</p>
 <div class="table-wrap"><table><thead><tr><th>Topic</th><th>Why it earns its time</th><th>Depth needed</th></tr></thead><tbody>
 <tr><td><strong>Python</strong></td><td>The ecosystem is Python-first. Every paper, notebook, evaluation harness and data tool assumes it, even when your product is TypeScript.</td><td>Enough to read a notebook and modify it. Not a second career.</td></tr>
@@ -52,6 +54,7 @@
 
 <section class="note-section">
 <h2 id="watching">What is actually changing, and what is not</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Most of what looks like rapid change is the same ideas being repackaged. Genuinely new capabilities arrive a few times a year; new names for existing ones arrive weekly. Being able to tell them apart is what stops you rewriting a working system every quarter. </div></div>
 <p>Predicting AI is a poor use of anyone&rsquo;s time. Directions that are already visible are a better guide than forecasts.</p>
 <div class="table-wrap"><table><thead><tr><th>Direction</th><th>What it changes for you</th></tr></thead><tbody>
 <tr><td><strong>Longer context, cheaper</strong></td><td>Some things RAG exists for stop needing RAG. Retrieval will still win on cost, freshness, permissions and citation &mdash; but the threshold moves.</td></tr>
@@ -67,6 +70,7 @@
 
 <section class="note-section">
 <h2 id="honest">How to tell you have actually learned it</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The honest test is not whether you followed the explanation — explanations are designed to be followable. It is whether you can build the thing from a blank file, and explain to somebody else why it is built that way. Everything short of that is recognition rather than knowledge. </div></div>
 <p>A checklist that resists self-deception better than a course completion does. Each of these is a thing you have done, not a thing you have read.</p>
 <div class="table-wrap"><table><thead><tr><th>You can genuinely say&hellip;</th><th>Which proves</th></tr></thead><tbody>
 <tr><td>&ldquo;I shipped an AI feature people use, and I know its failure rate.&rdquo;</td><td>You have met reality, and you measure rather than assume.</td></tr>
@@ -90,4 +94,6 @@
 <li>Four things have not changed in three years: models cannot verify, data quality decides quality, evaluation is the only proof, security is architectural. Learn those.</li>
 <li>Depth compounds, novelty does not. Pick one problem and stay with it while the models improve underneath you.</li>
 </ul></div>
+<details class="selfcheck"><summary><span class="sc-q">You have read all eighteen notes. What is the fastest way to find out what you actually retained?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Build something small without any of them open. A page that reads from an API, an endpoint that writes to a database, a feature that calls a model and validates what comes back. The parts you have to look up are your real gaps, and the list is always shorter and different from the one you would have guessed. </p>
+<p> Reading a second time feels like progress and mostly reinforces recognition. Building is the only reliable test, which is why every note here ends by pointing at real code. </p></div></details>
 </section>
