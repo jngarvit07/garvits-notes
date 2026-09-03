@@ -71,11 +71,30 @@ the deep dives underneath it.
 Opening the site lands on `login.html`, which checks the email and password in
 the browser and stores a flag in `localStorage`.
 
-**This is a gate, not a security boundary.** A static site has nowhere to keep a
-secret: the check runs in JavaScript the visitor has already downloaded, so
-anyone who reads the page source can get past it. It keeps the notes out of the
-way of a casual visitor and does nothing more. If these notes ever need real
-access control, that requires a server.
+**This is a gate, not a security boundary — and the distinction is not
+academic.** A static site has nowhere to keep a secret. The note text is in the
+HTML that gets served, so `curl` returns it in full without ever signing in;
+the token is in the source of every page; and the password is a 32-bit djb2
+hash, which is brute-forced in milliseconds. On GitHub Pages the repository is
+public regardless. The gate keeps a casual visitor out of the notes. It does
+nothing against anyone who looks. **Real access control needs a server**, or
+content encrypted with a key the page does not ship.
+
+What the gate does do properly, as of now:
+
+| | |
+|---|---|
+| Every page checks before rendering | All 219, verified by `tests/run.mjs` |
+| It fails **closed** | Blocked `localStorage` sends you to login, not into the site |
+| JavaScript off | `<noscript>` hides the body and forwards to login |
+| Deep links survive | `?next=` returns you to the exact page, hash included |
+| Crawlers | `robots.txt` disallows everything; every page is `noindex, nofollow` |
+| The source | `_config.yml` keeps `content/` off the published site |
+
+That last one mattered most: `content/` holds the unbuilt notes and was being
+served, ungated, at `/content/<note>.html`. Crawlers do not run the JavaScript
+that redirects, so without the `noindex` and the `robots.txt` the notes were
+publicly searchable no matter what the gate did.
 
 Three addresses are accepted, all with the same password. They are stored as
 salted hashes in `login.html` (`EMAIL_HASHES` and `PASS_HASH`) and the matching
@@ -88,6 +107,25 @@ password field has a show/hide toggle.
 python3 -m http.server 8000
 # http://localhost:8000
 ```
+
+Note that `_config.yml` is a GitHub Pages instruction, so `content/` **is**
+reachable from a plain local server. Only the deployed site excludes it.
+
+## Building and checking
+
+```bash
+cd tools
+npm run build     # regenerate every page from content/
+npm test          # check the built site
+npm run check     # both
+```
+
+`tests/run.mjs` has no dependencies and starts no browser. It lifts the real
+gate script out of the built HTML and runs it in a `vm` against a stubbed
+`location`, so it tests what actually ships. It covers the gate on every page,
+the signed-out round trip through `login.html` and back, fail-closed behaviour,
+the crawler and source-exclusion rules, the payload split, the old-URL
+redirects, and every internal link.
 
 ## Editing
 
@@ -154,7 +192,12 @@ one is skipped rather than given a second.
 ## Publishing
 
 Pushing to `main` publishes. GitHub Pages serves the repository root — there is
-no build step on their side, because the HTML is committed.
+no build step on their side, because the HTML is committed. `_config.yml` is
+the one thing they do act on: it keeps `content/`, `tools/` and `tests/` out
+of what gets served.
+
+Run `npm run check` in `tools/` before pushing — the committed HTML is the
+deployed site, so a stale build ships as-is.
 
 Every path is relative, so the site works from a subdirectory, from a custom
 domain, or opened straight off disk.
@@ -162,17 +205,22 @@ domain, or opened straight off disk.
 ## Layout
 
 ```
-index.html              the overview
-login.html              the sign-in gate
-notes/<id>/index.html   generated — a note, listing its topics
-notes/<id>/<topic>.html generated — one topic  ·  do not edit by hand
-content/*.html          the notes themselves, one fragment each
-content/notes.json      the parts and the catalogue, in reading order
-assets/css/main.css     the whole design system
-assets/js/app.js        theme, size, tree, rail, TOC, search, motion, highlighting
-assets/js/site-data.js  generated — the catalogue and the search index
-tools/build.mjs         the build
-tools/lib/enrich.mjs    the beginner-layer inserter
+index.html               the overview
+login.html               the sign-in gate
+robots.txt               keeps every crawler out
+_config.yml              keeps content/, tools/ and tests/ off the built site
+notes/<id>/index.html    generated — a note, listing its topics
+notes/<id>/<topic>.html  generated — one topic  ·  do not edit by hand
+notes/<id>.html          generated — forwards the pre-restructure URL
+content/*.html           the notes themselves, one fragment each
+content/notes.json       the parts and the catalogue, in reading order
+assets/css/main.css      the whole design system
+assets/js/app.js         theme, size, tree, rail, TOC, search, motion, highlighting
+assets/js/site-data.js   generated — the sidebar catalogue, loaded by every page
+assets/js/search-data.js generated — the search prose, loaded on first keystroke
+tools/build.mjs          the build
+tools/lib/enrich.mjs     the beginner-layer inserter
+tests/run.mjs            checks the built site
 ```
 
 ## What the pages do

@@ -1,0 +1,5 @@
+# The notes sit behind a sign-in gate that crawlers do not run, so without
+# this they would be indexed and readable straight from search results.
+# Every page also carries <meta name="robots" content="noindex, nofollow">.
+User-agent: *
+Disallow: /

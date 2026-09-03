@@ -548,6 +548,12 @@
     return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   };
 
+  /* The note titles come free — site-data.js is already loaded for the sidebar.
+     The prose every topic is searched against is the bulk of the payload and
+     is wanted only by someone who actually searches, so it is fetched on the
+     first keystroke and folded in when it lands. Typing before it arrives is
+     not a dead end: the titles already match, and the results re-render by
+     themselves once the rest is in. */
   var INDEX = [];
   (window.GN_MODULES || []).forEach(function (m) {
     INDEX.push({
@@ -555,13 +561,35 @@
       url: 'notes/' + m.slug + '/index.html', keywords: m.label + ' ' + m.blurb, kind: 'note',
     });
   });
-  (window.GN_SECTIONS || []).forEach(function (s) {
-    INDEX.push({
-      section: s.section, title: s.note,
-      url: 'notes/' + s.slug + '/' + s.topic + '.html',
-      keywords: s.note + ' ' + s.noteTitle, text: s.text || '', kind: 'topic',
+
+  var addSections = function () {
+    (window.GN_SECTIONS || []).forEach(function (s) {
+      INDEX.push({
+        section: s.section, title: s.note,
+        url: 'notes/' + s.slug + '/' + s.topic + '.html',
+        keywords: s.note + ' ' + s.noteTitle, text: s.text || '', kind: 'topic',
+      });
     });
-  });
+  };
+
+  var searchData = 'idle';
+  var wantSearchData = function (done) {
+    if (searchData === 'ready') return;
+    if (searchData === 'loading') return;
+    searchData = 'loading';
+    // The generated file calls this back, so a cached copy that runs before
+    // onload is still noticed.
+    window.GN_ON_SEARCH_DATA = function () {
+      if (searchData === 'ready') return;
+      searchData = 'ready';
+      addSections();
+      done();
+    };
+    var el = document.createElement('script');
+    el.src = BASE + 'assets/js/search-data.js';
+    el.onerror = function () { searchData = 'idle'; };   // let a later keystroke retry
+    document.head.appendChild(el);
+  };
 
   var input = document.getElementById('search');
   var out = document.getElementById('search-results');
@@ -629,8 +657,9 @@
       cursor = -1;
     };
 
-    input.addEventListener('input', function () { render(input.value); });
-    input.addEventListener('focus', function () { if (input.value) render(input.value); });
+    var reRender = function () { if (input.value) render(input.value); };
+    input.addEventListener('input', function () { wantSearchData(reRender); render(input.value); });
+    input.addEventListener('focus', function () { wantSearchData(reRender); reRender(); });
 
     input.addEventListener('keydown', function (e) {
       var links = out.querySelectorAll('a');

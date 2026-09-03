@@ -6,15 +6,22 @@
 <title>The Transformer, assembled — Inside a Model — Garvit's Notes</title>
 <meta name="description" content="Attention is one layer. Stack it a hundred times with some plumbing in between and you have the architecture behind every model you have used.">
 <meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex, nofollow">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
 if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');
 var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data-size',z);}catch(e){}
-try{if(localStorage.getItem('gn-auth')!=='v11xb7'){
-var depth=('../../'.match(/\.\.\//g)||[]).length;
-var parts=location.pathname.split('/').filter(Boolean).slice(-(depth+1));
-location.replace('../../login.html?next='+encodeURIComponent(parts.join('/')));}}catch(e){}
+var ok=false;try{ok=localStorage.getItem('gn-auth')==='v11xb7';}catch(e){ok=false;}
+if(!ok){var next='';
+try{var root=new URL('../../'||'./',location.href).pathname;
+var here=location.pathname+location.search+location.hash;
+if(here.slice(0,root.length)===root)next=here.slice(root.length);}catch(e){}
+location.replace('../../login.html'+(next?'?next='+encodeURIComponent(next):''));}
 })();</script>
+<noscript>
+<meta http-equiv="refresh" content="0;url=../../login.html">
+<style>body{display:none}</style>
+</noscript>
 <link rel="stylesheet" href="../../assets/css/main.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
 </head>
