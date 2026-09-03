@@ -1,0 +1,139 @@
+<section class="note-section" data-tagline="Fine-tuning teaches a manner, not a fact. Getting that one sentence right saves most teams a wasted month.">
+<h2 id="what">What fine-tuning can and cannot teach</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Fine-tuning is showing someone a thousand worked examples until they pick up the house style. It is very good at teaching <em>how</em> to respond &mdash; the format, the tone, the shape of a good answer. It is poor at teaching <em>what is true</em>, because facts change and retraining is slow, expensive and cannot be done every Tuesday when a policy is updated. </div></div>
+<div class="table-wrap"><table><thead><tr><th>Your actual problem</th><th>The answer</th><th>Why</th></tr></thead><tbody>
+<tr><td>&ldquo;It does not know about our products&rdquo;</td><td><strong>Retrieval</strong></td><td>Facts, and they change. Update a document, not a model.</td></tr>
+<tr><td>&ldquo;It will not stick to our output format&rdquo;</td><td><strong>Structured output</strong> first</td><td>A schema enforces this for free. Try it before training anything.</td></tr>
+<tr><td>&ldquo;It ignores an instruction we keep repeating&rdquo;</td><td><strong>Prompt work</strong> first</td><td>Usually an underspecified brief rather than an incapable model.</td></tr>
+<tr><td>&ldquo;Our prompt is 4,000 tokens of examples and it is slow and costly&rdquo;</td><td><strong>Fine-tuning</strong></td><td>Genuine fit. Bake the examples in, send a short prompt.</td></tr>
+<tr><td>&ldquo;We need this tone and no amount of prompting gets it&rdquo;</td><td><strong>Fine-tuning</strong></td><td>Style is exactly what it teaches well.</td></tr>
+<tr><td>&ldquo;A small model would do if it just knew this narrow task&rdquo;</td><td><strong>Fine-tuning</strong> (distillation)</td><td>The strongest economic case there is. Covered below.</td></tr>
+<tr><td>&ldquo;It hallucinates&rdquo;</td><td><strong>Neither, alone</strong></td><td>Fine-tuning on your data can make it hallucinate <em>more</em> confidently in your house style. Retrieval plus validation is the answer.</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Fine-tuning on documents does not put those documents in the model.</strong> This is the most expensive misunderstanding in the field. Training on your knowledge base teaches the model to <em>sound like</em> your knowledge base &mdash; the register, the vocabulary, the structure &mdash; while remaining just as capable of inventing a policy that was never written. It often makes things worse, because the invented answers now carry your house voice and read as authoritative. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">A team fine-tunes on 5,000 support tickets so the assistant &ldquo;knows their product&rdquo;. What will actually happen?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> It will learn to write like their support team &mdash; the greetings, the structure, the vocabulary, the sign-off. Some facts will stick incidentally, unreliably and without any way to tell which. When the return policy changes next month, the model will keep confidently stating the old one, and there is no document to edit.</p>
+<p> The same 5,000 tickets used as a retrieval corpus would give current, citable, updatable answers. And if the tone genuinely matters too, do both &mdash; fine-tune for the voice, retrieve for the facts. They are not alternatives; they solve different halves. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="Full fine-tuning, LoRA and QLoRA differ by how many numbers you change. That one difference decides the hardware, the cost and how many you can serve.">
+<h2 id="methods">Full, LoRA, QLoRA</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A model is billions of numbers. Full fine-tuning adjusts all of them, which needs enormous hardware and produces an enormous new file. LoRA leaves them frozen and trains a small patch that sits alongside &mdash; typically under 1% the size &mdash; which turns out to work nearly as well for most tasks. It is the difference between reprinting a book and adding annotations to the margins. </div></div>
+<div class="table-wrap"><table><thead><tr><th></th><th>Full fine-tune</th><th>LoRA</th><th>QLoRA</th></tr></thead><tbody>
+<tr><td>What changes</td><td>Every parameter</td><td>Small added matrices; base frozen</td><td>Same, on a compressed base</td></tr>
+<tr><td>Trainable share</td><td>100%</td><td>~0.1&ndash;1%</td><td>~0.1&ndash;1%</td></tr>
+<tr><td>GPU memory, 7B model</td><td>~80GB+</td><td>~16GB</td><td>~6GB</td></tr>
+<tr><td>Artefact size</td><td>Tens of GB</td><td>~10&ndash;200MB</td><td>~10&ndash;200MB</td></tr>
+<tr><td>Serving many variants</td><td>A full copy each</td><td><strong>One base, many adapters, swapped per request</strong></td><td>Same</td></tr>
+<tr><td>Quality</td><td>Ceiling</td><td>Very close for most tasks</td><td>Slightly below LoRA</td></tr>
+<tr><td>Reach for it when</td><td>Rarely. A new language or domain shift.</td><td><strong>Almost always</strong></td><td>Limited hardware, or experimenting</td></tr>
+</tbody></table></div>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>Why LoRA works, in one picture</div><pre><code>  A layer's weights are a big matrix W  (say 4096 x 4096 = 16.7M numbers)
+
+  FULL FINE-TUNE:   train a new W        16,700,000 numbers changed
+
+  LoRA:             keep W frozen
+                    train A (4096 x 8)   and   B (8 x 4096)
+                    use  W + (A x B)
+
+                    32,768 + 32,768  =   65,536 numbers changed
+                                          ~0.4% of the layer
+
+  The insight: the ADJUSTMENT a task needs is far simpler than
+  the knowledge already in W, so it compresses into a thin pair.</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>The multi-tenant property is the one people miss.</strong> Because an adapter is small and the base is shared, one served model can carry dozens of adapters in memory and pick per request. A different tuned behaviour per customer becomes economically ordinary rather than absurd &mdash; with full fine-tuning it would be one entire model per customer. </div></div>
+<h3>The knobs, and sensible starting values</h3>
+<div class="table-wrap"><table><thead><tr><th>Setting</th><th>Start at</th><th>What it does</th></tr></thead><tbody>
+<tr><td><code>rank</code> (r)</td><td>16</td><td>How much capacity the patch has. 8&ndash;16 for style and format; 32&ndash;64 for a genuinely new skill. Higher is not better by default.</td></tr>
+<tr><td><code>alpha</code></td><td>32 (2&times; rank)</td><td>How strongly the patch is applied.</td></tr>
+<tr><td><code>learning rate</code></td><td>1e-4 to 2e-4</td><td>Higher than full fine-tuning, because far fewer parameters are moving.</td></tr>
+<tr><td><code>epochs</code></td><td>2&ndash;3</td><td>More than 3 on a small set overfits reliably. Watch the validation loss, not the training loss.</td></tr>
+<tr><td>target modules</td><td>attention projections</td><td>Adding the feed-forward layers helps on harder tasks and costs memory.</td></tr>
+</tbody></table></div>
+</section>
+
+<section class="note-section" data-tagline="The single factor that decides whether this works. A thousand consistent examples beat fifty thousand inconsistent ones, and it is not close.">
+<h2 id="data">The data is the whole job</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Fine-tuning copies whatever is in your examples, including the mistakes and the disagreements. If three people wrote your training data and they format dates differently, the model learns to be inconsistent about dates &mdash; and it learns that faithfully. This is why quality beats quantity so heavily, and why most failed fine-tuning projects failed at the dataset rather than the training. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">jsonl</span>The format, and the rule about system prompts</div><pre><code>{"messages":[
+  {"role":"system","content":"You are the Acme support assistant."},
+  {"role":"user","content":"My order hasn't arrived."},
+  {"role":"assistant","content":"I'm sorry about that. Could you share your order number so I can check the delivery status?"}
+]}
+{"messages":[
+  {"role":"system","content":"You are the Acme support assistant."},
+  {"role":"user","content":"Where's my refund?"},
+  {"role":"assistant","content":"Refunds reach your account 5-10 working days after approval. Could you share your order number so I can confirm it was processed?"}
+]}
+
+RULES THAT MATTER
+  - Use the SAME system prompt in training as you will at inference.
+    A mismatch is the most common cause of "it was fine in testing".
+  - Every example must be an output you would be happy to ship.
+    The model copies your average, not your best.
+  - Hold back 10-20% as a validation set BEFORE you look at any of it.</code></pre></div>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">How many do you need?</div><p><strong>50&ndash;100</strong> to tell whether it is going to help at all. <strong>500&ndash;1,000</strong> for solid results on format and tone. <strong>5,000+</strong> for a genuinely new skill. Adding more inconsistent examples past that point does not help and can hurt.</p></div>
+  <div class="card"><div class="card-title">Where they should come from</div><p>Real interactions, corrected by someone who knows the right answer. Synthetic data generated by a larger model is legitimate and works — but it caps your quality at that model's, and any bias it has becomes yours permanently.</p></div>
+  <div class="card"><div class="card-title">Include the hard cases</div><p>Ambiguous requests, ones that should be refused, ones needing a clarifying question. A dataset of clean happy paths produces a model that is confidently wrong the moment reality is untidy.</p></div>
+  <div class="card"><div class="card-title">Deduplicate, properly</div><p>Near-duplicates make the model overweight whatever they contain. Deduplicate by embedding similarity, not by exact string match — the copies are rarely identical.</p></div>
+</div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Check the licence and the personal data before you train.</strong> Training bakes the content in irreversibly: you cannot delete one customer's data out of a trained model, which puts a deletion request in direct conflict with the artefact. Redact personal data before training, keep a record of what went in, and read the <a href="../governance/index.html">AI Governance</a> note before using customer conversations as training data. </div></div>
+</section>
+
+<section class="note-section" data-tagline="Teaching a model which answer is better, rather than which answer is correct — and why that needs a different technique entirely.">
+<h2 id="preference">Preference tuning: RLHF and DPO</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Ordinary fine-tuning needs one right answer per input. But for &ldquo;write a polite refusal&rdquo; there is no single right answer &mdash; there are better and worse ones. Preference tuning trains on <em>pairs</em>: here are two responses, this one is better. It is how the raw text-predictor becomes an assistant that is helpful and declines sensibly, and it is a large part of what separates a base model from a chat model. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">jsonl</span>A preference pair</div><pre><code>{"prompt":  "A customer is angry their order is late. Reply.",
+ "chosen":  "I'm really sorry — that's frustrating. I can see it left our warehouse on the 3rd and is delayed in transit. I've requested an update and will email you within 24 hours. If you'd rather not wait, I can refund it now.",
+ "rejected":"Unfortunately delays can occur due to circumstances beyond our control. Please consult our shipping policy for further information."}
+
+Both are on-topic and grammatical. One is much better.
+That judgement is what you are teaching, and it is very hard
+to write down as a rule — which is exactly why pairs work.</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th></th><th>RLHF</th><th>DPO</th></tr></thead><tbody>
+<tr><td>How</td><td>Train a reward model on preferences, then optimise against it with reinforcement learning</td><td>Optimise directly on the pairs. No reward model, no RL loop.</td></tr>
+<tr><td>Moving parts</td><td>Many. Notoriously fiddly to stabilise.</td><td>Few. Close to ordinary supervised training.</td></tr>
+<tr><td>Compute</td><td>High</td><td>Moderate</td></tr>
+<tr><td>Results</td><td>The established approach at frontier labs</td><td>Comparable on most tasks, far less machinery</td></tr>
+<tr><td>For you</td><td>Almost certainly not</td><td><strong>Start here</strong> if you need preference tuning at all</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>You probably have preference data already.</strong> Every thumbs-up and thumbs-down, every time a user edited a generated draft before sending it, every time a support agent rewrote a suggested reply. The edited version is <code>chosen</code> and the original is <code>rejected</code>. Capturing that from the start costs almost nothing and is worth a great deal later &mdash; see the <a href="../aiops/index.html">AI Ops</a> note on feedback signals. </div></div>
+</section>
+
+<section class="note-section" data-tagline="The strongest economic case for fine-tuning: teach a small cheap model to do one job as well as the expensive one, using the expensive one as the teacher.">
+<h2 id="distill">Distillation, and the case that actually pays</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Use the expensive model to do the job perfectly a few thousand times, then train a small cheap model on those answers. The small model will not match it in general &mdash; but on that one narrow task it can get very close, at a fraction of the cost and a fraction of the latency. This is where fine-tuning most reliably makes financial sense. </div></div>
+<figure class="figure is-flow">
+<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Distilling one task down to a small model</span>{{replay}}</div>
+<div class="figure-stage"><ol class="flow flow-column">
+<li class="flow-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Ship on the big model first</span><span class="flow-detail">You cannot distil a task you have not defined. Get it working and get an eval set that proves it works.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">Collect real inputs</span><span class="flow-detail">A few thousand from production. Real ones — the distribution is the point, and invented inputs are drawn from what you already thought of.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Generate and filter the answers</span><span class="flow-detail">Run the big model over them, then throw away everything that fails validation. Training on the teacher&rsquo;s mistakes teaches the mistakes.</span></div></li>
+<li class="flow-step" data-tone="accent" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">LoRA-tune the small model</span><span class="flow-detail">Hours, not weeks, and modest hardware.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:4"><span class="flow-num">5</span><div class="flow-text"><span class="flow-label">Compare on the same eval set</span><span class="flow-detail">Same cases, same grader. If the small model is within tolerance, the decision makes itself.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:5"><span class="flow-num">6</span><div class="flow-text"><span class="flow-label">Shadow, canary, switch</span><span class="flow-detail">Exactly as for any other model change. Keep the big model as the fallback.</span></div></li>
+</ol></div>
+</figure>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">When it is worth it, and when it is not</span></div><div class="example-body">
+<p> <strong>Worth it:</strong> a classifier running on every inbound message, a few million times a month. The task is narrow, the volume is high, and latency is in the user's path. A distilled small model can be an order of magnitude cheaper and several times faster, and the eval set tells you whether quality held. </p>
+<p> <strong>Not worth it:</strong> a feature called two hundred times a day. The engineering, the retraining as the task drifts, the serving infrastructure and the extra thing to monitor all cost more than the tokens you would save. Fine-tuning has a fixed cost that never goes away &mdash; a model you must re-tune whenever the task changes, and a pipeline somebody has to own. </p>
+<p> The honest test is arithmetic. Take your current monthly token spend on that one feature, estimate the saving, and compare it to a week of engineering plus ongoing maintenance. If the answer is not obvious, it is a no. </p>
+</div></div>
+<details class="selfcheck"><summary><span class="sc-q">Why filter the teacher model&rsquo;s outputs before training on them?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because the teacher is not perfect, and the student copies everything it is shown with no way to tell good examples from bad. Training on unfiltered output bakes the teacher&rsquo;s error rate into the student permanently &mdash; and the student cannot exceed what it was taught. </p>
+<p> Filtering with your validators, your business rules and ideally a sample of human review is what makes the student&rsquo;s ceiling the teacher&rsquo;s <em>good</em> answers rather than its average ones. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="A tuned model is a versioned artefact with an owner, an eval score and a rollback. Treating it as a one-off experiment is how it rots.">
+<h2 id="ops">Living with a fine-tuned model</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The training run is the short part. What follows is a permanent obligation: an artefact that has to be versioned, evaluated, served, monitored and eventually retrained when the task drifts or the base model is deprecated. A fine-tuned model is a dependency you now maintain, and that cost should be in the decision from the start. </div></div>
+<div class="table-wrap"><table><thead><tr><th>What</th><th>Because</th></tr></thead><tbody>
+<tr><td>Version the dataset alongside the model</td><td>&ldquo;Which examples produced this behaviour?&rdquo; is unanswerable otherwise, and it is the first question when something is wrong.</td></tr>
+<tr><td>Record base model, hyperparameters, and the commit</td><td>Reproducibility. A tuned model you cannot rebuild is a liability with a shelf life.</td></tr>
+<tr><td>Run the same eval set as the base model</td><td>The only way to state the improvement as a number rather than an impression.</td></tr>
+<tr><td>Watch for regression on general ability</td><td>Tuning hard on one task degrades others &mdash; catastrophic forgetting. Keep a few general cases in the eval set to catch it.</td></tr>
+<tr><td>Keep the base model as a fallback</td><td>One flag back to something that works if the tuned one misbehaves in production.</td></tr>
+<tr><td>Diarise the base model's deprecation</td><td>Your adapter is tied to a specific base. When it retires, you retrain &mdash; and you want that on a plan rather than as a surprise.</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Re-run your evals when the base model updates.</strong> An adapter trained against one version of a base model can behave differently on the next, in ways nobody deployed and nobody expected. This is the same argument as pinning model versions in the <a href="../aiops/index.html">AI Ops</a> note, with more at stake: here the thing that shifted underneath you is something you paid to build. </div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Fine-tuning teaches manner, not facts. Facts belong in retrieval.</li><li>Try prompting and structured output first. Most fine-tuning projects should have stopped there.</li><li>LoRA for nearly everything: ~1% of the parameters, a small adapter, many variants on one base.</li><li>The dataset is the job. 500&ndash;1,000 consistent examples beat 50,000 inconsistent ones.</li><li>DPO over RLHF if you need preference tuning, and you may already be collecting the pairs.</li><li>Distillation is the strongest economic case &mdash; but do the arithmetic before, not after.</li><li>A tuned model is a versioned dependency you now maintain. Price that in.</li></ul></div>
+</section>

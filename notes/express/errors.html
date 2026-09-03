@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Error handling — Express — Garvit's Notes</title>
+<meta name="description" content="In plain English Something will go wrong on every route you write, and you do not want the same handling copied into all of them.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){var d=document.documentElement;
+try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
+if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');
+var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data-size',z);}catch(e){}
+try{if(localStorage.getItem('gn-auth')!=='v11xb7'){
+var depth=('../../'.match(/\.\.\//g)||[]).length;
+var parts=location.pathname.split('/').filter(Boolean).slice(-(depth+1));
+location.replace('../../login.html?next='+encodeURIComponent(parts.join('/')));}}catch(e){}
+})();</script>
+<link rel="stylesheet" href="../../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../../" data-note="express" data-topic="errors">
+<header class="site-header">
+  <button class="icon-btn nav-only" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <button class="icon-btn rail-only" id="rail-toggle" type="button" aria-label="Hide the sidebar" aria-pressed="false" title="Hide the sidebar  ⌘\"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg></button>
+  <a class="brand" href="../../index.html"><span class="brand-mark">GN</span><span class="brand-text">Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search every topic&hellip;" autocomplete="off" aria-label="Search notes">
+    <kbd class="search-kbd">/</kbd>
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <div class="size-wrap">
+    <button class="icon-btn" id="size-toggle" type="button" aria-label="Reading size"
+            aria-haspopup="menu" aria-expanded="false" title="Reading size"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 7.5 6l4.5 11"/><path d="M4.6 13.6h5.8"/><path d="M14 17l3.4-8 3.4 8"/><path d="M15.2 14.4h4.4"/></svg></button>
+    <div class="size-menu" id="size-menu" role="menu" hidden>
+      <div class="size-menu-head">Reading size</div>
+      <button type="button" role="menuitemradio" data-size="sm"><span>Small</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="md"><span>Medium</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="lg"><span>Large</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+    </div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <button class="icon-btn head-only" data-sign-out type="button" aria-label="Sign out" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg></button>
+  <div class="read-progress" id="read-progress"><span></span></div>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="All notes">
+    <div class="tree" id="tree"></div>
+    <div class="side-foot">
+      <button class="side-out" data-sign-out type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg><span>Sign out</span></button>
+    </div>
+  </nav>
+  <main class="main" id="main"><article class="content">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/express/index.html">Express</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Error handling</span></nav>
+<header class="topic-head reveal">
+  <span class="eyebrow">Note 05 &middot; Express &middot; Topic 7 of 11</span>
+  <h1>Error handling</h1>
+  <div class="page-meta">
+    <span>2 min read</span>
+    <span>Some experience helps</span>
+  </div>
+</header>
+<div class="topic-body">
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Something will go wrong on every route you write, and you do not want the same handling copied into all of them. One error handler at the end of the chain catches everything, decides what the user is told, and makes sure the internal detail goes to your logs rather than into the response. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">An endpoint returns nothing at all — no response, no error in the logs — and the caller eventually times out. Where do you look first?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Two candidates, and both are in this note. Either a middleware neither responded nor called <code>next()</code>, so the request is parked on the conveyor belt; or an async handler threw without a wrapper, so the rejection went nowhere Express looks. Both produce exactly this silence, which is why <code>asyncHandler</code> exists. </p>
+</div></details>
+<p> An error handler is middleware with <strong>four</strong> arguments. That extra argument is not decoration — it is how Express recognises the function as an error handler at all, so removing an unused <code>next</code> silently turns it back into ordinary middleware. </p>
+<div class="code-block"><div class="code-head"><span class="lang">json</span>One handler, registered last</div><pre><code>export const errorHandler = (error, req, res, next) =&gt; {
+  if (error instanceof ApiError) {
+    return res.status(error.status).json({ error: error.message, code: error.code });
+  }
+
+  logger.error({ error, path: req.originalUrl }, 'unhandled error');
+
+  // Never send a stack trace to a caller: it names your files, your
+  // libraries and their versions.
+  res.status(500).json({ error: 'Something went wrong' });
+};
+
+app.use(errorHandler);   // after every route
+</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Express 4 does not catch errors thrown in async handlers.</strong> An <code>await</code> that rejects produces a rejected promise Express never looks at: no response, no log, a hung request. Either wrap every async handler, or use Express 5, where this was finally fixed. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">json</span>The wrapper this backend uses</div><pre><code>export const asyncHandler = (fn) =&gt; (req, res, next) =&gt; {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+// Now a throw anywhere inside reaches the error handler:
+router.get('/:id', asyncHandler(async (req, res) =&gt; {
+  const project = await db.project.findUnique({ where: { id: req.params.id } });
+  if (!project) throw new ApiError(404, 'Project not found');
+  res.json(project);
+}));</code></pre></div>
+<p> With that in place, handlers stop being defensive: they describe the happy path and throw when reality disagrees. One place decides what an error looks like on the wire, so the shape is consistent and the frontend can rely on it. </p>
+</div>
+<nav class="page-nav">
+<a class="pn-prev" href="auth.html">
+  <span class="pn-dir">&larr; Previous</span>
+  <span class="pn-title">Authentication and authorisation</span>
+  
+</a>
+<a class="pn-next" href="security.html">
+  <span class="pn-dir">Next &rarr;</span>
+  <span class="pn-title">Hardening an Express app</span>
+  
+</a>
+</nav>
+<nav class="siblings" aria-label="Other topics in this note">
+  <div class="sib-head">More in <a href="index.html">Express</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What Express is</a><a class="sib" href="cycle.html"><span class="sib-n">02</span>The request and response cycle</a><a class="sib" href="routes.html"><span class="sib-n">03</span>Routes and routers</a><a class="sib" href="middleware.html"><span class="sib-n">04</span>Middleware: the one idea to actually learn</a><a class="sib" href="input.html"><span class="sib-n">05</span>Reading and validating input</a><a class="sib" href="auth.html"><span class="sib-n">06</span>Authentication and authorisation</a><a class="sib is-current" href="errors.html"><span class="sib-n">07</span>Error handling</a><a class="sib" href="security.html"><span class="sib-n">08</span>Hardening an Express app</a><a class="sib" href="design.html"><span class="sib-n">09</span>Designing the API</a><a class="sib" href="testing.html"><span class="sib-n">10</span>Testing and debugging</a><a class="sib" href="here.html"><span class="sib-n">11</span>Express in this product</a></div>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../../assets/js/site-data.js"></script>
+<script src="../../assets/js/app.js"></script>
+</body>
+</html>

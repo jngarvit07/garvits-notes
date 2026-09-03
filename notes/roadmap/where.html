@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where you are now — What to Learn Next — Garvit's Notes</title>
+<meta name="description" content="In plain English Before choosing what to learn next it is worth being accurate about where you are.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){var d=document.documentElement;
+try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
+if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');
+var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data-size',z);}catch(e){}
+try{if(localStorage.getItem('gn-auth')!=='v11xb7'){
+var depth=('../../'.match(/\.\.\//g)||[]).length;
+var parts=location.pathname.split('/').filter(Boolean).slice(-(depth+1));
+location.replace('../../login.html?next='+encodeURIComponent(parts.join('/')));}}catch(e){}
+})();</script>
+<link rel="stylesheet" href="../../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../../" data-note="roadmap" data-topic="where">
+<header class="site-header">
+  <button class="icon-btn nav-only" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <button class="icon-btn rail-only" id="rail-toggle" type="button" aria-label="Hide the sidebar" aria-pressed="false" title="Hide the sidebar  ⌘\"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg></button>
+  <a class="brand" href="../../index.html"><span class="brand-mark">GN</span><span class="brand-text">Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search every topic&hellip;" autocomplete="off" aria-label="Search notes">
+    <kbd class="search-kbd">/</kbd>
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <div class="size-wrap">
+    <button class="icon-btn" id="size-toggle" type="button" aria-label="Reading size"
+            aria-haspopup="menu" aria-expanded="false" title="Reading size"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 7.5 6l4.5 11"/><path d="M4.6 13.6h5.8"/><path d="M14 17l3.4-8 3.4 8"/><path d="M15.2 14.4h4.4"/></svg></button>
+    <div class="size-menu" id="size-menu" role="menu" hidden>
+      <div class="size-menu-head">Reading size</div>
+      <button type="button" role="menuitemradio" data-size="sm"><span>Small</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="md"><span>Medium</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="lg"><span>Large</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+    </div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <button class="icon-btn head-only" data-sign-out type="button" aria-label="Sign out" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg></button>
+  <div class="read-progress" id="read-progress"><span></span></div>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="All notes">
+    <div class="tree" id="tree"></div>
+    <div class="side-foot">
+      <button class="side-out" data-sign-out type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg><span>Sign out</span></button>
+    </div>
+  </nav>
+  <main class="main" id="main"><article class="content">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/roadmap/index.html">What to Learn Next</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Where you are now</span></nav>
+<header class="topic-head reveal">
+  <span class="eyebrow">Note 23 &middot; What to Learn Next &middot; Topic 1 of 6</span>
+  <h1>Where you are now</h1>
+  <div class="page-meta">
+    <span>2 min read</span>
+    <span>No experience needed</span>
+  </div>
+</header>
+<div class="topic-body">
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Before choosing what to learn next it is worth being accurate about where you are. Having read something is not the same as being able to build it without the tab open, and the gap between those two is where most people misjudge what they should do next. </div></div>
+<p>If you have read the notes before this one, you know more than most people writing about AI on the internet. Specifically, you can now answer these &mdash; and knowing what you know is the precondition for choosing what to learn next.</p>
+<div class="card-grid cols-2">
+<div class="card"><div class="card-title">What a model is doing</div><p>Next-token prediction, attention, context windows, why hallucination is structural rather than a bug to be patched.</p></div>
+<div class="card"><div class="card-title">How to give it knowledge</div><p>Embeddings, chunking, retrieval, grounding, citations &mdash; and where in that pipeline it actually goes wrong.</p></div>
+<div class="card"><div class="card-title">How to give it abilities</div><p>Tools, the agent loop, workflow patterns, MCP, skills &mdash; and the ladder that says which one to reach for.</p></div>
+<div class="card"><div class="card-title">How to know it works</div><p>Eval sets, graders, scoring retrieval and generation separately, wiring it into CI.</p></div>
+<div class="card"><div class="card-title">How it gets attacked</div><p>Prompt injection, the three-ingredient rule, and why architecture beats prompt wording every time.</p></div>
+<div class="card"><div class="card-title">What the rules are</div><p>Risk tiers, the frameworks by name, and the one-page artefact that answers most of what anyone asks.</p></div>
+</div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Reading is not the same as knowing.</strong> The honest test for every item above is whether you have built something that used it and watched it fail. If not, that gap is the next thing to close &mdash; not the next note.</p></div></div>
+</div>
+<nav class="page-nav">
+<a class="pn-prev" href="../../notes/aiops/incident.html">
+  <span class="pn-dir">&larr; Previous</span>
+  <span class="pn-title">When it goes wrong at 3am</span>
+  <span class="pn-note">in AI Ops</span>
+</a>
+<a class="pn-next" href="path.html">
+  <span class="pn-dir">Next &rarr;</span>
+  <span class="pn-title">The path, in the order that works</span>
+  
+</a>
+</nav>
+<nav class="siblings" aria-label="Other topics in this note">
+  <div class="sib-head">More in <a href="index.html">What to Learn Next</a></div>
+  <div class="sib-row"><a class="sib is-current" href="where.html"><span class="sib-n">01</span>Where you are now</a><a class="sib" href="path.html"><span class="sib-n">02</span>The path, in the order that works</a><a class="sib" href="foundations.html"><span class="sib-n">03</span>The foundations worth filling in</a><a class="sib" href="deeper.html"><span class="sib-n">04</span>Where to go deeper, once the basics hold</a><a class="sib" href="watching.html"><span class="sib-n">05</span>What is actually changing, and what is not</a><a class="sib" href="honest.html"><span class="sib-n">06</span>How to tell you have actually learned it</a></div>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../../assets/js/site-data.js"></script>
+<script src="../../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>When it goes wrong at 3am — AI Ops — Garvit's Notes</title>
+<meta name="description" content="A checklist for the hour when it is broken, and the questions that get you to the layer at fault fastest.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){var d=document.documentElement;
+try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
+if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');
+var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data-size',z);}catch(e){}
+try{if(localStorage.getItem('gn-auth')!=='v11xb7'){
+var depth=('../../'.match(/\.\.\//g)||[]).length;
+var parts=location.pathname.split('/').filter(Boolean).slice(-(depth+1));
+location.replace('../../login.html?next='+encodeURIComponent(parts.join('/')));}}catch(e){}
+})();</script>
+<link rel="stylesheet" href="../../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../../" data-note="aiops" data-topic="incident">
+<header class="site-header">
+  <button class="icon-btn nav-only" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <button class="icon-btn rail-only" id="rail-toggle" type="button" aria-label="Hide the sidebar" aria-pressed="false" title="Hide the sidebar  ⌘\"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg></button>
+  <a class="brand" href="../../index.html"><span class="brand-mark">GN</span><span class="brand-text">Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search every topic&hellip;" autocomplete="off" aria-label="Search notes">
+    <kbd class="search-kbd">/</kbd>
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <div class="size-wrap">
+    <button class="icon-btn" id="size-toggle" type="button" aria-label="Reading size"
+            aria-haspopup="menu" aria-expanded="false" title="Reading size"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 7.5 6l4.5 11"/><path d="M4.6 13.6h5.8"/><path d="M14 17l3.4-8 3.4 8"/><path d="M15.2 14.4h4.4"/></svg></button>
+    <div class="size-menu" id="size-menu" role="menu" hidden>
+      <div class="size-menu-head">Reading size</div>
+      <button type="button" role="menuitemradio" data-size="sm"><span>Small</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="md"><span>Medium</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="lg"><span>Large</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+    </div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <button class="icon-btn head-only" data-sign-out type="button" aria-label="Sign out" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg></button>
+  <div class="read-progress" id="read-progress"><span></span></div>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="All notes">
+    <div class="tree" id="tree"></div>
+    <div class="side-foot">
+      <button class="side-out" data-sign-out type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg><span>Sign out</span></button>
+    </div>
+  </nav>
+  <main class="main" id="main"><article class="content">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/aiops/index.html">AI Ops</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">When it goes wrong at 3am</span></nav>
+<header class="topic-head reveal">
+  <span class="eyebrow">Note 22 &middot; AI Ops &middot; Topic 7 of 7</span>
+  <h1>When it goes wrong at 3am</h1>
+  <div class="page-meta">
+    <span>3 min read</span>
+    <span>Some experience helps</span>
+  </div>
+</header>
+<div class="topic-body">
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> At 3am the instinct is to start rewriting the prompt, because that feels like the part you control. It is almost never the cause, it cannot be verified quickly, and a prompt changed under pressure with no eval run tends to become tomorrow&rsquo;s incident. Work the list in order instead. </div></div>
+<p> An AI incident is usually one of five things. Working through them in this order finds it quickly, because it goes from cheapest-to-check to hardest. </p>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>The triage order</div><pre><code>1. IS THE PROVIDER UP?
+   Check their status page first, every time. Half of all AI
+   incidents are somebody else's incident. Your fallback should
+   already have engaged — check whether it did.
+
+2. DID WE CHANGE SOMETHING?
+   Deploys, prompt versions, model ids, feature flags, config,
+   in the last 24 hours. Look at prompt_ver in the logs: if the
+   error rate steps up exactly when a version changed, you are done.
+
+3. DID THE INPUT CHANGE?
+   A new customer with unusual documents. A marketing campaign
+   bringing a different kind of question. An integration sending
+   ten times the volume. Nothing broke — the load changed shape.
+
+4. DID THE DATA CHANGE?
+   For RAG: did an indexing job fail, half-complete, or index
+   the wrong version of a document? Look at the chunk_ids on bad
+   answers and read what those chunks actually say. This is where
+   the "confidently wrong about the refund policy" bug lives.
+
+5. IS IT THE MODEL?
+   Last, not first. It is the hardest to verify and the least
+   likely. Compare against a pinned known-good version on the
+   same inputs before concluding anything.</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>The order is deliberate.</strong> The instinct at 3am is to start rewriting the prompt, because that is the part you feel you control. It is almost never the cause, it cannot be tested quickly, and a prompt change made under pressure with no eval run tends to become tomorrow's incident. </div></div>
+<h3>What to have ready before you need it</h3>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">A kill switch per feature</div><p>Turns the AI path off and falls back to whatever the product did before it existed. Tested. Not tested on the night.</p></div>
+  <div class="card"><div class="card-title">A one-command rollback</div><p>To a previous revision <em>and</em> a previous prompt version, independently. They break independently, so they must revert independently.</p></div>
+  <div class="card"><div class="card-title">A saved query for bad answers</div><p>&ldquo;Show me the last fifty calls for this feature with their chunk ids and outputs.&rdquo; Writing that query while the incident is live wastes twenty minutes.</p></div>
+  <div class="card"><div class="card-title">A written fallback decision</div><p>What the product does when the model is unavailable, agreed with someone outside engineering. Decided in a meeting, not by whoever is on call.</p></div>
+</div>
+<div class="callout is-note is-practice"><span class="callout-icon">&#9998;</span><div class="callout-body"><div class="callout-title">Try this</div> Run the drill. Turn the kill switch on in staging and watch what the user actually sees. Then roll a prompt version back and time it. Both should take under a minute and neither should require reading documentation. If either surprises you, you have found the work that is worth doing this week rather than at 3am. </div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>AI systems fail with a 200 OK. Your existing monitoring will not notice.</li><li>One structured log line per call, and <code>feature</code>, <code>prompt_ver</code> and <code>chunk_ids</code> are the three fields you will wish you had.</li><li>Trace the whole chain. The slow part is usually not the model.</li><li>Prompts are code: versioned, reviewed, pinned models, evals gating the merge.</li><li>Shadow, then canary, then widen. Keep a kill switch.</li><li>Four operational panels plus one quality signal, and alert on cost.</li><li>Triage in order: provider, our change, input, data, model. The model is last.</li></ul></div>
+<details class="selfcheck"><summary><span class="sc-q">The assistant started giving wrong answers this morning. Nobody deployed anything. Where do you look?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> At the data and at the inputs, not at the model. For a retrieval system: did an indexing job fail or half-complete, and are the passages being retrieved actually the current ones? Read what those chunks say — it is very often a superseded document that never got removed. </p>
+<p> The other common answer is that the traffic changed shape rather than the system: a new customer, a campaign, an integration sending a kind of question you never had before. Nothing broke; the load is different. </p></div></details>
+</div>
+<nav class="page-nav">
+<a class="pn-prev" href="dashboard.html">
+  <span class="pn-dir">&larr; Previous</span>
+  <span class="pn-title">The dashboard, and the alerts</span>
+  
+</a>
+<a class="pn-next" href="../../notes/roadmap/where.html">
+  <span class="pn-dir">Next &rarr;</span>
+  <span class="pn-title">Where you are now</span>
+  <span class="pn-note">in What to Learn Next</span>
+</a>
+</nav>
+<nav class="siblings" aria-label="Other topics in this note">
+  <div class="sib-head">More in <a href="index.html">AI Ops</a></div>
+  <div class="sib-row"><a class="sib" href="different.html"><span class="sib-n">01</span>Why this is not normal ops</a><a class="sib" href="logging.html"><span class="sib-n">02</span>What to log on every call</a><a class="sib" href="tracing.html"><span class="sib-n">03</span>Tracing a request through the whole chain</a><a class="sib" href="prompts.html"><span class="sib-n">04</span>Prompts are code, so version them like code</a><a class="sib" href="rollout.html"><span class="sib-n">05</span>Rolling out a change without holding your breath</a><a class="sib" href="dashboard.html"><span class="sib-n">06</span>The dashboard, and the alerts</a><a class="sib is-current" href="incident.html"><span class="sib-n">07</span>When it goes wrong at 3am</a></div>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../../assets/js/site-data.js"></script>
+<script src="../../assets/js/app.js"></script>
+</body>
+</html>

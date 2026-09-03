@@ -32,6 +32,7 @@ projects
 
 <section class="note-section">
 <h2 id="tables">Tables, keys and constraints</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A table is a spreadsheet with rules that cannot be broken. A column can refuse to be empty, refuse a duplicate, or refuse a value that does not point at a real row in another table. Those rules live in the database rather than in your code, which matters because the database is the one place every piece of code has to go through — including the script somebody runs by hand at midnight. </div></div>
 <p> A table is defined by its columns, each with a <strong>type</strong> that decides what may be stored and what may be done with it. Types are not paperwork: a date stored as text cannot be compared or sorted correctly, and finding that out later means rewriting every row. </p>
 <div class="table-wrap"><table><thead><tr><th>Type</th><th>For</th><th>Note</th></tr></thead><tbody><tr><td><code>text</code></td><td>Any string</td><td>In Postgres there is no speed penalty over varchar(n). Use text.</td></tr>
 <tr><td><code>integer</code></td><td>Whole numbers</td><td>Counts, ages.</td></tr>
@@ -62,10 +63,13 @@ projects
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Enforce it in the database, not only in the application.</strong> Application checks are skipped by an admin script, a data import, a second service, or a bug in one branch of an if-statement. The database check is skipped by nothing. Validate in both places — but if you only get one, this is the one. </div></div>
 <p><code>ON DELETE CASCADE</code> above answers a question every schema must answer: what happens to the children when the parent goes? Cascade deletes them. <code>RESTRICT</code>  refuses to delete the parent. <code>SET NULL</code> orphans them deliberately. Choosing nothing means choosing whatever the default was, and finding out during a deletion. </p>
 
+<details class="selfcheck"><summary><span class="sc-q">Your application code already checks that an email is unique before inserting. Why also add a unique constraint?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because your check and your insert are two separate moments, and two requests can pass the check at the same instant and then both insert. The database constraint is the only check that happens <em>at</em> the write, and so the only one that cannot be raced. </p>
+<p> More generally: application validation gives users good error messages, database constraints guarantee the data is actually correct. They do different jobs and you want both. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="sql">The SQL you will actually write</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> SQL reads like a request rather than a procedure. You do not say &ldquo;open the file, loop through it, keep the ones that match&rdquo; — you say <em>which</em> rows you want and the database works out how to get them. That is why the same query can get dramatically faster when you add an index without a single character of the query changing. </div></div>
 <p> Four statements cover almost everything. SQL reads like a sentence, which is the whole idea behind it. </p>
 <div class="code-block"><div class="code-head"><span class="lang">sql</span>Reading</div><pre><code>SELECT id, email, created_at        -- name the columns; SELECT * in application code
 FROM users                          -- breaks the day somebody adds one
@@ -100,6 +104,7 @@ ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;</code></pre></div>
 
 <section class="note-section">
 <h2 id="relations">Relations and joins</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Rather than repeating a customer&rsquo;s address on every one of their orders, you store the customer once and have each order point at them. A join is the moment you put those pieces back together to answer a question. Storing each fact once is why correcting an address corrects it everywhere, and joins are the price you pay for that. </div></div>
 <p> Three shapes cover essentially every relationship, and picking the wrong one is a schema problem you feel for years. </p>
 <div class="table-wrap"><table><thead><tr><th>Shape</th><th>Example here</th><th>How it is stored</th></tr></thead><tbody><tr><td>One to many</td><td>A user has many projects</td><td>The child holds the parent id: projects.user_id.</td></tr>
 <tr><td>One to one</td><td>A user has at most one site</td><td>Same, plus a UNIQUE on the foreign key.</td></tr>
@@ -139,6 +144,8 @@ for (const project of projects) {
 </div>
 <div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> It hides well: with ten test rows the loop version is imperceptibly slower. With ten thousand rows it is thousands of round trips, and the fix is one word. Any loop containing an <code>await</code> on the database deserves a second look. </div></div>
 
+<details class="selfcheck"><summary><span class="sc-q">What is the practical difference between an inner join and a left join?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> An inner join returns only rows that have a match on both sides. A left join keeps every row from the left table and fills in blanks where there is no match. </p>
+<p> The difference shows up as a bug when you count things: &ldquo;every customer and how many orders they have placed&rdquo; written with an inner join silently omits every customer who has never ordered — which is usually the group you most wanted to see. </p></div></details>
 </section>
 
 <section class="note-section">
@@ -196,6 +203,7 @@ EXPLAIN ANALYZE SELECT * FROM projects WHERE user_id = 'u_1';
 
 <section class="note-section">
 <h2 id="transactions">Transactions: all of it, or none of it</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Moving money between two accounts is two writes: take from one, add to the other. If the power fails between them, the money has vanished. A transaction wraps both so that either both happen or neither does — there is no moment when the outside world can observe a half-finished operation. </div></div>
 <p> A transaction groups several statements so they either all happen or none do. It is the answer to “what if the server dies halfway through”. </p>
 <div class="code-block"><div class="code-head"><span class="lang">js</span>The canonical example</div><pre><code>BEGIN;
   UPDATE accounts SET balance = balance - 100 WHERE id = 'a';
@@ -216,10 +224,13 @@ COMMIT;      -- both, or ROLLBACK: neither. Money is never in flight.</code></pr
 });</code></pre></div>
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Keep transactions short, and never await a network call inside one.</strong> An open transaction holds locks; other requests touching the same rows queue behind it. Calling an email provider inside a transaction means a slow provider becomes a database-wide stall. Do the database work, commit, then send the email. </div></div>
 
+<details class="selfcheck"><summary><span class="sc-q">Which of these needs a transaction: updating a user&rsquo;s display name, or creating an order along with its line items?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> The second. The display name is a single write, and a single write is already all-or-nothing. An order and its line items are several writes that are only meaningful together — an order with no items, or items with no order, is corrupt data that nothing later will know how to fix. </p>
+<p> The test: if a crash halfway through would leave the data in a state that makes no sense, it needs a transaction. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="postgres">What Postgres gives you beyond plain SQL</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Most databases speak roughly the same SQL. This topic is what Postgres gives you on top: proper JSON columns you can query into, full-text search without another service, real date and time handling, and extensions — <code>pgvector</code> among them, which is what lets one database serve both your rows and your embeddings. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Feature</th><th>What it is for</th></tr></thead><tbody><tr><td><code>jsonb</code></td><td>Store a whole structure in one column — page content, settings — and still query inside it. This product keeps page structures this way, because their shape is defined by the editor, not by the schema.</td></tr>
 <tr><td><code>arrays</code></td><td>A list in a column: tags, allowed origins. Simpler than a side table when the list is short and never joined against.</td></tr>
 <tr><td><code>enum types</code></td><td>A column that can only ever hold one of a fixed set. Illegal states become unrepresentable rather than merely discouraged.</td></tr>
@@ -238,6 +249,7 @@ CREATE INDEX idx_projects_settings ON projects USING gin (settings);</code></pre
 
 <section class="note-section">
 <h2 id="migrations">Changing the schema safely</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Your code changes and the shape of your data has to change with it. A migration is that change written down as a file, committed alongside the code, and applied in the same order everywhere. The alternative — changing the live database by hand — means no two environments match and nobody can say what the current shape actually is. </div></div>
 <figure class="figure is-flow" id="flow-2">
 <div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Adding a required column to a live table, without downtime</span>
   <button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button>
@@ -300,10 +312,13 @@ npx prisma migrate deploy</code></pre></div>
 <ol><li>Add the new column as nullable. Deploy. Nothing breaks — nothing uses it yet.</li><li>Backfill it in batches, and write to both old and new from the application.</li><li>Once every row has a value, add the <code>NOT NULL</code>.</li><li>Only when nothing reads the old column any more, drop it.</li></ol>
 <div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><strong>In this product, production migrations are run by hand.</strong> Nothing in the deployment pipeline runs <code>migrate deploy</code> — it is <code>npm run db:prod:status</code> to see what is pending and <code>npm run db:prod:migrate</code> to apply it, both from <code>backend/</code>. Shipping code that expects a column before running the migration is therefore an outage you can cause yourself, and the order — migrate first, then deploy — matters. </div></div>
 
+<details class="selfcheck"><summary><span class="sc-q">Why must a migration that removes a column be split across two releases?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because during a deploy both the old and the new code are briefly running at once. If you drop the column while the old version is still reading it, that version starts erroring for the users still being served by it. </p>
+<p> The safe sequence is: stop writing to it, deploy; stop reading from it, deploy; then drop it in a third release. Slower, and it makes the removal a non-event rather than a window of broken requests. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="prisma">Prisma: the layer this product actually types</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Prisma sits between your code and the database so queries are written in TypeScript instead of SQL strings, and the compiler knows the shape of what comes back. The real benefit is that a typo in a column name is a build error rather than a runtime one. The real cost is that it hides what SQL is actually being run, which matters the moment something is slow. </div></div>
 <p> Prisma is an ORM: you describe your tables once in a schema file, and it generates a typed client. Your editor then knows every model and field, and a typo is a build error instead of a runtime one. </p>
 <div class="code-block"><div class="code-head"><span class="lang">prisma</span>prisma/schema.prisma</div><pre><code>model User {
   id        String    @id @default(cuid())
@@ -375,16 +390,20 @@ const rows = await prisma.$queryRawUnsafe(
 
 <section class="note-section">
 <h2 id="ops">Backups, connections and safety</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The unglamorous half. A backup you have never restored is not a backup — it is a hope. A connection pool sized wrongly takes an application down under exactly the load you built it for. Neither is interesting until the day it is the only thing that matters. </div></div>
 <div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">The bug that only appears with real data</span></div><div class="example-body"><p> An admin screen lists every user with their project count. In development, with fifty accounts, it answers instantly. In production it times out — because the code fetched all users, then ran one count query per user. Fifty round trips is nothing; fifty thousand is a page nobody can open. </p>
 <p> The fix is not a faster server. It is one grouped query, or a single Prisma call with the count included. Test on data the shape of production, or discover this on the day you cannot afford to. </p>
 </div></div>
 <ul><li><strong>A backup you have not restored is not a backup.</strong> The failure mode is always the same: backups ran for a year and nobody checked that the file could be read. </li><li><strong>Connections are a limited resource.</strong> Postgres allows a fixed number; each serverless function that opens its own can exhaust them. A pooler sits in front and hands out a shared set — which is why this product’s schema declares both a pooled <code>url</code> and a <code>directUrl</code>, since migrations cannot run through a pooler. </li><li><strong>Least privilege.</strong> The application user does not need to drop tables. A read-only account for analytics costs nothing and removes a whole category of accident. </li><li><strong>Know which database your shell is pointed at.</strong> The most expensive database mistakes are not clever attacks; they are a correct command run against production because the terminal looked the same. </li></ul>
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"> This repository has a scar to prove that last point. The Prisma schema names a <code>shadowDatabaseUrl</code> explicitly because leaving it unset means passing a URL on the command line every time — and <code>prisma migrate diff</code> <strong>wipes</strong> whatever it is handed. Passing the real development database there destroyed it once, in August 2026. The comment in <code>prisma/schema.prisma</code> says so, at length, on purpose. </div></div>
 
+<details class="selfcheck"><summary><span class="sc-q">Why is an untested backup worse than no backup?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because it changes your decisions. Believing you can recover, you take risks you otherwise would not — and you find out at the worst possible moment that the file is empty, the restore needs a version you no longer run, or it takes eleven hours. </p>
+<p> The only meaningful test is a real restore into a scratch database, done on a schedule, with somebody checking the data is actually there. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="here">The database in this product</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The schema this product actually runs on, and why the tables are shaped the way they are. </div></div>
 <ul><li><code>backend/prisma/schema.prisma</code> — every model, heavily commented. Start at <code>User</code> and follow the relations out. </li><li><code>backend/prisma/migrations/</code> — the history of every schema change, in order. </li><li><code>npm run db:studio</code> — a browser view of the development data. The fastest way to understand a schema is to look at real rows in it. </li><li><code>npm run db:prod:status</code> — what is pending in production. Safe: it reads. </li></ul>
 <div class="callout is-note is-practice"><span class="callout-icon">&#9654;</span><div class="callout-body"><div class="callout-title">Practice</div><ol><li> Open <code>db:studio</code>, find your own user row, and follow it to a project. That is a foreign key, in the flesh. </li><li> In <code>psql</code> or a SQL console, write a query that returns each user’s email and their project count, highest first. You will need a <code>LEFT JOIN</code>, <code>GROUP BY</code> and <code>ORDER BY</code>. </li><li> Run <code>EXPLAIN ANALYZE</code> on it. Find whether any step says <code>Seq Scan</code>, and on which table. </li><li> Add a field to a model in the schema, run <code>migrate dev</code>, and read the generated SQL before it runs. Then revert both. </li></ol>
 </div></div>

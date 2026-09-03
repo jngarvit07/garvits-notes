@@ -1,6 +1,6 @@
 <section class="note-section">
 <h2 id="model">The threat model in one sentence</h2>
-<p>Note 06 introduced the central problem. This note takes it seriously, because once a model has tools, the stakes change completely.</p>
+<p>The <a href="../ai/index.html">AI, Models, RAG &amp; Security</a> note introduced the central problem. This note takes it seriously, because once a model has tools, the stakes change completely.</p>
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>A language model cannot reliably distinguish instructions from data.</strong> Everything in its context window is the same kind of thing: text. Your system prompt, the user&rsquo;s question, a retrieved document, a tool result, the contents of a web page it just fetched &mdash; all of it arrives as text, and any of it can read as an instruction.</p></div></div>
 <div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>Imagine an assistant who follows any instruction written on any piece of paper placed on their desk &mdash; including a note slipped inside a customer&rsquo;s letter. You can tell them to be careful. You cannot make them stop reading. The only real protection is limiting what they are able to do in the first place.</p></div></div>
 <p>This is <strong>prompt injection</strong>, and unlike SQL injection it has no complete fix. There is no equivalent of a parameterised query, because there is no syntactic boundary between code and data to enforce. Any guide that implies otherwise is selling something.</p>
@@ -16,6 +16,7 @@
 
 <section class="note-section">
 <h2 id="lethal">The combination that causes real damage</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A prompt injection on its own is a curiosity. It becomes an incident when three things are true at once: the model reads something untrusted, it has access to something valuable, and it can send information outwards. Remove any one of the three and the attack has nowhere to go — which is why this is a design decision rather than a filtering problem. </div></div>
 <p>Injection on its own is a curiosity. It becomes an incident when three things are true at once.</p>
 <figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">Three ingredients &mdash; remove any one and the attack fails</span></div><div class="figure-stage"><pre class="ascii-art">        +---------------------------+
         |  1. UNTRUSTED CONTENT     |   the agent reads something
@@ -43,10 +44,13 @@
 <p>All three ingredients are present. The content is untrusted (anyone can open a ticket), the agent holds private data (customer records), and it has an outbound channel (the public reply). Nothing was hacked. Every component did exactly what it was built to do.</p>
 <p><strong>The fix is architectural, not textual.</strong> Scope the lookup to the ticket&rsquo;s own customer, enforced in code from the authenticated session. Make the reply a draft a human sends. Now the same injection achieves nothing, and you did not have to predict its wording.</p>
 </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Your assistant summarises web pages and has no tools at all. Is prompt injection still a risk?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Yes, but a contained one. A hostile page can make the summary wrong or manipulative, which matters if a person acts on it. What it cannot do is exfiltrate data or take an action, because the other two ingredients are absent. </p>
+<p> This is what defence by architecture looks like in practice: you did not stop the injection, you made it unable to reach anything worth reaching. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="defences">Defences that actually hold</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The defences that hold are structural, not linguistic. Instructing the model to ignore instructions in the content it reads is a request, and requests can be talked around. Limiting what the model is permitted to touch is a constraint, and constraints cannot. Every reliable defence in this topic is a version of that distinction. </div></div>
 <p>Ordered by how much they are worth. The first three are architecture; the rest reduce noise.</p>
 <figure class="figure is-flow"><div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Defence in depth, strongest first</span>{{replay}}</div><div class="figure-stage"><ol class="flow flow-column">
 <li class="flow-step dg-step" data-tone="accent" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Least privilege on the tools</span><span class="flow-detail">The agent can only do what its tools allow. A read-only agent cannot be talked into a write. This is the one defence that holds no matter what the model does.</span></div></li>
@@ -95,6 +99,7 @@ async function run() {
 
 <section class="note-section">
 <h2 id="risks">The rest of the risk surface</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Injection gets the attention, and it is not the whole surface. Data leaking through a model&rsquo;s output, denial of service by making it do expensive work, dependencies you did not audit, and information sitting in logs nobody set a retention period on. Less dramatic, and each one is a real incident that has happened to somebody. </div></div>
 <p>Injection dominates the conversation, and these are the ones that actually appear in incident reports alongside it.</p>
 <div class="table-wrap"><table><thead><tr><th>Risk</th><th>What it looks like</th><th>What to do</th></tr></thead><tbody>
 <tr><td><strong>Sensitive data disclosure</strong></td><td>Secrets, other users&rsquo; records, or internal documents ending up in an answer &mdash; often because they were in the retrieval corpus at all.</td><td>Filter at indexing time, not answer time. Apply the user&rsquo;s permissions to retrieval, so they can only match what they may read.</td></tr>
@@ -114,6 +119,7 @@ async function run() {
 
 <section class="note-section">
 <h2 id="testing">Testing your defences</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Attack your own system, on purpose, on a schedule. Keep the attempts that worked as test cases so a future change cannot quietly reopen them. This is the same discipline as a regression test, applied to a category of bug where the input is adversarial rather than accidental. </div></div>
 <p>Security you have not attacked is security you are guessing about. This belongs in the same eval harness as note 11 &mdash; the cases are just adversarial ones.</p>
 <div class="table-wrap"><table><thead><tr><th>Test</th><th>What you are checking</th></tr></thead><tbody>
 <tr><td>Put an injection in every input channel you have &mdash; ticket body, uploaded PDF, file name, code comment, web page.</td><td>Whether indirect injection reaches the model at all, and what it manages to do when it does.</td></tr>

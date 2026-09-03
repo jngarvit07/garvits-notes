@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zustand: the small one — State Management — Garvit's Notes</title>
+<meta name="description" content="A store in about eight lines, no provider, no actions, no ceremony — and where that lack of ceremony starts to cost you.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){var d=document.documentElement;
+try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
+if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');
+var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data-size',z);}catch(e){}
+try{if(localStorage.getItem('gn-auth')!=='v11xb7'){
+var depth=('../../'.match(/\.\.\//g)||[]).length;
+var parts=location.pathname.split('/').filter(Boolean).slice(-(depth+1));
+location.replace('../../login.html?next='+encodeURIComponent(parts.join('/')));}}catch(e){}
+})();</script>
+<link rel="stylesheet" href="../../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../../" data-note="redux" data-topic="zustand">
+<header class="site-header">
+  <button class="icon-btn nav-only" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <button class="icon-btn rail-only" id="rail-toggle" type="button" aria-label="Hide the sidebar" aria-pressed="false" title="Hide the sidebar  ⌘\"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg></button>
+  <a class="brand" href="../../index.html"><span class="brand-mark">GN</span><span class="brand-text">Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search every topic&hellip;" autocomplete="off" aria-label="Search notes">
+    <kbd class="search-kbd">/</kbd>
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <div class="size-wrap">
+    <button class="icon-btn" id="size-toggle" type="button" aria-label="Reading size"
+            aria-haspopup="menu" aria-expanded="false" title="Reading size"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 7.5 6l4.5 11"/><path d="M4.6 13.6h5.8"/><path d="M14 17l3.4-8 3.4 8"/><path d="M15.2 14.4h4.4"/></svg></button>
+    <div class="size-menu" id="size-menu" role="menu" hidden>
+      <div class="size-menu-head">Reading size</div>
+      <button type="button" role="menuitemradio" data-size="sm"><span>Small</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="md"><span>Medium</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="lg"><span>Large</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+    </div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <button class="icon-btn head-only" data-sign-out type="button" aria-label="Sign out" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg></button>
+  <div class="read-progress" id="read-progress"><span></span></div>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="All notes">
+    <div class="tree" id="tree"></div>
+    <div class="side-foot">
+      <button class="side-out" data-sign-out type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg><span>Sign out</span></button>
+    </div>
+  </nav>
+  <main class="main" id="main"><article class="content">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/redux/index.html">State Management</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Zustand: the small one</span></nav>
+<header class="topic-head reveal">
+  <span class="eyebrow">Note 02 &middot; State Management &middot; Topic 7 of 11</span>
+  <h1>Zustand: the small one</h1>
+  <div class="page-meta">
+    <span>2 min read</span>
+    <span>Read React first</span>
+  </div>
+</header>
+<div class="topic-body">
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The same useful core — one store, and components that only re-render when the part they read changes — with the ceremony removed. What you give up is the enforced trail: anything can change state from anywhere, which is quicker to write and harder to reconstruct six months later. </div></div>
+<p> <strong>Zustand</strong> takes the useful half of Redux &mdash; one store, selective subscription &mdash; and drops the actions, the reducers and the provider. </p>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>The same cart, in Zustand</div><pre><code>import { create } from 'zustand';
+
+export const useCart = create((set) =&gt; ({
+  items: [],
+  add:   (p) =&gt; set((s) =&gt; ({ items: [...s.items, p] })),
+  clear: () =&gt; set({ items: [] }),
+}));
+
+// In a component. No Provider anywhere in the tree.
+function CartBadge() {
+  // Same selective subscription as useSelector.
+  const count = useCart((s) =&gt; s.items.length);
+  return &lt;span&gt;{count}&lt;/span&gt;;
+}
+
+function AddButton({ product }) {
+  const add = useCart((s) =&gt; s.add);
+  return &lt;button onClick={() =&gt; add(product)}&gt;Add&lt;/button&gt;;
+}</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th></th><th>Redux Toolkit</th><th>Zustand</th></tr></thead><tbody>
+<tr><td>Setup</td><td>Store, provider, slices</td><td>One <code>create</code> call</td></tr>
+<tr><td>Provider needed</td><td>Yes</td><td>No</td></tr>
+<tr><td>Every change is named</td><td>Yes, enforced</td><td>Only if you choose to</td></tr>
+<tr><td>DevTools / time travel</td><td>Excellent, built in</td><td>Available via a middleware</td></tr>
+<tr><td>Conventions in a big team</td><td>Strong &mdash; everyone writes it the same way</td><td>Weak &mdash; two developers will structure it differently</td></tr>
+<tr><td>Best at</td><td>Large apps, many contributors, auditable changes</td><td>Small to mid apps, small teams, speed</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> The trade is <strong>ceremony for traceability</strong>. Redux's boilerplate is what produces a readable, ordered history of every change. Zustand lets you call <code>set</code> from anywhere, which is faster to write and harder to reconstruct six months later when something sets a value and you cannot find what. Neither is wrong; they are priced differently. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">When is Redux Toolkit&rsquo;s extra ceremony actually worth paying for?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> When several people work on the codebase and you need every change to state to have a name you can read back. That ordered, reviewable history is what the boilerplate buys, and it is what makes a &ldquo;the total was wrong but only sometimes&rdquo; bug a five-minute job rather than an afternoon. </p>
+<p> For a small app with one or two developers, the same discipline can be kept by convention, and Zustand&rsquo;s smaller surface is the better trade. Neither is the correct answer in general — they are priced differently and you are choosing what to pay for. </p></div></details>
+</div>
+<nav class="page-nav">
+<a class="pn-prev" href="toolkit.html">
+  <span class="pn-dir">&larr; Previous</span>
+  <span class="pn-title">Redux Toolkit — the version to actually write</span>
+  
+</a>
+<a class="pn-next" href="query.html">
+  <span class="pn-dir">Next &rarr;</span>
+  <span class="pn-title">React Query: server state, done properly</span>
+  
+</a>
+</nav>
+<nav class="siblings" aria-label="Other topics in this note">
+  <div class="sib-head">More in <a href="index.html">State Management</a></div>
+  <div class="sib-row"><a class="sib" href="problem.html"><span class="sib-n">01</span>The problem, before any tool</a><a class="sib" href="lifting.html"><span class="sib-n">02</span>Lifting state up, and where it stops</a><a class="sib" href="context.html"><span class="sib-n">03</span>Context: skipping the chain</a><a class="sib" href="server-client.html"><span class="sib-n">04</span>The distinction that decides everything</a><a class="sib" href="redux.html"><span class="sib-n">05</span>Redux, and what it is actually doing</a><a class="sib" href="toolkit.html"><span class="sib-n">06</span>Redux Toolkit — the version to actually write</a><a class="sib is-current" href="zustand.html"><span class="sib-n">07</span>Zustand: the small one</a><a class="sib" href="query.html"><span class="sib-n">08</span>React Query: server state, done properly</a><a class="sib" href="choosing.html"><span class="sib-n">09</span>Choosing, honestly</a><a class="sib" href="mistakes.html"><span class="sib-n">10</span>The mistakes everybody makes</a><a class="sib" href="here.html"><span class="sib-n">11</span>State in this product</a></div>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../../assets/js/site-data.js"></script>
+<script src="../../assets/js/app.js"></script>
+</body>
+</html>

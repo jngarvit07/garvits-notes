@@ -1,0 +1,244 @@
+<section class="note-section" data-tagline="Before any product names: a cloud rents you four things. Everything in the console is one of those four with marketing on top.">
+<h2 id="what">What a cloud actually rents you</h2>
+<p> Google Cloud has hundreds of products and the console is genuinely intimidating. It gets much smaller once you notice that a cloud rents you only four things. </p>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">1. Compute</div><p>Somewhere for your code to run. A whole machine, a container, or just a function. You are renting CPU and memory by the second.</p></div>
+  <div class="card"><div class="card-title">2. Storage</div><p>Somewhere to keep bytes that survive the machine dying. Files, database rows, backups.</p></div>
+  <div class="card"><div class="card-title">3. Networking</div><p>How traffic reaches your code and how your pieces reach each other. Addresses, load balancers, firewalls, DNS.</p></div>
+  <div class="card"><div class="card-title">4. Identity</div><p>Who is allowed to do what. This is the one people skip and the one that ends up in the incident report.</p></div>
+</div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Running a server yourself is owning a car: you buy it whether you drive or not, you fix it, and if you need a second one on Friday you cannot have it. A cloud is a taxi rank with an unlimited fleet, billed by the minute. The catch is the same as with taxis: it is cheaper right up until you leave one idling for a month. </div></div>
+<h3>The shape of a Google Cloud account</h3>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>The hierarchy — permissions and billing flow downwards</div><pre><code>Organisation            your company
+  └─ Folder             a team, or an environment
+      └─ PROJECT        <- the unit that matters
+          ├─ resources  Cloud Run services, buckets, databases
+          ├─ IAM        who can do what, HERE
+          └─ billing    what this costs, separately</code></pre></div>
+<p> The <strong>project</strong> is the only level you need at first. It is the boundary for billing, for permissions, and for blast radius. </p>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>Use separate projects for dev, staging and production.</strong> Not separate folders in one project &mdash; separate projects. It is the cheapest safety measure available: a mistake in dev cannot touch production data, permissions do not leak across, and the bill tells you which environment is costing you money. Doing this on day one takes ten minutes; retrofitting it takes a week. </div></div>
+</section>
+
+<section class="note-section" data-tagline="Four ways to run code, from a whole machine to a single function. Which one you want is decided by two questions.">
+<h2 id="compute">Where your code runs</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Four ways to run code, differing in one thing: how much of the machine you are forced to think about. From a single function where you think about none of it, to a whole server where you think about all of it. The temptation is to pick the serious-sounding option and spend your first three months operating it instead of building the product. </div></div>
+<p> GCP gives you four ways to run code. They differ in one dimension: <strong>how much of the machine you have to think about</strong>. </p>
+<div class="table-wrap"><table><thead><tr><th>Service</th><th>You give it</th><th>You manage</th><th>Scales to zero</th><th>Good for</th></tr></thead><tbody>
+<tr><td><strong>Cloud Functions</strong></td><td>One function</td><td>Nothing</td><td>Yes</td><td>A webhook, an image resizer, glue between services</td></tr>
+<tr><td><strong>Cloud Run</strong></td><td>A container</td><td>Nothing</td><td>Yes</td><td><strong>Almost everything.</strong> APIs, web apps, workers</td></tr>
+<tr><td><strong>GKE</strong> (Kubernetes)</td><td>Containers + a lot of YAML</td><td>Cluster shape, scaling, upgrades</td><td>No</td><td>Many services, complex networking, a platform team</td></tr>
+<tr><td><strong>Compute Engine</strong></td><td>A disk image</td><td>The whole machine</td><td>No</td><td>Legacy software, GPUs you control, unusual needs</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Use Cloud Run unless you have a specific reason not to.</strong> It takes any container, scales from zero to hundreds automatically, charges only while a request is being handled, and requires no cluster. Teams reach for Kubernetes because it sounds like the serious choice, then spend their first three months operating a cluster instead of building the product. Kubernetes is the right answer for a platform team running many services; it is an expensive hobby for one application. </div></div>
+<h3>The two questions that decide it</h3>
+<figure class="figure is-flow">
+<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Choosing where to run it</span>{{replay}}</div>
+<div class="figure-stage"><ol class="flow flow-column">
+<li class="flow-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Does it need to run continuously?</span><span class="flow-detail">A long-lived websocket server, a GPU inference server you keep warm, a stateful process. If yes, you want a machine or a cluster — scale-to-zero is wrong for you.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">Is it one small piece of glue?</span><span class="flow-detail">A single webhook handler with no shared code. Cloud Functions is less to set up. Anything with a real codebase, put in a container.</span></div></li>
+<li class="flow-step" data-tone="accent" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Everything else</span><span class="flow-detail">Cloud Run. This is most things, including every Express API and Next.js app in this note.</span></div></li>
+</ol></div>
+</figure>
+</section>
+
+<section class="note-section" data-tagline="A container, a build, a deploy command, and the three settings that decide whether it costs five pounds a month or five hundred.">
+<h2 id="cloudrun">Deploying to Cloud Run, properly</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The deal is simple: hand over a container that listens for web requests, and the platform runs as many copies as the traffic needs — down to none when nobody is asking. You never think about a machine. What you do have to think about are the three settings that decide whether this costs a few pounds a month or a few hundred. </div></div>
+<p> Cloud Run takes a container that listens on the port given in <code>$PORT</code> and serves HTTP. That is the entire contract. </p>
+<div class="code-block"><div class="code-head"><span class="lang">dockerfile</span>Dockerfile — a Node API, multi-stage so the image stays small</div><pre><code># Stage 1: install and build with the full toolchain.
+FROM node:20-slim AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# Stage 2: ship only what runs. Smaller image = faster cold start.
+FROM node:20-slim
+WORKDIR /app
+ENV NODE_ENV=production
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY --from=build /app/dist ./dist
+
+# Cloud Run TELLS you the port. Never hardcode 3000.
+ENV PORT=8080
+EXPOSE 8080
+CMD ["node", "dist/server.js"]</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>The one line in your server that matters</div><pre><code>// Read the port Cloud Run gives you, and bind to 0.0.0.0 —
+// binding to localhost means nothing outside the container can reach you,
+// and the deploy fails with a health check timeout that explains nothing.
+const port = process.env.PORT || 8080;
+app.listen(port, '0.0.0.0', () =&gt; console.log(`listening on ${port}`));</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="lang">bash</span>Build and deploy</div><pre><code># Build the image in the cloud and push it to Artifact Registry.
+gcloud builds submit --tag \
+  europe-west2-docker.pkg.dev/$PROJECT/app/api:$(git rev-parse --short HEAD)
+
+# Deploy that exact image as a new revision.
+gcloud run deploy api \
+  --image europe-west2-docker.pkg.dev/$PROJECT/app/api:$(git rev-parse --short HEAD) \
+  --region europe-west2 \
+  --min-instances 0 \
+  --max-instances 10 \
+  --concurrency 80 \
+  --cpu 1 --memory 512Mi \
+  --no-allow-unauthenticated \
+  --set-secrets "DATABASE_URL=db-url:latest,MODEL_KEY=model-key:latest"</code></pre></div>
+<h3>The three settings that decide your bill</h3>
+<div class="table-wrap"><table><thead><tr><th>Setting</th><th>What it does</th><th>Get it wrong and</th></tr></thead><tbody>
+<tr><td><code>--max-instances</code></td><td>The ceiling on how many copies can run at once</td><td>Leaving it unbounded means a traffic spike &mdash; or a retry loop of your own making &mdash; scales into a five-figure bill. <strong>Always set this.</strong></td></tr>
+<tr><td><code>--concurrency</code></td><td>How many requests one instance handles at the same time</td><td>Set to 1 and you pay for an instance per request. The default of 80 suits a Node app that is mostly waiting on I/O; lower it only if each request is CPU-heavy.</td></tr>
+<tr><td><code>--min-instances</code></td><td>How many stay warm</td><td>0 is free when idle but the first request after a quiet spell waits for a cold start. Set 1 for a user-facing API where that first slow request matters.</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>Tag images with the git commit, never <code>:latest</code>.</strong> <code>:latest</code> means the thing running in production has no name you can trace, rolling back is guesswork, and two deploys can race. A commit SHA makes &ldquo;what is running?&rdquo; and &ldquo;put yesterday's back&rdquo; both one command. </div></div>
+</section>
+
+<section class="note-section" data-tagline="Buckets for files, Postgres for rows, and the one question — does this survive the instance dying — that decides which.">
+<h2 id="storage">Storing things</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The instances running your code are temporary. They appear, handle some requests and vanish, and anything written to their local disk goes with them. So every fact that has to outlive a single request lives somewhere else deliberately — a bucket for files, a database for rows. This is the rule that catches people out first. </div></div>
+<p> Cloud Run instances are <strong>ephemeral</strong>. They appear, serve requests, and vanish. Anything written to the local disk is gone, and any two requests may land on different instances. Every piece of state therefore has to live somewhere else. </p>
+<div class="table-wrap"><table><thead><tr><th>What you have</th><th>Where it goes</th><th>Notes</th></tr></thead><tbody>
+<tr><td>Uploaded files, images, PDFs, exports</td><td><strong>Cloud Storage</strong> (a bucket)</td><td>Cheap, effectively unlimited. Serve them with signed URLs rather than proxying bytes through your API.</td></tr>
+<tr><td>Rows &mdash; users, orders, anything relational</td><td><strong>Cloud SQL for PostgreSQL</strong></td><td>Managed Postgres. See the PostgreSQL note for what to do with it.</td></tr>
+<tr><td>Embeddings for RAG</td><td><strong>Cloud SQL + pgvector</strong>, or a dedicated vector database</td><td>Start with pgvector. One database to operate, one backup to test, and it is fast enough far longer than people expect.</td></tr>
+<tr><td>Cache, sessions, rate-limit counters</td><td><strong>Memorystore</strong> (Redis)</td><td>Or skip it: a rate limit in Postgres is fine until it is not.</td></tr>
+<tr><td>Background jobs</td><td><strong>Cloud Tasks</strong> or <strong>Pub/Sub</strong></td><td>Tasks for &ldquo;do this one thing later&rdquo;, Pub/Sub for &ldquo;tell everyone who cares that this happened&rdquo;.</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Connection pools and scale-to-zero fight each other.</strong> Each Cloud Run instance opens its own pool, so ten instances with a pool of ten each is a hundred connections &mdash; and a small Cloud SQL instance allows around a hundred in total. Either set a small per-instance pool (<code>connection_limit=5</code> in a Prisma URL) or put Cloud SQL Auth Proxy or PgBouncer in front. This is the most common production failure in this exact stack, and it appears only under load. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">bash</span>Signed URLs — let the browser talk to the bucket directly</div><pre><code># Your API never touches the file bytes. It issues a time-limited
+# permission slip, and the browser uploads straight to the bucket.
+#   - no request-size limits on your API
+#   - no memory spike on a 200MB upload
+#   - no bandwidth cost through your service
+# Generated server-side, valid for minutes, scoped to ONE object key.</code></pre></div>
+<details class="selfcheck"><summary><span class="sc-q">Your app writes an uploaded file to <code>/tmp</code> and a later request cannot find it. Why?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> The second request was served by a different instance, which has its own filesystem. Even on the same instance, the container can be replaced at any moment. On Cloud Run, <code>/tmp</code> is scratch space within a single request &mdash; useful for a temporary file you delete before responding, and useless for anything that must exist afterwards. It is also in-memory, so a large file there counts against your memory limit. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="The part everybody skips. Service accounts, roles and the one principle that prevents most cloud incidents.">
+<h2 id="iam">IAM, without despair</h2>
+<p> IAM answers &ldquo;who can do what, to which thing&rdquo;. It has a reputation for being impenetrable, which comes almost entirely from the vocabulary. The vocabulary is four words. </p>
+<div class="table-wrap"><table><thead><tr><th>Word</th><th>Means</th><th>Example</th></tr></thead><tbody>
+<tr><td><strong>Principal</strong></td><td>Who is asking</td><td>You. Or a service account &mdash; an identity for code rather than a person.</td></tr>
+<tr><td><strong>Role</strong></td><td>A named bundle of permissions</td><td><code>roles/storage.objectViewer</code> &mdash; may read objects in buckets.</td></tr>
+<tr><td><strong>Resource</strong></td><td>The thing being acted on</td><td>A bucket, a Cloud Run service, a whole project.</td></tr>
+<tr><td><strong>Binding</strong></td><td>Granting one role to one principal on one resource</td><td>&ldquo;This service account may read <em>that</em> bucket.&rdquo;</td></tr>
+</tbody></table></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A hotel. The principal is the guest, the resource is a room, and the role is what the key card opens. The default when you are in a hurry is to hand out the master key because it definitely works. IAM done properly is cutting a card that opens room 402 and the gym, and nothing else &mdash; so that a lost card is an inconvenience rather than a crisis. </div></div>
+<h3>The one rule</h3>
+<p> <strong>Give each service its own service account, with the smallest roles it needs.</strong> Not the default compute service account, which has Editor on the whole project. Not <code>roles/owner</code> because a deploy failed and that made it work. </p>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; the master key</div><pre><code>gcloud projects add-iam-policy-binding $P \
+  --member="serviceAccount:api@..." \
+  --role="roles/editor"
+
+# This service can now delete your
+# database, read every secret, and
+# spin up machines. To read one bucket.</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; one key, one door</div><pre><code>gcloud storage buckets \
+  add-iam-policy-binding gs://uploads \
+  --member="serviceAccount:api@..." \
+  --role="roles/storage.objectAdmin"
+
+# Scoped to ONE bucket. A compromise
+# of this service reaches that bucket
+# and stops there.</code></pre></div>
+</div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Never download a service account key file.</strong> A JSON key is a permanent credential with no expiry that ends up in a repository, a Slack message or a laptop backup. Code running on GCP already has an identity attached &mdash; the client libraries find it automatically with no configuration. For CI running outside GCP, use Workload Identity Federation, which issues short-lived tokens instead. If you have ever emailed a key file to a colleague, rotate it today. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Why is a downloaded service-account key file worse than the identity already attached to your running code?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because it is a permanent credential in a file, and files travel — into a repository, a chat message, a laptop backup, an old container image. It does not expire, so a copy made two years ago still works today. </p>
+<p> Code running on the platform already has an identity that the client libraries find automatically, with credentials that rotate on their own. The key file solves a problem you do not have and creates one you cannot easily undo. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="Where credentials go instead of your repository, and why an environment variable set by hand is a slow-motion incident.">
+<h2 id="secrets">Secrets and configuration</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Two things get muddled here. Configuration differs between environments and is not sensitive — a log level, a region. Secrets are credentials. Configuration can sit in a file; secrets need somewhere they are versioned, access-controlled, audited and rotatable, and delivered to the process at the moment it starts. </div></div>
+<p> Two different things get confused here. <strong>Configuration</strong> is a value that differs per environment and is not sensitive &mdash; a log level, a feature flag, a region. <strong>Secrets</strong> are credentials. They need different handling. </p>
+<div class="code-block"><div class="code-head"><span class="lang">bash</span>Secret Manager, end to end</div><pre><code># 1. Create the secret. The value never appears in your shell history
+#    or in a file — it is piped in.
+printf '%s' "$DB_PASSWORD" | gcloud secrets create db-url --data-file=-
+
+# 2. Grant ONE service account permission to read ONE secret.
+gcloud secrets add-iam-policy-binding db-url \
+  --member="serviceAccount:api@$PROJECT.iam.gserviceaccount.com" \
+  --role="roles/secretmanager.secretAccessor"
+
+# 3. Mount it. It arrives as an ordinary environment variable, so your
+#    code needs no cloud-specific library and still runs on your laptop.
+gcloud run deploy api --set-secrets "DATABASE_URL=db-url:latest"
+
+# 4. Rotate: add a new version, redeploy. Old versions stay for rollback.
+printf '%s' "$NEW_PASSWORD" | gcloud secrets versions add db-url --data-file=-</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>Where a secret ends up</th><th>Verdict</th></tr></thead><tbody>
+<tr><td>Committed in <code>.env</code></td><td>It is now in git history forever. Rotate it, then remove it.</td></tr>
+<tr><td>Set by hand in the console</td><td>Works, but nobody knows where it came from, it is invisible to review, and it is lost when the service is recreated.</td></tr>
+<tr><td>In your CI provider's secret store</td><td>Fine for CI's own credentials. Not the place for runtime secrets.</td></tr>
+<tr><td>Secret Manager, mounted at deploy</td><td>Correct. Versioned, access-controlled, audit-logged, rotatable.</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Validate configuration <strong>at startup, not at first use</strong>. A service that boots happily and fails an hour later on the first request that needs <code>MODEL_KEY</code> is much worse than one that refuses to start. Parse your whole environment into a typed object on line one and exit if anything is missing. </div></div>
+</section>
+
+<section class="note-section" data-tagline="Vertex AI, what it gives you that a direct API key does not, and the honest answer about when you need it.">
+<h2 id="vertex">Vertex AI and the model layer</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A large platform of which you will use a small corner. For building <em>with</em> models rather than training them, the relevant part is calling models through your cloud account instead of a separate API key — which mainly buys you one bill, one audit trail and no long-lived credential to look after. </div></div>
+<p> <strong>Vertex AI</strong> is Google Cloud's umbrella for machine learning. For most people building an AI product, only a small part of it is relevant. </p>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">What you will actually use</div><p>The model API &mdash; calling Gemini, and in some regions third-party models, through GCP rather than direct. Plus Vector Search if you outgrow pgvector.</p></div>
+  <div class="card"><div class="card-title">What you probably will not</div><p>Training pipelines, feature stores, AutoML, notebooks, model registries. These are for teams training their own models, which is a different job from building with them.</p></div>
+</div>
+<h3>Vertex, or a direct API key?</h3>
+<div class="table-wrap"><table><thead><tr><th></th><th>Direct provider API</th><th>Through Vertex AI</th></tr></thead><tbody>
+<tr><td>Setup</td><td>An API key</td><td>IAM, no key to manage</td></tr>
+<tr><td>Authentication</td><td>A secret you rotate</td><td>The service account already attached to your code</td></tr>
+<tr><td>Billing</td><td>A separate invoice</td><td>On your GCP bill, with the same cost controls</td></tr>
+<tr><td>Audit logs</td><td>The provider's</td><td>Cloud Audit Logs, alongside everything else</td></tr>
+<tr><td>Data residency</td><td>The provider's regions</td><td>Pinned to a GCP region you choose</td></tr>
+<tr><td>Newest models first</td><td>Usually yes</td><td>Sometimes later</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> The deciding factor is rarely technical. If you already have a GCP compliance story &mdash; audit logs, data residency, one bill, no long-lived keys &mdash; going through Vertex means the model call inherits it instead of needing its own. If you do not, a direct API key is simpler and you lose nothing. Either way, put it behind the <code>complete()</code> wrapper from the Architecture note and the choice stays reversible. </div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Model availability is regional and it changes.</strong> A model available in <code>us-central1</code> may not exist in <code>europe-west2</code>, and a data-residency requirement can therefore rule out a model entirely. Check this before you design around a specific one, not after. Check the current documentation rather than any note including this one &mdash; regional availability moves faster than anything written down. </div></div>
+</section>
+
+<section class="note-section" data-tagline="The bill is a feature you have to build. Four things to do on day one, before there is anything to be surprised by.">
+<h2 id="cost">Keeping the bill honest</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A cloud bill goes wrong in exactly two ways: something scaled that you never bounded, or something has been quietly running for months that nobody uses. Both are prevented in an afternoon, and neither is preventable retrospectively — which is why the four things in this topic belong on day one. </div></div>
+<p> Cloud bills go wrong in one of two ways: something scaled that you did not bound, or something has been running for months that nobody uses. Both are preventable in an afternoon. </p>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">1. A budget with alerts</div><p>Set one per project on the day you create it. Alerts at 50%, 90% and 100% of what you expect. It costs nothing and is the difference between noticing on the 3rd and noticing on the 30th.</p></div>
+  <div class="card"><div class="card-title">2. Max instances on everything</div><p>Every Cloud Run service. An unbounded service under an accidental retry storm is the single most common way a bill goes from tens to thousands.</p></div>
+  <div class="card"><div class="card-title">3. Labels on every resource</div><p><code>env=prod</code>, <code>team=web</code>, <code>service=api</code>. Without them the bill is one number. With them you can answer &ldquo;what does staging cost us?&rdquo; in thirty seconds.</p></div>
+  <div class="card"><div class="card-title">4. A monthly look at the top five lines</div><p>Not a full review &mdash; just the five biggest items and whether each still makes sense. The idle Kubernetes cluster from a spike three months ago is always found this way.</p></div>
+</div>
+<h3>Where the money actually goes in an AI product</h3>
+<div class="table-wrap"><table><thead><tr><th>Line</th><th>Typically</th><th>The lever</th></tr></thead><tbody>
+<tr><td>Model tokens</td><td>The largest by far</td><td>Shorter prompts, a smaller model for easy work, caching, and <em>not</em> resending the whole conversation every turn</td></tr>
+<tr><td>Embeddings</td><td>Small, unless you re-embed everything on every deploy</td><td>Only embed changed documents. Store the hash.</td></tr>
+<tr><td>Cloud Run</td><td>Small if concurrency and max-instances are sane</td><td>Higher concurrency, min-instances 0 where cold starts are acceptable</td></tr>
+<tr><td>Cloud SQL</td><td>Runs 24/7, so it is a floor you always pay</td><td>Right-size it; turn off non-production instances outside working hours</td></tr>
+<tr><td>Egress</td><td>Surprising when serving files through your API</td><td>Signed URLs, and a CDN in front of anything public</td></tr>
+</tbody></table></div>
+<div class="callout is-note is-practice"><span class="callout-icon">&#9998;</span><div class="callout-body"><div class="callout-title">Try this</div> Log <code>tokens_in</code>, <code>tokens_out</code> and the model id on every single model call, with the feature name attached. A week of that data tells you which feature costs what, which is the only basis on which to optimise anything. Optimising a prompt before you have this is guessing, and usually optimising the wrong one. </div></div>
+</section>
+
+<section class="note-section" data-tagline="From a git push to a running revision, with the two gates that make the difference between deploying and deploying safely.">
+<h2 id="cicd">Getting it deployed automatically</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Deploying from a laptop works right up until the day the wrong branch goes out, or the only person who knows the command is on holiday. A pipeline is that command written down, with gates in front of it — and for an AI system, one of those gates has to be a quality check, because every ordinary test can pass while the answers get worse. </div></div>
+<p> Deploying by hand from a laptop works exactly until the day it does not: the wrong branch, an uncommitted change, or the only person who knows the command is away. </p>
+<div class="code-block"><div class="code-head"><span class="lang">yaml</span>The pipeline, in the order the steps must happen</div><pre><code>on: push to main
+steps:
+  1. install and typecheck
+  2. run tests                      # gate: fails here, nothing deploys
+  3. run the eval set               # gate: AI quality, see the Evals note
+  4. build the container, tag it with the commit SHA
+  5. push to Artifact Registry
+  6. run database migrations        # BEFORE the new code, and additive only
+  7. deploy the revision with NO traffic
+  8. smoke-test the revision's own URL
+  9. shift traffic: 10% -> wait -> 100%
+ 10. on error rate rising: shift back to the previous revision</code></pre></div>
+<h3>The two gates</h3>
+<p> Step 3 is the one specific to AI systems. A prompt change that passes every unit test can still make answers worse, and nothing in a normal pipeline will notice. An eval set that runs on every push is what turns &ldquo;it seems better&rdquo; into a number. </p>
+<p> Steps 7 to 10 are the ordinary discipline that most teams skip. Cloud Run keeps every revision and can split traffic between them, so a rollback is one command against a revision that is already there &mdash; not a rebuild under pressure. </p>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Migrations must be backwards-compatible.</strong> During a gradual rollout, old code and new code are running at the same time against one database. A migration that drops a column the old revision still reads will break production for the users on the old revision. Add columns first, deploy code that writes both, then remove the old column in a later release. See the PostgreSQL note for the full pattern. </div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>A cloud rents compute, storage, networking and identity. Everything else is a combination of the four.</li><li>Separate projects for dev, staging and production, from day one.</li><li>Cloud Run unless you have a specific reason. Always set max-instances.</li><li>Instances are ephemeral: nothing that must survive goes on local disk.</li><li>One service account per service, smallest roles, and never a downloaded key file.</li><li>Secrets in Secret Manager, mounted as environment variables at deploy.</li><li>Budget alerts and labels on day one; log tokens per feature from the first call.</li></ul></div>
+<details class="selfcheck"><summary><span class="sc-q">Why must database migrations be backwards-compatible during a gradual rollout?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because for a while the old code and the new code are both running against the same database. A migration that drops a column the old version still reads breaks production for exactly the users still being served by it. </p>
+<p> Add first, deploy code that handles both shapes, and only remove in a later release. It turns a risky moment into three unremarkable ones. </p></div></details>
+</section>

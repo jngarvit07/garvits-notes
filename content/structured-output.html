@@ -1,0 +1,216 @@
+<section class="note-section" data-tagline="The moment another program consumes a model's output, prose becomes a liability. Getting a guaranteed shape is a solved problem — but only the shape.">
+<h2 id="why">Why shape matters more than wording</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> When a person reads the output, a stray sentence of preamble is harmless. When your code reads it, &ldquo;Sure! Here's the JSON you asked for:&rdquo; in front of the data is a crash. The instant an AI call feeds another program, you stop needing good writing and start needing a guaranteed structure. </div></div>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; hoping and parsing</div><pre><code>const out = await model({
+  prompt: `Extract the invoice fields.
+Respond with JSON only, no markdown,
+no explanation. I mean it.`
+});
+
+const data = JSON.parse(out);
+// Throws on:
+//   "Here is the JSON:\n{...}"
+//   "```json\n{...}\n```"
+//   "{...}  Let me know if..."
+//   a trailing comma
+//   a smart quote instead of "</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; declare the schema</div><pre><code>const out = await model({
+  prompt: 'Extract the invoice fields.',
+  responseFormat: {
+    type: 'json_schema',
+    schema: InvoiceSchema,   // enforced
+  },
+});
+
+// Guaranteed to parse and to match
+// the schema. Now validate the
+// CONTENT, which is a separate job.
+const data = InvoiceSchema.parse(out);</code></pre></div>
+</div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>A schema guarantees the shape and nothing else.</strong> You can get perfectly valid JSON containing an <code>order_id</code> that does not exist, a refund larger than the order, a date in 1847, or a confident extraction of a field the document never contained. Structured output eliminates parse errors. It does not eliminate wrong answers, and treating it as though it does is how a whole class of bug gets past review. </div></div>
+</section>
+
+<section class="note-section" data-tagline="Four ways to get structure, from asking nicely to making the wrong token impossible. Only two of them actually hold.">
+<h2 id="how">The four levels of enforcement</h2>
+<div class="table-wrap"><table><thead><tr><th></th><th>Method</th><th>Guarantee</th><th>Verdict</th></tr></thead><tbody>
+<tr><td>1</td><td>Ask in the prompt</td><td>None</td><td>Works most of the time, which is the worst possible failure rate &mdash; often enough to ship, rarely enough to page you.</td></tr>
+<tr><td>2</td><td>Ask, plus few-shot examples</td><td>None, but better</td><td>Meaningfully more reliable. Still a hope.</td></tr>
+<tr><td>3</td><td><strong>Tool / function calling</strong></td><td>Strong</td><td>The provider validates arguments against your schema. Well supported everywhere.</td></tr>
+<tr><td>4</td><td><strong>Constrained decoding</strong></td><td>Absolute</td><td>Invalid tokens are removed from the choice at each step, so malformed output is not merely unlikely &mdash; it is unreachable.</td></tr>
+</tbody></table></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">How constrained decoding actually works</div> Remember that the model produces a score for every token in the vocabulary, and something else picks from that list. Constrained decoding edits the list before the pick. If the schema says the next character must be <code>"</code> or <code>}</code>, every other token has its score set to negative infinity. The model cannot emit invalid JSON in the same way you cannot walk through a wall &mdash; not discipline, geometry. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>Grammar-constrained generation, step by step</div><pre><code>schema:  { "total": number }
+so far:  {"total":
+
+  full vocabulary        after the grammar mask
+    "  0.72   ->  -inf     (a string cannot start a number)
+    1  0.09   ->   0.09
+    2  0.04   ->   0.04
+    -  0.02   ->   0.02    (negative is allowed)
+    the 0.01  ->  -inf
+    ...                    everything not a valid continuation: -inf
+
+  The model still CHOOSES. It just cannot choose wrongly.</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Constrained decoding is available on most hosted providers under a name like &ldquo;strict&rdquo; or &ldquo;structured outputs&rdquo;, and on self-hosted stacks through libraries like Outlines or llama.cpp's grammars. Where it is offered, it is strictly better than level 3 for extraction. It usually restricts which JSON Schema features you can use &mdash; expect no <code>anyOf</code> at the root, and required fields everywhere. </div></div>
+</section>
+
+<section class="note-section" data-tagline="A schema is a prompt. The field names, the descriptions and the enums do more to shape the answer than most of the sentences above them.">
+<h2 id="schema">Designing a schema the model reads well</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The schema is not just a validator bolted on afterwards &mdash; the model sees it, and reads it as part of the instructions. A field called <code>d</code> with no description gets filled in with a guess. A field called <code>invoice_date</code> described as &ldquo;the date on the invoice in YYYY-MM-DD, not today's date&rdquo; gets filled in correctly. Time spent on the schema is time not spent on prompt wording. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>A schema that does most of the prompting for you</div><pre><code>const InvoiceSchema = z.object({
+  invoice_number: z.string()
+    .describe('As printed on the document. Null if not present.')
+    .nullable(),
+
+  // An enum removes an entire category of variation. Without it you
+  // get "GBP", "gbp", "£", "pounds", "British Pound" across a corpus.
+  currency: z.enum(['GBP', 'USD', 'EUR', 'OTHER']),
+
+  total: z.number()
+    .describe('Grand total INCLUDING tax, as a number with no symbol.'),
+
+  // Every optional field must be nullable rather than absent, and the
+  // description must say when to use null. Otherwise the model invents
+  // something plausible rather than admitting the field was not there.
+  due_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
+    .describe('ISO date. Null if the invoice states no due date.')
+    .nullable(),
+
+  line_items: z.array(z.object({
+    description: z.string(),
+    quantity: z.number().int().positive(),
+    unit_price: z.number(),
+  })).describe('One entry per row of the itemised table.'),
+
+  // The escape hatch. Without one, a model asked for structure will
+  // produce structure — even from a photograph of a cat.
+  extraction_confidence: z.enum(['high', 'low'])
+    .describe('low if the document was unclear or is not an invoice'),
+});</code></pre></div>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">Name fields as you would for a colleague</div><p><code>shipping_address_country</code>, not <code>c3</code>. The name is the strongest signal the model has about what belongs there.</p></div>
+  <div class="card"><div class="card-title">Enums over free strings</div><p>Any field with a known set of valid values should be an enum. It removes normalisation work downstream and eliminates a whole class of near-miss values.</p></div>
+  <div class="card"><div class="card-title">Nullable, not optional</div><p>An absent field is ambiguous — was it missing from the document, or did the model forget? An explicit <code>null</code> with a description saying when to use it is a real answer.</p></div>
+  <div class="card"><div class="card-title">Always give it a way out</div><p>A confidence field, a <code>not_applicable</code> enum value, or a <code>reason_declined</code>. Forced to produce a shape with no exit, a model will fill it in regardless of whether the input supported it.</p></div>
+</div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Deeply nested schemas degrade quality.</strong> Four levels of nesting with arrays of objects containing arrays produces noticeably worse extraction than a flat structure, and it is slower. If you need a complex shape, extract flat and assemble it in your own code &mdash; that assembly is code you can test, and the model's part gets easier. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Your extractor returns a plausible <code>due_date</code> for invoices that do not have one. The field is marked optional. What is wrong?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Optional means the model may simply omit the key, which reads to it as an unremarkable choice &mdash; and producing a plausible date is a <em>better</em> next-token prediction than producing nothing. It has no instruction telling it that absence is a valid and expected outcome. </p>
+<p> Make it nullable and required, and describe when null applies: &ldquo;Null if the invoice states no due date.&rdquo; You have converted &ldquo;you may skip this&rdquo; into &ldquo;you must answer, and <em>nothing</em> is one of the answers.&rdquo; </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="Tool calling is the same schema machinery pointed at actions instead of answers. What the model returns is a request, never an execution.">
+<h2 id="tools">Tool calling, precisely</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The model cannot run anything. It never could. What it produces is a structured message saying &ldquo;I would like to call <code>lookup_order</code> with this order number&rdquo; &mdash; and then your code decides whether to comply, runs it, and hands the result back. That decision point is not a formality. It is where every permission check, every rate limit and every audit log belongs. </div></div>
+<figure class="figure is-flow">
+<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">One tool call, and who is responsible at each step</span>{{replay}}</div>
+<div class="figure-stage"><ol class="flow flow-column">
+<li class="flow-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">You declare the tools</span><span class="flow-detail">Name, description and an argument schema for each. This is the model&rsquo;s only documentation, so it is doing real work.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">The model asks</span><span class="flow-detail">It returns a tool-call message with arguments matching your schema. It has run nothing and changed nothing.</span></div></li>
+<li class="flow-step" data-tone="accent" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">YOUR code decides</span><span class="flow-detail">Is this tool allowed for this user? Are the arguments sane? Is it within the rate limit? Refusing here is a normal outcome, not an error.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">You run it and reply</span><span class="flow-detail">The result goes back as a tool-result message, tied to the call by its id.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:4"><span class="flow-num">5</span><div class="flow-text"><span class="flow-label">The model continues</span><span class="flow-detail">It either answers, or asks for another tool. That loop is what makes an agent — see the <a href="../agents/index.html">Agents &amp; Workflows</a> note.</span></div></li>
+</ol></div>
+</figure>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>The gate every tool call should pass through</div><pre><code>for (const call of response.toolCalls) {
+  // 1. Is this tool available to THIS user? The model's opinion that it
+  //    should be called is not an authorisation decision.
+  if (!allowedTools(user).includes(call.name)) {
+    results.push({ id: call.id, error: 'not_permitted' });
+    continue;                                   // tell it, do not throw
+  }
+
+  // 2. Validate again on your side. Provider validation is not your
+  //    validation, and business rules are not expressible in a schema.
+  const args = TOOLS[call.name].schema.safeParse(call.arguments);
+  if (!args.success) {
+    results.push({ id: call.id, error: 'invalid_arguments: ' + args.error });
+    continue;                                   // it can correct itself
+  }
+
+  // 3. Anything irreversible stops here and waits for a person, who is
+  //    shown the ACTUAL effect — the amount, the recipient, the diff.
+  if (TOOLS[call.name].irreversible) {
+    results.push({ id: call.id, status: await askHuman(call, user) });
+    continue;
+  }
+
+  // 4. Scope the execution to the user. Never to your service account.
+  audit.log({ user: user.id, tool: call.name, args: args.data });
+  results.push({ id: call.id, result: await TOOLS[call.name].run(args.data, user) });
+}</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Return errors to the model as tool results, not as exceptions.</strong> A tool that returns <code>{"error": "no order found with that number"}</code> lets the model recover &mdash; ask the user, try a different search, explain the problem. An exception that breaks the loop turns a recoverable situation into a failed request. Write tool errors as messages to a colleague, not as stack traces. </div></div>
+</section>
+
+<section class="note-section" data-tagline="Narrow tools can be checked, logged and reasoned about. Broad tools cannot, and no prompt makes them safe.">
+<h2 id="design">Designing the tool surface</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Every tool you expose is a permission you have granted to a system that can be talked into things. The design question is not &ldquo;what would be convenient&rdquo; but &ldquo;what is the smallest capability that does the job&rdquo;. A tool that runs arbitrary SQL is a convenient way to bypass every control you have ever written. </div></div>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; general purpose</div><pre><code>run_sql(query: string)
+read_file(path: string)
+http_request(url, method, body)
+send_email(to, subject, body)
+
+// Each one is "do anything" wearing
+// a specific-sounding name. There is
+// no check you can write on
+// run_sql(query) that is not itself
+// a database engine.</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; one job each</div><pre><code>get_order(order_id)
+list_orders_for_current_user(limit)
+refund_order(order_id, amount, reason)
+read_project_file(project_id, name)
+notify_customer(order_id, template_id)
+
+// Every one can be permission-checked,
+// rate-limited, logged and reasoned
+// about. The blast radius is written
+// into the signature.</code></pre></div>
+</div>
+<div class="table-wrap"><table><thead><tr><th>Rule</th><th>Why</th></tr></thead><tbody>
+<tr><td>The description is the documentation</td><td>It is the only thing the model has when deciding whether to reach for this tool. Say what it does, when to use it, when <em>not</em> to, and what it returns.</td></tr>
+<tr><td>Fewer tools, better chosen</td><td>Selection accuracy falls as the list grows. Past roughly fifteen or twenty, route to a subset first rather than offering everything at once.</td></tr>
+<tr><td>No overlapping tools</td><td>Two tools that could both plausibly apply produces inconsistent behaviour that is very hard to debug. Merge them or make the boundary explicit in both descriptions.</td></tr>
+<tr><td>Ids, not free text, wherever possible</td><td><code>refund_order(order_id)</code> is checkable. <code>refund(customer_name)</code> requires a fuzzy lookup that can match the wrong person.</td></tr>
+<tr><td>Return little</td><td>Every byte returned is a token in the next call, on every subsequent turn. Return the fields needed, not the whole record.</td></tr>
+<tr><td>Idempotent where you can</td><td>Retries happen. A tool called twice by accident should not refund twice. Take an idempotency key.</td></tr>
+</tbody></table></div>
+<details class="selfcheck"><summary><span class="sc-q">You need the assistant to answer arbitrary questions about your database. Is <code>run_sql</code> justified here?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Almost never in a product. It grants read access to everything, cannot be permission-checked in any meaningful way, and a prompt injection in any retrieved text turns into data exfiltration.</p>
+<p> The workable versions are narrower: run against a read-only replica, as a database user with row-level security enforcing the tenant, restricted to a set of views built for this purpose, with a statement timeout and a row cap. Notice that every one of those is a database-level constraint. The safety comes from the boundary, never from the wording of the tool description. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="Structure will still fail sometimes. What you do on the second attempt decides whether that is a blip or an incident.">
+<h2 id="failure">When the shape is right and the content is wrong</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Two layers of checking, and they catch different things. The schema catches &ldquo;this is not the right shape&rdquo;. Your business rules catch &ldquo;this shape is fine and the values are impossible&rdquo;. Only the second one notices a refund larger than the order, or a date next century. Systems that stop at the schema fail in ways that look correct all the way to production. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>Two layers, and a retry that carries the reason</div><pre><code>async function extract(doc: string, attempt = 0): Promise&lt;Invoice&gt; {
+  const raw = await model({ prompt: build(doc), schema: InvoiceSchema });
+
+  // Layer 1 — shape. With constrained decoding this rarely fails,
+  // and you check anyway because "rarely" is not "never".
+  const shape = InvoiceSchema.safeParse(raw);
+  if (!shape.success) return retry(doc, attempt, String(shape.error));
+
+  // Layer 2 — sense. No schema can express these.
+  const problems = [
+    shape.data.total &lt; 0                        &amp;&amp; 'total is negative',
+    shape.data.total &gt; 1_000_000                &amp;&amp; 'total implausibly large',
+    sum(shape.data.line_items) !== shape.data.total
+                                                &amp;&amp; 'line items do not sum to total',
+    shape.data.due_date &amp;&amp; !isReasonableDate(shape.data.due_date)
+                                                &amp;&amp; 'due date out of range',
+  ].filter(Boolean);
+
+  if (problems.length) return retry(doc, attempt, problems.join('; '));
+  return shape.data;
+}
+
+// The retry must TELL the model what was wrong. Sending the identical
+// prompt again is asking the same question and hoping for luck.
+async function retry(doc: string, attempt: number, why: string) {
+  metrics.count('extract.invalid', { why });
+  if (attempt &gt;= 1) throw new NeedsHumanReview(why);   // two tries, then stop
+  return extract(doc + `\n\nYour previous answer was rejected: ${why}`, attempt + 1);
+}</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Cap the retries and count the failures.</strong> Unbounded retrying on a document the model genuinely cannot read turns one bad input into a cost spike and a hung request. Two attempts, then route to a human. And the <em>rate</em> of invalid results is a metric worth alerting on &mdash; it climbing is usually the first visible sign that an upstream format changed or a model was updated underneath you. </div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Once code consumes the output, you need a guaranteed shape &mdash; not a politely worded request for one.</li><li>Constrained decoding makes invalid output unreachable; tool calling is the well-supported alternative.</li><li>The schema is part of the prompt. Descriptive names, enums, nullable-not-optional, and always an escape hatch.</li><li>A tool call is a request. Your code checks permissions, validates arguments, and gates anything irreversible.</li><li>Narrow tools can be secured; general ones cannot. Return errors to the model so it can recover.</li><li>Validate shape <em>and</em> sense. Retry once with the reason attached, then hand it to a person.</li></ul></div>
+</section>

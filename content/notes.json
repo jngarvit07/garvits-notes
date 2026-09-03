@@ -1,142 +1,277 @@
-[
-  {
-    "id": "react",
-    "n": "01",
-    "label": "React",
-    "title": "React",
-    "tagline": "How a screen is built out of small pieces that redraw themselves when the data changes.",
-    "description": "How a screen is built out of small pieces that redraw themselves when the data changes. No prior JavaScript framework experience assumed.",
-    "level": "No experience needed",
-    "minutes": 30
-  },
-  {
-    "id": "nextjs",
-    "n": "02",
-    "label": "Next.js",
-    "title": "Next.js",
-    "tagline": "The framework around React: routing by folder, rendering on the server, and shipping less JavaScript.",
-    "description": "The framework around React: routing by folder, rendering on the server, and shipping less JavaScript. Written against Next 14's App Router, which is what this product runs.",
-    "level": "Some experience helps",
-    "minutes": 30
-  },
-  {
-    "id": "nodejs",
-    "n": "03",
-    "label": "Node.js",
-    "title": "Node.js",
-    "tagline": "JavaScript outside the browser, and the one idea \u2014 never wait, never block \u2014 the whole thing is built on.",
-    "description": "JavaScript outside the browser, and the one idea \u2014 never wait, never block \u2014 that the whole thing is built on. Everything on this product's server runs inside it.",
-    "level": "No experience needed",
-    "minutes": 35
-  },
-  {
-    "id": "express",
-    "n": "04",
-    "label": "Express",
-    "title": "Express",
-    "tagline": "Turning an HTTP request into an answer: routes, middleware, authentication and error handling.",
-    "description": "Turning an HTTP request into an answer: routes, middleware, authentication, validation and error handling. This product's entire API is an Express application.",
-    "level": "Some experience helps",
-    "minutes": 35
-  },
-  {
-    "id": "postgresql",
-    "n": "05",
-    "label": "PostgreSQL & Prisma",
-    "title": "PostgreSQL & Prisma",
-    "tagline": "Where the data actually lives: tables, relations, SQL, indexes, transactions and migrations.",
-    "description": "Where the data actually lives: tables, relations, SQL, indexes, transactions and migrations \u2014 and the layer this product uses to talk to them.",
-    "level": "No experience needed",
-    "minutes": 40
-  },
-  {
-    "id": "ai",
-    "n": "06",
-    "label": "AI, RAG & Security",
-    "title": "AI, Models, RAG & Security",
-    "tagline": "What a language model is, how to give it your own knowledge, how to ship it, and how it gets attacked.",
-    "description": "What a language model actually is, how to give it knowledge it was never trained on, and the ways these systems get attacked. Written for somebody deciding what to build, not for somebody training models.",
-    "level": "No experience needed",
-    "minutes": 100
-  },
-  {
-    "id": "agents",
-    "n": "07",
-    "label": "Agents & Workflows",
-    "title": "Agents & Workflows",
-    "tagline": "The loop where the model decides what to do next \u2014 when that is the right answer, when a plain workflow beats it, and how to keep one on a leash.",
-    "description": "The ladder from a single call to a full agent, five workflow patterns worth knowing by name, the agent loop drawn and coded, and a production folder structure you can copy.",
-    "level": "Some experience helps",
-    "minutes": 45
-  },
-  {
-    "id": "mcp",
-    "n": "08",
-    "label": "MCP",
-    "title": "MCP \u2014 Model Context Protocol",
-    "tagline": "The plug shape that lets any model use any tool: write the integration once, and every host that speaks the protocol can use it.",
-    "description": "What MCP is and the N\u00d7M problem it solves, host vs client vs server, tools and resources and prompts, a complete working server, and the security you cannot skip.",
-    "level": "Some experience helps",
-    "minutes": 35
-  },
-  {
-    "id": "skills-artifacts",
-    "n": "09",
-    "label": "Skills & Artifacts",
-    "title": "Skills & Artifacts",
-    "tagline": "Four different ways to extend a model, and how to tell which one your problem actually needs.",
-    "description": "Tools add ability, RAG adds facts, skills add know-how, artifacts give output a home. What each one is, how skills load themselves, and a decision tree that resolves most cases.",
-    "level": "No experience needed",
-    "minutes": 25
-  },
-  {
-    "id": "model-landscape",
-    "n": "10",
-    "label": "The Model Landscape",
-    "title": "The Model Landscape",
-    "tagline": "Claude, OpenAI, Gemini, Copilot and the open-weight world \u2014 what actually differs, without a horse race or a price list.",
-    "description": "Products, models and platforms are three different layers, and most confused comparisons are a layer mix-up. The families, where Copilot fits, and how to choose without benchmarks.",
-    "level": "No experience needed",
-    "minutes": 25
-  },
-  {
-    "id": "evals",
-    "n": "11",
-    "label": "Evaluation",
-    "title": "Evaluating AI Systems",
-    "tagline": "The only way to know whether a change made things better. Without it, every prompt edit is a gamble.",
-    "description": "Building a set of real cases, four kinds of grader and when to use each, making an LLM judge trustworthy, scoring RAG and agents, and wiring the whole thing into CI.",
-    "level": "Some experience helps",
-    "minutes": 35
-  },
-  {
-    "id": "ai-security",
-    "n": "12",
-    "label": "AI Security",
-    "title": "AI Security",
-    "tagline": "Prompt injection has no complete fix. What that means for how you design, rather than how you word things.",
-    "description": "The threat model in one sentence, direct versus indirect injection, the three ingredients that turn a curiosity into an incident, the defences that actually hold, and how to attack your own system.",
-    "level": "Some experience helps",
-    "minutes": 35
-  },
-  {
-    "id": "governance",
-    "n": "13",
-    "label": "AI Governance",
-    "title": "AI Governance",
-    "tagline": "Risk tiers, the frameworks by name, and the one page per feature that answers most of what anyone will ask.",
-    "description": "Why governance lands on the developer, how obligations scale with harm, what the EU AI Act and NIST and GDPR actually want, and a system card that fits on a page.",
-    "level": "No experience needed",
-    "minutes": 30
-  },
-  {
-    "id": "roadmap",
-    "n": "14",
-    "label": "What to Learn Next",
-    "title": "What to Learn Next",
-    "tagline": "Where you are now, the four stages that take you further, and how to tell you have actually learned it rather than just read it.",
-    "description": "A path rather than a syllabus: what to build at each stage, which foundations earn their time, where to specialise, what is genuinely changing, and the checklist that resists self-deception.",
-    "level": "No experience needed",
-    "minutes": 25
-  }
-]
+{
+  "parts": [
+    {
+      "id": "stack",
+      "short": "Part one — the stack",
+      "title": "Part one — the stack",
+      "lede": "How one request crosses four systems, and what each of them is responsible for. Read these in order if you are starting out: each assumes the one before it and nothing else."
+    },
+    {
+      "id": "ai",
+      "short": "Part two — the AI track",
+      "title": "Part two — the AI track",
+      "lede": "What a model is and what is going on inside it, how to give it your knowledge and your tools, how to adapt it, how to run it, how to prove it works, how it gets attacked, how to draw it, and how to operate it. The overview note stands alone and can be read first."
+    },
+    {
+      "id": "next",
+      "short": "Part three — where this goes",
+      "title": "Part three — where this goes",
+      "lede": "The honest version of what to learn after this, in what order, and how to tell you have actually learned it rather than just read it."
+    }
+  ],
+  "notes": [
+    {
+      "id": "react",
+      "n": "01",
+      "part": "stack",
+      "label": "React",
+      "title": "React",
+      "tagline": "How a screen is built out of small pieces that redraw themselves when the data changes.",
+      "description": "How a screen is built out of small pieces that redraw themselves when the data changes. No prior JavaScript framework experience assumed.",
+      "level": "No experience needed",
+      "minutes": 30
+    },
+    {
+      "id": "redux",
+      "n": "02",
+      "part": "stack",
+      "label": "State Management",
+      "title": "State Management & Redux",
+      "tagline": "When component state stops being enough, and the four tools that take over — Context, Redux Toolkit, Zustand and React Query.",
+      "description": "The problem shared state actually creates, why prop drilling hurts, what Redux is really doing under the ceremony, and the one distinction — server state versus client state — that decides which tool you need.",
+      "level": "Read React first",
+      "minutes": 35
+    },
+    {
+      "id": "nextjs",
+      "n": "03",
+      "part": "stack",
+      "label": "Next.js",
+      "title": "Next.js",
+      "tagline": "The framework around React: routing by folder, rendering on the server, and shipping less JavaScript.",
+      "description": "The framework around React: routing by folder, rendering on the server, and shipping less JavaScript. Written against Next 14's App Router, which is what this product runs.",
+      "level": "Some experience helps",
+      "minutes": 30
+    },
+    {
+      "id": "nodejs",
+      "n": "04",
+      "part": "stack",
+      "label": "Node.js",
+      "title": "Node.js",
+      "tagline": "JavaScript outside the browser, and the one idea — never wait, never block — the whole thing is built on.",
+      "description": "JavaScript outside the browser, and the one idea — never wait, never block — that the whole thing is built on. Everything on this product's server runs inside it.",
+      "level": "No experience needed",
+      "minutes": 35
+    },
+    {
+      "id": "express",
+      "n": "05",
+      "part": "stack",
+      "label": "Express",
+      "title": "Express",
+      "tagline": "Turning an HTTP request into an answer: routes, middleware, authentication and error handling.",
+      "description": "Turning an HTTP request into an answer: routes, middleware, authentication, validation and error handling. This product's entire API is an Express application.",
+      "level": "Some experience helps",
+      "minutes": 35
+    },
+    {
+      "id": "postgresql",
+      "n": "06",
+      "part": "stack",
+      "label": "PostgreSQL & Prisma",
+      "title": "PostgreSQL & Prisma",
+      "tagline": "Where the data actually lives: tables, relations, SQL, indexes, transactions and migrations.",
+      "description": "Where the data actually lives: tables, relations, SQL, indexes, transactions and migrations — and the layer this product uses to talk to them.",
+      "level": "No experience needed",
+      "minutes": 40
+    },
+    {
+      "id": "ai",
+      "n": "07",
+      "part": "ai",
+      "label": "AI, RAG & Security",
+      "title": "AI, Models, RAG & Security",
+      "tagline": "What a language model is, how to give it your own knowledge, how to ship it, and how it gets attacked.",
+      "description": "What a language model actually is, how to give it knowledge it was never trained on, and the ways these systems get attacked. Written for somebody deciding what to build, not for somebody training models.",
+      "level": "No experience needed",
+      "minutes": 100
+    },
+    {
+      "id": "inside-a-model",
+      "part": "ai",
+      "label": "Inside a Model",
+      "title": "Inside a Model",
+      "tagline": "Tokens, vectors, attention and the decoding loop — the machinery under everything else, explained without the mathematics.",
+      "description": "What the model actually reads, how attention lets any token reach any other, how a Transformer is assembled, how one word gets chosen, what happens between pressing send and the last token, and what reasoning models are really doing.",
+      "level": "Read the AI note first",
+      "minutes": 45,
+      "n": "08"
+    },
+    {
+      "id": "rag-advanced",
+      "part": "ai",
+      "label": "Advanced RAG",
+      "title": "Advanced RAG",
+      "tagline": "Basic RAG works in a demo and disappoints in production. Chunking, hybrid search, reranking, query rewriting and how to measure retrieval on its own.",
+      "description": "Why most bad RAG answers are retrieval failures, five chunking strategies and the one that usually wins, hybrid search and rank fusion, reranking, transforming the question before you search, permissions as a query filter, and the metrics that make tuning an engineering exercise.",
+      "level": "Read the AI note first",
+      "minutes": 45,
+      "n": "09"
+    },
+    {
+      "id": "fine-tuning",
+      "part": "ai",
+      "label": "Fine-tuning",
+      "title": "Fine-tuning & Model Adaptation",
+      "tagline": "It teaches a manner, not a fact. LoRA, preference tuning, distillation, and the arithmetic that decides whether any of it pays.",
+      "description": "What fine-tuning can and cannot teach, full versus LoRA versus QLoRA, why the dataset is the whole job, RLHF and DPO, distilling a task down to a small cheap model, and what you take on by owning a tuned artefact.",
+      "level": "Some experience helps",
+      "minutes": 40,
+      "n": "10"
+    },
+    {
+      "id": "self-hosting",
+      "part": "ai",
+      "label": "Running Models Yourself",
+      "title": "Running Models Yourself",
+      "tagline": "Open weights, VRAM arithmetic, quantisation and serving — and the honest answer about when renting still wins.",
+      "description": "The four reasons that justify self-hosting and the one that does not survive the arithmetic, open weights versus open source, whether a model fits on your GPU, what quantisation costs you, continuous batching and paged attention, and everything the API was quietly doing for you.",
+      "level": "Some experience helps",
+      "minutes": 40,
+      "n": "11"
+    },
+    {
+      "id": "structured-output",
+      "part": "ai",
+      "label": "Structured Output",
+      "title": "Structured Output & Tool Calling",
+      "tagline": "Getting a guaranteed shape out of a model, and the gate every tool call should pass through before anything runs.",
+      "description": "Four levels of enforcement and the two that hold, how constrained decoding makes invalid output unreachable, designing a schema the model reads well, what a tool call actually is, narrow tools versus general ones, and validating sense as well as shape.",
+      "level": "Some experience helps",
+      "minutes": 35,
+      "n": "12"
+    },
+    {
+      "id": "agents",
+      "n": "13",
+      "part": "ai",
+      "label": "Agents & Workflows",
+      "title": "Agents & Workflows",
+      "tagline": "The loop where the model decides what to do next — when that is the right answer, when a plain workflow beats it, and how to keep one on a leash.",
+      "description": "The ladder from a single call to a full agent, five workflow patterns worth knowing by name, the agent loop drawn and coded, and a production folder structure you can copy.",
+      "level": "Some experience helps",
+      "minutes": 45
+    },
+    {
+      "id": "mcp",
+      "n": "14",
+      "part": "ai",
+      "label": "MCP",
+      "title": "MCP — Model Context Protocol",
+      "tagline": "The plug shape that lets any model use any tool: write the integration once, and every host that speaks the protocol can use it.",
+      "description": "What MCP is and the N×M problem it solves, host vs client vs server, tools and resources and prompts, a complete working server, and the security you cannot skip.",
+      "level": "Some experience helps",
+      "minutes": 35
+    },
+    {
+      "id": "skills-artifacts",
+      "n": "15",
+      "part": "ai",
+      "label": "Skills & Artifacts",
+      "title": "Skills & Artifacts",
+      "tagline": "Four different ways to extend a model, and how to tell which one your problem actually needs.",
+      "description": "Tools add ability, RAG adds facts, skills add know-how, artifacts give output a home. What each one is, how skills load themselves, and a decision tree that resolves most cases.",
+      "level": "No experience needed",
+      "minutes": 25
+    },
+    {
+      "id": "model-landscape",
+      "n": "16",
+      "part": "ai",
+      "label": "The Model Landscape",
+      "title": "The Model Landscape",
+      "tagline": "Claude, OpenAI, Gemini, Copilot and the open-weight world — what actually differs, without a horse race or a price list.",
+      "description": "Products, models and platforms are three different layers, and most confused comparisons are a layer mix-up. The families, where Copilot fits, and how to choose without benchmarks.",
+      "level": "No experience needed",
+      "minutes": 25
+    },
+    {
+      "id": "evals",
+      "n": "17",
+      "part": "ai",
+      "label": "Evaluation",
+      "title": "Evaluating AI Systems",
+      "tagline": "The only way to know whether a change made things better. Without it, every prompt edit is a gamble.",
+      "description": "Building a set of real cases, four kinds of grader and when to use each, making an LLM judge trustworthy, scoring RAG and agents, and wiring the whole thing into CI.",
+      "level": "Some experience helps",
+      "minutes": 35
+    },
+    {
+      "id": "ai-security",
+      "n": "18",
+      "part": "ai",
+      "label": "AI Security",
+      "title": "AI Security",
+      "tagline": "Prompt injection has no complete fix. What that means for how you design, rather than how you word things.",
+      "description": "The threat model in one sentence, direct versus indirect injection, the three ingredients that turn a curiosity into an incident, the defences that actually hold, and how to attack your own system.",
+      "level": "Some experience helps",
+      "minutes": 35
+    },
+    {
+      "id": "governance",
+      "n": "19",
+      "part": "ai",
+      "label": "AI Governance",
+      "title": "AI Governance",
+      "tagline": "Risk tiers, the frameworks by name, and the one page per feature that answers most of what anyone will ask.",
+      "description": "Why governance lands on the developer, how obligations scale with harm, what the EU AI Act and NIST and GDPR actually want, and a system card that fits on a page.",
+      "level": "No experience needed",
+      "minutes": 30
+    },
+    {
+      "id": "architecture",
+      "n": "20",
+      "part": "ai",
+      "label": "Architecture",
+      "title": "AI System Architecture",
+      "tagline": "How to draw the system before you build it: the layers, the boundaries, and the trade-off waiting at each one.",
+      "description": "The five layers every AI feature has whether you drew them or not, four reference architectures you can copy, the diagrams that actually convince a team, and how to choose at each boundary.",
+      "level": "Some experience helps",
+      "minutes": 40
+    },
+    {
+      "id": "cloud-gcp",
+      "n": "21",
+      "part": "ai",
+      "label": "Cloud & GCP",
+      "title": "Cloud & GCP Deployment",
+      "tagline": "Getting it off your laptop: Cloud Run, Vertex AI, storage, networking, IAM, secrets and the bill.",
+      "description": "What a cloud actually rents you, the GCP services that matter for an AI product and the ones that do not, deploying a container to Cloud Run, IAM without despair, secrets, networking, and keeping the bill honest.",
+      "level": "No experience needed",
+      "minutes": 45
+    },
+    {
+      "id": "aiops",
+      "n": "22",
+      "part": "ai",
+      "label": "AI Ops",
+      "title": "AI Ops — Running It in Production",
+      "tagline": "The half of the work that starts the day you ship: tracing, versioning, rollouts, incidents, cost and the pager.",
+      "description": "Why an AI system fails differently from a normal one, what to log on every call, tracing a request through a chain, versioning prompts like code, safe rollouts, the four numbers on a dashboard, and what to do at 3am.",
+      "level": "Some experience helps",
+      "minutes": 40
+    },
+    {
+      "id": "roadmap",
+      "n": "23",
+      "part": "next",
+      "label": "What to Learn Next",
+      "title": "What to Learn Next",
+      "tagline": "Where you are now, the four stages that take you further, and how to tell you have actually learned it rather than just read it.",
+      "description": "A path rather than a syllabus: what to build at each stage, which foundations earn their time, where to specialise, what is genuinely changing, and the checklist that resists self-deception.",
+      "level": "No experience needed",
+      "minutes": 25
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testing and debugging — Express — Garvit's Notes</title>
+<meta name="description" content="In plain English The useful test for an API is not does this function return the right value but if I send this request, do I get the right response .">
+<meta name="color-scheme" content="light dark">
+<script>(function(){var d=document.documentElement;
+try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
+if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');
+var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data-size',z);}catch(e){}
+try{if(localStorage.getItem('gn-auth')!=='v11xb7'){
+var depth=('../../'.match(/\.\.\//g)||[]).length;
+var parts=location.pathname.split('/').filter(Boolean).slice(-(depth+1));
+location.replace('../../login.html?next='+encodeURIComponent(parts.join('/')));}}catch(e){}
+})();</script>
+<link rel="stylesheet" href="../../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../../" data-note="express" data-topic="testing">
+<header class="site-header">
+  <button class="icon-btn nav-only" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <button class="icon-btn rail-only" id="rail-toggle" type="button" aria-label="Hide the sidebar" aria-pressed="false" title="Hide the sidebar  ⌘\"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg></button>
+  <a class="brand" href="../../index.html"><span class="brand-mark">GN</span><span class="brand-text">Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search every topic&hellip;" autocomplete="off" aria-label="Search notes">
+    <kbd class="search-kbd">/</kbd>
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <div class="size-wrap">
+    <button class="icon-btn" id="size-toggle" type="button" aria-label="Reading size"
+            aria-haspopup="menu" aria-expanded="false" title="Reading size"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 7.5 6l4.5 11"/><path d="M4.6 13.6h5.8"/><path d="M14 17l3.4-8 3.4 8"/><path d="M15.2 14.4h4.4"/></svg></button>
+    <div class="size-menu" id="size-menu" role="menu" hidden>
+      <div class="size-menu-head">Reading size</div>
+      <button type="button" role="menuitemradio" data-size="sm"><span>Small</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="md"><span>Medium</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="lg"><span>Large</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+    </div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <button class="icon-btn head-only" data-sign-out type="button" aria-label="Sign out" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg></button>
+  <div class="read-progress" id="read-progress"><span></span></div>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="All notes">
+    <div class="tree" id="tree"></div>
+    <div class="side-foot">
+      <button class="side-out" data-sign-out type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg><span>Sign out</span></button>
+    </div>
+  </nav>
+  <main class="main" id="main"><article class="content">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/express/index.html">Express</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Testing and debugging</span></nav>
+<header class="topic-head reveal">
+  <span class="eyebrow">Note 05 &middot; Express &middot; Topic 10 of 11</span>
+  <h1>Testing and debugging</h1>
+  <div class="page-meta">
+    <span>2 min read</span>
+    <span>Some experience helps</span>
+  </div>
+</header>
+<div class="topic-body">
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The useful test for an API is not &ldquo;does this function return the right value&rdquo; but &ldquo;if I send this request, do I get the right response&rdquo;. That kind of test goes through the real routing, the real middleware and the real validation, so it catches the wiring mistakes that unit tests step around entirely. </div></div>
+<p> An HTTP API is unusually pleasant to test, because a test is just a request and an assertion about the answer. <code>curl</code> is enough to start. </p>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>Poking at it by hand</div><pre><code>curl http://localhost:5000/api/v1/health
+
+curl -X POST http://localhost:5000/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"a@b.com","password":"secret"}'
+
+curl http://localhost:5000/api/v1/projects \
+  -H 'Authorization: Bearer eyJhbGciOi...'
+
+# -i to see the status and headers; -v when you need the whole conversation.</code></pre></div>
+<ul><li><strong>A request hangs forever</strong> — some middleware neither responded nor called <code>next()</code>, or an async handler threw without a wrapper. </li><li><strong>“Cannot set headers after they are sent”</strong> — two responses. Look for a missing <code>return</code>. </li><li><strong><code>req.body</code> is undefined</strong> — no body parser, or the caller did not send <code>Content-Type: application/json</code>. </li><li><strong>A CORS error in the browser, but curl works</strong> — the browser is enforcing something curl does not. It is a configuration problem on the server, never a frontend one. </li><li><strong>The wrong handler runs</strong> — route order; a parameterised path is shadowing a literal one. </li></ul>
+
+<details class="selfcheck"><summary><span class="sc-q">Why is a test that sends a real HTTP request to your app usually worth more than a test that calls the route handler function directly?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because most bugs in an API are not inside the handler — they are in the wiring around it. Middleware in the wrong order, a validator not applied, an auth check missing on one route, a body parser absent. Calling the function directly bypasses every one of those and passes happily while the endpoint is broken. </p></div></details>
+</div>
+<nav class="page-nav">
+<a class="pn-prev" href="design.html">
+  <span class="pn-dir">&larr; Previous</span>
+  <span class="pn-title">Designing the API</span>
+  
+</a>
+<a class="pn-next" href="here.html">
+  <span class="pn-dir">Next &rarr;</span>
+  <span class="pn-title">Express in this product</span>
+  
+</a>
+</nav>
+<nav class="siblings" aria-label="Other topics in this note">
+  <div class="sib-head">More in <a href="index.html">Express</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What Express is</a><a class="sib" href="cycle.html"><span class="sib-n">02</span>The request and response cycle</a><a class="sib" href="routes.html"><span class="sib-n">03</span>Routes and routers</a><a class="sib" href="middleware.html"><span class="sib-n">04</span>Middleware: the one idea to actually learn</a><a class="sib" href="input.html"><span class="sib-n">05</span>Reading and validating input</a><a class="sib" href="auth.html"><span class="sib-n">06</span>Authentication and authorisation</a><a class="sib" href="errors.html"><span class="sib-n">07</span>Error handling</a><a class="sib" href="security.html"><span class="sib-n">08</span>Hardening an Express app</a><a class="sib" href="design.html"><span class="sib-n">09</span>Designing the API</a><a class="sib is-current" href="testing.html"><span class="sib-n">10</span>Testing and debugging</a><a class="sib" href="here.html"><span class="sib-n">11</span>Express in this product</a></div>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../../assets/js/site-data.js"></script>
+<script src="../../assets/js/app.js"></script>
+</body>
+</html>

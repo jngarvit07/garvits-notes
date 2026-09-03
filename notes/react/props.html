@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Props: data passed in — React — Garvit's Notes</title>
+<meta name="description" content="In plain English Props are the arguments you hand a function, and they work exactly like a job order given to a workshop.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){var d=document.documentElement;
+try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
+if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');
+var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data-size',z);}catch(e){}
+try{if(localStorage.getItem('gn-auth')!=='v11xb7'){
+var depth=('../../'.match(/\.\.\//g)||[]).length;
+var parts=location.pathname.split('/').filter(Boolean).slice(-(depth+1));
+location.replace('../../login.html?next='+encodeURIComponent(parts.join('/')));}}catch(e){}
+})();</script>
+<link rel="stylesheet" href="../../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../../" data-note="react" data-topic="props">
+<header class="site-header">
+  <button class="icon-btn nav-only" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <button class="icon-btn rail-only" id="rail-toggle" type="button" aria-label="Hide the sidebar" aria-pressed="false" title="Hide the sidebar  ⌘\"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg></button>
+  <a class="brand" href="../../index.html"><span class="brand-mark">GN</span><span class="brand-text">Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search every topic&hellip;" autocomplete="off" aria-label="Search notes">
+    <kbd class="search-kbd">/</kbd>
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <div class="size-wrap">
+    <button class="icon-btn" id="size-toggle" type="button" aria-label="Reading size"
+            aria-haspopup="menu" aria-expanded="false" title="Reading size"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 7.5 6l4.5 11"/><path d="M4.6 13.6h5.8"/><path d="M14 17l3.4-8 3.4 8"/><path d="M15.2 14.4h4.4"/></svg></button>
+    <div class="size-menu" id="size-menu" role="menu" hidden>
+      <div class="size-menu-head">Reading size</div>
+      <button type="button" role="menuitemradio" data-size="sm"><span>Small</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="md"><span>Medium</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="lg"><span>Large</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+    </div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <button class="icon-btn head-only" data-sign-out type="button" aria-label="Sign out" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg></button>
+  <div class="read-progress" id="read-progress"><span></span></div>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="All notes">
+    <div class="tree" id="tree"></div>
+    <div class="side-foot">
+      <button class="side-out" data-sign-out type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg><span>Sign out</span></button>
+    </div>
+  </nav>
+  <main class="main" id="main"><article class="content">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/react/index.html">React</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Props: data passed in</span></nav>
+<header class="topic-head reveal">
+  <span class="eyebrow">Note 01 &middot; React &middot; Topic 3 of 11</span>
+  <h1>Props: data passed in</h1>
+  <div class="page-meta">
+    <span>2 min read</span>
+    <span>No experience needed</span>
+  </div>
+</header>
+<div class="topic-body">
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Props are the arguments you hand a function, and they work exactly like a job order given to a workshop. The order says &ldquo;a blue chair, seat height 45cm&rdquo;; the workshop builds to the order and does not get to change it. If a different chair is wanted, a new order is sent — the workshop never edits the one it was given. </div></div>
+<p> A component takes arguments, called <strong>props</strong>. They arrive as one object, and are almost always destructured in the parameter list so the names are visible at the top of the function. </p>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>Props in, markup out</div><pre><code>function SaveButton({ label, disabled, onSave }) {
+  return (
+    &lt;button className="s-btn" disabled={disabled} onClick={onSave}&gt;
+      {label}
+    &lt;/button&gt;
+  );
+}
+
+&lt;SaveButton label="Save draft" disabled={false} onSave={handleSave} /&gt;</code></pre></div>
+<p> Two rules make props predictable, and both are non-negotiable: </p>
+<ul><li><strong>Props are read-only.</strong> A component never writes to its own props. If a value needs to change, it belongs to whoever passed it — which is why buttons receive an <code>onSave</code> function instead of changing anything themselves. </li><li><strong>Data flows down.</strong> Parent to child, one direction. A child talks back by calling a function its parent gave it. This is the whole reason a React screen is traceable: when a value is wrong, there is exactly one place it can have come from. </li></ul>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">Data goes down, events come back up</span></div><div class="figure-stage"><pre class="ascii-art">            ProjectsPage
+          (owns the list + which row is open)
+                 |                    ^
+      props ----&gt; |                    | onDelete(id)
+                 v                    |
+            ProjectRow  ProjectRow  ProjectRow
+                 |                    ^
+      props ----&gt; |                    | onConfirm()
+                 v                    |
+            DeleteButton
+
+  Every arrow down is data. Every arrow up is a function
+  the parent passed in. There are no other paths.</pre></div></figure>
+<div class="card-grid cols-2"><div class="card"><div class="card-title key-term">Props</div><p>Given by the parent. Read-only. Change them and React cannot know who is responsible for the value.</p></div><div class="card"><div class="card-title key-term">State</div><p>Owned by this component. Changing it is what causes a redraw.</p></div><div class="card"><div class="card-title key-term">Handler prop</div><p>A function passed down so a child can ask the parent to change something.</p></div><div class="card"><div class="card-title key-term">Children</div><p>Whatever was written between the tags. How wrappers stay ignorant of what they wrap.</p></div></div>
+<p><code>children</code> is the one prop with special syntax: whatever you put between the opening and closing tags arrives as <code>props.children</code>. It is how wrappers — cards, dialogs, layouts — are written. </p>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>children: a wrapper that does not care what it wraps</div><pre><code>function Card({ title, children }) {
+  return (
+    &lt;div className="s-card p-4"&gt;
+      &lt;h3&gt;{title}&lt;/h3&gt;
+      {children}
+    &lt;/div&gt;
+  );
+}
+
+&lt;Card title="Billing"&gt;
+  &lt;p&gt;Anything at all goes here.&lt;/p&gt;
+&lt;/Card&gt;</code></pre></div>
+
+<details class="selfcheck"><summary><span class="sc-q">A child component receives <code>count</code> as a prop and wants to increase it. Why can it not just do <code>count = count + 1</code>?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because the child does not own that value — the parent does. Changing it in the child would change a copy, so the parent, and every other component reading the same value, would carry on showing the old one. The screen and the data would disagree, which is exactly what React exists to prevent. </p>
+<p> The fix is for the parent to pass down a function as well: the child calls <code>onIncrement()</code>, and the parent — which owns the value — does the changing. Data flows down, events flow up. </p></div></details>
+</div>
+<nav class="page-nav">
+<a class="pn-prev" href="components.html">
+  <span class="pn-dir">&larr; Previous</span>
+  <span class="pn-title">Components &amp; JSX</span>
+  
+</a>
+<a class="pn-next" href="state.html">
+  <span class="pn-dir">Next &rarr;</span>
+  <span class="pn-title">State: data that changes</span>
+  
+</a>
+</nav>
+<nav class="siblings" aria-label="Other topics in this note">
+  <div class="sib-head">More in <a href="index.html">React</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What React is</a><a class="sib" href="components.html"><span class="sib-n">02</span>Components &amp; JSX</a><a class="sib is-current" href="props.html"><span class="sib-n">03</span>Props: data passed in</a><a class="sib" href="state.html"><span class="sib-n">04</span>State: data that changes</a><a class="sib" href="lists.html"><span class="sib-n">05</span>Lists &amp; keys</a><a class="sib" href="forms.html"><span class="sib-n">06</span>Events &amp; forms</a><a class="sib" href="effects.html"><span class="sib-n">07</span>Effects: talking to the outside world</a><a class="sib" href="hooks.html"><span class="sib-n">08</span>The other hooks worth knowing</a><a class="sib" href="sharing.html"><span class="sib-n">09</span>Sharing state between components</a><a class="sib" href="mistakes.html"><span class="sib-n">10</span>The mistakes everybody makes</a><a class="sib" href="here.html"><span class="sib-n">11</span>React in this product</a></div>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../../assets/js/site-data.js"></script>
+<script src="../../assets/js/app.js"></script>
+</body>
+</html>

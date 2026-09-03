@@ -1,0 +1,236 @@
+<section class="note-section" data-tagline="A normal service fails loudly and stays failed. An AI system fails quietly, intermittently, and keeps returning 200 OK the whole time.">
+<h2 id="different">Why this is not normal ops</h2>
+<p> You already know how to run a service: watch the error rate, watch latency, page someone when a graph goes the wrong way. All of that still applies. The problem is that it is no longer sufficient, because an AI system has a failure mode ordinary software does not. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A broken tap either runs or it does not, and you can tell instantly. An AI system is a tap that always runs &mdash; but the water is sometimes slightly the wrong temperature, and nobody complains for three weeks. Every dial on your existing dashboard reads normal the entire time. </div></div>
+<div class="table-wrap"><table><thead><tr><th></th><th>A normal service</th><th>An AI system</th></tr></thead><tbody>
+<tr><td>Failure looks like</td><td>A 500, a stack trace, a timeout</td><td>A 200 with a wrong answer</td></tr>
+<tr><td>Same input, same output?</td><td>Yes</td><td>No &mdash; and that is not a bug</td></tr>
+<tr><td>Degrades because</td><td>You changed the code</td><td>You changed the prompt, or your data drifted, or the provider changed the model under you</td></tr>
+<tr><td>Detected by</td><td>Monitoring</td><td>Evaluation, sampling, and user feedback</td></tr>
+<tr><td>Cost per request</td><td>Effectively fixed</td><td>Varies by a factor of fifty depending on input</td></tr>
+<tr><td>&ldquo;Works on my machine&rdquo;</td><td>Means the code is fine</td><td>Means nothing at all</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>The scariest row is the third one.</strong> Your system can get worse while nobody deploys anything &mdash; because the documents you retrieve went stale, because the kind of question users ask shifted, or because a provider updated a model behind the same name. If your only quality signal is &ldquo;did anyone complain&rdquo;, you will find out months late from a customer. </div></div>
+</section>
+
+<section class="note-section" data-tagline="One log line per model call, with the twelve fields that let you answer any question later. Get this right and most of the rest of the note becomes easy.">
+<h2 id="logging">What to log on every call</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> This is the highest-value habit in the note, because it is the one thing you cannot add retrospectively. Every question you will later want to answer — why was this answer wrong, what does this feature cost, when did quality drop — is only answerable if the data was written down at the time. </div></div>
+<p> This is the highest-value thing in the note. Everything downstream &mdash; debugging, cost analysis, evaluation, incident response &mdash; is possible only if the data was captured at the time. You cannot go back and add it. </p>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>One structured line per model call</div><pre><code>log.info('llm.call', {
+  // Who and what — so you can group by anything later.
+  trace_id:   'req_8f3a...',    // ties every step of ONE request together
+  user_id:    hash(userId),     // hashed: enough to group, not to identify
+  feature:    'support_reply',  // WHICH feature — the field people forget
+  env:        'production',
+
+  // The exact configuration. Without these, a regression is unattributable.
+  model:      'claude-sonnet-5',
+  prompt_ver: 'support_reply@v7',
+  temperature: 0.2,
+
+  // The numbers.
+  tokens_in:  1840,
+  tokens_out: 260,
+  latency_ms: 2310,
+  cached:     false,
+
+  // The outcome.
+  status:     'ok',             // ok | invalid_shape | refused | error | timeout
+  finish:     'stop',           // stop | length | tool_use
+
+  // For RAG: which passages were used. This is what separates a
+  // retrieval failure from a generation failure, and it is the single
+  // most useful field in the whole line.
+  chunk_ids:  ['doc_41#p3', 'doc_88#p1'],
+
+  // Tool calls, if any.
+  tools:      [{ name: 'lookup_order', ms: 120, ok: true }],
+});</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong><code>prompt_ver</code> and <code>feature</code> are the two fields teams add late and wish they had added first.</strong> Without <code>feature</code>, your token spend is one undifferentiated number. Without <code>prompt_ver</code>, you cannot say &ldquo;quality dropped when we shipped v7&rdquo; &mdash; you can only say it dropped. </div></div>
+<h3>What about the prompt and the answer themselves?</h3>
+<p> They are enormously useful for debugging and are also the most sensitive thing you handle. Decide deliberately rather than by default: </p>
+<div class="table-wrap"><table><thead><tr><th>Approach</th><th>When it fits</th></tr></thead><tbody>
+<tr><td>Log both in full</td><td>Internal tools, no personal data, short retention. Easiest to debug.</td></tr>
+<tr><td>Log a hash and the length</td><td>You can tell whether two calls were identical and spot truncation, without storing content.</td></tr>
+<tr><td>Log a redacted version</td><td>Run PII detection first, replace what it finds. Costs latency; catches most but not all.</td></tr>
+<tr><td>Sample &mdash; store 1% in full</td><td>The pragmatic answer for most production systems: enough examples to debug, a fraction of the exposure.</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Whatever you choose, write it in the privacy policy and set a retention period that something actually enforces.</strong> &ldquo;We log prompts for debugging&rdquo; with no expiry means you have an indefinite archive of whatever your users typed, which is a liability that grows on its own. See the Governance note. </div></div>
+</section>
+
+<section class="note-section" data-tagline="One request touches six things. A trace is what lets you see all six on one screen instead of grepping six log streams.">
+<h2 id="tracing">Tracing a request through the whole chain</h2>
+<p> A single user question might embed a query, search a vector index, rerank, call a model, call two tools, and call the model again. When it takes eleven seconds, a log line per step in six different places will not tell you why. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A parcel tracking page. You do not want six separate emails from six depots &mdash; you want one page showing the whole journey, where it waited, and for how long. A trace is that page for one request, and each stop is a <em>span</em>. </div></div>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">One trace. The problem is visible in about two seconds.</span></div><div class="figure-stage"><pre class="ascii-art">  trace req_8f3a                                    total 11.2s
+  |
+  +-- http.request                             [===============] 11.2s
+      |
+      +-- auth.check                           [=]               0.02s
+      +-- embed.query                          [=]               0.09s
+      +-- vector.search       (20 results)     [==]              0.21s
+      +-- rerank              (20 -> 5)        [============]    6.80s   <-- HERE
+      +-- prompt.build                         [=]               0.01s
+      +-- llm.call            (sonnet, 2.1k)   [=====]           3.90s
+      +-- validate                             [=]               0.03s
+
+  Not the model. The reranker, and it is not even close.</pre></div></figure>
+<p> Without the trace, the obvious move is to switch to a faster model &mdash; a change that would have saved perhaps a second and a half and cost you quality. With it, the answer is a reranker on a warm instance, or fewer candidates. </p>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>Spans, using OpenTelemetry conventions</div><pre><code>// A trace id is created at the edge and passed down through everything.
+// It is the join key for your entire system.
+await tracer.startActiveSpan('rag.answer', async (span) =&gt; {
+  span.setAttribute('feature', 'support_reply');
+
+  const hits = await tracer.startActiveSpan('vector.search', async (s) =&gt; {
+    const r = await index.search(vec, { k: 20, filter: { org: orgId } });
+    s.setAttribute('result_count', r.length);
+    return r;
+  });
+
+  const answer = await tracer.startActiveSpan('llm.call', async (s) =&gt; {
+    const r = await complete({ prompt, context: hits });
+    s.setAttribute('tokens_in', r.usage.in);
+    s.setAttribute('tokens_out', r.usage.out);
+    return r;
+  });
+
+  span.setAttribute('chunk_ids', hits.map((h) =&gt; h.id).join(','));
+  return answer;
+});</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Use <strong>OpenTelemetry</strong> rather than a vendor's SDK directly. It is the open standard, every observability backend accepts it, and it means the tool you send traces to is a configuration change rather than a rewrite. The same reasoning as putting your model calls behind one wrapper. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Users report the assistant is slow, but your dashboard shows a p50 of 1.8s. What is the most likely explanation?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> You are looking at the median, and half your users are above it. In AI systems the tail is unusually long &mdash; a request that retrieves more, generates more, or takes an extra tool step can be five times the median. Look at p95 and p99. Also check whether &ldquo;latency&rdquo; means time-to-first-token or time-to-complete: with streaming those are very different numbers, and the one users feel is the first. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="A prompt is code that changes behaviour, so it needs a version, a review and a rollback — none of which it gets when it lives in a string literal.">
+<h2 id="prompts">Prompts are code, so version them like code</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A prompt decides what your system does, which makes editing one a behaviour change. It therefore needs what any behaviour change needs: a diff someone reviewed, a version number, a test that ran, and a way back. A prompt living as a string in the middle of a function has none of those. </div></div>
+<p> A prompt determines what your system does. Changing one is a behaviour change. It therefore needs everything a behaviour change needs: a diff, a review, a version, a test, and a way back. </p>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; a string in the middle of a function</div><pre><code>const res = await llm({
+  system: `You are a helpful support agent.
+    Be concise. Never promise a refund.`,
+  ...
+});
+
+// Which version is in production?
+// Who changed it and why?
+// What did it say last Tuesday?
+// How do you put the old one back?</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; a versioned, testable object</div><pre><code>// prompts/support_reply.v7.ts
+export default {
+  id: 'support_reply',
+  version: 7,
+  model: 'claude-sonnet-5',
+  temperature: 0.2,
+  system: readFile('./support_reply.v7.md'),
+  // The eval set that must pass before
+  // this version may ship.
+  evals: './support_reply.cases.jsonl',
+};</code></pre></div>
+</div>
+<h3>The rules that make this work</h3>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">In the repository, not a database</div><p>A prompt in a database can be changed without review, without a diff, and without a deploy &mdash; which sounds like agility and is actually an unreviewable production change. Keep them in git. If non-engineers must edit them, give them a pull request, not a text box wired to production.</p></div>
+  <div class="card"><div class="card-title">The version is logged on every call</div><p>This is what makes a regression attributable. &ldquo;Quality dropped on the 14th&rdquo; plus &ldquo;v7 shipped on the 14th&rdquo; is an answer. Without the version it is a mystery.</p></div>
+  <div class="card"><div class="card-title">The model id is pinned</div><p>Never point at a moving alias in production. Pin the specific dated version, upgrade deliberately, and run your evals against the new one before you switch. A model that changes under you is a change you did not make and cannot roll back.</p></div>
+  <div class="card"><div class="card-title">Evals gate the merge</div><p>A prompt change with no eval run is a guess deployed to users. This is the AI equivalent of merging without running tests, and it should feel equally uncomfortable.</p></div>
+</div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Watch for silent model changes.</strong> If you call <code>gpt-4o</code> or any other unpinned alias, the model behind that name changes over time. Your prompt was tuned against one set of behaviours and is now running against another. Pin the dated identifier, and treat upgrading it as a change that goes through the same gates as a prompt edit. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Why pin an exact dated model version rather than a friendly alias like the latest one?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because an alias moves. The model behind it is updated, your prompt was tuned against the old behaviour, and your system changes without anyone deploying anything — so there is no diff to look at and nothing to roll back to. </p>
+<p> Pin the dated version and treat upgrading it as a change that goes through the same review and the same eval run as a prompt edit. It converts a silent change into a deliberate one. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="Shipping a prompt change to everyone at once is a bet. Four ways to make it a measurement instead.">
+<h2 id="rollout">Rolling out a change without holding your breath</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> You cannot fully test quality before shipping, so the way you ship has to absorb some of that risk. Run the new version alongside the old on real traffic without showing it to anyone; then to a small percentage; then widen. Each step buys evidence that no amount of testing beforehand could give you. </div></div>
+<p> Because you cannot fully test quality in advance, the deployment mechanism has to carry some of the load. </p>
+<div class="table-wrap"><table><thead><tr><th>Technique</th><th>How it works</th><th>Costs you</th></tr></thead><tbody>
+<tr><td><strong>Shadow run</strong></td><td>Run the new version on real traffic in parallel. Log both, show the user the old one.</td><td>Double the tokens. Zero risk. The best first step, and the most underused.</td></tr>
+<tr><td><strong>Canary</strong></td><td>1% of traffic on the new version. Watch the metrics. Widen if they hold.</td><td>Nothing much. This should be the default for prompt changes.</td></tr>
+<tr><td><strong>A/B test</strong></td><td>50/50 split, measure a real outcome &mdash; resolution rate, thumbs up, escalations.</td><td>Time. You need enough traffic for the result to mean anything.</td></tr>
+<tr><td><strong>Kill switch</strong></td><td>A flag that reverts to the previous version, or disables the feature entirely.</td><td>One flag to maintain. Nobody has ever regretted having one.</td></tr>
+</tbody></table></div>
+<figure class="figure is-flow">
+<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Shipping a prompt change</span>{{replay}}</div>
+<div class="figure-stage"><ol class="flow flow-column">
+<li class="flow-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Run the eval set locally</span><span class="flow-detail">Against the cases that already exist. If the score drops, stop here — it cost you nothing.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">Open a pull request</span><span class="flow-detail">The prompt diff is reviewable text. CI runs the evals again and posts the score against the baseline.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Shadow it for a day</span><span class="flow-detail">Real traffic, both versions logged, nobody sees the new one. This catches the inputs your eval set never imagined.</span></div></li>
+<li class="flow-step" data-tone="accent" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">Canary at 5%</span><span class="flow-detail">Watch error rate, latency, cost per request and the feedback signal for a few hours.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:4"><span class="flow-num">5</span><div class="flow-text"><span class="flow-label">Widen, or revert</span><span class="flow-detail">One flag either way. The old version is still deployed and still works.</span></div></li>
+</ol></div>
+</figure>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Shadow running deserves more attention than it gets. It is the only technique here that gives you real-traffic evidence at <em>zero</em> user risk, and the questions real users ask are reliably stranger than the ones in your eval set. A day of shadow traffic regularly finds a failure mode that a hundred hand-written cases missed. </div></div>
+</section>
+
+<section class="note-section" data-tagline="Four numbers on one screen, and the fifth that most dashboards are missing entirely.">
+<h2 id="dashboard">The dashboard, and the alerts</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Four numbers tell you the system is running: volume, latency, failures and cost. None of them would move at all if every answer became subtly wrong tomorrow. That is why a fifth panel — some measure of whether the answers are any good — is the one that separates monitoring an AI system from monitoring a normal one. </div></div>
+<p> Resist the instinct to graph everything. A dashboard with forty panels is a dashboard nobody reads. </p>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">1. Volume, by feature</div><p>Calls per minute, split by feature. Everything else is read relative to this line &mdash; cost is only alarming if volume did not explain it.</p></div>
+  <div class="card"><div class="card-title">2. Latency, p50 and p95</div><p>Both, always. And for anything streamed, time-to-first-token separately from time-to-complete, because they diverge and users feel the first.</p></div>
+  <div class="card"><div class="card-title">3. Failure rate, by kind</div><p>Not one number. Split: provider errors, timeouts, invalid output shape, refusals, guardrail blocks. Each has a completely different cause and fix.</p></div>
+  <div class="card"><div class="card-title">4. Cost per request</div><p>Tokens in and out per call, multiplied out, split by feature. A rising line here with flat volume means your prompts or your context grew.</p></div>
+</div>
+<h3>The fifth panel most dashboards do not have</h3>
+<p> <strong>A quality signal.</strong> The four above tell you the system is <em>running</em>. None of them would move at all if every answer became subtly wrong tomorrow. You need at least one of: </p>
+<div class="table-wrap"><table><thead><tr><th>Signal</th><th>Honesty</th><th>Effort</th></tr></thead><tbody>
+<tr><td>Thumbs up / down</td><td>Low volume, biased towards the angry &mdash; but the trend is real</td><td>An afternoon</td></tr>
+<tr><td>Implicit signals</td><td>Good. Did they copy it, retry, rephrase, escalate to a human, abandon?</td><td>A day, and worth it</td></tr>
+<tr><td>A scheduled eval run</td><td>Best. The same cases every hour against production, scored automatically</td><td>You have already built the eval set &mdash; just run it on a schedule</td></tr>
+<tr><td>Sampled human review</td><td>The ground truth everything else is calibrated against</td><td>An hour a week, and it is the hour that catches what nothing else does</td></tr>
+</tbody></table></div>
+<h3>What is worth waking someone for</h3>
+<div class="table-wrap"><table><thead><tr><th>Page immediately</th><th>Look at it tomorrow</th></tr></thead><tbody>
+<tr><td>Provider error rate above 5% for 5 minutes</td><td>p95 latency up 20%</td></tr>
+<tr><td>The feature is returning nothing at all</td><td>Cost per request up 15%</td></tr>
+<tr><td>Spend rate 3&times; the daily norm</td><td>A slow drift in the eval score</td></tr>
+<tr><td>Guardrail blocks spiking &mdash; someone is probing you</td><td>One user reporting one bad answer</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Alert on cost.</strong> It is the one metric where a bug is silently expensive rather than visibly broken: a retry loop, an accidentally unbounded agent, or a prompt that started including a whole document. Everything else fails in a way somebody notices; this one just arrives as an invoice. </div></div>
+</section>
+
+<section class="note-section" data-tagline="A checklist for the hour when it is broken, and the questions that get you to the layer at fault fastest.">
+<h2 id="incident">When it goes wrong at 3am</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> At 3am the instinct is to start rewriting the prompt, because that feels like the part you control. It is almost never the cause, it cannot be verified quickly, and a prompt changed under pressure with no eval run tends to become tomorrow&rsquo;s incident. Work the list in order instead. </div></div>
+<p> An AI incident is usually one of five things. Working through them in this order finds it quickly, because it goes from cheapest-to-check to hardest. </p>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>The triage order</div><pre><code>1. IS THE PROVIDER UP?
+   Check their status page first, every time. Half of all AI
+   incidents are somebody else's incident. Your fallback should
+   already have engaged — check whether it did.
+
+2. DID WE CHANGE SOMETHING?
+   Deploys, prompt versions, model ids, feature flags, config,
+   in the last 24 hours. Look at prompt_ver in the logs: if the
+   error rate steps up exactly when a version changed, you are done.
+
+3. DID THE INPUT CHANGE?
+   A new customer with unusual documents. A marketing campaign
+   bringing a different kind of question. An integration sending
+   ten times the volume. Nothing broke — the load changed shape.
+
+4. DID THE DATA CHANGE?
+   For RAG: did an indexing job fail, half-complete, or index
+   the wrong version of a document? Look at the chunk_ids on bad
+   answers and read what those chunks actually say. This is where
+   the "confidently wrong about the refund policy" bug lives.
+
+5. IS IT THE MODEL?
+   Last, not first. It is the hardest to verify and the least
+   likely. Compare against a pinned known-good version on the
+   same inputs before concluding anything.</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>The order is deliberate.</strong> The instinct at 3am is to start rewriting the prompt, because that is the part you feel you control. It is almost never the cause, it cannot be tested quickly, and a prompt change made under pressure with no eval run tends to become tomorrow's incident. </div></div>
+<h3>What to have ready before you need it</h3>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">A kill switch per feature</div><p>Turns the AI path off and falls back to whatever the product did before it existed. Tested. Not tested on the night.</p></div>
+  <div class="card"><div class="card-title">A one-command rollback</div><p>To a previous revision <em>and</em> a previous prompt version, independently. They break independently, so they must revert independently.</p></div>
+  <div class="card"><div class="card-title">A saved query for bad answers</div><p>&ldquo;Show me the last fifty calls for this feature with their chunk ids and outputs.&rdquo; Writing that query while the incident is live wastes twenty minutes.</p></div>
+  <div class="card"><div class="card-title">A written fallback decision</div><p>What the product does when the model is unavailable, agreed with someone outside engineering. Decided in a meeting, not by whoever is on call.</p></div>
+</div>
+<div class="callout is-note is-practice"><span class="callout-icon">&#9998;</span><div class="callout-body"><div class="callout-title">Try this</div> Run the drill. Turn the kill switch on in staging and watch what the user actually sees. Then roll a prompt version back and time it. Both should take under a minute and neither should require reading documentation. If either surprises you, you have found the work that is worth doing this week rather than at 3am. </div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>AI systems fail with a 200 OK. Your existing monitoring will not notice.</li><li>One structured log line per call, and <code>feature</code>, <code>prompt_ver</code> and <code>chunk_ids</code> are the three fields you will wish you had.</li><li>Trace the whole chain. The slow part is usually not the model.</li><li>Prompts are code: versioned, reviewed, pinned models, evals gating the merge.</li><li>Shadow, then canary, then widen. Keep a kill switch.</li><li>Four operational panels plus one quality signal, and alert on cost.</li><li>Triage in order: provider, our change, input, data, model. The model is last.</li></ul></div>
+<details class="selfcheck"><summary><span class="sc-q">The assistant started giving wrong answers this morning. Nobody deployed anything. Where do you look?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> At the data and at the inputs, not at the model. For a retrieval system: did an indexing job fail or half-complete, and are the passages being retrieved actually the current ones? Read what those chunks say — it is very often a superseded document that never got removed. </p>
+<p> The other common answer is that the traffic changed shape rather than the system: a new customer, a campaign, an integration sending a kind of question you never had before. Nothing broke; the load is different. </p></div></details>
+</section>

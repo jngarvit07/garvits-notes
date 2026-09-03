@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shipping it: the unglamorous half — AI, RAG &amp; Security — Garvit's Notes</title>
+<meta name="description" content="In plain English The demo is perhaps a fifth of the work.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){var d=document.documentElement;
+try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
+if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');
+var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data-size',z);}catch(e){}
+try{if(localStorage.getItem('gn-auth')!=='v11xb7'){
+var depth=('../../'.match(/\.\.\//g)||[]).length;
+var parts=location.pathname.split('/').filter(Boolean).slice(-(depth+1));
+location.replace('../../login.html?next='+encodeURIComponent(parts.join('/')));}}catch(e){}
+})();</script>
+<link rel="stylesheet" href="../../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../../" data-note="ai" data-topic="production">
+<header class="site-header">
+  <button class="icon-btn nav-only" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <button class="icon-btn rail-only" id="rail-toggle" type="button" aria-label="Hide the sidebar" aria-pressed="false" title="Hide the sidebar  ⌘\"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg></button>
+  <a class="brand" href="../../index.html"><span class="brand-mark">GN</span><span class="brand-text">Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search every topic&hellip;" autocomplete="off" aria-label="Search notes">
+    <kbd class="search-kbd">/</kbd>
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <div class="size-wrap">
+    <button class="icon-btn" id="size-toggle" type="button" aria-label="Reading size"
+            aria-haspopup="menu" aria-expanded="false" title="Reading size"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 7.5 6l4.5 11"/><path d="M4.6 13.6h5.8"/><path d="M14 17l3.4-8 3.4 8"/><path d="M15.2 14.4h4.4"/></svg></button>
+    <div class="size-menu" id="size-menu" role="menu" hidden>
+      <div class="size-menu-head">Reading size</div>
+      <button type="button" role="menuitemradio" data-size="sm"><span>Small</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="md"><span>Medium</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="lg"><span>Large</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+    </div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <button class="icon-btn head-only" data-sign-out type="button" aria-label="Sign out" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg></button>
+  <div class="read-progress" id="read-progress"><span></span></div>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="All notes">
+    <div class="tree" id="tree"></div>
+    <div class="side-foot">
+      <button class="side-out" data-sign-out type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg><span>Sign out</span></button>
+    </div>
+  </nav>
+  <main class="main" id="main"><article class="content">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/ai/index.html">AI, RAG &amp; Security</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Shipping it: the unglamorous half</span></nav>
+<header class="topic-head reveal">
+  <span class="eyebrow">Note 07 &middot; AI, RAG &amp; Security &middot; Topic 18 of 24</span>
+  <h1>Shipping it: the unglamorous half</h1>
+  <div class="page-meta">
+    <span>2 min read</span>
+    <span>No experience needed</span>
+  </div>
+</header>
+<div class="topic-body">
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The demo is perhaps a fifth of the work. The rest is what happens when the provider is down, when the output is not the shape you asked for, when someone pastes in something hostile, when it is slow, and when you need to explain last Tuesday&rsquo;s answer to a customer. This is the part that decides whether a good demo becomes a good product. </div></div>
+<p> A demo is a prompt that worked once. A feature is a prompt that works ten thousand times, fails politely, costs what you predicted, and can be changed without breaking. The difference is almost entirely engineering you already know how to do. </p>
+<ol><li><strong>Stream long answers.</strong> A model writing a page of text takes many seconds. Streaming shows the first words immediately and — just as importantly — avoids request timeouts on long generations. </li><li><strong>Set timeouts and retry deliberately.</strong> Retry rate limits and server errors with exponential backoff; never retry a refusal or a malformed-request error, which will fail identically forever. </li><li><strong>Demand structure when code reads the answer.</strong> Ask for a schema and validate the result before use. A parse failure is a normal event to handle, not an exception to crash on. </li><li><strong>Cache aggressively.</strong> The stable prefix, at the provider. And your own answers: identical questions are common, and the cheapest call is the one you do not make. </li><li><strong>Batch what nobody is waiting for.</strong> Overnight classification of a backlog belongs on the batch endpoint, typically at around half price. </li><li><strong>Move it off the request path.</strong> Anything slow becomes a job with a status, exactly like publishing in this product. A user watching a spinner for forty seconds is a design failure, not a model limitation. </li><li><strong>Degrade gracefully.</strong> The provider will have an incident. Decide now what the feature does then: a cached answer, a smaller model, or an honest message. Never a spinner that never resolves. </li></ol>
+<div class="code-block"><div class="code-head"><span class="lang">prisma</span>Streaming, with a schema on the way out</div><pre><code>const stream = client.messages.stream({
+  model: 'claude-opus-5',
+  max_tokens: 8000,
+  messages: [{ role: 'user', content: question }],
+});
+
+stream.on('text', (chunk) =&gt; res.write(chunk));   // straight to the browser
+const final = await stream.finalMessage();        // the whole thing, when it is done
+
+// If your code is the reader, validate before you trust it:
+const parsed = ResultSchema.safeParse(JSON.parse(text));
+if (!parsed.success) {
+  // A normal outcome. Retry once, then fall back — do not throw at the user.
+}</code></pre></div>
+<p><strong>Observability, specific to this kind of feature.</strong> Log per call:</p>
+<ul><li>the model and prompt version, so a quality change can be traced to a deploy;</li><li>input and output token counts, which is your cost, per user and per feature;</li><li>latency, and whether the answer was served from a cache;</li><li>the retrieved chunk ids for a RAG answer, which is the only way to debug retrieval;</li><li>refusals, validation failures and tool errors, as first-class metrics rather than log noise.</li></ul>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><strong>Version your prompts like code.</strong> They belong in the repository, in review, with the evaluation set that proves the change. A prompt edited live in a dashboard is an unversioned deployment to production — and the only one nobody can roll back. </div></div>
+</div>
+<nav class="page-nav">
+<a class="pn-prev" href="patterns.html">
+  <span class="pn-dir">&larr; Previous</span>
+  <span class="pn-title">Agent patterns worth knowing by name</span>
+  
+</a>
+<a class="pn-next" href="cost.html">
+  <span class="pn-dir">Next &rarr;</span>
+  <span class="pn-title">Cost and latency, engineered rather than hoped for</span>
+  
+</a>
+</nav>
+<nav class="siblings" aria-label="Other topics in this note">
+  <div class="sib-head">More in <a href="index.html">AI, RAG &amp; Security</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>AI, machine learning and language models</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>The wider AI family</a><a class="sib" href="how.html"><span class="sib-n">03</span>How a model actually works</a><a class="sib" href="training.html"><span class="sib-n">04</span>How a model is made, and why that matters to you</a><a class="sib" href="sampling.html"><span class="sib-n">05</span>Decoding: the settings on the request</a><a class="sib" href="models.html"><span class="sib-n">06</span>Choosing a model</a><a class="sib" href="multimodal.html"><span class="sib-n">07</span>Beyond text: images, documents and voice</a><a class="sib" href="prompting.html"><span class="sib-n">08</span>Prompting that actually works</a><a class="sib" href="context.html"><span class="sib-n">09</span>Context engineering: what the model can see</a><a class="sib" href="limits.html"><span class="sib-n">10</span>What models get wrong, and why</a><a class="sib" href="evaluation.html"><span class="sib-n">11</span>Evaluation: what turns this into engineering</a><a class="sib" href="embeddings.html"><span class="sib-n">12</span>Embeddings and vector search</a><a class="sib" href="rag.html"><span class="sib-n">13</span>RAG, in detail</a><a class="sib" href="choose.html"><span class="sib-n">14</span>RAG, fine-tuning, or just a better prompt</a><a class="sib" href="tuning.html"><span class="sib-n">15</span>Fine-tuning, when it is genuinely the answer</a><a class="sib" href="agents.html"><span class="sib-n">16</span>Tools and agents</a><a class="sib" href="patterns.html"><span class="sib-n">17</span>Agent patterns worth knowing by name</a><a class="sib is-current" href="production.html"><span class="sib-n">18</span>Shipping it: the unglamorous half</a><a class="sib" href="cost.html"><span class="sib-n">19</span>Cost and latency, engineered rather than hoped for</a><a class="sib" href="security.html"><span class="sib-n">20</span>AI security</a><a class="sib" href="ethics.html"><span class="sib-n">21</span>Bias, law and telling people</a><a class="sib" href="cases.html"><span class="sib-n">22</span>Four case studies, with the part that goes wrong</a><a class="sib" href="build.html"><span class="sib-n">23</span>Building it here — a worked design</a><a class="sib" href="glossary.html"><span class="sib-n">24</span>The jargon, decoded</a></div>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../../assets/js/site-data.js"></script>
+<script src="../../assets/js/app.js"></script>
+</body>
+</html>

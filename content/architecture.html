@@ -1,0 +1,261 @@
+<section class="note-section" data-tagline="Architecture is not a diagram. It is the set of decisions that are expensive to reverse — and drawing them is how you find out which ones you have already made by accident.">
+<h2 id="what">What architecture actually means here</h2>
+<p> Architecture is the small set of decisions that are <strong>expensive to change later</strong>. Everything else is just code, and code is cheap to move. The value of drawing a system is not the picture; it is that drawing forces you to name the decisions you have already made without noticing. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> When you build a house, moving a cupboard is easy and moving a load-bearing wall is not. Architecture is the load-bearing walls. Choosing which database, where the boundary between your code and the model sits, what happens when a dependency is down &mdash; those are walls. Which prompt wording you use is a cupboard. Teams get into trouble by arguing about cupboards while walls go up unexamined. </div></div>
+<h3>The test for an architectural decision</h3>
+<p> Ask: <em>if we changed our mind about this in six months, what would it cost?</em> </p>
+<div class="table-wrap"><table><thead><tr><th>Decision</th><th>Cost to reverse</th><th>Architectural?</th></tr></thead><tbody>
+<tr><td>Wording of a prompt</td><td>Minutes</td><td>No</td></tr>
+<tr><td>Which model you call</td><td>Hours &mdash; if you put it behind an interface</td><td>Only if you did not</td></tr>
+<tr><td>Whether retrieval happens before or inside the model call</td><td>Days</td><td>Yes</td></tr>
+<tr><td>Whether the system stores conversation history at all</td><td>Weeks, plus a legal conversation</td><td>Yes</td></tr>
+<tr><td>Whether the model can take actions with real effects</td><td>Everything downstream of it</td><td>Yes &mdash; the biggest one</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Notice the second row. &ldquo;Which model&rdquo; feels like the most important choice and is usually the least architectural, <em>provided</em> you called it through one function of your own. The architecture is the interface; the model behind it is a configuration value. Getting that one right converts your biggest-looking decision into a small one. </div></div>
+</section>
+
+<section class="note-section" data-tagline="Every AI feature has the same five layers whether or not anyone drew them. Naming them tells you where your bugs are coming from.">
+<h2 id="layers">The five layers every AI feature has</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Every AI feature has the same five layers whether or not anyone drew them. Naming them gives you the most useful diagnostic question there is: when something goes wrong, which layer was it? Teams that cannot answer that end up rewriting prompts to fix retrieval problems. </div></div>
+<p> Every AI system, from a weekend prototype to a product with a compliance team, has the same five layers. You do not choose whether to have them; you only choose whether they are deliberate. </p>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">The five layers, and what belongs in each</span></div><div class="figure-stage"><pre class="ascii-art">  +---------------------------------------------------+
+  |  1. INTERFACE      what the person types and sees  |
+  |     chat box, a button, an API endpoint, a cron    |
+  +---------------------------------------------------+
+                          |
+  +---------------------------------------------------+
+  |  2. ORCHESTRATION  the code that decides the shape |
+  |     one call? a chain? a loop? which tools?        |
+  +---------------------------------------------------+
+                    |            |
+      +-------------+            +-------------+
+      |                                        |
+  +---------------------------+   +---------------------------+
+  |  3. CONTEXT               |   |  4. CAPABILITY            |
+  |  what the model can READ  |   |  what the model can DO    |
+  |  retrieval, history,      |   |  tools, functions,        |
+  |  system prompt, files     |   |  API calls, writes        |
+  +---------------------------+   +---------------------------+
+                    |            |
+                    +-----+------+
+                          |
+  +---------------------------------------------------+
+  |  5. MODEL          the call itself                 |
+  |     provider, model id, decoding settings          |
+  +---------------------------------------------------+
+
+  running alongside all five:
+  observability  .  evaluation  .  guardrails  .  cost</pre></div></figure>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">Layer 3 is where quality lives</div><p>Almost every &ldquo;the AI gave a bad answer&rdquo; bug is a context bug: the right passage was not retrieved, the history was truncated, the system prompt did not mention a rule. Fix context before you touch the prompt wording.</p></div>
+  <div class="card"><div class="card-title">Layer 4 is where risk lives</div><p>A model that can only read is a quality problem when it is wrong. A model that can write, send, pay or delete is an incident. Every capability you add multiplies the consequence of every context bug.</p></div>
+</div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>The single most useful diagnostic question:</strong> when something goes wrong, which layer was it? Teams that cannot answer this end up rewriting prompts to fix retrieval bugs, and swapping models to fix orchestration bugs. Logging enough to answer it &mdash; see the AI Ops note &mdash; is worth more than any framework. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">A support bot confidently states a refund policy that was changed last month. Which layer failed?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Layer 3, context &mdash; almost certainly. Either the retrieval index still holds the old policy document, or it holds both and the old one ranked higher. Neither the model nor the prompt is at fault, and changing either would be a plausible-looking action that fixes nothing. The repair is in the indexing pipeline: how documents get in, and how superseded ones get out. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="Four shapes that cover most AI products, from the one you should start with to the one you should be talked out of.">
+<h2 id="reference">Four reference architectures</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Four shapes cover nearly every AI product there is. Recognising which one you are building — and which one you are being talked into — turns a long design argument into a short one, because the question stops being &ldquo;how should we build this&rdquo; and becomes &ldquo;which of these four, and why not the simpler one&rdquo;. </div></div>
+<p> Nearly every AI product is one of four shapes, or a composition of them. Knowing the four by name shortens most design conversations to &ldquo;which of these, and why&rdquo;. </p>
+<h3>A &mdash; The single call</h3>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>Shape A</div><pre><code>request -&gt; build prompt -&gt; model -&gt; validate -&gt; response</code></pre></div>
+<p> Summarise this. Classify that. Rewrite this in a friendlier tone. No retrieval, no tools, no memory. <strong>Start here always.</strong> A surprising share of shipped AI features never need to leave this shape, and every shape below is harder to debug, slower and more expensive. </p>
+<h3>B &mdash; Retrieval augmented (RAG)</h3>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>Shape B</div><pre><code>request -&gt; embed query -&gt; search index -&gt; top passages
+        -&gt; build prompt WITH passages -&gt; model -&gt; validate
+        -&gt; response + citations
+
+  offline, on a schedule:
+  documents -&gt; chunk -&gt; embed -&gt; index</code></pre></div>
+<p> The answer depends on knowledge the model was never trained on: your documentation, your policies, this customer's history. Note the second half &mdash; the offline indexing pipeline is a real system with its own failures, and it is the half people forget to design. </p>
+<h3>C &mdash; The workflow (a fixed chain)</h3>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>Shape C</div><pre><code>request -&gt; classify -+-&gt; [billing prompt]  -&gt; model -&gt; response
+                     +-&gt; [technical]       -&gt; model + docs search
+                     +-&gt; [everything else] -&gt; hand to a human
+
+  YOU decide the path. The model fills in the steps.</code></pre></div>
+<p> Several model calls, but <em>you</em> wrote the control flow. Predictable cost, predictable latency, and every branch is testable. Most problems people describe as &ldquo;we need an agent&rdquo; are this shape. </p>
+<h3>D &mdash; The agent (a loop)</h3>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>Shape D</div><pre><code>request -&gt; +--------------------------------------+
+           |  model decides: answer, or use a tool |
+           |         |                     |       |
+           |     answer                 tool call  |
+           |         |                     |       |
+           |         |              run it, feed   |
+           |         |              result back  --+
+           +---------|----------------------------+
+                     v
+                  response
+
+  THE MODEL decides the path. You set the limits.</code></pre></div>
+<p> Use this only when the sequence of steps genuinely cannot be known in advance. It buys real capability and costs you predictability: unbounded loops, unbounded cost, and a much larger blast radius. The Agents note covers the leash in detail. </p>
+<div class="table-wrap"><table><thead><tr><th></th><th>A &mdash; Single call</th><th>B &mdash; RAG</th><th>C &mdash; Workflow</th><th>D &mdash; Agent</th></tr></thead><tbody>
+<tr><td>Cost per request</td><td>Known</td><td>Known</td><td>Known</td><td>Unbounded until you bound it</td></tr>
+<tr><td>Latency</td><td>One call</td><td>One call + a search</td><td>Predictable</td><td>Unpredictable</td></tr>
+<tr><td>Debuggable</td><td>Trivially</td><td>Two things to check</td><td>Per branch</td><td>Needs full tracing</td></tr>
+<tr><td>Failure modes</td><td>Wrong answer</td><td>Wrong passage, wrong answer</td><td>Wrong branch</td><td>Wrong plan, loops, wrong actions</td></tr>
+<tr><td>Reach for it when</td><td>Always first</td><td>Answers need your data</td><td>You know the steps</td><td>You genuinely cannot know the steps</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Climb this ladder one rung at a time and only when the rung below has visibly failed.</strong> Starting at D because it is the most capable is the most common and most expensive architecture mistake in this field. Every rung adds a category of failure that did not exist below it. </div></div>
+</section>
+
+<section class="note-section" data-tagline="Six places where a decision has to be made, what each choice buys, and what it costs you when you are wrong.">
+<h2 id="boundaries">The six boundaries, and the trade at each</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A boundary is a place where two parts of the system meet and somebody has to decide how. Six of them come up every time. None of these decisions is hard on its own; the trouble is that they get made implicitly, by whoever wrote that bit first, and then become expensive to revisit. </div></div>
+<p> An architecture is really a set of choices at boundaries. These six cover most of what you will decide. </p>
+<h3>1. Where does the model call live?</h3>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; from the browser</div><pre><code>// Your API key is now public.
+// Anyone can read it in devtools
+// and spend your budget.
+fetch('https://api.provider.com/v1', {
+  headers: { authorization: `Bearer ${KEY}` }
+});</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; through your own server</div><pre><code>// Browser calls YOU. You call the
+// provider. The key never leaves
+// the server, and you get to apply
+// auth, rate limits and logging.
+fetch('/api/assistant', {
+  method: 'POST', body: JSON.stringify(input)
+});</code></pre></div>
+</div>
+<p> There is no version of the left-hand side that is acceptable in production. Everything else on this page is a genuine trade-off; this one is not. </p>
+<h3>2. Streaming, or wait for the whole answer?</h3>
+<p> Streaming makes a ten-second answer feel like a one-second answer, which is a large perceived-quality win. It costs you the ability to validate before the user sees anything: once the first token is on screen you cannot unsend it. <strong>Stream prose to a human; do not stream a result another system will parse.</strong> </p>
+<h3>3. Synchronous or queued?</h3>
+<div class="table-wrap"><table><thead><tr><th></th><th>Synchronous</th><th>Queued</th></tr></thead><tbody>
+<tr><td>User experience</td><td>Answer arrives in the request</td><td>&ldquo;We'll email you&rdquo; / poll for it</td></tr>
+<tr><td>Holds a connection</td><td>Yes &mdash; for the whole call</td><td>No</td></tr>
+<tr><td>Retries</td><td>Awkward; the user is waiting</td><td>Natural &mdash; the job is retried</td></tr>
+<tr><td>Right for</td><td>Chat, autocomplete, anything under ~30s</td><td>Batch, long agent runs, document processing</td></tr>
+</tbody></table></div>
+<h3>4. What is the unit of caching?</h3>
+<p> The cheapest model call is the one you do not make. Three levels, cheapest first: an exact-match cache on identical inputs; a semantic cache on <em>similar</em> inputs (fast, and occasionally wrong in ways that are hard to spot); and prompt caching offered by the provider, which reuses the expensive shared prefix of a long system prompt. The first and third are safe. The second needs a threshold you have actually tested. </p>
+<h3>5. Where is the guardrail?</h3>
+<p> Input filtering, output filtering, or both. Output filtering is the one that matters, because it is the last thing between a wrong answer and a user. It also costs latency, and a filter that runs on a stream is a design problem of its own. </p>
+<h3>6. What does the model touch directly?</h3>
+<p> This is the load-bearing wall. Give the model tools that are <em>narrow and specific</em> &mdash; <code>refund_order(order_id, reason)</code> &mdash; rather than broad and general &mdash; <code>run_sql(query)</code>. The narrow tool can be permission-checked, rate-limited, logged and reasoned about. The broad one is a bypass of every control you have. </p>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> A rule that ages well: <strong>anything irreversible gets a human in the loop, and the human sees what will happen before it happens.</strong> Not &ldquo;are you sure?&rdquo; &mdash; the actual diff, the actual amount, the actual recipient. Confirmation dialogues that do not show consequences get clicked through. </div></div>
+</section>
+
+<section class="note-section" data-tagline="The four diagrams worth drawing, what each one is for, and the one thing that makes a diagram useful rather than decorative.">
+<h2 id="diagrams">Drawing it so people agree</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A diagram is not documentation, it is an argument. Its job is to make people disagree with you early, while disagreeing is still cheap. A diagram everyone nods along to has usually failed — it means nobody found the thing they actually disagree about. </div></div>
+<p> The point of a diagram is to make disagreement visible early, while it is still cheap. A diagram everyone nods at has usually failed, because agreement that easy means nobody found the thing they disagree about. </p>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">1. Context diagram</div><p>Your system as one box in the middle. Around it: every human and every other system that talks to it, with an arrow each. Nothing about the inside. Takes ten minutes and settles most scope arguments.</p></div>
+  <div class="card"><div class="card-title">2. Container diagram</div><p>Open the box. The deployable pieces &mdash; web app, API, worker, database, vector index, model provider &mdash; and the protocol on each arrow. This is the one an engineer joining next week actually needs.</p></div>
+  <div class="card"><div class="card-title">3. Sequence diagram</div><p>One request, top to bottom, across every component it touches. This is where latency and failure become obvious, because both are visible as the length and the number of the hops.</p></div>
+  <div class="card"><div class="card-title">4. Data flow diagram</div><p>Follow the <em>data</em>, not the request: where it enters, where it is copied, where it rests, where it leaves. This is the diagram a privacy or security review asks for, and the one that catches &ldquo;wait, we send that to a third party?&rdquo;</p></div>
+</div>
+<h3>What makes a diagram useful</h3>
+<p> One thing: <strong>label the arrows</strong>. A box diagram with unlabelled arrows tells you almost nothing. The same diagram with <em>what</em> travels on each arrow, over <em>which</em> protocol, and what happens when it fails, is a design document. </p>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>An arrow, labelled properly</div><pre><code>  weak:     [ API ] ------------&gt; [ Model provider ]
+
+  useful:   [ API ] ------------&gt; [ Model provider ]
+                   HTTPS, ~2-8s
+                   sends: system prompt + retrieved passages
+                          + last 6 turns (PII redacted)
+                   on failure: retry x2 with backoff,
+                          then a cached generic reply</code></pre></div>
+<div class="callout is-note is-practice"><span class="callout-icon">&#9998;</span><div class="callout-body"><div class="callout-title">Try this</div> Draw the container diagram for something you have already built, then label every arrow with what fails when the thing on the right is down. You will find at least one arrow with no answer. That arrow is your next piece of work, and you found it with a pen instead of an outage. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">What is the single change that most improves a box-and-arrow diagram?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Labelling the arrows. Boxes are the easy part and rarely where the disagreement lives. Write on each arrow what travels along it, over what protocol, roughly how long it takes, and what happens when the far end is down. </p>
+<p> You usually find at least one arrow whose failure behaviour nobody has decided. That arrow is your next piece of work, and a pen found it instead of an outage. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="What happens when the model provider is slow, wrong, down, or expensive — designed once, rather than discovered at 3am.">
+<h2 id="failure">Designing for the failure you will actually have</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A model provider is a third party with variable latency and a real error rate. Every ordinary dependency lesson applies — timeouts, retries, fallbacks — plus two failures ordinary dependencies do not have: an answer that is confidently wrong, and an answer that is not in the shape you asked for. Both need designing for, not hoping about. </div></div>
+<p> A model provider is a third-party dependency with variable latency and a non-zero error rate. Treat it exactly like any other one, plus two failure modes normal dependencies do not have. </p>
+<div class="table-wrap"><table><thead><tr><th>Failure</th><th>What the user sees if you did nothing</th><th>The design that handles it</th></tr></thead><tbody>
+<tr><td>Provider is down</td><td>A spinner, then a 500</td><td>Timeout, then a fallback: a second provider, a smaller model, or an honest &ldquo;this is unavailable&rdquo; with the non-AI path still working.</td></tr>
+<tr><td>Rate limited</td><td>Random failures under load</td><td>A queue with backoff. Never retry immediately in a tight loop &mdash; that is how a small limit becomes an outage.</td></tr>
+<tr><td>Very slow response</td><td>A hung request holding a connection</td><td>A hard timeout below your own request timeout, and a streaming interface so slow still feels alive.</td></tr>
+<tr><td>Confidently wrong answer</td><td>The user believes it</td><td>Citations, a visible confidence signal, and a design where being wrong is recoverable. This one has no technical fix.</td></tr>
+<tr><td>Output is not the shape you asked for</td><td>A parse error, or worse, a silent one</td><td>Validate against a schema; on failure, retry once with the error text, then fall back. Never <code>JSON.parse</code> a model's output unguarded.</td></tr>
+</tbody></table></div>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>The wrapper every AI system should have exactly one of</div><pre><code>// One function. Every model call in the codebase goes through it.
+// This is what turns "which provider" from a wall into a cupboard.
+export async function complete(input: Input): Promise&lt;Result&gt; {
+  const started = Date.now();
+  try {
+    const raw = await withTimeout(provider.call(input), 20_000);
+
+    // Never trust the shape. Validate before anything downstream sees it.
+    const parsed = ResultSchema.safeParse(raw);
+    if (!parsed.success) {
+      metrics.count('llm.invalid_shape');
+      return await retryOnce(input, parsed.error);
+    }
+
+    log({ ...trace(input), ms: Date.now() - started, ok: true });
+    return parsed.data;
+
+  } catch (err) {
+    log({ ...trace(input), ms: Date.now() - started, ok: false, err });
+    metrics.count('llm.failed');
+    return fallback(input);        // degraded, not broken
+  }
+}</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>&ldquo;Degraded, not broken&rdquo; is a product decision, not an engineering one.</strong> Decide in advance what your feature does when the model is unavailable, and make sure someone outside engineering agrees with the answer. A search box that falls back to keyword search is fine. A checkout that silently skips fraud checking is not. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Why validate the model's output shape even when you asked for JSON and the provider supports a structured-output mode?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because the schema guarantees the <em>shape</em>, never the <em>content</em>. You can get valid JSON with an <code>order_id</code> that does not exist, a refund amount larger than the order, or a date in the wrong century. Structured output removes parse errors; it does not remove wrong answers. The validation you need is the business-rule kind, on top of the schema kind. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="An architecture you could hand to somebody on Monday: every layer named, every boundary decided, and the reason written next to each one.">
+<h2 id="worked">A worked architecture, end to end</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> One system designed all the way down, with the reasoning next to each decision and an explicit list of what is deliberately left out. The omissions are the more useful half — knowing what you are <em>not</em> building, and why, is what keeps a first version shippable. </div></div>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">&ldquo;Ask a question about your own documents&rdquo; &mdash; the full design</span></div><div class="example-body">
+<p> A team uploads their documents and asks questions about them in natural language. Answers must cite their sources. This is the most common AI product shape there is, and it is worth designing all the way down once. </p>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">Two pipelines: one runs when a document arrives, one when a question is asked</span></div><div class="figure-stage"><pre class="ascii-art">  INGEST  (offline, on upload)
+  ----------------------------------------------------------
+  upload -&gt; object storage -&gt; queue -&gt; worker
+                                        |
+              +-------------------------+
+              |  extract text (pdf, docx, html)
+              |  split into ~800-token chunks, 100 overlap
+              |  keep: doc id, page, section heading, updated_at
+              |  embed each chunk
+              v
+        vector index  +  a row per chunk in Postgres
+
+
+  ASK  (online, per question)
+  ----------------------------------------------------------
+  question
+     |
+     |-- auth: which documents may THIS user see?  <- not optional
+     |
+     v
+  embed question -&gt; vector search (filtered by permission)
+     |                    |
+     |              top 20 chunks
+     |                    |
+     |              rerank -&gt; top 5
+     v
+  build prompt: system rules + 5 chunks + last 3 turns
+     |
+     v
+  model (streaming)
+     |
+     +--&gt; answer text, streamed to the user
+     +--&gt; citations, rendered as links to the source page
+     |
+     v
+  log: question, chunk ids, model, tokens, latency, feedback</pre></div></figure>
+<h3>Every decision, and why</h3>
+<div class="table-wrap"><table><thead><tr><th>Decision</th><th>Choice</th><th>Why this one</th></tr></thead><tbody>
+<tr><td>Shape</td><td>B, RAG &mdash; not an agent</td><td>The steps are known in advance. There is nothing for a model to plan.</td></tr>
+<tr><td>Chunk size</td><td>~800 tokens, 100 overlap</td><td>Big enough to hold a whole argument, small enough that five fit in context. Overlap stops a sentence being cut in half at a boundary.</td></tr>
+<tr><td>Permission filter</td><td>Applied <em>in the search query</em></td><td>Filtering after retrieval means the forbidden chunk was already in memory and one bug away from the prompt. This is the single most commonly skipped line in RAG systems.</td></tr>
+<tr><td>Rerank</td><td>20 &rarr; 5</td><td>Vector similarity is cheap and approximate; a reranker is expensive and accurate. Use each where it is good.</td></tr>
+<tr><td>Streaming</td><td>Yes, to a human</td><td>Perceived latency. The citations are sent as structured data alongside, not parsed out of the stream.</td></tr>
+<tr><td>History</td><td>Last 3 turns only</td><td>Bounded cost, bounded latency, and it stops an old turn poisoning a new answer.</td></tr>
+<tr><td>Model</td><td>Behind <code>complete()</code></td><td>So the choice stays a configuration value. A cheaper model handles query rewriting; the capable one writes the answer.</td></tr>
+<tr><td>What is logged</td><td>Which chunks were used</td><td>Without this you cannot tell a retrieval failure from a generation failure, which is 80% of debugging this system.</td></tr>
+</tbody></table></div>
+<h3>What is deliberately not in version one</h3>
+<p> No agent loop. No semantic cache. No fine-tuning. No multi-provider fallback. Each of those is a real technique and each is a rung you climb when the rung below has visibly failed &mdash; with an eval set to prove it did. Building all of them up front produces a system nobody can debug, whose quality nobody can measure. </p>
+</div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Architecture is the decisions that are expensive to reverse. Everything else is code.</li><li>Five layers: interface, orchestration, context, capability, model. Quality problems live in context; risk lives in capability.</li><li>Four shapes: single call, RAG, workflow, agent. Climb one rung at a time.</li><li>One wrapper around every model call turns the provider choice into a configuration value.</li><li>Label the arrows. An unlabelled box diagram is decoration.</li><li>Decide what &ldquo;degraded&rdquo; looks like before you need it.</li></ul></div>
+</section>

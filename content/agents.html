@@ -8,6 +8,7 @@
 
 <section class="note-section">
 <h2 id="ladder">The ladder: start at the bottom</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> There is a ladder from &ldquo;ask the model once&rdquo; to &ldquo;let the model decide what to do next, repeatedly&rdquo;. Every rung buys capability and costs predictability. The discipline is to start at the bottom and climb only when the rung you are on has visibly failed at the actual job — not when the one above sounds more impressive. </div></div>
 <p>There are four rungs between &ldquo;one API call&rdquo; and &ldquo;an agent&rdquo;. Each is cheaper, faster and easier to reason about than the one above it. Climb only when the rung you are on genuinely cannot do the job.</p>
 <figure class="figure is-flow"><div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Four rungs &mdash; climb only when forced</span>{{replay}}</div><div class="figure-stage"><ol class="flow flow-column">
 <li class="flow-step dg-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">One call</span><span class="flow-detail">Classify, summarise, extract, rewrite, answer. One request, one response. Testable, cheap, instant. Most production &ldquo;AI features&rdquo; are this and should stay this.</span></div></li>
@@ -27,6 +28,7 @@
 
 <section class="note-section">
 <h2 id="workflows">Five workflow patterns worth knowing by name</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A workflow is a route you drew; an agent is a route the model chooses. Most problems people describe as needing an agent have a sequence of steps that is perfectly well known in advance — which means a workflow will be cheaper, faster, testable per branch, and far easier to debug at 3am. </div></div>
 <p>Rung three covers more ground than people expect. These five shapes solve most of what gets reached for an agent to solve, and every one of them is ordinary code you can unit-test.</p>
 <div class="table-wrap"><table><thead><tr><th>Pattern</th><th>Shape</th><th>Use it when</th></tr></thead><tbody>
 <tr><td><strong>Prompt chaining</strong></td><td>Output of call A becomes input of call B, with a check in between.</td><td>The task decomposes cleanly into fixed steps. Outline &rarr; draft &rarr; polish. Extract &rarr; validate &rarr; store.</td></tr>
@@ -70,6 +72,8 @@ export async function handle(message: string) {
     messages: [{ role: 'user', content: message }],
   });
 }</code></pre></div>
+<details class="selfcheck"><summary><span class="sc-q">&ldquo;Read the support email, decide if it is billing or technical, and reply using the right template.&rdquo; Agent or workflow?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Workflow. You know every step before the email arrives: classify, then branch, then generate. Nothing needs planning, so nothing needs an agent. </p>
+<p> The signal that you genuinely need an agent is different: you cannot write down the steps because they depend on what is discovered partway through — as in &ldquo;find out why this customer was double-charged&rdquo;, where each answer changes what to look at next. </p></div></details>
 </section>
 
 <section class="note-section">
@@ -170,6 +174,7 @@ throw new Error(`Agent did not finish within ${MAX_STEPS} steps`);</code></pre><
 
 <section class="note-section">
 <h2 id="tools">Designing the tool surface</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Tool design is API design for a reader who cannot ask you a question. The name and description are the entire documentation, and they are what the model uses to decide when to reach for it. A vague description produces a tool called at the wrong moment, and no amount of prompt tuning elsewhere fixes that. </div></div>
 <p>The tools you expose <em>are</em> your agent&rsquo;s design. A vague tool set produces a confused agent no prompt can rescue, and the most common cause of a bad agent is not the model &mdash; it is fifteen overlapping tools with descriptions written as an afterthought.</p>
 <h3>Write the description for a competent new colleague</h3>
 <p>The description is not documentation, it is the instruction the model actually follows. It should say what the tool does, when to reach for it, when <em>not</em> to, and what it returns.</p>
@@ -215,6 +220,7 @@ throw new Error(`Agent did not finish within ${MAX_STEPS} steps`);</code></pre><
 
 <section class="note-section">
 <h2 id="context">Context over a long run</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> An agent that runs for twenty steps accumulates twenty steps of history, and there is a hard limit on how much it can hold. So you have to decide what to keep, what to summarise and what to throw away — and doing that badly is why long runs get slower, more expensive and confused as they go. </div></div>
 <p>An agent that runs for forty steps has a problem a single call never has: the transcript grows on every turn, you pay for all of it on every request, and eventually it does not fit. Three different mechanisms address three different versions of that problem, and they are routinely confused.</p>
 <div class="card-grid cols-3">
 <div class="card"><div class="card-title key-term">Context editing</div><p><strong>Prunes.</strong> Clears stale tool results and old thinking blocks out of the transcript. Within one session. Use when the history is full of large results nobody needs any more.</p></div>
@@ -229,6 +235,7 @@ throw new Error(`Agent did not finish within ${MAX_STEPS} steps`);</code></pre><
 
 <section class="note-section">
 <h2 id="structure">A folder structure that survives contact</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Agent code degenerates into one enormous function faster than most code, because everything is genuinely connected to everything. Separating the loop, the tools, the prompts and the limits into their own places is what keeps it possible to change one without breaking the others. </div></div>
 <p>Agent code sprawls faster than ordinary code, because prompts, tool implementations, schemas and evaluation data all want to live somewhere and none of them are obviously &ldquo;source&rdquo;. This layout has one rule behind it: <strong>anything you would want to diff in a review gets its own file.</strong></p>
 <figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">A production agent, laid out</span></div><div class="figure-stage"><pre class="ascii-art">  agent/
   |
@@ -271,6 +278,7 @@ throw new Error(`Agent did not finish within ${MAX_STEPS} steps`);</code></pre><
 
 <section class="note-section">
 <h2 id="control">Keeping it on a leash</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> An agent decides its own steps, which means without limits it can loop forever, spend without bound, or take an action nobody sanctioned. The leash is not one thing: a cap on iterations, a cap on spend, a whitelist of what it may touch, and a human approval on anything irreversible. Every one of them will eventually be the one that saves you. </div></div>
 <p>An agent is a loop with a model in it. Loops need exit conditions, and a model is not one.</p>
 <div class="table-wrap"><table><thead><tr><th>Control</th><th>What it stops</th><th>Sensible default</th></tr></thead><tbody>
 <tr><td><strong>Iteration cap</strong></td><td>A model that keeps calling tools forever, usually because a tool keeps failing in the same way.</td><td>10&ndash;20 steps. If real work needs more, raise it deliberately &mdash; do not remove it.</td></tr>
@@ -280,10 +288,13 @@ throw new Error(`Agent did not finish within ${MAX_STEPS} steps`);</code></pre><
 <tr><td><strong>Effort setting</strong></td><td>Paying for deep reasoning on routine work.</td><td><code>high</code> for the main loop; <code>low</code> for sub-tasks and classification.</td></tr>
 </tbody></table></div>
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>An approval gate that always says yes is not a gate.</strong> If a human is asked to confirm forty times a run, they will click through all forty without reading. Gate the few actions that genuinely matter and let the rest run &mdash; a gate people actually read is worth more than a gate on everything.</p></div></div>
+<details class="selfcheck"><summary><span class="sc-q">Why is a maximum-iterations limit necessary even when your agent has always finished in four steps?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because &ldquo;always&rdquo; is a description of the inputs you have tried. One malformed document, one tool that keeps returning an error the model keeps trying to work around, and the loop has no natural end — it will keep going as long as you let it, spending real money. </p>
+<p> The limit costs you nothing on the normal path and bounds your worst case. That is the best trade available in this whole subject. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="mistakes">Where agents actually go wrong</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Agents fail in ways that are recognisable once you have seen them: looping on a tool that keeps failing, losing the thread across a long run, confidently taking a wrong action, or being handed tools so broad that nothing can constrain them. Each has a specific fix, and none of them is a better prompt. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Symptom</th><th>Usual cause</th><th>Fix</th></tr></thead><tbody>
 <tr><td>It loops on the same tool call.</td><td>The tool returns an error the model cannot act on &mdash; often a bare stack trace or an empty result with no explanation.</td><td>Return errors as sentences: what failed, and what to try instead. Cap iterations regardless.</td></tr>
 <tr><td>It picks the wrong tool.</td><td>Two tools with overlapping descriptions, or a description that says what the tool <em>is</em> rather than when to use it.</td><td>Rewrite the descriptions to say when <em>not</em> to use each. Merge tools that overlap.</td></tr>
@@ -300,6 +311,7 @@ throw new Error(`Agent did not finish within ${MAX_STEPS} steps`);</code></pre><
 
 <section class="note-section">
 <h2 id="here">Building one on this stack</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> What building one on this stack actually looks like — where the loop lives, where the tools live, and what the limits are set to. </div></div>
 <p>Nothing here needs a framework. The pieces map onto what notes 03 and 04 already covered.</p>
 <div class="card-grid cols-2">
 <div class="card"><div class="card-title">The loop belongs on the server</div><p>An agent loop in the browser ships your API key to a stranger. It runs in Express, behind auth, exactly like any other route that touches money.</p></div>

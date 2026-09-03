@@ -7,6 +7,7 @@
 
 <section class="note-section">
 <h2 id="risk">Risk tiers: the idea behind every framework</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Every framework, whatever its name, is built on one idea: obligations should scale with how much harm the system could do. A model suggesting a playlist and a model screening job applications are not owed the same scrutiny. Working out which tier you are in is most of the work, and it usually takes about ten minutes. </div></div>
 <p>Regulations differ in detail and agree on the core move: <strong>obligations scale with potential harm, not with technical sophistication.</strong> A model deciding what music to play and a model deciding who gets a loan are treated very differently, however similar the code.</p>
 <figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">The shape every framework shares</span></div><div class="figure-stage"><pre class="ascii-art">  UNACCEPTABLE     Banned outright.
                    Social scoring, manipulation of vulnerable people,
@@ -35,6 +36,7 @@
 
 <section class="note-section">
 <h2 id="frameworks">The frameworks you will hear named</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> You will hear three names. The <strong>EU AI Act</strong> is law, and it sorts systems by risk tier. <strong>NIST AI RMF</strong> is a voluntary framework in the US describing a sensible process. <strong>GDPR</strong> is not AI-specific but applies the moment you process personal data — which most AI features do. Knowing which one someone means is half of understanding the question. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Framework</th><th>What it is</th><th>Applies when</th></tr></thead><tbody>
 <tr><td><strong>EU AI Act</strong></td><td>Binding law with the risk tiers above. Phased in over several years, with real penalties.</td><td>You place a system on the EU market or its output is used in the EU &mdash; regardless of where you are.</td></tr>
 <tr><td><strong>NIST AI RMF</strong></td><td>A voluntary US framework organised around four functions: Govern, Map, Measure, Manage.</td><td>Useful anywhere as a structure. Often what US customers ask you to align with.</td></tr>
@@ -52,10 +54,13 @@
 <tr><td>Is there a solely automated decision with legal effect?</td><td>If so, people have specific rights &mdash; including meaningful human review. A human who rubber-stamps is not review.</td></tr>
 </tbody></table></div>
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Your logs are the quiet problem.</strong> Teams think hard about the retrieval corpus and then log every prompt and completion to a service with no retention policy, indefinitely. Prompts contain whatever users typed, which is frequently personal and sometimes special-category data. Decide retention deliberately, and redact before writing rather than after.</p></div></div>
+<details class="selfcheck"><summary><span class="sc-q">Your feature summarises support tickets that contain customer names. Which of the three applies?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> GDPR, immediately and regardless of the AI angle — you are processing personal data, so you need a lawful basis, a retention period, and an answer for a deletion request that reaches your logs as well as your database. </p>
+<p> The EU AI Act probably places this in a low-risk tier with light obligations. The instinct to check the AI-specific law first and the data-protection law second is usually the wrong way round. </p></div></details>
 </section>
 
 <section class="note-section">
 <h2 id="practice">What this looks like in a repository</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Governance sounds like a committee and mostly is not. In a repository it is a handful of files: what this feature does and for whom, what data it touches and for how long, what it is not to be used for, and what happens when it is wrong. One page per feature answers most of what anyone will ever ask. </div></div>
 <p>The practical translation. None of this needs a committee, and all of it is the evidence a review will ask for.</p>
 <div class="card-grid cols-2">
 <div class="card"><div class="card-title key-term">A system card</div><p>One page per AI feature: what it does, what it must not do, what data it touches, which model, who owns it, what happens when it fails. Kept in the repository, reviewed like code.</p></div>
@@ -108,6 +113,7 @@ retrieval 94%, grounding 97%, correct refusal 100%.
 
 <section class="note-section">
 <h2 id="bias">Bias, and why it is an engineering problem</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Bias is not a moral failing in the model, it is a measurable property of its outputs — and that framing is what makes it an engineering problem. If the system behaves differently for two groups who should be treated the same, that difference can be tested for, and a test can be run on every release. </div></div>
 <p>A model learns from text people wrote, and reproduces the patterns in it &mdash; including the ones nobody wanted. This is not fixed by intent, and it is not detected by reading the code.</p>
 <div class="table-wrap"><table><thead><tr><th>Where it enters</th><th>What to do about it</th></tr></thead><tbody>
 <tr><td>Training data reflects historical patterns.</td><td>You cannot change this. You can decide not to use a model for decisions where it matters, or measure the disparity and act.</td></tr>
