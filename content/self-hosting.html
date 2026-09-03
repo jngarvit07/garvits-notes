@@ -1,0 +1,149 @@
+<section class="note-section" data-tagline="Four reasons that justify running your own model, and the one reason that does not survive the arithmetic.">
+<h2 id="why">When to run a model yourself</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Calling an API is renting. Running your own model is buying a machine and operating it. Renting is cheaper, faster to start and someone else is on call &mdash; which is why it is the right answer for most teams most of the time. The cases where owning wins are real, and they are narrower and more specific than the enthusiasm around them suggests. </div></div>
+<div class="table-wrap"><table><thead><tr><th>Reason</th><th>Does it hold up?</th></tr></thead><tbody>
+<tr><td><strong>Data cannot leave our network</strong></td><td><strong>Yes.</strong> Regulatory or contractual, and no amount of provider assurance satisfies it. The strongest reason there is.</td></tr>
+<tr><td><strong>Very high volume on one narrow task</strong></td><td><strong>Yes</strong>, above a real threshold. A small model saturating a GPU around the clock beats per-token pricing. Below that, you are paying for an idle GPU.</td></tr>
+<tr><td><strong>We need the model to be frozen forever</strong></td><td><strong>Yes.</strong> Weights on your disk do not change. A hosted model behind an alias does, and there is no version of that you control.</td></tr>
+<tr><td><strong>Latency floor matters</strong></td><td><strong>Sometimes.</strong> No network hop is worth tens of milliseconds. Only meaningful when the model call is already fast.</td></tr>
+<tr><td><strong>Heavy customisation on open weights</strong></td><td><strong>Sometimes.</strong> Full fine-tuning, unusual decoding, direct access to internals.</td></tr>
+<tr><td><strong>It will be cheaper</strong></td><td><strong>Usually no.</strong> See below. This is the reason most often given and the one that most often fails.</td></tr>
+</tbody></table></div>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>The arithmetic people skip</div><pre><code>A capable open model on one cloud GPU, running continuously:
+    GPU instance                    ~$1-3 per hour
+    x 24 x 30                       ~$700-2,200 / month
+    + a second for redundancy       x 2
+    + storage, networking, egress
+    + ENGINEER TIME: serving, upgrades, monitoring, on-call
+
+  That is the floor. It is the same whether you serve
+  10 requests a day or 10,000.
+
+  An API costs nothing when idle and scales to zero.
+
+  So the question is not "which is cheaper per token" but
+  "do we have enough steady volume to keep a GPU busy?"
+  If a GPU would sit idle half the day, renting wins — and
+  it keeps winning for longer than most teams expect.</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>The engineer time is the line that gets left out.</strong> Somebody has to own the serving stack, respond when a GPU node fails at 2am, test each model upgrade, and keep the driver and library versions coherent. That is not a one-off setup cost, it is a permanent share of a person. Include it and the crossover point moves a long way further out. </div></div>
+</section>
+
+<section class="note-section" data-tagline="Open-weight is not open-source, and the licence differences are the kind that reach a lawyer. Worth ten minutes before you build on one.">
+<h2 id="landscape">Open weights, and what the licence actually says</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> &ldquo;Open&rdquo; here usually means you can download the numbers and run them. It rarely means you know what they were trained on, and it does not always mean you can use them commercially. The terms vary a great deal between families, and the differences are the sort that matter to whoever signs off your product. </div></div>
+<div class="table-wrap"><table><thead><tr><th>Term</th><th>What it means</th></tr></thead><tbody>
+<tr><td><strong>Open weights</strong></td><td>The parameters are downloadable. The training data and code usually are not.</td></tr>
+<tr><td><strong>Open source</strong></td><td>Properly: weights, data, and training code, under an OSI licence. Genuinely rare.</td></tr>
+<tr><td><strong>Permissive licence</strong></td><td>Apache 2.0 or MIT. Commercial use, modification and redistribution. The straightforward case.</td></tr>
+<tr><td><strong>Custom / community licence</strong></td><td>Downloadable, with conditions &mdash; user thresholds, naming requirements, use restrictions, or a bar on training other models on the outputs. Read it.</td></tr>
+<tr><td><strong>Research only</strong></td><td>Not for a product, whatever the benchmark says.</td></tr>
+</tbody></table></div>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">Check before you build, not after</div><p>Whether commercial use is permitted, whether there is a user-count threshold, whether outputs may train another model, and whether attribution is required. Ten minutes now, versus discovering it during a due-diligence review.</p></div>
+  <div class="card"><div class="card-title">Pick by size class first</div><p>Roughly: <strong>1&ndash;4B</strong> for classification and extraction on modest hardware; <strong>7&ndash;14B</strong> the practical sweet spot for general work on one GPU; <strong>30&ndash;70B</strong> approaching hosted quality at real infrastructure cost; <strong>100B+</strong> a serving project in its own right.</p></div>
+</div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Model names and rankings move faster than anything written down, so this note deliberately names none. Pick a size class, shortlist two or three current models in it, and decide with <em>your</em> eval set. A leaderboard measures general ability on somebody else's problems; your eval set measures the only thing you actually care about. </div></div>
+</section>
+
+<section class="note-section" data-tagline="Whether a model fits on your GPU is arithmetic you can do in your head. The formula is worth memorising because it decides everything else.">
+<h2 id="memory">Will it fit? The VRAM arithmetic</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A GPU has a fixed amount of fast memory, and the model has to live in it entirely. Each parameter takes a certain number of bytes depending on precision, so the calculation is: parameters times bytes, plus room for the conversation. Get this wrong and the model does not run slowly &mdash; it does not run at all. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>The formula, and a worked example</div><pre><code>  VRAM  ~=  parameters x bytes-per-parameter  +  KV cache  +  overhead
+
+  BYTES PER PARAMETER
+    FP16 / BF16   2.0      full quality, the reference
+    INT8          1.0      ~half the memory, quality loss usually negligible
+    INT4          0.5      ~quarter, small but real quality loss
+
+  A 7B MODEL
+    FP16   7  x 2.0  = 14 GB   -> needs a 24GB card
+    INT8   7  x 1.0  =  7 GB   -> fits a 16GB card comfortably
+    INT4   7  x 0.5  =  3.5GB  -> fits an 8GB card, or a laptop
+
+  A 70B MODEL
+    FP16   70 x 2.0  = 140 GB  -> two 80GB cards
+    INT4   70 x 0.5  =  35 GB  -> ONE 48GB card
+
+  PLUS the KV cache, which grows with context and concurrency:
+    ~0.5 GB per 1,000 tokens per concurrent request (7B, FP16)
+    32 concurrent users at 4,000 tokens each = ~64 GB of cache alone
+
+  The cache is what people forget. It routinely exceeds the model.</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Size your hardware for concurrency, not for the model.</strong> A 7B model in 14GB looks like it fits a 24GB card until thirty people use it at once and the KV cache needs another 60GB. Batch size, context length and concurrency are the three numbers that actually determine what you must buy &mdash; and they are the three that a single-user test on your laptop tells you nothing about. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">A 13B model quantised to INT4 needs about 6.5GB. Why might it still fail on a 16GB GPU in production?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> The KV cache. The weights fit easily, but every concurrent request holds its own cache proportional to its context length. Twenty users each with an 8,000-token conversation can need more memory than the model does, and the failure arrives under load rather than in testing.</p>
+<p> The levers are: cap the context length, cap concurrency, use a serving stack with paged attention that packs the cache efficiently, or buy more memory. Discovering you need one of those during a traffic spike is the outcome this arithmetic exists to avoid. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="Making the numbers smaller so the model fits and runs faster. What you actually give up, and where the line is.">
+<h2 id="quantisation">Quantisation</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Every parameter is stored with a certain precision, like decimal places. Quantisation keeps fewer of them &mdash; storing 0.7 instead of 0.7182 &mdash; so the model takes less memory and moves through the chip faster. The remarkable finding is how little quality this costs: going from 16 bits to 8 is close to free, and 4 is usually a good trade. </div></div>
+<div class="table-wrap"><table><thead><tr><th>Precision</th><th>Memory</th><th>Quality</th><th>Use it</th></tr></thead><tbody>
+<tr><td>FP16 / BF16</td><td>Baseline</td><td>Reference</td><td>When memory is not the constraint</td></tr>
+<tr><td>INT8</td><td>~50%</td><td>Almost indistinguishable</td><td><strong>Sensible default.</strong> Nearly free.</td></tr>
+<tr><td>INT4</td><td>~25%</td><td>Small but measurable loss</td><td><strong>The usual production choice.</strong> Especially good on larger models.</td></tr>
+<tr><td>Below 4-bit</td><td>&lt;25%</td><td>Noticeable degradation</td><td>Experiments and very constrained devices</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>A large model quantised usually beats a small model at full precision</strong> for the same memory. A 70B at INT4 (~35GB) generally outperforms a 13B at FP16 (~26GB) on hard tasks. If you are choosing between &ldquo;bigger and compressed&rdquo; and &ldquo;smaller and pristine&rdquo; at a fixed memory budget, bigger and compressed is the better starting bet &mdash; then confirm it on your eval set. </div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Quantisation degrades unevenly, so measure it on your task.</strong> Losses tend to show up first in long-chain reasoning, arithmetic, exact-format output and less-common languages &mdash; while conversational quality looks untouched. A casual test will tell you it is fine. Your eval set will tell you whether it is fine <em>for what you do</em>. </div></div>
+</section>
+
+<section class="note-section" data-tagline="Which serving stack, and the two techniques that separate a real server from a script in a loop.">
+<h2 id="serving">Serving it properly</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Loading a model and generating in a loop works for one user and collapses for twenty. A real serving stack does two things that transform throughput: it batches requests together so the GPU is never idle waiting, and it manages the KV cache in small pages so memory is not wasted on reserved-but-unused space. Those two ideas are most of the difference. </div></div>
+<div class="table-wrap"><table><thead><tr><th>Stack</th><th>Best for</th><th>Notes</th></tr></thead><tbody>
+<tr><td><strong>Ollama</strong></td><td>Laptops, prototypes, one user</td><td>One command to run. Excellent for development, not built for production concurrency.</td></tr>
+<tr><td><strong>llama.cpp</strong></td><td>CPU, Apple Silicon, edge devices</td><td>Runs where there is no GPU at all. Very strong quantisation support.</td></tr>
+<tr><td><strong>vLLM</strong></td><td><strong>Production serving on GPUs</strong></td><td>Continuous batching and paged attention. The default answer for serving at volume.</td></tr>
+<tr><td><strong>TGI</strong></td><td>Production, Hugging Face ecosystem</td><td>Comparable to vLLM. Choose on ecosystem fit.</td></tr>
+<tr><td><strong>TensorRT-LLM</strong></td><td>Maximum throughput on NVIDIA</td><td>Fastest, most work to set up. For when the last 20% genuinely matters.</td></tr>
+</tbody></table></div>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>The two ideas that make a serving stack fast</div><pre><code>CONTINUOUS BATCHING
+  naive:      [req A ......... done]
+              wait            [req B ......... done]
+              GPU idle between them, and idle whenever A is short
+
+  continuous: [A ......][B ....][C .........]
+              [D ...........][E ......]
+              A finishes -> a new request joins the batch IMMEDIATELY.
+              The GPU never waits for a batch to fill or drain.
+
+PAGED ATTENTION
+  naive:      reserve max_context for every request, up front
+              a 200-token chat holds 8,000 tokens of memory. Most is waste.
+
+  paged:      allocate the cache in small blocks, on demand
+              (the same idea as virtual memory pages in an operating system)
+              2-4x more concurrent requests on identical hardware.</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="lang">bash</span>An OpenAI-compatible endpoint in one command</div><pre><code># Most stacks expose the OpenAI API shape, which means the SAME client
+# code points at either — so this stays a config change, exactly as in
+# the Architecture note. Do not write provider-specific calls.
+vllm serve &lt;model&gt; \
+  --quantization awq \
+  --max-model-len 8192 \        # cap context: this bounds the KV cache
+  --gpu-memory-utilization 0.90 \
+  --max-num-seqs 32             # cap concurrency: bounds it again
+
+# Your code, unchanged apart from the base URL:
+#   baseURL: 'http://gpu-node.internal:8000/v1'</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Serve behind the same <code>complete()</code> wrapper as everything else. Self-hosting should be one entry in a config file, so you can run a hosted model in development and your own in production, or fall back to a hosted provider when a GPU node dies. Keeping that switch cheap is what makes the decision reversible. </div></div>
+</section>
+
+<section class="note-section" data-tagline="Everything the API was quietly doing for you, that you now have to do yourself.">
+<h2 id="ops">What you have just taken on</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The API was not only running the model. It was handling capacity, failover, upgrades, scaling and being awake at 3am. Self-hosting moves all of that onto your team, and the list is longer than it looks from the outside. This is not an argument against doing it &mdash; it is the list to price before you decide. </div></div>
+<div class="table-wrap"><table><thead><tr><th>Now yours</th><th>What it involves</th></tr></thead><tbody>
+<tr><td>Capacity planning</td><td>GPUs do not scale to zero and cannot be added in seconds. You provision for peak and pay for it at 4am.</td></tr>
+<tr><td>Cold starts</td><td>Loading tens of gigabytes of weights takes minutes. Autoscaling on demand is not realistic; you keep nodes warm.</td></tr>
+<tr><td>Failover</td><td>One node is a single point of failure. Two nodes plus a load balancer, or an accepted outage window.</td></tr>
+<tr><td>Version coherence</td><td>Driver, CUDA, framework and serving stack all have to agree. Upgrades break in ways that are tedious to unpick.</td></tr>
+<tr><td>Model upgrades</td><td>Download, quantise, evaluate, shadow, roll out. The <a href="../aiops/index.html">AI Ops</a> discipline applies unchanged.</td></tr>
+<tr><td>The pager</td><td>A GPU node failing at 2am is now somebody's night.</td></tr>
+<tr><td>Observability</td><td>You still need tokens, latency, failures and cost per feature &mdash; and now GPU utilisation, memory pressure and queue depth too.</td></tr>
+</tbody></table></div>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">A pragmatic split most teams end up at</span></div><div class="example-body">
+<p> The common landing point is not all-or-nothing. High-volume narrow tasks &mdash; classification, extraction, embeddings, reranking &mdash; run on a small self-hosted model, because they are steady, they saturate a GPU, and a small model does them well. The hard, low-volume, quality-sensitive work &mdash; the final answer a user reads &mdash; goes to a hosted frontier model. </p>
+<p> That split gets most of the cost saving for a fraction of the operational burden: one small model on one node is a much smaller commitment than serving a 70B with redundancy. It also keeps the frontier model available as a fallback when the node is down. </p>
+<p> Embeddings in particular are worth calling out. They are high-volume, the models are small and fast, quality differences on your corpus are measurable in an afternoon, and self-hosting keeps your documents in your network. It is often the first thing a team brings in-house, and the easiest. </p>
+</div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Data residency, frozen weights and very high steady volume justify self-hosting. &ldquo;It will be cheaper&rdquo; usually does not.</li><li>Open weights is not open source, and the licence differences matter. Read it first.</li><li>VRAM = parameters &times; bytes + KV cache. The cache scales with context and concurrency, and it is what people forget.</li><li>INT8 is nearly free; INT4 is the usual production choice. A big quantised model beats a small pristine one at equal memory.</li><li>vLLM or TGI for production. Continuous batching and paged attention are most of the throughput.</li><li>Expose an OpenAI-compatible endpoint so the choice stays a config change.</li><li>Many teams self-host the small high-volume models and rent the frontier one. That split is usually the right shape.</li></ul></div>
+</section>

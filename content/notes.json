@@ -10,7 +10,7 @@
       "id": "ai",
       "short": "Part two — the AI track",
       "title": "Part two — the AI track",
-      "lede": "What a model is, how to give it your knowledge and your tools, how to prove it works, how it gets attacked, how to draw it, and how to run it. Note 07 stands alone and can be read first."
+      "lede": "What a model is and what is going on inside it, how to give it your knowledge and your tools, how to adapt it, how to run it, how to prove it works, how it gets attacked, how to draw it, and how to operate it. The overview note stands alone and can be read first."
     },
     {
       "id": "next",
@@ -98,8 +98,63 @@
       "minutes": 100
     },
     {
+      "id": "inside-a-model",
+      "part": "ai",
+      "label": "Inside a Model",
+      "title": "Inside a Model",
+      "tagline": "Tokens, vectors, attention and the decoding loop — the machinery under everything else, explained without the mathematics.",
+      "description": "What the model actually reads, how attention lets any token reach any other, how a Transformer is assembled, how one word gets chosen, what happens between pressing send and the last token, and what reasoning models are really doing.",
+      "level": "Read the AI note first",
+      "minutes": 45,
+      "n": "08"
+    },
+    {
+      "id": "rag-advanced",
+      "part": "ai",
+      "label": "Advanced RAG",
+      "title": "Advanced RAG",
+      "tagline": "Basic RAG works in a demo and disappoints in production. Chunking, hybrid search, reranking, query rewriting and how to measure retrieval on its own.",
+      "description": "Why most bad RAG answers are retrieval failures, five chunking strategies and the one that usually wins, hybrid search and rank fusion, reranking, transforming the question before you search, permissions as a query filter, and the metrics that make tuning an engineering exercise.",
+      "level": "Read the AI note first",
+      "minutes": 45,
+      "n": "09"
+    },
+    {
+      "id": "fine-tuning",
+      "part": "ai",
+      "label": "Fine-tuning",
+      "title": "Fine-tuning & Model Adaptation",
+      "tagline": "It teaches a manner, not a fact. LoRA, preference tuning, distillation, and the arithmetic that decides whether any of it pays.",
+      "description": "What fine-tuning can and cannot teach, full versus LoRA versus QLoRA, why the dataset is the whole job, RLHF and DPO, distilling a task down to a small cheap model, and what you take on by owning a tuned artefact.",
+      "level": "Some experience helps",
+      "minutes": 40,
+      "n": "10"
+    },
+    {
+      "id": "self-hosting",
+      "part": "ai",
+      "label": "Running Models Yourself",
+      "title": "Running Models Yourself",
+      "tagline": "Open weights, VRAM arithmetic, quantisation and serving — and the honest answer about when renting still wins.",
+      "description": "The four reasons that justify self-hosting and the one that does not survive the arithmetic, open weights versus open source, whether a model fits on your GPU, what quantisation costs you, continuous batching and paged attention, and everything the API was quietly doing for you.",
+      "level": "Some experience helps",
+      "minutes": 40,
+      "n": "11"
+    },
+    {
+      "id": "structured-output",
+      "part": "ai",
+      "label": "Structured Output",
+      "title": "Structured Output & Tool Calling",
+      "tagline": "Getting a guaranteed shape out of a model, and the gate every tool call should pass through before anything runs.",
+      "description": "Four levels of enforcement and the two that hold, how constrained decoding makes invalid output unreachable, designing a schema the model reads well, what a tool call actually is, narrow tools versus general ones, and validating sense as well as shape.",
+      "level": "Some experience helps",
+      "minutes": 35,
+      "n": "12"
+    },
+    {
       "id": "agents",
-      "n": "08",
+      "n": "13",
       "part": "ai",
       "label": "Agents & Workflows",
       "title": "Agents & Workflows",
@@ -110,7 +165,7 @@
     },
     {
       "id": "mcp",
-      "n": "09",
+      "n": "14",
       "part": "ai",
       "label": "MCP",
       "title": "MCP — Model Context Protocol",
@@ -121,7 +176,7 @@
     },
     {
       "id": "skills-artifacts",
-      "n": "10",
+      "n": "15",
       "part": "ai",
       "label": "Skills & Artifacts",
       "title": "Skills & Artifacts",
@@ -132,7 +187,7 @@
     },
     {
       "id": "model-landscape",
-      "n": "11",
+      "n": "16",
       "part": "ai",
       "label": "The Model Landscape",
       "title": "The Model Landscape",
@@ -143,7 +198,7 @@
     },
     {
       "id": "evals",
-      "n": "12",
+      "n": "17",
       "part": "ai",
       "label": "Evaluation",
       "title": "Evaluating AI Systems",
@@ -154,7 +209,7 @@
     },
     {
       "id": "ai-security",
-      "n": "13",
+      "n": "18",
       "part": "ai",
       "label": "AI Security",
       "title": "AI Security",
@@ -165,7 +220,7 @@
     },
     {
       "id": "governance",
-      "n": "14",
+      "n": "19",
       "part": "ai",
       "label": "AI Governance",
       "title": "AI Governance",
@@ -176,7 +231,7 @@
     },
     {
       "id": "architecture",
-      "n": "15",
+      "n": "20",
       "part": "ai",
       "label": "Architecture",
       "title": "AI System Architecture",
@@ -187,7 +242,7 @@
     },
     {
       "id": "cloud-gcp",
-      "n": "16",
+      "n": "21",
       "part": "ai",
       "label": "Cloud & GCP",
       "title": "Cloud & GCP Deployment",
@@ -198,7 +253,7 @@
     },
     {
       "id": "aiops",
-      "n": "17",
+      "n": "22",
       "part": "ai",
       "label": "AI Ops",
       "title": "AI Ops — Running It in Production",
@@ -209,7 +264,7 @@
     },
     {
       "id": "roadmap",
-      "n": "18",
+      "n": "23",
       "part": "next",
       "label": "What to Learn Next",
       "title": "What to Learn Next",

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Full, LoRA, QLoRA — Fine-tuning — Garvit's Notes</title>
+<meta name="description" content="Full fine-tuning, LoRA and QLoRA differ by how many numbers you change. That one difference decides the hardware, the cost and how many you can serve.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){var d=document.documentElement;
+try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
+if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');}catch(e){}
+try{if(localStorage.getItem('gn-auth')!=='v11xb7'){
+var depth=('../../'.match(/\.\.\//g)||[]).length;
+var parts=location.pathname.split('/').filter(Boolean).slice(-(depth+1));
+location.replace('../../login.html?next='+encodeURIComponent(parts.join('/')));}}catch(e){}
+})();</script>
+<link rel="stylesheet" href="../../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../../" data-note="fine-tuning" data-topic="methods">
+<header class="site-header">
+  <button class="icon-btn nav-only" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <button class="icon-btn rail-only" id="rail-toggle" type="button" aria-label="Hide the sidebar" aria-pressed="false" title="Hide the sidebar  ⌘\"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg></button>
+  <a class="brand" href="../../index.html"><span class="brand-mark">GN</span><span class="brand-text">Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search every topic&hellip;" autocomplete="off" aria-label="Search notes">
+    <kbd class="search-kbd">/</kbd>
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <button class="icon-btn" id="sign-out" type="button" aria-label="Sign out" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg></button>
+  <div class="read-progress" id="read-progress"><span></span></div>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="All notes"></nav>
+  <main class="main" id="main"><article class="content">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/fine-tuning/index.html">Fine-tuning</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Full, LoRA, QLoRA</span></nav>
+<header class="topic-head reveal">
+  <span class="eyebrow">Note 10 &middot; Fine-tuning &middot; Topic 2 of 6</span>
+  <h1>Full, LoRA, QLoRA</h1>
+  <div class="page-meta">
+    <span>2 min read</span>
+    <span>Some experience helps</span>
+  </div>
+</header>
+<div class="topic-body">
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A model is billions of numbers. Full fine-tuning adjusts all of them, which needs enormous hardware and produces an enormous new file. LoRA leaves them frozen and trains a small patch that sits alongside &mdash; typically under 1% the size &mdash; which turns out to work nearly as well for most tasks. It is the difference between reprinting a book and adding annotations to the margins. </div></div>
+<div class="table-wrap"><table><thead><tr><th></th><th>Full fine-tune</th><th>LoRA</th><th>QLoRA</th></tr></thead><tbody>
+<tr><td>What changes</td><td>Every parameter</td><td>Small added matrices; base frozen</td><td>Same, on a compressed base</td></tr>
+<tr><td>Trainable share</td><td>100%</td><td>~0.1&ndash;1%</td><td>~0.1&ndash;1%</td></tr>
+<tr><td>GPU memory, 7B model</td><td>~80GB+</td><td>~16GB</td><td>~6GB</td></tr>
+<tr><td>Artefact size</td><td>Tens of GB</td><td>~10&ndash;200MB</td><td>~10&ndash;200MB</td></tr>
+<tr><td>Serving many variants</td><td>A full copy each</td><td><strong>One base, many adapters, swapped per request</strong></td><td>Same</td></tr>
+<tr><td>Quality</td><td>Ceiling</td><td>Very close for most tasks</td><td>Slightly below LoRA</td></tr>
+<tr><td>Reach for it when</td><td>Rarely. A new language or domain shift.</td><td><strong>Almost always</strong></td><td>Limited hardware, or experimenting</td></tr>
+</tbody></table></div>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>Why LoRA works, in one picture</div><pre><code>  A layer's weights are a big matrix W  (say 4096 x 4096 = 16.7M numbers)
+
+  FULL FINE-TUNE:   train a new W        16,700,000 numbers changed
+
+  LoRA:             keep W frozen
+                    train A (4096 x 8)   and   B (8 x 4096)
+                    use  W + (A x B)
+
+                    32,768 + 32,768  =   65,536 numbers changed
+                                          ~0.4% of the layer
+
+  The insight: the ADJUSTMENT a task needs is far simpler than
+  the knowledge already in W, so it compresses into a thin pair.</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>The multi-tenant property is the one people miss.</strong> Because an adapter is small and the base is shared, one served model can carry dozens of adapters in memory and pick per request. A different tuned behaviour per customer becomes economically ordinary rather than absurd &mdash; with full fine-tuning it would be one entire model per customer. </div></div>
+<h3>The knobs, and sensible starting values</h3>
+<div class="table-wrap"><table><thead><tr><th>Setting</th><th>Start at</th><th>What it does</th></tr></thead><tbody>
+<tr><td><code>rank</code> (r)</td><td>16</td><td>How much capacity the patch has. 8&ndash;16 for style and format; 32&ndash;64 for a genuinely new skill. Higher is not better by default.</td></tr>
+<tr><td><code>alpha</code></td><td>32 (2&times; rank)</td><td>How strongly the patch is applied.</td></tr>
+<tr><td><code>learning rate</code></td><td>1e-4 to 2e-4</td><td>Higher than full fine-tuning, because far fewer parameters are moving.</td></tr>
+<tr><td><code>epochs</code></td><td>2&ndash;3</td><td>More than 3 on a small set overfits reliably. Watch the validation loss, not the training loss.</td></tr>
+<tr><td>target modules</td><td>attention projections</td><td>Adding the feed-forward layers helps on harder tasks and costs memory.</td></tr>
+</tbody></table></div>
+</div>
+<nav class="page-nav">
+<a class="pn-prev" href="what.html">
+  <span class="pn-dir">&larr; Previous</span>
+  <span class="pn-title">What fine-tuning can and cannot teach</span>
+  
+</a>
+<a class="pn-next" href="data.html">
+  <span class="pn-dir">Next &rarr;</span>
+  <span class="pn-title">The data is the whole job</span>
+  
+</a>
+</nav>
+<nav class="siblings" aria-label="Other topics in this note">
+  <div class="sib-head">More in <a href="index.html">Fine-tuning</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What fine-tuning can and cannot teach</a><a class="sib is-current" href="methods.html"><span class="sib-n">02</span>Full, LoRA, QLoRA</a><a class="sib" href="data.html"><span class="sib-n">03</span>The data is the whole job</a><a class="sib" href="preference.html"><span class="sib-n">04</span>Preference tuning: RLHF and DPO</a><a class="sib" href="distill.html"><span class="sib-n">05</span>Distillation, and the case that actually pays</a><a class="sib" href="ops.html"><span class="sib-n">06</span>Living with a fine-tuned model</a></div>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../../assets/js/site-data.js"></script>
+<script src="../../assets/js/app.js"></script>
+</body>
+</html>

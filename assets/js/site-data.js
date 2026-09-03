@@ -559,6 +559,226 @@ window.GN_MODULES = [
   },
   {
     "n": "08",
+    "slug": "inside-a-model",
+    "title": "Inside a Model",
+    "label": "Inside a Model",
+    "part": "ai",
+    "blurb": "Tokens, vectors, attention and the decoding loop — the machinery under everything else, explained without the mathematics.",
+    "level": "Read the AI note first",
+    "minutes": 14,
+    "topics": [
+      {
+        "id": "tokens",
+        "title": "Tokens: what the model actually reads",
+        "minutes": 2
+      },
+      {
+        "id": "vectors",
+        "title": "From tokens to meaning",
+        "minutes": 2
+      },
+      {
+        "id": "attention",
+        "title": "Attention, explained properly",
+        "minutes": 2
+      },
+      {
+        "id": "transformer",
+        "title": "The Transformer, assembled",
+        "minutes": 2
+      },
+      {
+        "id": "sampling",
+        "title": "How a word is actually chosen",
+        "minutes": 2
+      },
+      {
+        "id": "inference",
+        "title": "What happens when you press send",
+        "minutes": 2
+      },
+      {
+        "id": "reasoning",
+        "title": "Reasoning models and thinking time",
+        "minutes": 2
+      }
+    ]
+  },
+  {
+    "n": "09",
+    "slug": "rag-advanced",
+    "title": "Advanced RAG",
+    "label": "Advanced RAG",
+    "part": "ai",
+    "blurb": "Basic RAG works in a demo and disappoints in production. Chunking, hybrid search, reranking, query rewriting and how to measure retrieval on its own.",
+    "level": "Read the AI note first",
+    "minutes": 14,
+    "topics": [
+      {
+        "id": "why",
+        "title": "Why basic RAG disappoints",
+        "minutes": 2
+      },
+      {
+        "id": "chunking",
+        "title": "Chunking: the decision you make once",
+        "minutes": 2
+      },
+      {
+        "id": "hybrid",
+        "title": "Hybrid search: the highest-value upgrade",
+        "minutes": 2
+      },
+      {
+        "id": "rerank",
+        "title": "Reranking",
+        "minutes": 2
+      },
+      {
+        "id": "query",
+        "title": "Transforming the question first",
+        "minutes": 2
+      },
+      {
+        "id": "security",
+        "title": "Permissions and untrusted passages",
+        "minutes": 2
+      },
+      {
+        "id": "measure",
+        "title": "Measuring retrieval on its own",
+        "minutes": 2
+      }
+    ]
+  },
+  {
+    "n": "10",
+    "slug": "fine-tuning",
+    "title": "Fine-tuning & Model Adaptation",
+    "label": "Fine-tuning",
+    "part": "ai",
+    "blurb": "It teaches a manner, not a fact. LoRA, preference tuning, distillation, and the arithmetic that decides whether any of it pays.",
+    "level": "Some experience helps",
+    "minutes": 12,
+    "topics": [
+      {
+        "id": "what",
+        "title": "What fine-tuning can and cannot teach",
+        "minutes": 2
+      },
+      {
+        "id": "methods",
+        "title": "Full, LoRA, QLoRA",
+        "minutes": 2
+      },
+      {
+        "id": "data",
+        "title": "The data is the whole job",
+        "minutes": 2
+      },
+      {
+        "id": "preference",
+        "title": "Preference tuning: RLHF and DPO",
+        "minutes": 2
+      },
+      {
+        "id": "distill",
+        "title": "Distillation, and the case that actually pays",
+        "minutes": 2
+      },
+      {
+        "id": "ops",
+        "title": "Living with a fine-tuned model",
+        "minutes": 2
+      }
+    ]
+  },
+  {
+    "n": "11",
+    "slug": "self-hosting",
+    "title": "Running Models Yourself",
+    "label": "Running Models Yourself",
+    "part": "ai",
+    "blurb": "Open weights, VRAM arithmetic, quantisation and serving — and the honest answer about when renting still wins.",
+    "level": "Some experience helps",
+    "minutes": 12,
+    "topics": [
+      {
+        "id": "why",
+        "title": "When to run a model yourself",
+        "minutes": 2
+      },
+      {
+        "id": "landscape",
+        "title": "Open weights, and what the licence actually says",
+        "minutes": 2
+      },
+      {
+        "id": "memory",
+        "title": "Will it fit? The VRAM arithmetic",
+        "minutes": 2
+      },
+      {
+        "id": "quantisation",
+        "title": "Quantisation",
+        "minutes": 2
+      },
+      {
+        "id": "serving",
+        "title": "Serving it properly",
+        "minutes": 2
+      },
+      {
+        "id": "ops",
+        "title": "What you have just taken on",
+        "minutes": 2
+      }
+    ]
+  },
+  {
+    "n": "12",
+    "slug": "structured-output",
+    "title": "Structured Output & Tool Calling",
+    "label": "Structured Output",
+    "part": "ai",
+    "blurb": "Getting a guaranteed shape out of a model, and the gate every tool call should pass through before anything runs.",
+    "level": "Some experience helps",
+    "minutes": 12,
+    "topics": [
+      {
+        "id": "why",
+        "title": "Why shape matters more than wording",
+        "minutes": 2
+      },
+      {
+        "id": "how",
+        "title": "The four levels of enforcement",
+        "minutes": 2
+      },
+      {
+        "id": "schema",
+        "title": "Designing a schema the model reads well",
+        "minutes": 2
+      },
+      {
+        "id": "tools",
+        "title": "Tool calling, precisely",
+        "minutes": 2
+      },
+      {
+        "id": "design",
+        "title": "Designing the tool surface",
+        "minutes": 2
+      },
+      {
+        "id": "failure",
+        "title": "When the shape is right and the content is wrong",
+        "minutes": 2
+      }
+    ]
+  },
+  {
+    "n": "13",
     "slug": "agents",
     "title": "Agents & Workflows",
     "label": "Agents & Workflows",
@@ -620,7 +840,7 @@ window.GN_MODULES = [
     ]
   },
   {
-    "n": "09",
+    "n": "14",
     "slug": "mcp",
     "title": "MCP — Model Context Protocol",
     "label": "MCP",
@@ -677,7 +897,7 @@ window.GN_MODULES = [
     ]
   },
   {
-    "n": "10",
+    "n": "15",
     "slug": "skills-artifacts",
     "title": "Skills & Artifacts",
     "label": "Skills & Artifacts",
@@ -709,7 +929,7 @@ window.GN_MODULES = [
     ]
   },
   {
-    "n": "11",
+    "n": "16",
     "slug": "model-landscape",
     "title": "The Model Landscape",
     "label": "The Model Landscape",
@@ -746,7 +966,7 @@ window.GN_MODULES = [
     ]
   },
   {
-    "n": "12",
+    "n": "17",
     "slug": "evals",
     "title": "Evaluating AI Systems",
     "label": "Evaluation",
@@ -783,7 +1003,7 @@ window.GN_MODULES = [
     ]
   },
   {
-    "n": "13",
+    "n": "18",
     "slug": "ai-security",
     "title": "AI Security",
     "label": "AI Security",
@@ -820,7 +1040,7 @@ window.GN_MODULES = [
     ]
   },
   {
-    "n": "14",
+    "n": "19",
     "slug": "governance",
     "title": "AI Governance",
     "label": "AI Governance",
@@ -857,7 +1077,7 @@ window.GN_MODULES = [
     ]
   },
   {
-    "n": "15",
+    "n": "20",
     "slug": "architecture",
     "title": "AI System Architecture",
     "label": "Architecture",
@@ -904,7 +1124,7 @@ window.GN_MODULES = [
     ]
   },
   {
-    "n": "16",
+    "n": "21",
     "slug": "cloud-gcp",
     "title": "Cloud & GCP Deployment",
     "label": "Cloud & GCP",
@@ -961,7 +1181,7 @@ window.GN_MODULES = [
     ]
   },
   {
-    "n": "17",
+    "n": "22",
     "slug": "aiops",
     "title": "AI Ops — Running It in Production",
     "label": "AI Ops",
@@ -1008,7 +1228,7 @@ window.GN_MODULES = [
     ]
   },
   {
-    "n": "18",
+    "n": "23",
     "slug": "roadmap",
     "title": "What to Learn Next",
     "label": "What to Learn Next",
@@ -1781,6 +2001,262 @@ window.GN_SECTIONS = [
   "text": "In plain English The vocabulary, in one place. Much of the difficulty in this field is terminology rather than concept — the ideas are usually simpler than the words used for them, and once a term is decoded it often turns out you already understood the thing. Every term you will meet in a meeting about this, in one place. Nothing here is new — it is the vocabulary of the sections above, collected so this page can be used as a reference once it has been read as a lesson. Term What it means Token A piece of a word. The unit of both billing and every size limit. Roughly 750 English words per 1,000 tokens. Context window The total tokens one request may contain — instructions, history, document"
  },
  {
+  "slug": "inside-a-model",
+  "topic": "tokens",
+  "note": "Inside a Model",
+  "noteTitle": "Inside a Model",
+  "section": "Tokens: what the model actually reads",
+  "text": "In plain English A model cannot read letters or words it only handles numbers. So text is first chopped into pieces from a fixed vocabulary of about a hundred thousand fragments, and each piece is swapped for its number in that list. A common word is one piece. An unusual one gets broken into several. Everything odd about how models handle spelling, numbers and non-English text starts here. txt The same sentence, as the model sees it What this explains The thing that looks like a bug The cause How many r's in strawberry? answered wrongly The model never saw the letters. It saw three tokens. Asking it to count characters is asking it to count something it cannot see. Arithmetic on long number"
+ },
+ {
+  "slug": "inside-a-model",
+  "topic": "vectors",
+  "note": "Inside a Model",
+  "noteTitle": "Inside a Model",
+  "section": "From tokens to meaning",
+  "text": "In plain English A token id is just a label number 976 tells you nothing about what The means. So each id is looked up in a large table and replaced by a long list of numbers, perhaps four thousand of them. That list is a position in a space, and the useful property is that tokens with related meanings end up near each other. Meaning becomes geometry. txt The same idea at three scales Two different things both called embeddings Token embeddings Text embeddings What it represents One token, before context is applied A whole passage, after the model has read it Where it lives Inside the model, at the input Output of a dedicated embedding model What you do with it Nothing it is internal machine"
+ },
+ {
+  "slug": "inside-a-model",
+  "topic": "attention",
+  "note": "Inside a Model",
+  "noteTitle": "Inside a Model",
+  "section": "Attention, explained properly",
+  "text": "In plain English Read this sentence: The trophy would not fit in the suitcase because it was too big. To understand it , you glanced back at trophy rather than suitcase . Attention is that glance, made mechanical: every token looks at every earlier token, scores how relevant each one is, and builds its own understanding as a weighted blend of them. Figure One attention step, for the token it Why this was the breakthrough Before attention, models read text in order, one word at a time, carrying a summary forward. Information from twenty words ago had to survive twenty hand-offs, and mostly did not. Attention lets any token reach any other token directly, in one step , no matter how far apart "
+ },
+ {
+  "slug": "inside-a-model",
+  "topic": "transformer",
+  "note": "Inside a Model",
+  "noteTitle": "Inside a Model",
+  "section": "The Transformer, assembled",
+  "text": "In plain English One attention step is like one pass of editing: each word reconsiders itself in light of the others. Do it a hundred times, with a small amount of processing between each pass, and something remarkable happens early passes settle grammar and word sense, middle passes assemble facts and relationships, late passes decide what to actually say. Nobody assigned those jobs. They emerged. Figure One block, repeated many times Piece What it does Why it is there Positional information Tells each token where it sits Attention alone is order-blind. Without this, dog bites man and man bites dog are identical inputs. Residual connection Adds each layer's output to its input rather than r"
+ },
+ {
+  "slug": "inside-a-model",
+  "topic": "sampling",
+  "note": "Inside a Model",
+  "noteTitle": "Inside a Model",
+  "section": "How a word is actually chosen",
+  "text": "In plain English The model never picks a word. It produces a score for all hundred thousand tokens in its vocabulary, every single time. Turning that ranked list into one choice is a separate step that you control and the settings people treat as mysterious dials are all just different ways of deciding how far down the list you are willing to go. txt After The capital of France is Setting What it does Use it when temperature Flattens or sharpens the whole distribution The main dial. Low for extraction, classification and code; higher for drafting and ideas. top_p Keeps only the most likely tokens that together make up p of the probability A safety net it cuts off the long tail of nonsense th"
+ },
+ {
+  "slug": "inside-a-model",
+  "topic": "inference",
+  "note": "Inside a Model",
+  "noteTitle": "Inside a Model",
+  "section": "What happens when you press send",
+  "text": "In plain English Generating a response is two phases with very different characters. First the model reads your entire prompt all at once, in parallel, fast. Then it writes the answer one token at a time, each one requiring a full pass through the network. That is why the first word takes a moment and the rest stream out smoothly, and it is why output tokens cost several times what input tokens cost. Flow One request, from send to last token Replay 1 Prefill reading your prompt Every token processed in parallel. Fast per token, and it is the whole reason time-to-first-token grows with prompt length. 2 The KV cache is built What each token computed during attention is stored, so later tokens "
+ },
+ {
+  "slug": "inside-a-model",
+  "topic": "reasoning",
+  "note": "Inside a Model",
+  "noteTitle": "Inside a Model",
+  "section": "Reasoning models and thinking time",
+  "text": "In plain English Asked a hard question, a person does better with a pencil and a minute than answering instantly. A reasoning model is that: it generates a long internal working-out before its visible answer, and the extra tokens are where the improvement comes from. You are buying accuracy with time and money, quite literally. txt The same question, two behaviours Worth the extra tokens Not worth them Multi-step maths and logic Classification into a few known buckets Debugging, planning a code change across files Extraction from a document Anything where being wrong is expensive to discover Rewriting or summarising Ambiguous problems needing a plan first Anything answered correctly by a che"
+ },
+ {
+  "slug": "rag-advanced",
+  "topic": "why",
+  "note": "Advanced RAG",
+  "noteTitle": "Advanced RAG",
+  "section": "Why basic RAG disappoints",
+  "text": "In plain English Basic RAG is: chop the documents up, find the chunks most similar to the question, paste them in, ask. It takes an afternoon and it works impressively on the first ten questions you try. Then real users arrive and it is wrong perhaps a third of the time and almost every one of those failures happened before the model was even called. Split the failure before you fix anything The single most valuable habit in this whole subject: when an answer is wrong, find out which half failed. Figure Two failures that look identical to a user ! You cannot tell these apart without logging which chunks were retrieved. That one field the ids of the passages sent to the model is what turns de"
+ },
+ {
+  "slug": "rag-advanced",
+  "topic": "chunking",
+  "note": "Advanced RAG",
+  "noteTitle": "Advanced RAG",
+  "section": "Chunking: the decision you make once",
+  "text": "In plain English A chunk is the unit of retrieval the smallest thing that can come back. Cut too small and an answer gets split across two pieces so neither is convincing on its own. Cut too large and one relevant sentence arrives wrapped in three pages of noise that dilutes it. Where you cut is not a tuning parameter; it decides what your system is capable of answering. Strategy How it cuts Good for Fails on Fixed size Every N tokens, with an overlap Nothing much. It is the default because it is easy. Cuts mid-sentence and mid-table. Ignores every structural clue the document gives you. Recursive Split on paragraphs; if still too big, sentences; then words The sensible baseline. Respects na"
+ },
+ {
+  "slug": "rag-advanced",
+  "topic": "hybrid",
+  "note": "Advanced RAG",
+  "noteTitle": "Advanced RAG",
+  "section": "Hybrid search: the highest-value upgrade",
+  "text": "In plain English Vector search finds things that mean the same. Keyword search finds things that say the same. Each is blind where the other sees: ask for error P0420 and vector search happily returns passages about other error codes, because they are all semantically similar. Running both and merging the results fixes a whole category of failure at once. Query Vector search Keyword (BM25) how do I get my money back Finds the refund policy, which never uses those words Finds nothing error P0420 Returns assorted error codes all similar, mostly wrong Exact hit SKU-88231 stock level Vague neighbours Exact hit what did Dr. Okonkwo conclude Finds the conclusion if worded differently Finds the nam"
+ },
+ {
+  "slug": "rag-advanced",
+  "topic": "rerank",
+  "note": "Advanced RAG",
+  "noteTitle": "Advanced RAG",
+  "section": "Reranking",
+  "text": "In plain English A sift then a proper look. Vector search compares a question to a chunk without ever seeing them together both were turned into numbers separately, long before the question existed. A reranker reads the question and the passage side by side and scores how well one answers the other. Far more accurate, far too slow to run over a million documents, and perfect for the twenty you just narrowed down to. txt Why the two stages differ Approach Quality Latency Notes No reranking Baseline Fine for small, clean, well-structured corpora Hosted reranker API Large improvement ~100 300ms The usual starting point. One call, no infrastructure. Self-hosted cross-encoder Similar ~50 200ms A "
+ },
+ {
+  "slug": "rag-advanced",
+  "topic": "query",
+  "note": "Advanced RAG",
+  "noteTitle": "Advanced RAG",
+  "section": "Transforming the question first",
+  "text": "In plain English People do not ask questions in the form documents are written in. They say what about the second one? , or ask two things at once, or use their own words for something your documentation calls something else. A short, cheap model call that rewrites the question into a good search query fixes all three, and it is one of the least appreciated steps in the pipeline. Technique What it does Fixes Contextualise Rewrite a follow-up into a standalone question using the conversation And for annual plans? retrieving nothing. Essential for any chat interface. Decompose Split a multi-part question into separate searches How do refunds and cancellations differ? two topics, one query, nei"
+ },
+ {
+  "slug": "rag-advanced",
+  "topic": "security",
+  "note": "Advanced RAG",
+  "noteTitle": "Advanced RAG",
+  "section": "Permissions and untrusted passages",
+  "text": "In plain English Two separate problems that both live here. First: a search across all documents will happily return a document this particular user is not allowed to see. Second: a retrieved passage is text from a document, and a document can contain instructions aimed at your model. Neither is theoretical, and both are cheap to get right at the start and expensive to retrofit. Not this filter afterwards Do this filter inside the query Retrieved text is untrusted input If your corpus contains anything a user can write into support tickets, uploaded files, wiki pages, scraped web content then a passage can carry an instruction. This is indirect prompt injection, and RAG is its most common de"
+ },
+ {
+  "slug": "rag-advanced",
+  "topic": "measure",
+  "note": "Advanced RAG",
+  "noteTitle": "Advanced RAG",
+  "section": "Measuring retrieval on its own",
+  "text": "In plain English If you only score the final answer, you cannot tell whether a change helped retrieval, helped generation, or helped one while hurting the other. Scoring retrieval separately is cheap, needs no model call, and gives you a number that moves when you change chunking which is the only way to know whether the change was an improvement. Metric Question it answers Care about it when Recall@k Was the right passage anywhere in the top k? Always. This is the ceiling if it is not retrieved, no model can use it. MRR How high up was the first correct one? You send few passages, so position matters nDCG@k Are the good ones ranked above the mediocre ones? Comparing rerankers Precision@k Wh"
+ },
+ {
+  "slug": "fine-tuning",
+  "topic": "what",
+  "note": "Fine-tuning",
+  "noteTitle": "Fine-tuning & Model Adaptation",
+  "section": "What fine-tuning can and cannot teach",
+  "text": "In plain English Fine-tuning is showing someone a thousand worked examples until they pick up the house style. It is very good at teaching how to respond the format, the tone, the shape of a good answer. It is poor at teaching what is true , because facts change and retraining is slow, expensive and cannot be done every Tuesday when a policy is updated. Your actual problem The answer Why It does not know about our products Retrieval Facts, and they change. Update a document, not a model. It will not stick to our output format Structured output first A schema enforces this for free. Try it before training anything. It ignores an instruction we keep repeating Prompt work first Usually an under"
+ },
+ {
+  "slug": "fine-tuning",
+  "topic": "methods",
+  "note": "Fine-tuning",
+  "noteTitle": "Fine-tuning & Model Adaptation",
+  "section": "Full, LoRA, QLoRA",
+  "text": "In plain English A model is billions of numbers. Full fine-tuning adjusts all of them, which needs enormous hardware and produces an enormous new file. LoRA leaves them frozen and trains a small patch that sits alongside typically under 1% the size which turns out to work nearly as well for most tasks. It is the difference between reprinting a book and adding annotations to the margins. Full fine-tune LoRA QLoRA What changes Every parameter Small added matrices; base frozen Same, on a compressed base Trainable share 100% ~0.1 1% ~0.1 1% GPU memory, 7B model ~80GB+ ~16GB ~6GB Artefact size Tens of GB ~10 200MB ~10 200MB Serving many variants A full copy each One base, many adapters, swapped p"
+ },
+ {
+  "slug": "fine-tuning",
+  "topic": "data",
+  "note": "Fine-tuning",
+  "noteTitle": "Fine-tuning & Model Adaptation",
+  "section": "The data is the whole job",
+  "text": "In plain English Fine-tuning copies whatever is in your examples, including the mistakes and the disagreements. If three people wrote your training data and they format dates differently, the model learns to be inconsistent about dates and it learns that faithfully. This is why quality beats quantity so heavily, and why most failed fine-tuning projects failed at the dataset rather than the training. jsonl The format, and the rule about system prompts How many do you need? 50 100 to tell whether it is going to help at all. 500 1,000 for solid results on format and tone. 5,000+ for a genuinely new skill. Adding more inconsistent examples past that point does not help and can hurt. Where they s"
+ },
+ {
+  "slug": "fine-tuning",
+  "topic": "preference",
+  "note": "Fine-tuning",
+  "noteTitle": "Fine-tuning & Model Adaptation",
+  "section": "Preference tuning: RLHF and DPO",
+  "text": "In plain English Ordinary fine-tuning needs one right answer per input. But for write a polite refusal there is no single right answer there are better and worse ones. Preference tuning trains on pairs : here are two responses, this one is better. It is how the raw text-predictor becomes an assistant that is helpful and declines sensibly, and it is a large part of what separates a base model from a chat model. jsonl A preference pair RLHF DPO How Train a reward model on preferences, then optimise against it with reinforcement learning Optimise directly on the pairs. No reward model, no RL loop. Moving parts Many. Notoriously fiddly to stabilise. Few. Close to ordinary supervised training. Co"
+ },
+ {
+  "slug": "fine-tuning",
+  "topic": "distill",
+  "note": "Fine-tuning",
+  "noteTitle": "Fine-tuning & Model Adaptation",
+  "section": "Distillation, and the case that actually pays",
+  "text": "In plain English Use the expensive model to do the job perfectly a few thousand times, then train a small cheap model on those answers. The small model will not match it in general but on that one narrow task it can get very close, at a fraction of the cost and a fraction of the latency. This is where fine-tuning most reliably makes financial sense. Flow Distilling one task down to a small model Replay 1 Ship on the big model first You cannot distil a task you have not defined. Get it working and get an eval set that proves it works. 2 Collect real inputs A few thousand from production. Real ones — the distribution is the point, and invented inputs are drawn from what you already thought of."
+ },
+ {
+  "slug": "fine-tuning",
+  "topic": "ops",
+  "note": "Fine-tuning",
+  "noteTitle": "Fine-tuning & Model Adaptation",
+  "section": "Living with a fine-tuned model",
+  "text": "In plain English The training run is the short part. What follows is a permanent obligation: an artefact that has to be versioned, evaluated, served, monitored and eventually retrained when the task drifts or the base model is deprecated. A fine-tuned model is a dependency you now maintain, and that cost should be in the decision from the start. What Because Version the dataset alongside the model Which examples produced this behaviour? is unanswerable otherwise, and it is the first question when something is wrong. Record base model, hyperparameters, and the commit Reproducibility. A tuned model you cannot rebuild is a liability with a shelf life. Run the same eval set as the base model The"
+ },
+ {
+  "slug": "self-hosting",
+  "topic": "why",
+  "note": "Running Models Yourself",
+  "noteTitle": "Running Models Yourself",
+  "section": "When to run a model yourself",
+  "text": "In plain English Calling an API is renting. Running your own model is buying a machine and operating it. Renting is cheaper, faster to start and someone else is on call which is why it is the right answer for most teams most of the time. The cases where owning wins are real, and they are narrower and more specific than the enthusiasm around them suggests. Reason Does it hold up? Data cannot leave our network Yes. Regulatory or contractual, and no amount of provider assurance satisfies it. The strongest reason there is. Very high volume on one narrow task Yes , above a real threshold. A small model saturating a GPU around the clock beats per-token pricing. Below that, you are paying for an id"
+ },
+ {
+  "slug": "self-hosting",
+  "topic": "landscape",
+  "note": "Running Models Yourself",
+  "noteTitle": "Running Models Yourself",
+  "section": "Open weights, and what the licence actually says",
+  "text": "In plain English Open here usually means you can download the numbers and run them. It rarely means you know what they were trained on, and it does not always mean you can use them commercially. The terms vary a great deal between families, and the differences are the sort that matter to whoever signs off your product. Term What it means Open weights The parameters are downloadable. The training data and code usually are not. Open source Properly: weights, data, and training code, under an OSI licence. Genuinely rare. Permissive licence Apache 2.0 or MIT. Commercial use, modification and redistribution. The straightforward case. Custom / community licence Downloadable, with conditions user t"
+ },
+ {
+  "slug": "self-hosting",
+  "topic": "memory",
+  "note": "Running Models Yourself",
+  "noteTitle": "Running Models Yourself",
+  "section": "Will it fit? The VRAM arithmetic",
+  "text": "In plain English A GPU has a fixed amount of fast memory, and the model has to live in it entirely. Each parameter takes a certain number of bytes depending on precision, so the calculation is: parameters times bytes, plus room for the conversation. Get this wrong and the model does not run slowly it does not run at all. txt The formula, and a worked example ! Size your hardware for concurrency, not for the model. A 7B model in 14GB looks like it fits a 24GB card until thirty people use it at once and the KV cache needs another 60GB. Batch size, context length and concurrency are the three numbers that actually determine what you must buy and they are the three that a single-user test on you"
+ },
+ {
+  "slug": "self-hosting",
+  "topic": "quantisation",
+  "note": "Running Models Yourself",
+  "noteTitle": "Running Models Yourself",
+  "section": "Quantisation",
+  "text": "In plain English Every parameter is stored with a certain precision, like decimal places. Quantisation keeps fewer of them storing 0.7 instead of 0.7182 so the model takes less memory and moves through the chip faster. The remarkable finding is how little quality this costs: going from 16 bits to 8 is close to free, and 4 is usually a good trade. Precision Memory Quality Use it FP16 / BF16 Baseline Reference When memory is not the constraint INT8 ~50% Almost indistinguishable Sensible default. Nearly free. INT4 ~25% Small but measurable loss The usual production choice. Especially good on larger models. Below 4-bit 25% Noticeable degradation Experiments and very constrained devices i A large"
+ },
+ {
+  "slug": "self-hosting",
+  "topic": "serving",
+  "note": "Running Models Yourself",
+  "noteTitle": "Running Models Yourself",
+  "section": "Serving it properly",
+  "text": "In plain English Loading a model and generating in a loop works for one user and collapses for twenty. A real serving stack does two things that transform throughput: it batches requests together so the GPU is never idle waiting, and it manages the KV cache in small pages so memory is not wasted on reserved-but-unused space. Those two ideas are most of the difference. Stack Best for Notes Ollama Laptops, prototypes, one user One command to run. Excellent for development, not built for production concurrency. llama.cpp CPU, Apple Silicon, edge devices Runs where there is no GPU at all. Very strong quantisation support. vLLM Production serving on GPUs Continuous batching and paged attention. T"
+ },
+ {
+  "slug": "self-hosting",
+  "topic": "ops",
+  "note": "Running Models Yourself",
+  "noteTitle": "Running Models Yourself",
+  "section": "What you have just taken on",
+  "text": "In plain English The API was not only running the model. It was handling capacity, failover, upgrades, scaling and being awake at 3am. Self-hosting moves all of that onto your team, and the list is longer than it looks from the outside. This is not an argument against doing it it is the list to price before you decide. Now yours What it involves Capacity planning GPUs do not scale to zero and cannot be added in seconds. You provision for peak and pay for it at 4am. Cold starts Loading tens of gigabytes of weights takes minutes. Autoscaling on demand is not realistic; you keep nodes warm. Failover One node is a single point of failure. Two nodes plus a load balancer, or an accepted outage win"
+ },
+ {
+  "slug": "structured-output",
+  "topic": "why",
+  "note": "Structured Output",
+  "noteTitle": "Structured Output & Tool Calling",
+  "section": "Why shape matters more than wording",
+  "text": "In plain English When a person reads the output, a stray sentence of preamble is harmless. When your code reads it, Sure! Here's the JSON you asked for: in front of the data is a crash. The instant an AI call feeds another program, you stop needing good writing and start needing a guaranteed structure. Not this hoping and parsing Do this declare the schema ! A schema guarantees the shape and nothing else. You can get perfectly valid JSON containing an order_id that does not exist, a refund larger than the order, a date in 1847, or a confident extraction of a field the document never contained. Structured output eliminates parse errors. It does not eliminate wrong answers, and treating it as "
+ },
+ {
+  "slug": "structured-output",
+  "topic": "how",
+  "note": "Structured Output",
+  "noteTitle": "Structured Output & Tool Calling",
+  "section": "The four levels of enforcement",
+  "text": "Method Guarantee Verdict 1 Ask in the prompt None Works most of the time, which is the worst possible failure rate often enough to ship, rarely enough to page you. 2 Ask, plus few-shot examples None, but better Meaningfully more reliable. Still a hope. 3 Tool / function calling Strong The provider validates arguments against your schema. Well supported everywhere. 4 Constrained decoding Absolute Invalid tokens are removed from the choice at each step, so malformed output is not merely unlikely it is unreachable. How constrained decoding actually works Remember that the model produces a score for every token in the vocabulary, and something else picks from that list. Constrained decoding edit"
+ },
+ {
+  "slug": "structured-output",
+  "topic": "schema",
+  "note": "Structured Output",
+  "noteTitle": "Structured Output & Tool Calling",
+  "section": "Designing a schema the model reads well",
+  "text": "In plain English The schema is not just a validator bolted on afterwards the model sees it, and reads it as part of the instructions. A field called d with no description gets filled in with a guess. A field called invoice_date described as the date on the invoice in YYYY-MM-DD, not today's date gets filled in correctly. Time spent on the schema is time not spent on prompt wording. ts A schema that does most of the prompting for you Name fields as you would for a colleague shipping_address_country , not c3 . The name is the strongest signal the model has about what belongs there. Enums over free strings Any field with a known set of valid values should be an enum. It removes normalisation wo"
+ },
+ {
+  "slug": "structured-output",
+  "topic": "tools",
+  "note": "Structured Output",
+  "noteTitle": "Structured Output & Tool Calling",
+  "section": "Tool calling, precisely",
+  "text": "In plain English The model cannot run anything. It never could. What it produces is a structured message saying I would like to call lookup_order with this order number and then your code decides whether to comply, runs it, and hands the result back. That decision point is not a formality. It is where every permission check, every rate limit and every audit log belongs. Flow One tool call, and who is responsible at each step Replay 1 You declare the tools Name, description and an argument schema for each. This is the model s only documentation, so it is doing real work. 2 The model asks It returns a tool-call message with arguments matching your schema. It has run nothing and changed nothing"
+ },
+ {
+  "slug": "structured-output",
+  "topic": "design",
+  "note": "Structured Output",
+  "noteTitle": "Structured Output & Tool Calling",
+  "section": "Designing the tool surface",
+  "text": "In plain English Every tool you expose is a permission you have granted to a system that can be talked into things. The design question is not what would be convenient but what is the smallest capability that does the job . A tool that runs arbitrary SQL is a convenient way to bypass every control you have ever written. Not this general purpose Do this one job each Rule Why The description is the documentation It is the only thing the model has when deciding whether to reach for this tool. Say what it does, when to use it, when not to, and what it returns. Fewer tools, better chosen Selection accuracy falls as the list grows. Past roughly fifteen or twenty, route to a subset first rather tha"
+ },
+ {
+  "slug": "structured-output",
+  "topic": "failure",
+  "note": "Structured Output",
+  "noteTitle": "Structured Output & Tool Calling",
+  "section": "When the shape is right and the content is wrong",
+  "text": "In plain English Two layers of checking, and they catch different things. The schema catches this is not the right shape . Your business rules catch this shape is fine and the values are impossible . Only the second one notices a refund larger than the order, or a date next century. Systems that stop at the schema fail in ways that look correct all the way to production. ts Two layers, and a retry that carries the reason ! Cap the retries and count the failures. Unbounded retrying on a document the model genuinely cannot read turns one bad input into a cost spike and a hung request. Two attempts, then route to a human. And the rate of invalid results is a metric worth alerting on it climbing"
+ },
+ {
   "slug": "agents",
   "topic": "what",
   "note": "Agents & Workflows",
@@ -2050,7 +2526,7 @@ window.GN_SECTIONS = [
   "note": "AI Security",
   "noteTitle": "AI Security",
   "section": "The threat model in one sentence",
-  "text": "Note 06 introduced the central problem. This note takes it seriously, because once a model has tools, the stakes change completely. ! A language model cannot reliably distinguish instructions from data. Everything in its context window is the same kind of thing: text. Your system prompt, the user s question, a retrieved document, a tool result, the contents of a web page it just fetched all of it arrives as text, and any of it can read as an instruction. In plain English Imagine an assistant who follows any instruction written on any piece of paper placed on their desk including a note slipped inside a customer s letter. You can tell them to be careful. You cannot make them stop reading. The"
+  "text": "The AI, Models, RAG Security note introduced the central problem. This note takes it seriously, because once a model has tools, the stakes change completely. ! A language model cannot reliably distinguish instructions from data. Everything in its context window is the same kind of thing: text. Your system prompt, the user s question, a retrieved document, a tool result, the contents of a web page it just fetched all of it arrives as text, and any of it can read as an instruction. In plain English Imagine an assistant who follows any instruction written on any piece of paper placed on their desk including a note slipped inside a customer s letter. You can tell them to be careful. You cannot m"
  },
  {
   "slug": "ai-security",
@@ -2338,7 +2814,7 @@ window.GN_SECTIONS = [
   "note": "What to Learn Next",
   "noteTitle": "What to Learn Next",
   "section": "Where to go deeper, once the basics hold",
-  "text": "Direction What it involves Suits you if AI engineering Building the products. Retrieval quality, agent design, evals, cost, latency, reliability. You like shipping things people use. This is the closest step from where you are, and the widest job market. AI infrastructure Serving models, GPUs, inference optimisation, running open-weight models at scale. You enjoy systems and performance work. Deep, specialised, well paid, fewer roles. Data engineering for AI Pipelines that keep a corpus fresh, permissioned and versioned. Unglamorous, and it decides whether the product is any good. You already like databases. Note 05 is genuinely half of this. AI security Red-teaming agents, injection researc"
+  "text": "Direction What it involves Suits you if AI engineering Building the products. Retrieval quality, agent design, evals, cost, latency, reliability. You like shipping things people use. This is the closest step from where you are, and the widest job market. AI infrastructure Serving models, GPUs, inference optimisation, running open-weight models at scale. You enjoy systems and performance work. Deep, specialised, well paid, fewer roles. Data engineering for AI Pipelines that keep a corpus fresh, permissioned and versioned. Unglamorous, and it decides whether the product is any good. You already like databases. the PostgreSQL Prisma note is genuinely half of this. AI security Red-teaming agents"
  },
  {
   "slug": "roadmap",

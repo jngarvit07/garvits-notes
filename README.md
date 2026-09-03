@@ -1,6 +1,6 @@
 # Garvit's Notes
 
-Eighteen notes on the stack I build on, and on the AI systems I am learning to
+Twenty-three notes on the stack I build on, and on the AI systems I am learning to
 build. Every note is a folder; every topic inside it is its own page. Written in
 plain language first, then a real example, then the features and the mistakes
 that actually matter.
@@ -38,42 +38,49 @@ crossing from the last topic of one note into the first of the next.
 | 05 | Express | Routes, middleware, auth, validation, error handling | 11 |
 | 06 | PostgreSQL & Prisma | Tables, SQL, joins, indexes, transactions, migrations | 11 |
 
-**Part two — the AI track.** Note 07 stands alone and can be read first.
+**Part two — the AI track.** Note 07 is the overview and stands alone; 08–12 are
+the deep dives underneath it.
 
 | # | Note | | Topics |
 |---|------|---|---|
 | 07 | AI, Models, RAG & Security | How models work, prompting, embeddings, RAG, production | 24 |
-| 08 | Agents & Workflows | The agent loop, workflow patterns, tool design, structure | 10 |
-| 09 | MCP | The protocol, building a server, connecting it, securing it | 9 |
-| 10 | Skills & Artifacts | Four ways to extend a model, and which one you need | 4 |
-| 11 | The Model Landscape | Claude, OpenAI, Gemini, Copilot — what actually differs | 5 |
-| 12 | Evaluating AI Systems | Eval sets, graders, scoring RAG and agents, CI | 5 |
-| 13 | AI Security | Prompt injection, the three ingredients, defences that hold | 5 |
-| 14 | AI Governance | Risk tiers, the frameworks, a system card on a page | 5 |
-| 15 | AI System Architecture | The five layers, four reference shapes, the six boundaries | 7 |
-| 16 | Cloud & GCP Deployment | Cloud Run, storage, IAM, secrets, Vertex, the bill | 9 |
-| 17 | AI Ops | Logging, tracing, prompt versioning, rollouts, incidents | 7 |
+| 08 | Inside a Model | Tokens, vectors, attention, decoding, reasoning models | 7 |
+| 09 | Advanced RAG | Chunking, hybrid search, reranking, query rewriting, metrics | 7 |
+| 10 | Fine-tuning & Model Adaptation | LoRA, datasets, DPO, distillation, and whether it pays | 6 |
+| 11 | Running Models Yourself | Open weights, VRAM, quantisation, vLLM, what you take on | 6 |
+| 12 | Structured Output & Tool Calling | Schemas, constrained decoding, tool calling, validation | 6 |
+| 13 | Agents & Workflows | The agent loop, workflow patterns, tool design, structure | 10 |
+| 14 | MCP — Model Context Protocol | The protocol, building a server, connecting it, securing it | 9 |
+| 15 | Skills & Artifacts | Four ways to extend a model, and which one you need | 4 |
+| 16 | The Model Landscape | Claude, OpenAI, Gemini, Copilot — what actually differs | 5 |
+| 17 | Evaluating AI Systems | Eval sets, graders, scoring RAG and agents, CI | 5 |
+| 18 | AI Security | Prompt injection, the three ingredients, defences that hold | 5 |
+| 19 | AI Governance | Risk tiers, the frameworks, a system card on a page | 5 |
+| 20 | AI System Architecture | The five layers, four reference shapes, the six boundaries | 7 |
+| 21 | Cloud & GCP Deployment | Cloud Run, storage, IAM, secrets, Vertex, the bill | 9 |
+| 22 | AI Ops — Running It in Production | Logging, tracing, prompt versioning, rollouts, incidents | 7 |
 
 **Part three — where this goes.**
 
 | # | Note | | Topics |
 |---|------|---|---|
-| 18 | What to Learn Next | The path, the foundations, and how to tell you have learned it | 6 |
+| 23 | What to Learn Next | The path, the foundations, and how to tell you have learned it | 6 |
 
 ## Signing in
 
-Opening the site lands on `login.html`, which checks one email and password in
+Opening the site lands on `login.html`, which checks the email and password in
 the browser and stores a flag in `localStorage`.
 
 **This is a gate, not a security boundary.** A static site has nowhere to keep a
 secret: the check runs in JavaScript the visitor has already downloaded, so
 anyone who reads the page source can get past it. It keeps the notes out of the
-way of a casual visitor and does nothing more. The page says so too, rather than
-implying otherwise. If these notes ever need real access control, that requires
-a server.
+way of a casual visitor and does nothing more. If these notes ever need real
+access control, that requires a server.
 
-The credentials are stored as salted hashes in `login.html` and the matching
-token is in `tools/build.mjs` as `AUTH_TOKEN` — change them together.
+Three addresses are accepted, all with the same password. They are stored as
+salted hashes in `login.html` (`EMAIL_HASHES` and `PASS_HASH`) and the matching
+token is in `tools/build.mjs` as `AUTH_TOKEN` — change them together. The
+password field has a show/hide toggle.
 
 ## Reading it locally
 

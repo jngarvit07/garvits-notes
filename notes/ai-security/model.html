@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The threat model in one sentence — AI Security — Garvit's Notes</title>
-<meta name="description" content="Note 06 introduced the central problem.">
+<meta name="description" content="The AI, Models, RAG Security note introduced the central problem.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -38,7 +38,7 @@ location.replace('../../login.html?next='+encodeURIComponent(parts.join('/')));}
   <main class="main" id="main"><article class="content">
 <nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/ai-security/index.html">AI Security</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">The threat model in one sentence</span></nav>
 <header class="topic-head reveal">
-  <span class="eyebrow">Note 13 &middot; AI Security &middot; Topic 1 of 5</span>
+  <span class="eyebrow">Note 18 &middot; AI Security &middot; Topic 1 of 5</span>
   <h1>The threat model in one sentence</h1>
   <div class="page-meta">
     <span>2 min read</span>
@@ -46,7 +46,7 @@ location.replace('../../login.html?next='+encodeURIComponent(parts.join('/')));}
   </div>
 </header>
 <div class="topic-body">
-<p>Note 06 introduced the central problem. This note takes it seriously, because once a model has tools, the stakes change completely.</p>
+<p>The <a href="../ai/index.html">AI, Models, RAG &amp; Security</a> note introduced the central problem. This note takes it seriously, because once a model has tools, the stakes change completely.</p>
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>A language model cannot reliably distinguish instructions from data.</strong> Everything in its context window is the same kind of thing: text. Your system prompt, the user&rsquo;s question, a retrieved document, a tool result, the contents of a web page it just fetched &mdash; all of it arrives as text, and any of it can read as an instruction.</p></div></div>
 <div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>Imagine an assistant who follows any instruction written on any piece of paper placed on their desk &mdash; including a note slipped inside a customer&rsquo;s letter. You can tell them to be careful. You cannot make them stop reading. The only real protection is limiting what they are able to do in the first place.</p></div></div>
 <p>This is <strong>prompt injection</strong>, and unlike SQL injection it has no complete fix. There is no equivalent of a parameterised query, because there is no syntactic boundary between code and data to enforce. Any guide that implies otherwise is selling something.</p>

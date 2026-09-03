@@ -42,9 +42,9 @@ location.replace('login.html?next='+encodeURIComponent(parts.join('/')));}}catch
   <h1 class="hero-title">Garvit&rsquo;s Notes</h1>
   <p class="lede">Notes on the technologies behind the products I ship, and on the AI systems I am learning to build &mdash; written in plain language first, then a real example, then the features and the mistakes that actually matter.</p>
   <div class="hero-stats">
-    <div><div class="stat-num" data-count="18">0</div><div class="stat-label">notes</div></div>
-    <div><div class="stat-num" data-count="163">0</div><div class="stat-label">topics</div></div>
-    <div><div class="stat-num" data-count="6" data-suffix="h">0</div><div class="stat-label">of reading</div></div>
+    <div><div class="stat-num" data-count="23">0</div><div class="stat-label">notes</div></div>
+    <div><div class="stat-num" data-count="195">0</div><div class="stat-label">topics</div></div>
+    <div><div class="stat-num" data-count="7" data-suffix="h">0</div><div class="stat-label">of reading</div></div>
   </div>
   <div class="hero-cta">
     <a class="btn btn-primary" href="notes/react/what.html">Start reading
@@ -153,7 +153,7 @@ location.replace('login.html?next='+encodeURIComponent(parts.join('/')));}}catch
 <div class="part-head reveal">
   <span class="part-tag">Part two — the AI track</span>
   <h2 id="ai">Part two — the AI track</h2>
-  <p class="part-lede">What a model is, how to give it your knowledge and your tools, how to prove it works, how it gets attacked, how to draw it, and how to run it. Note 07 stands alone and can be read first.</p>
+  <p class="part-lede">What a model is and what is going on inside it, how to give it your knowledge and your tools, how to adapt it, how to run it, how to prove it works, how it gets attacked, how to draw it, and how to operate it. The overview note stands alone and can be read first.</p>
 </div>
 
 <div class="note-grid">
@@ -168,8 +168,58 @@ location.replace('login.html?next='+encodeURIComponent(parts.join('/')));}}catch
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 </article>
 <article class="note-card reveal">
+  <a class="nc-main" href="notes/inside-a-model/index.html">
+    <div class="nc-kicker"><span class="nc-n">08</span>Read the AI note first</div>
+    <h3 class="nc-title">Inside a Model</h3>
+    <p class="nc-tagline">Tokens, vectors, attention and the decoding loop — the machinery under everything else, explained without the mathematics.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/inside-a-model/tokens.html">Tokens: what the model actually reads</a></li><li><a href="notes/inside-a-model/vectors.html">From tokens to meaning</a></li><li><a href="notes/inside-a-model/attention.html">Attention, explained properly</a></li><li><a href="notes/inside-a-model/transformer.html">The Transformer, assembled</a></li></ul>
+  <a class="nc-all" href="notes/inside-a-model/index.html">All 7 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/rag-advanced/index.html">
+    <div class="nc-kicker"><span class="nc-n">09</span>Read the AI note first</div>
+    <h3 class="nc-title">Advanced RAG</h3>
+    <p class="nc-tagline">Basic RAG works in a demo and disappoints in production. Chunking, hybrid search, reranking, query rewriting and how to measure retrieval on its own.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/rag-advanced/why.html">Why basic RAG disappoints</a></li><li><a href="notes/rag-advanced/chunking.html">Chunking: the decision you make once</a></li><li><a href="notes/rag-advanced/hybrid.html">Hybrid search: the highest-value upgrade</a></li><li><a href="notes/rag-advanced/rerank.html">Reranking</a></li></ul>
+  <a class="nc-all" href="notes/rag-advanced/index.html">All 7 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/fine-tuning/index.html">
+    <div class="nc-kicker"><span class="nc-n">10</span>Some experience helps</div>
+    <h3 class="nc-title">Fine-tuning &amp; Model Adaptation</h3>
+    <p class="nc-tagline">It teaches a manner, not a fact. LoRA, preference tuning, distillation, and the arithmetic that decides whether any of it pays.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/fine-tuning/what.html">What fine-tuning can and cannot teach</a></li><li><a href="notes/fine-tuning/methods.html">Full, LoRA, QLoRA</a></li><li><a href="notes/fine-tuning/data.html">The data is the whole job</a></li><li><a href="notes/fine-tuning/preference.html">Preference tuning: RLHF and DPO</a></li></ul>
+  <a class="nc-all" href="notes/fine-tuning/index.html">All 6 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/self-hosting/index.html">
+    <div class="nc-kicker"><span class="nc-n">11</span>Some experience helps</div>
+    <h3 class="nc-title">Running Models Yourself</h3>
+    <p class="nc-tagline">Open weights, VRAM arithmetic, quantisation and serving — and the honest answer about when renting still wins.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/self-hosting/why.html">When to run a model yourself</a></li><li><a href="notes/self-hosting/landscape.html">Open weights, and what the licence actually says</a></li><li><a href="notes/self-hosting/memory.html">Will it fit? The VRAM arithmetic</a></li><li><a href="notes/self-hosting/quantisation.html">Quantisation</a></li></ul>
+  <a class="nc-all" href="notes/self-hosting/index.html">All 6 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
+  <a class="nc-main" href="notes/structured-output/index.html">
+    <div class="nc-kicker"><span class="nc-n">12</span>Some experience helps</div>
+    <h3 class="nc-title">Structured Output &amp; Tool Calling</h3>
+    <p class="nc-tagline">Getting a guaranteed shape out of a model, and the gate every tool call should pass through before anything runs.</p>
+  </a>
+  <ul class="nc-topics"><li><a href="notes/structured-output/why.html">Why shape matters more than wording</a></li><li><a href="notes/structured-output/how.html">The four levels of enforcement</a></li><li><a href="notes/structured-output/schema.html">Designing a schema the model reads well</a></li><li><a href="notes/structured-output/tools.html">Tool calling, precisely</a></li></ul>
+  <a class="nc-all" href="notes/structured-output/index.html">All 6 topics
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>
+<article class="note-card reveal">
   <a class="nc-main" href="notes/agents/index.html">
-    <div class="nc-kicker"><span class="nc-n">08</span>Some experience helps</div>
+    <div class="nc-kicker"><span class="nc-n">13</span>Some experience helps</div>
     <h3 class="nc-title">Agents &amp; Workflows</h3>
     <p class="nc-tagline">The loop where the model decides what to do next — when that is the right answer, when a plain workflow beats it, and how to keep one on a leash.</p>
   </a>
@@ -179,7 +229,7 @@ location.replace('login.html?next='+encodeURIComponent(parts.join('/')));}}catch
 </article>
 <article class="note-card reveal">
   <a class="nc-main" href="notes/mcp/index.html">
-    <div class="nc-kicker"><span class="nc-n">09</span>Some experience helps</div>
+    <div class="nc-kicker"><span class="nc-n">14</span>Some experience helps</div>
     <h3 class="nc-title">MCP — Model Context Protocol</h3>
     <p class="nc-tagline">The plug shape that lets any model use any tool: write the integration once, and every host that speaks the protocol can use it.</p>
   </a>
@@ -189,7 +239,7 @@ location.replace('login.html?next='+encodeURIComponent(parts.join('/')));}}catch
 </article>
 <article class="note-card reveal">
   <a class="nc-main" href="notes/skills-artifacts/index.html">
-    <div class="nc-kicker"><span class="nc-n">10</span>No experience needed</div>
+    <div class="nc-kicker"><span class="nc-n">15</span>No experience needed</div>
     <h3 class="nc-title">Skills &amp; Artifacts</h3>
     <p class="nc-tagline">Four different ways to extend a model, and how to tell which one your problem actually needs.</p>
   </a>
@@ -199,7 +249,7 @@ location.replace('login.html?next='+encodeURIComponent(parts.join('/')));}}catch
 </article>
 <article class="note-card reveal">
   <a class="nc-main" href="notes/model-landscape/index.html">
-    <div class="nc-kicker"><span class="nc-n">11</span>No experience needed</div>
+    <div class="nc-kicker"><span class="nc-n">16</span>No experience needed</div>
     <h3 class="nc-title">The Model Landscape</h3>
     <p class="nc-tagline">Claude, OpenAI, Gemini, Copilot and the open-weight world — what actually differs, without a horse race or a price list.</p>
   </a>
@@ -209,7 +259,7 @@ location.replace('login.html?next='+encodeURIComponent(parts.join('/')));}}catch
 </article>
 <article class="note-card reveal">
   <a class="nc-main" href="notes/evals/index.html">
-    <div class="nc-kicker"><span class="nc-n">12</span>Some experience helps</div>
+    <div class="nc-kicker"><span class="nc-n">17</span>Some experience helps</div>
     <h3 class="nc-title">Evaluating AI Systems</h3>
     <p class="nc-tagline">The only way to know whether a change made things better. Without it, every prompt edit is a gamble.</p>
   </a>
@@ -219,7 +269,7 @@ location.replace('login.html?next='+encodeURIComponent(parts.join('/')));}}catch
 </article>
 <article class="note-card reveal">
   <a class="nc-main" href="notes/ai-security/index.html">
-    <div class="nc-kicker"><span class="nc-n">13</span>Some experience helps</div>
+    <div class="nc-kicker"><span class="nc-n">18</span>Some experience helps</div>
     <h3 class="nc-title">AI Security</h3>
     <p class="nc-tagline">Prompt injection has no complete fix. What that means for how you design, rather than how you word things.</p>
   </a>
@@ -229,7 +279,7 @@ location.replace('login.html?next='+encodeURIComponent(parts.join('/')));}}catch
 </article>
 <article class="note-card reveal">
   <a class="nc-main" href="notes/governance/index.html">
-    <div class="nc-kicker"><span class="nc-n">14</span>No experience needed</div>
+    <div class="nc-kicker"><span class="nc-n">19</span>No experience needed</div>
     <h3 class="nc-title">AI Governance</h3>
     <p class="nc-tagline">Risk tiers, the frameworks by name, and the one page per feature that answers most of what anyone will ask.</p>
   </a>
@@ -239,7 +289,7 @@ location.replace('login.html?next='+encodeURIComponent(parts.join('/')));}}catch
 </article>
 <article class="note-card reveal">
   <a class="nc-main" href="notes/architecture/index.html">
-    <div class="nc-kicker"><span class="nc-n">15</span>Some experience helps</div>
+    <div class="nc-kicker"><span class="nc-n">20</span>Some experience helps</div>
     <h3 class="nc-title">AI System Architecture</h3>
     <p class="nc-tagline">How to draw the system before you build it: the layers, the boundaries, and the trade-off waiting at each one.</p>
   </a>
@@ -249,7 +299,7 @@ location.replace('login.html?next='+encodeURIComponent(parts.join('/')));}}catch
 </article>
 <article class="note-card reveal">
   <a class="nc-main" href="notes/cloud-gcp/index.html">
-    <div class="nc-kicker"><span class="nc-n">16</span>No experience needed</div>
+    <div class="nc-kicker"><span class="nc-n">21</span>No experience needed</div>
     <h3 class="nc-title">Cloud &amp; GCP Deployment</h3>
     <p class="nc-tagline">Getting it off your laptop: Cloud Run, Vertex AI, storage, networking, IAM, secrets and the bill.</p>
   </a>
@@ -259,7 +309,7 @@ location.replace('login.html?next='+encodeURIComponent(parts.join('/')));}}catch
 </article>
 <article class="note-card reveal">
   <a class="nc-main" href="notes/aiops/index.html">
-    <div class="nc-kicker"><span class="nc-n">17</span>Some experience helps</div>
+    <div class="nc-kicker"><span class="nc-n">22</span>Some experience helps</div>
     <h3 class="nc-title">AI Ops — Running It in Production</h3>
     <p class="nc-tagline">The half of the work that starts the day you ship: tracing, versioning, rollouts, incidents, cost and the pager.</p>
   </a>
@@ -279,7 +329,7 @@ location.replace('login.html?next='+encodeURIComponent(parts.join('/')));}}catch
 <div class="note-grid">
 <article class="note-card reveal">
   <a class="nc-main" href="notes/roadmap/index.html">
-    <div class="nc-kicker"><span class="nc-n">18</span>No experience needed</div>
+    <div class="nc-kicker"><span class="nc-n">23</span>No experience needed</div>
     <h3 class="nc-title">What to Learn Next</h3>
     <p class="nc-tagline">Where you are now, the four stages that take you further, and how to tell you have actually learned it rather than just read it.</p>
   </a>

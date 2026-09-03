@@ -1,0 +1,186 @@
+<section class="note-section" data-tagline="Text does not go into a model. Numbers do. Tokenisation is the conversion, and it quietly explains a surprising number of things that look like bugs.">
+<h2 id="tokens">Tokens: what the model actually reads</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A model cannot read letters or words &mdash; it only handles numbers. So text is first chopped into pieces from a fixed vocabulary of about a hundred thousand fragments, and each piece is swapped for its number in that list. A common word is one piece. An unusual one gets broken into several. Everything odd about how models handle spelling, numbers and non-English text starts here. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>The same sentence, as the model sees it</div><pre><code>"The unbelievability of it"
+
+  ["The"] [" un"] ["bel"] ["iev"] ["ability"] [" of"] [" it"]
+    976    650     6667    12776    2965      315    433
+
+Notice: the leading SPACE is part of the token.
+"cat" and " cat" are two different numbers.</code></pre></div>
+<h3>What this explains</h3>
+<div class="table-wrap"><table><thead><tr><th>The thing that looks like a bug</th><th>The cause</th></tr></thead><tbody>
+<tr><td>&ldquo;How many r's in strawberry?&rdquo; answered wrongly</td><td>The model never saw the letters. It saw three tokens. Asking it to count characters is asking it to count something it cannot see.</td></tr>
+<tr><td>Arithmetic on long numbers going wrong</td><td><code>1234567</code> might split as <code>123</code> + <code>4567</code>. Digits do not line up in columns the way they would on paper.</td></tr>
+<tr><td>Hindi, Thai or Chinese costing far more than English</td><td>The vocabulary was built mostly from English text, so other scripts fragment into many more tokens for the same meaning. Same sentence, several times the price.</td></tr>
+<tr><td>A trailing space changing the answer</td><td>It genuinely changes the input. The token sequence is different, so the prediction is different.</td></tr>
+<tr><td>JSON and code being expensive</td><td>Braces, indentation and punctuation are all tokens. Minifying a payload before sending it is a real saving.</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Never estimate cost in words or characters.</strong> The rough rule for English is about 0.75 words per token, but it collapses for code, for other languages and for anything with heavy punctuation. Every provider ships a tokeniser you can run locally &mdash; count properly, especially before designing anything around a context limit. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">A user asks your assistant to reverse the word &ldquo;deterministic&rdquo; and it produces something close but wrong. Is this fixable with a better prompt?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Not reliably. The model is manipulating four or five tokens, not thirteen letters, so character-level work is being done indirectly at best. Chain-of-thought prompting helps a little by making it spell the word out first, which converts the problem into one it can see. </p>
+<p> The robust fix is not a prompt at all: give the model a tool that reverses a string, or do it in your own code. This is the general shape of the lesson &mdash; when a task is a poor fit for the mechanism, route around the mechanism rather than arguing with it. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="Every token becomes a long list of numbers positioned in a space where nearness means similar meaning. This is the representation everything else operates on.">
+<h2 id="vectors">From tokens to meaning</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A token id is just a label &mdash; number 976 tells you nothing about what &ldquo;The&rdquo; means. So each id is looked up in a large table and replaced by a long list of numbers, perhaps four thousand of them. That list is a position in a space, and the useful property is that tokens with related meanings end up near each other. Meaning becomes geometry. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>The same idea at three scales</div><pre><code>token id     976                     a label, meaningless on its own
+                |
+  embedding table lookup
+                v
+vector       [0.12, -0.83, 1.44, ... ]   ~4000 numbers = a POSITION
+
+  Nearness in that space is similarity of meaning:
+
+     king - man + woman  lands very close to  queen
+     Paris - France + Italy  lands very close to  Rome
+
+  These are not tricks. They fall out of learning to predict text.</code></pre></div>
+<h3>Two different things both called &ldquo;embeddings&rdquo;</h3>
+<div class="table-wrap"><table><thead><tr><th></th><th>Token embeddings</th><th>Text embeddings</th></tr></thead><tbody>
+<tr><td>What it represents</td><td>One token, before context is applied</td><td>A whole passage, after the model has read it</td></tr>
+<tr><td>Where it lives</td><td>Inside the model, at the input</td><td>Output of a dedicated embedding model</td></tr>
+<tr><td>What you do with it</td><td>Nothing &mdash; it is internal machinery</td><td>Store it, and search by similarity. This is what RAG runs on</td></tr>
+</tbody></table></div>
+<p> The word is used for both, which causes real confusion. When somebody says &ldquo;we store embeddings&rdquo;, they mean the second: one vector per chunk of text, produced by a model whose only job is to place passages sensibly in a space. </p>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>Embeddings are model-specific and not interchangeable.</strong> A vector from one embedding model is meaningless to another &mdash; the spaces have different shapes. Changing your embedding model means re-embedding every document you have. Budget for that before you choose one, because it is the migration people discover at the worst moment. </div></div>
+</section>
+
+<section class="note-section" data-tagline="The mechanism that made all of this work: every token gets to look at every other token and decide which ones matter. Explained without the mathematics.">
+<h2 id="attention">Attention, explained properly</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Read this sentence: &ldquo;The trophy would not fit in the suitcase because <em>it</em> was too big.&rdquo; To understand &ldquo;it&rdquo;, you glanced back at &ldquo;trophy&rdquo; rather than &ldquo;suitcase&rdquo;. Attention is that glance, made mechanical: every token looks at every earlier token, scores how relevant each one is, and builds its own understanding as a weighted blend of them. </div></div>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">One attention step, for the token &ldquo;it&rdquo;</span></div><div class="figure-stage"><pre class="ascii-art">  The  trophy  would  not  fit  in  the  suitcase  because  [it]
+   |     |       |     |    |    |   |      |         |       |
+   |     |       |     |    |    |   |      |         |       |
+   +-----+-------+-----+----+----+---+------+---------+-------+
+                                  |
+                   "it" scores every earlier token
+                                  |
+         0.02  0.71   0.01  0.01 0.02 0.01 0.02   0.18    0.02
+                 ^                              ^
+              trophy                         suitcase
+           strongest link                 considered, rejected
+
+  The new understanding of "it" is mostly "trophy".
+  Nobody wrote that rule. It was learned from text.</pre></div></figure>
+<h3>Why this was the breakthrough</h3>
+<p> Before attention, models read text in order, one word at a time, carrying a summary forward. Information from twenty words ago had to survive twenty hand-offs, and mostly did not. Attention lets any token reach any other token <strong>directly, in one step</strong>, no matter how far apart they are. That is what &ldquo;Transformer&rdquo; names, and it is the whole reason long-range understanding works. </p>
+<p> It also gave a second gift: because every token is scored against every other independently, the work parallelises across thousands of chips. Reading in order cannot be parallelised. The reason models got large enough to be surprising is as much this as it is the idea itself. </p>
+<h3>The cost, and why it shapes everything downstream</h3>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>Every token attends to every token</div><pre><code>   1,000 tokens  ->  1,000,000 pairs
+  10,000 tokens  ->  100,000,000 pairs        100x the work for 10x the text
+ 100,000 tokens  ->  10,000,000,000 pairs
+
+Work grows with the SQUARE of the input.</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>This is why long context is expensive rather than merely priced that way.</strong> Doubling your prompt does not double the cost of processing it. It is also why &ldquo;just put everything in the context window&rdquo; is not the free alternative to retrieval that it appears to be &mdash; you pay in latency and money on every single call, forever, for documents that were mostly irrelevant to that particular question. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Why can a model with a two-million-token context window not simply replace your retrieval system?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Three reasons, in increasing order of importance. Cost and latency scale badly, so every question pays for every document. Attention gets diluted &mdash; performance on finding a specific fact degrades as the surrounding material grows, which is the &ldquo;lost in the middle&rdquo; effect. And your corpus is usually far larger than any window anyway. </p>
+<p> The useful reframing is that long context and retrieval solve different problems. Retrieval decides <em>what is relevant</em>; context length decides <em>how much relevant material fits</em>. A big window makes retrieval more forgiving &mdash; you can send twenty passages instead of five &mdash; but it does not remove the need to choose. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="Attention is one layer. Stack it a hundred times with some plumbing in between and you have the architecture behind every model you have used.">
+<h2 id="transformer">The Transformer, assembled</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> One attention step is like one pass of editing: each word reconsiders itself in light of the others. Do it a hundred times, with a small amount of processing between each pass, and something remarkable happens &mdash; early passes settle grammar and word sense, middle passes assemble facts and relationships, late passes decide what to actually say. Nobody assigned those jobs. They emerged. </div></div>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">One block, repeated many times</span></div><div class="figure-stage"><pre class="ascii-art">           tokens in
+               |
+      +--------v--------+
+      |  embedding      |   ids -> vectors
+      |  + position     |   "where am I in the sequence?"
+      +--------+--------+
+               |
+     +=========v=========+   <-- repeated 32, 80, 120 times
+     |  ATTENTION        |   every token looks at every earlier one
+     |     +  residual   |   keep the original, ADD the update
+     |     +  normalise  |   keep the numbers in a sane range
+     |                   |
+     |  FEED-FORWARD     |   each token processed on its own;
+     |     +  residual   |   this is where most PARAMETERS live,
+     |     +  normalise  |   and it is where facts are stored
+     +=========+=========+
+               |
+      +--------v--------+
+      |  output layer   |   -> a score for EVERY token in the
+      +--------+--------+      vocabulary: ~100,000 numbers
+               |
+        next-token scores</pre></div></figure>
+<div class="table-wrap"><table><thead><tr><th>Piece</th><th>What it does</th><th>Why it is there</th></tr></thead><tbody>
+<tr><td>Positional information</td><td>Tells each token where it sits</td><td>Attention alone is order-blind. Without this, &ldquo;dog bites man&rdquo; and &ldquo;man bites dog&rdquo; are identical inputs.</td></tr>
+<tr><td>Residual connection</td><td>Adds each layer's output to its input rather than replacing it</td><td>Information can travel a hundred layers without being degraded. Deep networks did not train reliably until this existed.</td></tr>
+<tr><td>Normalisation</td><td>Rescales the numbers between steps</td><td>Keeps values from exploding or vanishing across many layers. Pure plumbing, and training fails without it.</td></tr>
+<tr><td>Feed-forward</td><td>Processes each position independently</td><td>Roughly two thirds of the parameters. The evidence suggests this is where factual knowledge is retained.</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>What &ldquo;70 billion parameters&rdquo; means.</strong> A parameter is one number, learned during training, that shapes how signal flows through the network. Seventy billion of them is the model. They are fixed once training ends &mdash; running the model does not change them, which is why a model cannot learn from your conversation. Anything that looks like memory is text being fed back in, not the model changing. </div></div>
+</section>
+
+<section class="note-section" data-tagline="The output is not a word. It is a score for every token in the vocabulary — and the settings you send decide how that list is turned into a choice.">
+<h2 id="sampling">How a word is actually chosen</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The model never picks a word. It produces a score for all hundred thousand tokens in its vocabulary, every single time. Turning that ranked list into one choice is a separate step that <em>you</em> control &mdash; and the settings people treat as mysterious dials are all just different ways of deciding how far down the list you are willing to go. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>After &ldquo;The capital of France is&rdquo;</div><pre><code>raw scores            probabilities        after temperature 0.2
+  " Paris"   14.2   ->    0.89       ->        0.997
+  " located"  9.1   ->    0.06       ->        0.002
+  " the"      8.4   ->    0.03       ->        0.001
+  " home"     7.9   ->    0.02       ->        0.000
+  ...99,996 others      ~0.00
+
+Temperature divides the scores before ranking:
+   LOW  (0.0-0.3)  gaps widen   -> the top answer nearly always wins
+   HIGH (1.0-1.5)  gaps narrow  -> unlikely tokens get a real chance</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>Setting</th><th>What it does</th><th>Use it when</th></tr></thead><tbody>
+<tr><td><code>temperature</code></td><td>Flattens or sharpens the whole distribution</td><td>The main dial. Low for extraction, classification and code; higher for drafting and ideas.</td></tr>
+<tr><td><code>top_p</code></td><td>Keeps only the most likely tokens that together make up p of the probability</td><td>A safety net &mdash; it cuts off the long tail of nonsense that high temperature would otherwise admit. Adjust this <em>or</em> temperature, not both.</td></tr>
+<tr><td><code>top_k</code></td><td>Keeps only the k highest-scoring tokens</td><td>Blunter than top_p. Rarely the better choice.</td></tr>
+<tr><td><code>stop</code></td><td>Ends generation when a string appears</td><td>Structured output where you know the terminator. Saves real money on long responses.</td></tr>
+<tr><td><code>max_tokens</code></td><td>A hard ceiling on the response</td><td>Always set it. It is your only defence against a runaway generation.</td></tr>
+<tr><td><code>seed</code></td><td>Makes sampling repeatable</td><td>Testing and debugging. Note it does not guarantee identical output across model versions or infrastructure.</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Temperature 0 is not deterministic in practice.</strong> It is the closest you can get, and it is not a guarantee: floating-point arithmetic on GPUs is order-sensitive, batching changes that order, and two identical requests can diverge. Build systems that tolerate variation rather than systems that assume it away. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">You are extracting an invoice total into JSON. What temperature, and why?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Near zero. There is one correct answer sitting on the document, so every bit of randomness is a chance to be wrong for no benefit whatsoever. Creativity has no value in extraction. </p>
+<p> The inverse case is worth stating too: at temperature 0 a brainstorming feature returns the same five ideas every time, and users notice quickly. The setting follows the task, and any codebase that has one global temperature for every call has almost certainly got it wrong for half of them. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="Why the first token is slow and the rest are fast, why long conversations cost more each turn, and what a provider's prompt cache is actually caching.">
+<h2 id="inference">What happens when you press send</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Generating a response is two phases with very different characters. First the model reads your entire prompt &mdash; all at once, in parallel, fast. Then it writes the answer one token at a time, each one requiring a full pass through the network. That is why the first word takes a moment and the rest stream out smoothly, and it is why output tokens cost several times what input tokens cost. </div></div>
+<figure class="figure is-flow">
+<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">One request, from send to last token</span>{{replay}}</div>
+<div class="figure-stage"><ol class="flow flow-column">
+<li class="flow-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Prefill &mdash; reading your prompt</span><span class="flow-detail">Every token processed in parallel. Fast per token, and it is the whole reason time-to-first-token grows with prompt length.</span></div></li>
+<li class="flow-step" data-tone="accent" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">The KV cache is built</span><span class="flow-detail">What each token computed during attention is stored, so later tokens can reuse it instead of recomputing the whole history.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Decode &mdash; one token</span><span class="flow-detail">A full pass through every layer produces one token. Sequential by nature: token 40 cannot be computed before token 39.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">Append and repeat</span><span class="flow-detail">The new token joins the cache and step three runs again. This loop is the entire generation.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:4"><span class="flow-num">5</span><div class="flow-text"><span class="flow-label">Stop</span><span class="flow-detail">An end-of-text token, a stop string, or max_tokens. Whichever comes first.</span></div></li>
+</ol></div>
+</figure>
+<h3>Three consequences worth designing around</h3>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">Output costs more than input</div><p>Prefill is parallel; decode is one expensive pass per token. That is the cost difference, and it means &ldquo;be concise&rdquo; in a prompt is a genuine budget lever, not just a style preference.</p></div>
+  <div class="card"><div class="card-title">Long chats get slower every turn</div><p>Each turn re-reads the entire conversation. Turn twenty pays for turns one to nineteen again. Summarising old turns is not tidiness — it is the fix for a cost curve that only goes up.</p></div>
+  <div class="card"><div class="card-title">Prompt caching is caching the KV cache</div><p>Providers can keep the computed state for an unchanged prefix. Put your long, stable system prompt and your fixed examples <em>first</em> and the variable part last, and you stop paying to re-read them.</p></div>
+  <div class="card"><div class="card-title">Streaming changes the felt experience, not the total</div><p>The same tokens take the same time. Showing them as they arrive turns eight seconds of nothing into eight seconds of visible progress, which users rate very differently.</p></div>
+</div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>A concrete prompt-caching layout.</strong> Order your messages as: system prompt, then long fixed instructions, then few-shot examples, then retrieved passages, then the user's question. Everything before the first thing that changes can be cached. Reversing that order &mdash; question first &mdash; makes the cache useless, and it is a one-line difference. </div></div>
+</section>
+
+<section class="note-section" data-tagline="Models that think before answering are not a different architecture. They are the same loop, allowed to spend more tokens on the working out.">
+<h2 id="reasoning">Reasoning models and thinking time</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Asked a hard question, a person does better with a pencil and a minute than answering instantly. A reasoning model is that: it generates a long internal working-out before its visible answer, and the extra tokens are where the improvement comes from. You are buying accuracy with time and money, quite literally. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>The same question, two behaviours</div><pre><code>STANDARD MODEL
+  prompt -> [~40 tokens of answer] -> done            fast, cheap
+
+REASONING MODEL
+  prompt -> [~3,000 tokens of working out, hidden]
+         -> [~40 tokens of answer]  -> done           slow, ~10x the cost
+
+  The working-out tokens are billed. They are usually not shown to you.</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>Worth the extra tokens</th><th>Not worth them</th></tr></thead><tbody>
+<tr><td>Multi-step maths and logic</td><td>Classification into a few known buckets</td></tr>
+<tr><td>Debugging, planning a code change across files</td><td>Extraction from a document</td></tr>
+<tr><td>Anything where being wrong is expensive to discover</td><td>Rewriting or summarising</td></tr>
+<tr><td>Ambiguous problems needing a plan first</td><td>Anything answered correctly by a cheap model already</td></tr>
+</tbody></table></div>
+<h3>Chain-of-thought, and the honest caveat</h3>
+<p> Asking an ordinary model to &ldquo;work through it step by step&rdquo; gets some of the same effect, because the intermediate tokens genuinely give the computation somewhere to happen. It is a real technique and it is cheap to try. </p>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>The stated reasoning is not necessarily the actual reasoning.</strong> A model can produce sound-looking steps that lead to a conclusion it would have reached anyway, and it can reach a right answer through wrong steps. Treat visible reasoning as useful evidence and a debugging aid &mdash; never as a guarantee, and never as an explanation you would put in front of a regulator. See the <a href="../governance/index.html">AI Governance</a> note on what counts as an explanation. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Your classifier sorts support tickets into five categories. Should you upgrade it to a reasoning model?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Almost certainly not. Classification into known buckets is a task cheap models do well, and reasoning tokens are pure cost on a problem with no multi-step structure to reason about. You would pay perhaps ten times as much for a difference your eval set will struggle to detect.</p>
+<p> The decision should come from the eval set rather than from instinct in either direction. Run both, compare the scores, compare the cost, and let the numbers choose. That is what an eval set is <em>for</em> &mdash; see the <a href="../evals/index.html">Evaluating AI Systems</a> note. </p></div></details>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Text becomes tokens becomes vectors. Character-level tasks are hard because the model never sees characters.</li><li>Attention lets any token reach any other in one step, and its cost grows with the square of the input.</li><li>A Transformer is one attention block repeated many times, with residuals and normalisation holding it together.</li><li>The model outputs scores for the whole vocabulary; temperature and top_p decide how you pick from them.</li><li>Prefill is parallel and cheap, decode is sequential and expensive. Put stable text first to make prompt caching work.</li><li>Reasoning models buy accuracy with tokens. Let an eval set decide whether that trade pays on your task.</li></ul></div>
+</section>

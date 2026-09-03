@@ -33,12 +33,23 @@
     <div class="field">
       <label for="email">Email</label>
       <input type="email" id="email" name="email" autocomplete="username"
-             placeholder="you@example.com" required autofocus>
+             placeholder="Your email address" required autofocus>
     </div>
     <div class="field">
       <label for="password">Password</label>
-      <input type="password" id="password" name="password" autocomplete="current-password"
-             placeholder="Your password" required>
+      <div class="field-with-btn">
+        <input type="password" id="password" name="password" autocomplete="current-password"
+               placeholder="Your password" required>
+        <button class="reveal-btn" id="reveal" type="button"
+                aria-label="Show password" aria-pressed="false" title="Show password">
+          <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.6 6.2A9.9 9.9 0 0 1 12 6c6.4 0 10 6 10 6a17.6 17.6 0 0 1-3.2 3.9"/>
+            <path d="M6.6 6.7A17.4 17.4 0 0 0 2 12s3.6 6 10 6a9.7 9.7 0 0 0 4.2-.9"/>
+            <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="m3 3 18 18"/></svg>
+        </button>
+      </div>
     </div>
     <button class="btn btn-primary" type="submit">
       Sign in
@@ -46,12 +57,6 @@
     </button>
   </form>
 
-  <p class="login-foot">
-    This site is static &mdash; there is no server and no database, so the check
-    below happens entirely in your browser. It keeps the notes out of the way of
-    a casual visitor; it is not a security boundary, and anyone who reads the
-    page source can get past it.
-  </p>
 </main>
 
 <script>
@@ -70,9 +75,26 @@
     return x.toString(36);
   }
 
-  var EMAIL_HASH = '339rgg';
-  var PASS_HASH  = 'rx40y1';
-  var TOKEN      = 'v11xb7';
+  // Any of these three addresses, with the one password.
+  var EMAIL_HASHES = ['339rgg', '1tyli8p', 'wpata7'];
+  var PASS_HASH    = 'rx40y1';
+  var TOKEN        = 'v11xb7';
+
+  /* Show and hide the password. The button reports its state to assistive
+     technology through aria-pressed, and the icon swaps to match. */
+  var pwd = document.getElementById('password');
+  var reveal = document.getElementById('reveal');
+  reveal.addEventListener('click', function () {
+    var showing = pwd.type === 'text';
+    pwd.type = showing ? 'password' : 'text';
+    reveal.setAttribute('aria-pressed', String(!showing));
+    reveal.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+    reveal.setAttribute('title', showing ? 'Show password' : 'Hide password');
+    // Keep the caret where it was rather than jumping to the start.
+    var at = pwd.value.length;
+    pwd.focus();
+    try { pwd.setSelectionRange(at, at); } catch (e) { /* not all types allow it */ }
+  });
 
   var form = document.getElementById('login-form');
   var err = document.getElementById('err');
@@ -103,7 +125,7 @@
 
     if (!email || !pass) return fail('Fill in both fields.');
 
-    if (h(SALT + email) !== EMAIL_HASH || h(SALT + pass) !== PASS_HASH) {
+    if (EMAIL_HASHES.indexOf(h(SALT + email)) === -1 || h(SALT + pass) !== PASS_HASH) {
       document.getElementById('password').value = '';
       return fail('That email and password do not match.');
     }

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What fine-tuning can and cannot teach — Fine-tuning — Garvit's Notes</title>
+<meta name="description" content="Fine-tuning teaches a manner, not a fact. Getting that one sentence right saves most teams a wasted month.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){var d=document.documentElement;
+try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
+if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');}catch(e){}
+try{if(localStorage.getItem('gn-auth')!=='v11xb7'){
+var depth=('../../'.match(/\.\.\//g)||[]).length;
+var parts=location.pathname.split('/').filter(Boolean).slice(-(depth+1));
+location.replace('../../login.html?next='+encodeURIComponent(parts.join('/')));}}catch(e){}
+})();</script>
+<link rel="stylesheet" href="../../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../../" data-note="fine-tuning" data-topic="what">
+<header class="site-header">
+  <button class="icon-btn nav-only" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <button class="icon-btn rail-only" id="rail-toggle" type="button" aria-label="Hide the sidebar" aria-pressed="false" title="Hide the sidebar  ⌘\"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg></button>
+  <a class="brand" href="../../index.html"><span class="brand-mark">GN</span><span class="brand-text">Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search every topic&hellip;" autocomplete="off" aria-label="Search notes">
+    <kbd class="search-kbd">/</kbd>
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <button class="icon-btn" id="sign-out" type="button" aria-label="Sign out" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg></button>
+  <div class="read-progress" id="read-progress"><span></span></div>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="All notes"></nav>
+  <main class="main" id="main"><article class="content">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/fine-tuning/index.html">Fine-tuning</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">What fine-tuning can and cannot teach</span></nav>
+<header class="topic-head reveal">
+  <span class="eyebrow">Note 10 &middot; Fine-tuning &middot; Topic 1 of 6</span>
+  <h1>What fine-tuning can and cannot teach</h1>
+  <div class="page-meta">
+    <span>2 min read</span>
+    <span>Some experience helps</span>
+  </div>
+</header>
+<div class="topic-body">
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Fine-tuning is showing someone a thousand worked examples until they pick up the house style. It is very good at teaching <em>how</em> to respond &mdash; the format, the tone, the shape of a good answer. It is poor at teaching <em>what is true</em>, because facts change and retraining is slow, expensive and cannot be done every Tuesday when a policy is updated. </div></div>
+<div class="table-wrap"><table><thead><tr><th>Your actual problem</th><th>The answer</th><th>Why</th></tr></thead><tbody>
+<tr><td>&ldquo;It does not know about our products&rdquo;</td><td><strong>Retrieval</strong></td><td>Facts, and they change. Update a document, not a model.</td></tr>
+<tr><td>&ldquo;It will not stick to our output format&rdquo;</td><td><strong>Structured output</strong> first</td><td>A schema enforces this for free. Try it before training anything.</td></tr>
+<tr><td>&ldquo;It ignores an instruction we keep repeating&rdquo;</td><td><strong>Prompt work</strong> first</td><td>Usually an underspecified brief rather than an incapable model.</td></tr>
+<tr><td>&ldquo;Our prompt is 4,000 tokens of examples and it is slow and costly&rdquo;</td><td><strong>Fine-tuning</strong></td><td>Genuine fit. Bake the examples in, send a short prompt.</td></tr>
+<tr><td>&ldquo;We need this tone and no amount of prompting gets it&rdquo;</td><td><strong>Fine-tuning</strong></td><td>Style is exactly what it teaches well.</td></tr>
+<tr><td>&ldquo;A small model would do if it just knew this narrow task&rdquo;</td><td><strong>Fine-tuning</strong> (distillation)</td><td>The strongest economic case there is. Covered below.</td></tr>
+<tr><td>&ldquo;It hallucinates&rdquo;</td><td><strong>Neither, alone</strong></td><td>Fine-tuning on your data can make it hallucinate <em>more</em> confidently in your house style. Retrieval plus validation is the answer.</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Fine-tuning on documents does not put those documents in the model.</strong> This is the most expensive misunderstanding in the field. Training on your knowledge base teaches the model to <em>sound like</em> your knowledge base &mdash; the register, the vocabulary, the structure &mdash; while remaining just as capable of inventing a policy that was never written. It often makes things worse, because the invented answers now carry your house voice and read as authoritative. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">A team fine-tunes on 5,000 support tickets so the assistant &ldquo;knows their product&rdquo;. What will actually happen?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> It will learn to write like their support team &mdash; the greetings, the structure, the vocabulary, the sign-off. Some facts will stick incidentally, unreliably and without any way to tell which. When the return policy changes next month, the model will keep confidently stating the old one, and there is no document to edit.</p>
+<p> The same 5,000 tickets used as a retrieval corpus would give current, citable, updatable answers. And if the tone genuinely matters too, do both &mdash; fine-tune for the voice, retrieve for the facts. They are not alternatives; they solve different halves. </p></div></details>
+</div>
+<nav class="page-nav">
+<a class="pn-prev" href="../../notes/rag-advanced/measure.html">
+  <span class="pn-dir">&larr; Previous</span>
+  <span class="pn-title">Measuring retrieval on its own</span>
+  <span class="pn-note">in Advanced RAG</span>
+</a>
+<a class="pn-next" href="methods.html">
+  <span class="pn-dir">Next &rarr;</span>
+  <span class="pn-title">Full, LoRA, QLoRA</span>
+  
+</a>
+</nav>
+<nav class="siblings" aria-label="Other topics in this note">
+  <div class="sib-head">More in <a href="index.html">Fine-tuning</a></div>
+  <div class="sib-row"><a class="sib is-current" href="what.html"><span class="sib-n">01</span>What fine-tuning can and cannot teach</a><a class="sib" href="methods.html"><span class="sib-n">02</span>Full, LoRA, QLoRA</a><a class="sib" href="data.html"><span class="sib-n">03</span>The data is the whole job</a><a class="sib" href="preference.html"><span class="sib-n">04</span>Preference tuning: RLHF and DPO</a><a class="sib" href="distill.html"><span class="sib-n">05</span>Distillation, and the case that actually pays</a><a class="sib" href="ops.html"><span class="sib-n">06</span>Living with a fine-tuned model</a></div>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../../assets/js/site-data.js"></script>
+<script src="../../assets/js/app.js"></script>
+</body>
+</html>

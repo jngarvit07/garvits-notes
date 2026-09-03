@@ -1179,6 +1179,30 @@ body.login-page { display: grid; place-items: center; min-height: 100vh; padding
 }
 .login-card .btn { width: 100%; justify-content: center; margin-top: 6px; }
 
+/* A field with a button sitting inside its right-hand edge. The input keeps
+   the full width and reserves padding for the button, so the two never overlap
+   however long the value gets. */
+.field-with-btn { position: relative; }
+.field-with-btn input { padding-right: 44px; }
+.reveal-btn {
+  position: absolute; right: 5px; top: 50%; transform: translateY(-50%);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; padding: 0; cursor: pointer;
+  background: transparent; border: 0; border-radius: 7px;
+  color: var(--text-faint); transition: color .15s, background .15s;
+}
+.reveal-btn:hover { color: var(--text); background: var(--surface-alt); }
+.reveal-btn:focus-visible {
+  outline: none; color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.reveal-btn svg { width: 17px; height: 17px; }
+/* Closed eye means "hidden"; it swaps to the open eye once the value shows. */
+.reveal-btn .icon-eye-off { display: none; }
+.reveal-btn[aria-pressed="true"] .icon-eye { display: none; }
+.reveal-btn[aria-pressed="true"] .icon-eye-off { display: block; }
+.reveal-btn[aria-pressed="true"] { color: var(--accent); }
+
 .login-error {
   display: none; align-items: center; gap: 8px;
   margin: 0 0 16px; padding: 10px 12px;
