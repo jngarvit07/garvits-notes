@@ -49,6 +49,59 @@
     });
   }
 
+  /* --- 2b. Reading size --------------------------------------------------- */
+  // Every font-size in the stylesheet is in rem, so one number on <html>
+  // moves all of them. Medium is the default and stores no attribute, which
+  // lets the small-screen base size in the stylesheet still apply.
+  (function () {
+    var btn = document.getElementById('size-toggle');
+    var menu = document.getElementById('size-menu');
+    if (!btn || !menu) return;
+
+    var apply = function (size, save) {
+      if (size === 'sm' || size === 'lg') document.documentElement.setAttribute('data-size', size);
+      else document.documentElement.removeAttribute('data-size');
+      if (save) store.set('gn-size', size);
+      menu.querySelectorAll('[data-size]').forEach(function (b) {
+        b.setAttribute('aria-checked', String(b.getAttribute('data-size') === size));
+      });
+    };
+
+    var current = store.get('gn-size');
+    apply(current === 'sm' || current === 'lg' ? current : 'md', false);
+
+    var close = function () {
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded', 'false');
+    };
+    var open = function () {
+      menu.hidden = false;
+      btn.setAttribute('aria-expanded', 'true');
+      var checked = menu.querySelector('[aria-checked="true"]');
+      if (checked) checked.focus();
+    };
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      menu.hidden ? open() : close();
+    });
+
+    menu.addEventListener('click', function (e) {
+      var item = e.target.closest('[data-size]');
+      if (!item) return;
+      apply(item.getAttribute('data-size'), true);
+      close();
+      btn.focus();
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!menu.hidden && !menu.contains(e.target) && e.target !== btn) close();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !menu.hidden) { close(); btn.focus(); }
+    });
+  })();
+
   /* --- 3. Collapsing the left rail --------------------------------------- */
   // The state lives on <html> so the boot script in <head> can apply it before
   // first paint — otherwise the sidebar flashes in and then disappears.
@@ -151,7 +204,8 @@
       });
     });
 
-    sidebar.innerHTML = '<div class="tree">' + html + '</div>';
+    var treeHost = document.getElementById('tree') || sidebar;
+    treeHost.innerHTML = html;
 
     // Expand and collapse. The drawer animates via grid-template-rows, which
     // is the one way to transition to a height you do not know in advance.
@@ -451,6 +505,42 @@
     var link = document.querySelector(go);
     if (link && link.href) location.href = link.href;
   });
+
+  /* --- 14b. Search on a small screen --------------------------------------- */
+  // The field would be about 90px wide next to the other controls, so below
+  // the breakpoint it becomes a button that opens a full-width bar.
+  (function () {
+    var wrap = document.querySelector('.search-wrap');
+    var field = document.getElementById('search');
+    if (!wrap || !field) return;
+
+    var small = window.matchMedia('(max-width: 760px)');
+    var close = function () {
+      document.body.classList.remove('search-open');
+      var s = document.querySelector('.search-scrim');
+      if (s) s.remove();
+    };
+
+    wrap.addEventListener('click', function (e) {
+      if (!small.matches) return;
+      if (document.body.classList.contains('search-open')) return;
+      // Collapsed: the whole wrap is the button.
+      e.preventDefault();
+      document.body.classList.add('search-open');
+      var scrim = document.createElement('div');
+      scrim.className = 'search-scrim';
+      scrim.addEventListener('click', close);
+      document.body.appendChild(scrim);
+      field.focus();
+    });
+
+    field.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    // Following a result closes it; so does leaving the small breakpoint.
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('.search-results a')) close();
+    });
+    small.addEventListener('change', function (m) { if (!m.matches) close(); });
+  })();
 
   /* --- 15. Search ---------------------------------------------------------- */
   var escapeHtml = function (t) {

@@ -169,7 +169,7 @@ notes/<id>/<topic>.html generated — one topic  ·  do not edit by hand
 content/*.html          the notes themselves, one fragment each
 content/notes.json      the parts and the catalogue, in reading order
 assets/css/main.css     the whole design system
-assets/js/app.js        theme, tree, rail, TOC, search, motion, highlighting
+assets/js/app.js        theme, size, tree, rail, TOC, search, motion, highlighting
 assets/js/site-data.js  generated — the catalogue and the search index
 tools/build.mjs         the build
 tools/lib/enrich.mjs    the beginner-layer inserter
@@ -182,6 +182,10 @@ tools/lib/enrich.mjs    the beginner-layer inserter
   open.
 - **A collapsing sidebar** — the button beside the logo, or <kbd>⌘</kbd> +
   <kbd>\\</kbd> — which widens the reading column and is remembered.
+- **Three reading sizes** — small, medium, large, from the `Aa` button. Every
+  font-size in the stylesheet is in `rem`, so one number on `<html>` moves all
+  of them, and the reading column widens with the text so the measure holds.
+  Remembered per browser.
 - **Light and dark**, following the system by default; the toggle overrides it
   and is remembered per browser.
 - **Search** across every topic heading and its body text, showing the sentence
@@ -193,6 +197,18 @@ tools/lib/enrich.mjs    the beginner-layer inserter
 - **Self-checks** that stay collapsed until you commit to an answer.
 - Reduced-motion, keyboard navigation and mobile are all handled. Every
   animation is switched off under `prefers-reduced-motion`.
+
+### On a phone
+
+- The sidebar becomes a drawer, and every tap target is at least 40px.
+- Search collapses to an icon that opens a full-width bar under the header,
+  because a field sharing that row would be about 90px wide.
+- Sign out moves to the foot of the sidebar — six controls in a phone header is
+  too many, and signing out is a rare action.
+- Tables, code blocks and fixed-width diagrams scroll inside their own box, so
+  the page itself never scrolls sideways. This is checked in CI-style by
+  loading every page at 320, 390, 412 and 768px wide, at all three reading
+  sizes, and asserting `scrollWidth <= innerWidth`.
 
 ## A note on what is not here
 

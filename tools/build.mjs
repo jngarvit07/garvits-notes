@@ -111,6 +111,8 @@ const ICON_SUN  = '<svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke=
 const ICON_MOON = '<svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
 const ICON_OUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg>';
+const ICON_SIZE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 7.5 6l4.5 11"/><path d="M4.6 13.6h5.8"/><path d="M14 17l3.4-8 3.4 8"/><path d="M15.2 14.4h4.4"/></svg>';
+const ICON_TICK = '<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>';
 const ICON_SEARCH = '<svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
 const ICON_RAIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg>';
 
@@ -122,7 +124,8 @@ const AUTH_TOKEN = 'v11xb7';
    page. See login.html — this is a gate, not a security boundary. */
 const boot = (base) => `<script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
-if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');}catch(e){}
+if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');
+var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data-size',z);}catch(e){}
 try{if(localStorage.getItem('gn-auth')!=='${AUTH_TOKEN}'){
 var depth=('${base}'.match(/\\.\\.\\//g)||[]).length;
 var parts=location.pathname.split('/').filter(Boolean).slice(-(depth+1));
@@ -140,8 +143,17 @@ const header = (base) => `<header class="site-header">
     <kbd class="search-kbd">/</kbd>
     <div class="search-results" id="search-results" hidden></div>
   </div>
+  <div class="size-wrap">
+    <button class="icon-btn" id="size-toggle" type="button" aria-label="Reading size"
+            aria-haspopup="menu" aria-expanded="false" title="Reading size">${ICON_SIZE}</button>
+    <div class="size-menu" id="size-menu" role="menu" hidden>
+      <div class="size-menu-head">Reading size</div>
+      <button type="button" role="menuitemradio" data-size="sm"><span>Small</span>${ICON_TICK}</button>
+      <button type="button" role="menuitemradio" data-size="md"><span>Medium</span>${ICON_TICK}</button>
+      <button type="button" role="menuitemradio" data-size="lg"><span>Large</span>${ICON_TICK}</button>
+    </div>
+  </div>
   <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme">${ICON_SUN}${ICON_MOON}</button>
-  <button class="icon-btn" id="sign-out" type="button" aria-label="Sign out" title="Sign out">${ICON_OUT}</button>
   <div class="read-progress" id="read-progress"><span></span></div>
 </header>`;
 
@@ -160,7 +172,12 @@ ${boot(base)}
 <body data-base="${base}"${note ? ` data-note="${attr(note)}"` : ''}${topic ? ` data-topic="${attr(topic)}"` : ''}${wide ? ' class="is-wide"' : ''}>
 ${header(base)}
 <div class="layout">
-  <nav class="sidebar" id="sidebar" aria-label="All notes"></nav>
+  <nav class="sidebar" id="sidebar" aria-label="All notes">
+    <div class="tree" id="tree"></div>
+    <div class="side-foot">
+      <button class="side-out" id="sign-out" type="button">${ICON_OUT}<span>Sign out</span></button>
+    </div>
+  </nav>
   <main class="main" id="main">${main}</main>
   ${toc ? '<aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>' : ''}
 </div>
