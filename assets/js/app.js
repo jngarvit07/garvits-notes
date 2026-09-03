@@ -41,13 +41,14 @@
   }
 
   /* --- 2. Sign out ------------------------------------------------------- */
-  var signOut = document.getElementById('sign-out');
-  if (signOut) {
-    signOut.addEventListener('click', function () {
+  // There are two — one in the header, one at the foot of the sidebar — so
+  // they are found by attribute rather than by id.
+  document.querySelectorAll('[data-sign-out]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
       store.del('gn-auth');
       location.href = BASE + 'login.html';
     });
-  }
+  });
 
   /* --- 2b. Reading size --------------------------------------------------- */
   // Every font-size in the stylesheet is in rem, so one number on <html>

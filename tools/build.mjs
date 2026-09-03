@@ -154,6 +154,7 @@ const header = (base) => `<header class="site-header">
     </div>
   </div>
   <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme">${ICON_SUN}${ICON_MOON}</button>
+  <button class="icon-btn head-only" data-sign-out type="button" aria-label="Sign out" title="Sign out">${ICON_OUT}</button>
   <div class="read-progress" id="read-progress"><span></span></div>
 </header>`;
 
@@ -175,7 +176,7 @@ ${header(base)}
   <nav class="sidebar" id="sidebar" aria-label="All notes">
     <div class="tree" id="tree"></div>
     <div class="side-foot">
-      <button class="side-out" id="sign-out" type="button">${ICON_OUT}<span>Sign out</span></button>
+      <button class="side-out" data-sign-out type="button">${ICON_OUT}<span>Sign out</span></button>
     </div>
   </nav>
   <main class="main" id="main">${main}</main>

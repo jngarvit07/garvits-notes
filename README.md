@@ -203,8 +203,9 @@ tools/lib/enrich.mjs    the beginner-layer inserter
 - The sidebar becomes a drawer, and every tap target is at least 40px.
 - Search collapses to an icon that opens a full-width bar under the header,
   because a field sharing that row would be about 90px wide.
-- Sign out moves to the foot of the sidebar — six controls in a phone header is
-  too many, and signing out is a rare action.
+- Sign out is in the header on a desktop and at the foot of the sidebar
+  everywhere; the header copy is hidden on a phone, where the row has no room
+  for it.
 - Tables, code blocks and fixed-width diagrams scroll inside their own box, so
   the page itself never scrolls sideways. This is checked in CI-style by
   loading every page at 320, 390, 412 and 768px wide, at all three reading
