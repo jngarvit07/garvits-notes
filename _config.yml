@@ -1,0 +1,8 @@
+# GitHub Pages publishes the whole branch. These are the parts of the
+# repository that are not the site: content/ is the unbuilt source of every
+# note, and it was being served in full, ungated, at /content/<note>.html.
+exclude:
+  - content
+  - tools
+  - tests
+  - README.md

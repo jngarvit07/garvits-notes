@@ -3,5 +3,9 @@
   "private": true,
   "type": "module",
   "description": "Builds the static site from content/. No dependencies.",
-  "scripts": { "build": "node build.mjs" }
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node ../tests/run.mjs",
+    "check": "node build.mjs && node ../tests/run.mjs"
+  }
 }
