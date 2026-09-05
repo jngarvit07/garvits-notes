@@ -66,40 +66,28 @@ the deep dives underneath it.
 |---|------|---|---|
 | 23 | What to Learn Next | The path, the foundations, and how to tell you have learned it | 6 |
 
-## Signing in
+## Public, and unindexed only where it should be
 
-Opening the site lands on `login.html`, which checks the email and password in
-the browser and stores a flag in `localStorage`.
+The site carries no sign-in gate, and `robots.txt` doesn't exist — a search
+engine is free to crawl and index every note. There used to be a sign-in gate
+here, backed by `robots.txt` and a blanket `noindex` on every page. On a
+static site a gate like that was never a security boundary — `curl` returned
+every note in full without signing in, and the repository is public on GitHub
+Pages regardless — so it only ever kept out a casual visitor. Once the goal
+stopped being privacy, the gate was pure friction (re-signing in on every new
+browser or cleared cache, JavaScript required just to read a note) for
+protection that was never real, and the `noindex`/`robots.txt` pair was
+working against the point of publishing at all: it made the notes
+un-Googleable. All three are gone now.
 
-**This is a gate, not a security boundary — and the distinction is not
-academic.** A static site has nowhere to keep a secret. The note text is in the
-HTML that gets served, so `curl` returns it in full without ever signing in;
-the token is in the source of every page; and the password is a 32-bit djb2
-hash, which is brute-forced in milliseconds. On GitHub Pages the repository is
-public regardless. The gate keeps a casual visitor out of the notes. It does
-nothing against anyone who looks. **Real access control needs a server**, or
-content encrypted with a key the page does not ship.
+The one place `noindex` remains is the pre-restructure redirect stubs
+(`notes/<slug>.html`) — they hold no content of their own, so search results
+should point at the real page (`notes/<slug>/index.html`) via the `canonical`
+link instead of indexing the stub.
 
-What the gate does do properly, as of now:
-
-| | |
-|---|---|
-| Every page checks before rendering | All 219, verified by `tests/run.mjs` |
-| It fails **closed** | Blocked `localStorage` sends you to login, not into the site |
-| JavaScript off | `<noscript>` hides the body and forwards to login |
-| Deep links survive | `?next=` returns you to the exact page, hash included |
-| Crawlers | `robots.txt` disallows everything; every page is `noindex, nofollow` |
-| The source | `_config.yml` keeps `content/` off the published site |
-
-That last one mattered most: `content/` holds the unbuilt notes and was being
-served, ungated, at `/content/<note>.html`. Crawlers do not run the JavaScript
-that redirects, so without the `noindex` and the `robots.txt` the notes were
-publicly searchable no matter what the gate did.
-
-Three addresses are accepted, all with the same password. They are stored as
-salted hashes in `login.html` (`EMAIL_HASHES` and `PASS_HASH`) and the matching
-token is in `tools/build.mjs` as `AUTH_TOKEN` — change them together. The
-password field has a show/hide toggle.
+`_config.yml` still keeps `content/` (the unbuilt note source) and `tools/`,
+`tests/` off the published site — that's about not shipping build machinery
+and drafts, not about gating the notes themselves.
 
 ## Reading it locally
 
@@ -120,11 +108,9 @@ npm test          # check the built site
 npm run check     # both
 ```
 
-`tests/run.mjs` has no dependencies and starts no browser. It lifts the real
-gate script out of the built HTML and runs it in a `vm` against a stubbed
-`location`, so it tests what actually ships. It covers the gate on every page,
-the signed-out round trip through `login.html` and back, fail-closed behaviour,
-the crawler and source-exclusion rules, the payload split, the old-URL
+`tests/run.mjs` has no dependencies and starts no browser; it reads the built
+site only. It checks that no page carries the old gate or a blanket noindex,
+the `_config.yml` source-exclusion rules, the payload split, the old-URL
 redirects, and every internal link.
 
 ## Editing
@@ -206,8 +192,6 @@ domain, or opened straight off disk.
 
 ```
 index.html               the overview
-login.html               the sign-in gate
-robots.txt               keeps every crawler out
 _config.yml              keeps content/, tools/ and tests/ off the built site
 notes/<id>/index.html    generated — a note, listing its topics
 notes/<id>/<topic>.html  generated — one topic  ·  do not edit by hand
