@@ -1,0 +1,250 @@
+<section class="note-section" data-tagline="Treat it like a fast junior engineer pairing with you: a written spec first, one vertical slice before the next, and every diff actually read before it merges.">
+<h2 id="how">How to actually use AI to build a project</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The failure mode is asking for the whole app in one prompt and hoping. It can write a lot of code fast, which is exactly the danger — a hundred lines you didn't read is a hundred lines you don't understand when they break at 2am. The fix isn't asking for less; it's asking for it in an order you can review as it arrives, the same discipline you'd want from any engineer moving fast. </div></div>
+<p> Four habits separate a project an AI helped build well from one that collapses under its own code six weeks in. </p>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">1. Write the spec first, yourself</div><p>One page: what it does, the main entities, the endpoints, what "done" looks like for the first slice. An AI given a clear spec produces focused code; given "build me a task tracker" it guesses at every decision you didn't make.</p></div>
+  <div class="card"><div class="card-title">2. Build one vertical slice before the next</div><p>One real feature, end to end — one API endpoint, wired to one UI screen, actually working — before starting the second. Not "all the backend, then all the frontend."</p></div>
+  <div class="card"><div class="card-title">3. Give it the real context, not a blank page</div><p>The actual file it's editing, the actual API response shape, the project's existing conventions. A model guessing at a schema it was never shown produces plausible code against the wrong one.</p></div>
+  <div class="card"><div class="card-title">4. Read every diff before it merges</div><p>Not skim — read. You are the one who has to debug it in production later, and "I don't know, the AI wrote it" is not a debugging strategy.</p></div>
+</div>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; one giant prompt</div><pre><code>"Build me a full task tracker app with
+auth, a Postgres backend, a React frontend,
+and deploy it to Kubernetes."
+
+# Thousands of lines land at once.
+# Nothing has been run. Nothing has been read.
+# The first bug report has no obvious starting point.</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; one slice, reviewed, then the next</div><pre><code>"Here's the Prisma schema (pasted). Add one
+endpoint: POST /api/boards/:id/tasks — creates
+a Task, validates title is non-empty, returns 201
+with the created row. Match the style of the
+existing routes/boards.ts file (also pasted)."
+
+# One reviewable piece. Runs it, reads it, tests it.
+# Then asks for the next slice.</code></pre></div>
+</div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> This note works through one real scenario end to end — <strong>QuickTasks</strong>, a small task tracker — applying exactly this discipline: a spec, then the backend slice, then the frontend slice, then wiring them together, then shipping it with the Docker/CI-CD/Kubernetes pipeline from the previous note. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Why does giving the model the existing file it's editing produce better code than describing the feature from scratch?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Without it, the model has to guess at your naming conventions, your error-handling pattern, your validation style, and the exact shape of your schema — and a guess that's 90% right is often worse than one that's obviously wrong, because the mismatch is subtle and easy to merge without noticing. Given the real file, it matches what's already there instead of inventing a plausible-looking alternative. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="QuickTasks: boards, tasks and the people assigned to them. The entities, the architecture, and the one page of spec everything else in this note builds from.">
+<h2 id="scenario">The scenario: QuickTasks, a real task tracker</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A small, genuinely buildable product: a team creates a board, adds tasks to it, assigns them to people, and marks them done. Small enough to build in an afternoon with help, real enough that every decision below — the schema, the API shape, the deploy pipeline — is one you would actually make on a real product. </div></div>
+<p> <strong>The one-page spec</strong>, written before any code — this is the thing you hand the AI, not "build me a task tracker": </p>
+<div class="table-wrap"><table><thead><tr><th>Entity</th><th>Fields</th><th>Rule</th></tr></thead><tbody>
+<tr><td><strong>User</strong></td><td>id, email, name, passwordHash</td><td>Signs in with email + password, gets a JWT.</td></tr>
+<tr><td><strong>Board</strong></td><td>id, name, ownerId</td><td>Belongs to one user; that user can invite others (out of scope for v1).</td></tr>
+<tr><td><strong>Task</strong></td><td>id, boardId, title, done, assigneeId</td><td>Belongs to one board. <code>done</code> defaults to false.</td></tr>
+</tbody></table></div>
+<p> <strong>The first vertical slice</strong> — the only thing v1 has to do: sign in, see your boards, open one, add a task, mark it done. Everything else is a later slice. </p>
+<figure class="figure is-ascii">
+<div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">QuickTasks' architecture, end to end</span></div>
+<div class="figure-stage"><pre class="ascii-art">  Browser (Next.js)
+        |
+        |  HTTPS, JSON, a JWT in the Authorization header
+        v
+  +----------------------------+
+  |  API  (Express + Prisma)   |   auth, validation, business rules
+  +----------------------------+
+        |
+        |  SQL, over a connection pool
+        v
+  +----------------------------+
+  |  PostgreSQL                |   users, boards, tasks
+  +----------------------------+
+
+  Both API and web are Docker containers, built by CI on every push,
+  and run as Kubernetes Deployments behind one Ingress — see the
+  DevOps note for exactly how each of those pieces works.</pre></div>
+</figure>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>The spec is the boundary that keeps AI-assisted work honest.</strong> Without it, "add a task" can quietly grow subtasks, due dates and labels mid-conversation because they seemed reasonable to add. None of that is wrong to want eventually — it's wrong to accept unreviewed, three features deep into a session that started as one endpoint. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">The spec above says nothing about subtasks, but partway through building, a generated Task model includes a <code>parentTaskId</code> field. What should you do?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Remove it, or stop and consciously decide to expand the spec — but don't let it through unnoticed. Scope creeping in one field at a time is how a one-afternoon slice becomes a week, and how a schema ends up with columns nobody remembers the reason for. If subtasks turn out to matter, that's a deliberate v2 slice with its own review, not a rider on this one. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="One endpoint, built from the real schema and the real conventions already in the codebase — not a schema the model had to guess at.">
+<h2 id="backend">The backend and API, built with AI</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The useful prompt is never "build the backend." It's "here is the schema, here is how the existing routes are written, add exactly this one endpoint." The model isn't inventing a design — it's extending one you already committed to, which is why the result matches the rest of the codebase instead of looking like it came from a different project. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">prisma</span>schema.prisma — given to the model as context, not guessed at</div><pre><code>model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  boards       Board[]
+}
+
+model Board {
+  id      String @id @default(cuid())
+  name    String
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id])
+  tasks   Task[]
+}
+
+model Task {
+  id         String   @id @default(cuid())
+  boardId    String
+  board      Board    @relation(fields: [boardId], references: [id])
+  title      String
+  done       Boolean  @default(false)
+  assigneeId String?
+  createdAt  DateTime @default(now())
+}</code></pre></div>
+<p> The prompt for one slice: <em>"Add <code>POST /api/boards/:id/tasks</code>. Validate <code>title</code> is a non-empty string. Confirm the board exists and belongs to the signed-in user before creating anything. Return 201 with the created row, matching the error-handling style in <code>routes/boards.ts</code>."</em> </p>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>routes/tasks.ts — the result, reviewed and run before it merged</div><pre><code>router.post('/boards/:id/tasks', requireAuth, async (req, res, next) =&gt; {
+  try {
+    const { title } = req.body;
+    if (typeof title !== 'string' || !title.trim()) {
+      return res.status(400).json({ error: 'title is required' });
+    }
+
+    const board = await prisma.board.findUnique({ where: { id: req.params.id } });
+    if (!board || board.ownerId !== req.user.id) {
+      return res.status(404).json({ error: 'board not found' });   // 404, not 403 —
+    }                                                                // don't reveal it exists
+
+    const task = await prisma.task.create({
+      data: { boardId: board.id, title: title.trim() },
+    });
+    res.status(201).json(task);
+  } catch (err) {
+    next(err);
+  }
+});</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Notice the 404-not-403 detail — that came from the existing <code>routes/boards.ts</code> convention the model was shown, not from the prompt. That is exactly the payoff of feeding it real context: a security-relevant decision your team already made once gets applied again automatically, instead of needing to be re-explained and possibly forgotten. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Why does the route return 404 rather than 403 when a board exists but belongs to someone else?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> A 403 confirms the board exists — it just says "you can't see it," which tells an attacker that ID is real and worth probing further. A 404 gives the same answer whether the board doesn't exist at all or exists but isn't yours, so an attacker enumerating IDs learns nothing either way. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="A component wired to the API's real response shape, so the two sides can't drift apart without something breaking loudly.">
+<h2 id="frontend">The frontend, wired to the actual API</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The recurring failure when frontend and backend are built in separate AI sessions is drift: the frontend expects a field the API doesn't send, or the wrong casing, or a type that's a string on one side and a number on the other. Generating the frontend's types straight from the same Prisma schema removes an entire category of bug by construction rather than by discipline. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">tsx</span>TaskBoard.tsx — fetches real tasks, optimistic create</div><pre><code>import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+type Task = { id: string; title: string; done: boolean };
+
+export function TaskBoard({ boardId }: { boardId: string }) {
+  const qc = useQueryClient();
+  const { data: tasks } = useQuery<Task[]>({
+    queryKey: ['tasks', boardId],
+    queryFn: () =&gt; fetch(`/api/boards/${boardId}/tasks`).then(r =&gt; r.json()),
+  });
+
+  const [title, setTitle] = useState('');
+  const addTask = useMutation({
+    mutationFn: (title: string) =&gt;
+      fetch(`/api/boards/${boardId}/tasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title }),
+      }).then(r =&gt; r.json()),
+    onSuccess: () =&gt; qc.invalidateQueries({ queryKey: ['tasks', boardId] }),
+  });
+
+  return (
+    &lt;div&gt;
+      &lt;ul&gt;{tasks?.map(t =&gt; &lt;li key={t.id}&gt;{t.title}&lt;/li&gt;)}&lt;/ul&gt;
+      &lt;input value={title} onChange={e =&gt; setTitle(e.target.value)} /&gt;
+      &lt;button onClick={() =&gt; addTask.mutate(title)}&gt;Add task&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre></div>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; the frontend guesses the shape</div><pre><code>// Built in a separate session, from a description
+// of the API rather than the API itself.
+type Task = { id: string; name: string; isDone: boolean };
+// The API actually sends "title" and "done".
+// Every task silently shows as untitled.</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; one shared source of truth</div><pre><code>// Generate frontend types from schema.prisma (prisma-zod-generator,
+// or a hand-written shared types package both sides import).
+// A field rename in the schema becomes a type error in the
+// frontend build — caught in CI, not by a user reporting it.</code></pre></div>
+</div>
+<details class="selfcheck"><summary><span class="sc-q">The API renames <code>done</code> to <code>completed</code>. With a shared, generated types package, how does the frontend find out?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> The frontend's TypeScript build fails at compile time, on the exact line that referenced <code>.done</code> — in CI, before it ever merges. Without the shared types, the same rename ships silently: the field is just <code>undefined</code> in the browser, discovered only when a user notices tasks that all appear incomplete. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="One docker-compose.yml, one .env file, and the CORS line every AI-scaffolded frontend forgets until the browser console explains why.">
+<h2 id="integration">Wiring frontend, backend and database together locally</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Three pieces built separately need one place where they actually run together — this is where a schema mismatch, a missing environment variable, or a CORS setting nobody configured finally shows up, before any of it reaches production. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">yaml</span>docker-compose.yml — the whole app, one command</div><pre><code>services:
+  db:
+    image: postgres:16-alpine
+    environment: { POSTGRES_PASSWORD: dev, POSTGRES_DB: quicktasks }
+
+  api:
+    build: ./api
+    environment:
+      DATABASE_URL: postgresql://postgres:dev@db:5432/quicktasks
+      CORS_ORIGIN: http://localhost:3000
+    ports: ["8080:8080"]
+    depends_on: [db]
+
+  web:
+    build: ./web
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+    ports: ["3000:3000"]
+    depends_on: [api]</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>api/src/server.ts — the CORS line every scaffold forgets</div><pre><code>import cors from 'cors';
+// Without this, the browser blocks every request from the web
+// container to the api container — even though curl works fine,
+// because curl doesn't enforce CORS. Only browsers do.
+app.use(cors({ origin: process.env.CORS_ORIGIN }));</code></pre></div>
+<details class="selfcheck"><summary><span class="sc-q">Your frontend's fetch call to the API fails with a CORS error in the browser console, but running the exact same request with curl works perfectly. Why the difference?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> CORS is a browser-enforced rule, not a server-enforced one. The browser sends an <code>Origin</code> header and refuses to hand the response to your page's JavaScript unless the server explicitly allows that origin back — a protection against a malicious page silently calling APIs on your behalf using your logged-in session. <code>curl</code> has no such page context to protect, so it never triggers the check at all; the API responds identically either way. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="The same Docker, CI/CD and Kubernetes pieces from the previous note, applied to this exact app — migrations, two images, one pipeline.">
+<h2 id="shipping">Shipping it: containers, CI/CD and Kubernetes for this app</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Everything from here is a direct application of the DevOps note, not new ideas — two Dockerfiles, one pipeline that builds and tests both, and two Kubernetes Deployments behind one Ingress. The scenario was never separate from that note; this is the point where they meet. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">yaml</span>.github/workflows/deploy.yml — both services, one pipeline</div><pre><code>on: { push: { branches: [main] } }
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd api && npm ci && npm test
+      - run: cd web && npm ci && npm run build   # a type error here fails CI
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with: { registry: ghcr.io, username: ${{ github.actor }}, password: ${{ secrets.GITHUB_TOKEN }} }
+      - run: |
+          docker build -t ghcr.io/acme/api:${{ github.sha }} ./api
+          docker build -t ghcr.io/acme/web:${{ github.sha }} ./web
+          docker push ghcr.io/acme/api:${{ github.sha }}
+          docker push ghcr.io/acme/web:${{ github.sha }}
+
+  migrate-and-deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - run: npx prisma migrate deploy          # BEFORE the new code goes live
+      - run: |
+          kubectl set image deployment/api api=ghcr.io/acme/api:${{ github.sha }}
+          kubectl set image deployment/web web=ghcr.io/acme/web:${{ github.sha }}
+          kubectl rollout status deployment/api
+          kubectl rollout status deployment/web</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="lang">yaml</span>ingress.yaml — one address, two services behind it</div><pre><code>apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: quicktasks
+spec:
+  rules:
+    - host: quicktasks.app
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend: { service: { name: api-service, port: { number: 80 } } }
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: web-service, port: { number: 80 } } }</code></pre></div>
+<p> One push to <code>main</code> now means: AI-assisted code change &rarr; reviewed and merged &rarr; tested in CI &rarr; two images built and tagged with that commit &rarr; migration applied &rarr; both Deployments updated &rarr; live, with the DevOps note's rollout and rollback discipline covering the last step. </p>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Spec first, one vertical slice at a time — not the whole app in one prompt.</li><li>Give the model the real schema and the real existing file, not a description of them.</li><li>Share types between frontend and backend so a rename fails a build instead of shipping silently.</li><li><code>localhost</code> inside one container never reaches another — use the Compose/Kubernetes service name.</li><li>CORS is enforced by the browser, not the server — that's why curl "works" when the browser doesn't.</li><li>The deploy pipeline for an AI-assisted project is identical to any other project's: tests gate it, migrations run before the new code, images are tagged by commit.</li></ul></div>
+<details class="selfcheck"><summary><span class="sc-q">Why does <code>prisma migrate deploy</code> run before the images are rolled out, rather than after?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> The new code is written expecting the new schema to already exist — a column it reads or writes has to be there before that code receives any traffic. Running the migration first means by the time the new Pods start serving requests, the database already matches what they expect. It also has to stay backwards-compatible, because the old Pods are still running against the same database until the rollout finishes. </p></div></details>
+</section>

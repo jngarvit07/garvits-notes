@@ -1114,106 +1114,6 @@ tr:last-child td { border-bottom: 0; }
   .hero-glow { animation: none; }
 }
 
-/* ==========================================================================
-   The login page
-   ========================================================================== */
-body.login-page { display: grid; place-items: center; min-height: 100vh; padding: 24px; }
-
-.login-bg {
-  position: fixed; inset: 0; z-index: -1; overflow: hidden;
-  background: var(--bg);
-}
-.login-bg::before, .login-bg::after {
-  content: ''; position: absolute; border-radius: 50%; filter: blur(70px);
-}
-.login-bg::before {
-  width: 46vmax; height: 46vmax; top: -14vmax; left: -10vmax;
-  background: color-mix(in srgb, var(--accent) 26%, transparent);
-  animation: drift 18s ease-in-out infinite alternate;
-}
-.login-bg::after {
-  width: 38vmax; height: 38vmax; bottom: -12vmax; right: -8vmax;
-  background: color-mix(in srgb, var(--ok) 20%, transparent);
-  animation: drift 24s ease-in-out infinite alternate-reverse;
-}
-
-.login-card {
-  width: min(420px, 100%);
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
-  backdrop-filter: saturate(160%) blur(14px);
-  border: 1px solid var(--border);
-  border-radius: 18px; padding: 34px 32px 28px;
-  box-shadow: 0 20px 60px -20px rgba(16, 24, 40, .28);
-  animation: cardIn .5s cubic-bezier(.22,.61,.36,1) both;
-}
-@keyframes cardIn { from { opacity: 0; transform: translateY(18px) scale(.98); } to { opacity: 1; transform: none; } }
-
-.login-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
-.login-brand .brand-mark { position: static; font-size: 12px; padding: 5px 9px; }
-.login-brand span:last-child { font-family: var(--font-serif); font-size: 20px; font-weight: 600; }
-.login-card h1 { font-family: var(--font-serif); font-size: 27px; font-weight: 600; margin: 0 0 6px; letter-spacing: -.02em; }
-.login-card .login-sub { margin: 0 0 24px; font-size: 14.5px; color: var(--text-muted); }
-
-.field { margin-bottom: 16px; }
-.field label {
-  display: block; font-size: 12.5px; font-weight: 650;
-  color: var(--text-muted); margin-bottom: 6px;
-}
-.field input {
-  width: 100%; height: 42px; padding: 0 13px;
-  background: var(--bg); color: var(--text);
-  border: 1px solid var(--border); border-radius: 9px;
-  font-size: 15px; font-family: inherit;
-  transition: border-color .16s, box-shadow .16s;
-}
-.field input:focus {
-  outline: none; border-color: var(--accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
-}
-.login-card .btn { width: 100%; justify-content: center; margin-top: 6px; }
-
-/* A field with a button sitting inside its right-hand edge. The input keeps
-   the full width and reserves padding for the button, so the two never overlap
-   however long the value gets. */
-.field-with-btn { position: relative; }
-.field-with-btn input { padding-right: 44px; }
-.reveal-btn {
-  position: absolute; right: 5px; top: 50%; transform: translateY(-50%);
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 32px; height: 32px; padding: 0; cursor: pointer;
-  background: transparent; border: 0; border-radius: 7px;
-  color: var(--text-faint); transition: color .15s, background .15s;
-}
-.reveal-btn:hover { color: var(--text); background: var(--surface-alt); }
-.reveal-btn:focus-visible {
-  outline: none; color: var(--accent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
-}
-.reveal-btn svg { width: 17px; height: 17px; }
-/* Closed eye means "hidden"; it swaps to the open eye once the value shows. */
-.reveal-btn .icon-eye-off { display: none; }
-.reveal-btn[aria-pressed="true"] .icon-eye { display: none; }
-.reveal-btn[aria-pressed="true"] .icon-eye-off { display: block; }
-.reveal-btn[aria-pressed="true"] { color: var(--accent); }
-
-.login-error {
-  display: none; align-items: center; gap: 8px;
-  margin: 0 0 16px; padding: 10px 12px;
-  background: var(--danger-soft); border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
-  border-radius: 9px; font-size: 13.5px; color: var(--danger);
-}
-.login-error.is-shown { display: flex; animation: shake .4s ease both; }
-@keyframes shake {
-  10%, 90% { transform: translateX(-2px); }
-  30%, 70% { transform: translateX(4px); }
-  50%      { transform: translateX(-4px); }
-}
-
-.login-foot {
-  margin: 22px 0 0; padding-top: 16px; border-top: 1px solid var(--border);
-  font-size: 12px; color: var(--text-faint); line-height: 1.55;
-}
-
 /* --- Fixes found by looking at real pages --------------------------------- */
 /* A grid item defaults to min-width:auto, which refuses to shrink below its
    content — so a long code line pushed the pane wider than its column and the
@@ -1269,15 +1169,6 @@ body.login-page { display: grid; place-items: center; min-height: 100vh; padding
 /* --- Sidebar footer ------------------------------------------------------- */
 .sidebar { display: flex; flex-direction: column; }
 .tree { flex: 1 1 auto; }
-.side-foot { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--border); }
-.side-out {
-  display: flex; align-items: center; gap: 9px;
-  width: 100%; min-height: 40px; padding: 8px 10px;
-  background: none; border: 0; border-radius: 7px; cursor: pointer;
-  color: var(--text-faint); font-size: 13.5px; text-align: left;
-}
-.side-out svg { width: 15px; height: 15px; flex: 0 0 auto; }
-.side-out:hover { background: var(--surface-alt); color: var(--danger); }
 
 /* ==========================================================================
    Phones and small tablets
@@ -1389,27 +1280,3 @@ body.login-page { display: grid; place-items: center; min-height: 100vh; padding
 .figure-stage { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .ascii-art { min-width: max-content; }
 pre { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-
-/* --- Signing out ---------------------------------------------------------- */
-/* The sidebar is a scrolling column 23 notes tall, so a footer at the end of
-   it sits far below the fold. Sticking it to the bottom of the scroll box
-   keeps it in view without it floating over the tree. */
-.side-foot {
-  position: sticky; bottom: 0; z-index: 1;
-  margin-top: auto; padding: 10px 0 14px;
-  /* Solid, not a gradient — a translucent top edge let the tree scroll
-     visibly behind the button, which read as a rendering fault. The fade
-     goes ABOVE the bar instead, where there is nothing to ghost through. */
-  background: var(--bg);
-  border-top: 1px solid var(--border);
-}
-.side-foot::before {
-  content: ''; position: absolute; left: 0; right: 0; top: -22px; height: 22px;
-  background: linear-gradient(to top, var(--bg), transparent);
-  pointer-events: none;
-}
-.side-out:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-
-/* The header copy is hidden on a phone, where the row has no room for it —
-   the sidebar one is the mobile route. */
-@media (max-width: 760px) { .head-only { display: none; } }

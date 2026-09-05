@@ -14,7 +14,6 @@
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode */ } },
-    del: function (k) { try { localStorage.removeItem(k); } catch (e) { /* private mode */ } },
   };
 
   var svg = function (d, w) {
@@ -40,17 +39,7 @@
     });
   }
 
-  /* --- 2. Sign out ------------------------------------------------------- */
-  // There are two — one in the header, one at the foot of the sidebar — so
-  // they are found by attribute rather than by id.
-  document.querySelectorAll('[data-sign-out]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      store.del('gn-auth');
-      location.href = BASE + 'login.html';
-    });
-  });
-
-  /* --- 2b. Reading size --------------------------------------------------- */
+  /* --- 2. Reading size --------------------------------------------------- */
   // Every font-size in the stylesheet is in rem, so one number on <html>
   // moves all of them. Medium is the default and stores no attribute, which
   // lets the small-screen base size in the stylesheet still apply.

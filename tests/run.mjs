@@ -1,7 +1,5 @@
 /**
- * Checks the built site. No dependencies, no browser — the gate script is the
- * real one, lifted out of the built HTML and run in a vm against a stubbed
- * location, so these test what ships rather than a copy of it.
+ * Checks the built site. No dependencies, no browser.
  *
  *   node tests/run.mjs
  *
@@ -10,12 +8,9 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 
 const SITE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const ORIGIN = 'https://jngarvit07.github.io';
-const ROOT = '/garvits-notes';               // the Pages sub-path this deploys under
 
 let failures = 0;
 let checks = 0;
@@ -28,8 +23,13 @@ const group = (name) => console.log(`\n${name}`);
 const read = (rel) => fs.readFileSync(path.join(SITE, rel), 'utf8');
 const exists = (rel) => fs.existsSync(path.join(SITE, rel));
 
-/* Every built page: the site, minus the redirect stubs (which carry no
-   content and deliberately do not gate). */
+/* Pre-restructure redirect stubs: notes/<slug>.html, one per note, sitting
+   directly in notes/ rather than in a note's own subfolder. */
+const stubs = fs.readdirSync(path.join(SITE, 'notes'))
+  .filter((f) => f.endsWith('.html'))
+  .map((f) => `notes/${f}`);
+
+/* Every other built page. */
 const builtPages = [];
 (function walk(dir) {
   for (const e of fs.readdirSync(path.join(SITE, dir), { withFileTypes: true })) {
@@ -37,103 +37,42 @@ const builtPages = [];
     if (e.isDirectory()) {
       if (['.git', 'content', 'tools', 'tests', 'assets', 'node_modules'].includes(rel)) continue;
       walk(rel);
-    } else if (e.name.endsWith('.html') && rel !== 'login.html') {
-      if (read(rel).includes('gn-auth')) builtPages.push(rel);
+    } else if (e.name.endsWith('.html') && !stubs.includes(rel)) {
+      builtPages.push(rel);
     }
   }
 })('');
 
-const stubs = fs.readdirSync(path.join(SITE, 'notes'))
-  .filter((f) => f.endsWith('.html'))
-  .map((f) => `notes/${f}`);
+/* --- 1. The site is open ---------------------------------------------------
+   The notes used to sit behind a sign-in gate with robots.txt and noindex
+   backing it up. The URL was never actually secret, so the gate cost real
+   friction (re-signing in on every new browser, JS required to read a note)
+   for no real protection — anyone with the link could already read
+   everything with curl. It is gone now, along with the crawler blocks that
+   existed only to cover for it. */
+group('1. no sign-in gate, no crawler blocks');
 
-/* --- 1. The gate ---------------------------------------------------------- */
-group('1. the sign-in gate');
-
-ok('every built page carries the gate', builtPages.length === 219,
-   `found ${builtPages.length}, expected 219`);
+ok('login.html is gone', !exists('login.html'));
+ok('robots.txt is gone', !exists('robots.txt'));
 
 for (const rel of builtPages) {
   const html = read(rel);
-  if (!html.includes("localStorage.getItem('gn-auth')")) ok(`gate in ${rel}`, false);
-  if (!html.includes('<noscript>')) ok(`noscript gate in ${rel}`, false);
-  if (!html.includes('name="robots" content="noindex, nofollow"')) ok(`noindex in ${rel}`, false);
+  if (html.includes('gn-auth')) ok(`no auth check in ${rel}`, false);
+  if (html.includes('login.html')) ok(`no reference to login.html in ${rel}`, false);
+  if (/name="robots" content="noindex, ?nofollow"/.test(html)) ok(`no blanket noindex in ${rel}`, false);
 }
-ok('gate, noscript and noindex on all of them', true);
+ok('no page carries the gate or a blanket noindex', true);
 
-// Pull the real gate out of a page and run it.
-const gateOf = (rel) => read(rel)
-  .match(/<script>\(function\(\)\{var d=document\.documentElement;[\s\S]*?<\/script>/)[0]
-  .replace(/^<script>/, '').replace(/<\/script>$/, '');
+ok('every page is built', builtPages.length === 233, `found ${builtPages.length}, expected 233`);
 
-function visit(pageHref, rel, { storage = 'works', token = null } = {}) {
-  const u = new URL(pageHref);
-  let replaced = null;
-  const localStorage = {
-    getItem: (k) => {
-      if (storage === 'blocked') throw new Error('storage disabled');
-      return k === 'gn-auth' ? token : null;
-    },
-  };
-  vm.runInNewContext(gateOf(rel), {
-    document: { documentElement: { setAttribute() {} } },
-    localStorage,
-    location: { href: u.href, pathname: u.pathname, search: u.search, hash: u.hash,
-                replace: (t) => { replaced = t; } },
-    URL,
-  });
-  return replaced === null ? null : new URL(replaced, pageHref).href;
-}
-
-// login.html's own validation of ?next=, copied from the page.
-const validateNext = (loginHref) => {
-  const raw = new URL(loginHref).searchParams.get('next') || '';
-  if (!raw || raw.charAt(0) === '/' || raw.indexOf('//') !== -1 || raw.indexOf(':') !== -1) return '';
-  return raw;
-};
-const signInFrom = (loginHref) => new URL(validateNext(loginHref) || 'index.html', loginHref).href;
-
-group('2. a signed-out visitor is sent to login, and back again');
-const journeys = [
-  ['index.html',                 `${ORIGIN}${ROOT}/`,                             `${ORIGIN}${ROOT}/index.html`],
-  ['index.html',                 `${ORIGIN}${ROOT}/index.html`,                   `${ORIGIN}${ROOT}/index.html`],
-  ['notes/react/index.html',     `${ORIGIN}${ROOT}/notes/react/`,                 `${ORIGIN}${ROOT}/notes/react/`],
-  ['notes/react/index.html',     `${ORIGIN}${ROOT}/notes/react/index.html`,       `${ORIGIN}${ROOT}/notes/react/index.html`],
-  ['notes/react/hooks.html',     `${ORIGIN}${ROOT}/notes/react/hooks.html`,       `${ORIGIN}${ROOT}/notes/react/hooks.html`],
-  ['notes/agents/loop.html',     `${ORIGIN}${ROOT}/notes/agents/loop.html#tools`, `${ORIGIN}${ROOT}/notes/agents/loop.html#tools`],
-];
-for (const [rel, href, want] of journeys) {
-  const login = visit(href, rel);
-  ok(`signed out at ${href} -> login`, login && login.startsWith(`${ORIGIN}${ROOT}/login.html`), `got ${login}`);
-  // The bug this replaced sent ?next=garvits-notes, landing on /garvits-notes/garvits-notes.
-  ok(`  and never doubles the base path`, login && !login.includes('garvits-notes%2Fnotes') &&
-     !/next=garvits-notes/.test(login), `got ${login}`);
-  const landed = login && signInFrom(login);
-  ok(`  signing in returns to ${want}`, landed === want, `got ${landed}`);
-}
-
-group('3. the gate fails closed');
-ok('blocked localStorage still redirects to login',
-   (visit(`${ORIGIN}${ROOT}/notes/react/hooks.html`, 'notes/react/hooks.html', { storage: 'blocked' }) || '')
-     .startsWith(`${ORIGIN}${ROOT}/login.html`));
-ok('a wrong token still redirects to login',
-   (visit(`${ORIGIN}${ROOT}/notes/react/hooks.html`, 'notes/react/hooks.html', { token: 'nope' }) || '')
-     .startsWith(`${ORIGIN}${ROOT}/login.html`));
-ok('the right token is let through',
-   visit(`${ORIGIN}${ROOT}/notes/react/hooks.html`, 'notes/react/hooks.html', { token: 'v11xb7' }) === null);
-
-/* --- 4. What is published ------------------------------------------------- */
-group('4. the source is not published');
-ok('robots.txt disallows everything', /^\s*Disallow:\s*\/\s*$/m.test(read('robots.txt')));
-ok('robots.txt applies to every crawler', /^\s*User-agent:\s*\*\s*$/m.test(read('robots.txt')));
 const cfg = read('_config.yml');
 for (const dir of ['content', 'tools', 'tests']) {
   ok(`_config.yml excludes ${dir}/`, new RegExp(`^\\s*-\\s*${dir}\\s*$`, 'm').test(cfg));
 }
-ok('content/ is where the ungated note source still lives', exists('content/react.html'));
+ok('content/ is where the note source still lives', exists('content/react.html'));
 
-/* --- 5. Payload ----------------------------------------------------------- */
-group('5. the search prose is not on the critical path');
+/* --- 2. Payload ------------------------------------------------------------ */
+group('2. the search prose is not on the critical path');
 const navBytes = fs.statSync(path.join(SITE, 'assets/js/site-data.js')).size;
 const searchBytes = fs.statSync(path.join(SITE, 'assets/js/search-data.js')).size;
 ok('site-data.js holds the sidebar only, under 60KB', navBytes < 60_000, `${(navBytes / 1024).toFixed(0)}KB`);
@@ -145,8 +84,8 @@ const anyPage = read('notes/react/hooks.html');
 ok('no page loads search-data.js up front', !anyPage.includes('search-data.js'));
 ok('app.js fetches it on demand', read('assets/js/app.js').includes("'assets/js/search-data.js'"));
 
-/* --- 6. Old URLs ---------------------------------------------------------- */
-group('6. pre-restructure URLs still resolve');
+/* --- 3. Old URLs ------------------------------------------------------------ */
+group('3. pre-restructure URLs still resolve');
 const noteSlugs = JSON.parse(read('content/notes.json')).notes.map((n) => n.id);
 for (const slug of noteSlugs) {
   const rel = `notes/${slug}.html`;
@@ -158,11 +97,11 @@ for (const slug of noteSlugs) {
   const missing = listed.filter((t) => !exists(`notes/${slug}/${t}.html`));
   ok(`  its ${listed.length} old anchors all map to real pages`, missing.length === 0, missing.join(', '));
 }
-ok('the stubs are not gated (they hold no content)',
-   stubs.every((rel) => !read(rel).includes('gn-auth')));
+ok('the stubs stay noindex (a redirect has no content of its own to be found by)',
+   stubs.every((rel) => read(rel).includes('name="robots" content="noindex, nofollow"')));
 
-/* --- 7. Links ------------------------------------------------------------- */
-group('7. every internal link resolves');
+/* --- 4. Links --------------------------------------------------------------- */
+group('4. every internal link resolves');
 let broken = [];
 for (const rel of [...builtPages, ...stubs]) {
   const dir = path.dirname(rel);

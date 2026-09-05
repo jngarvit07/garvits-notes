@@ -110,43 +110,18 @@ for (const note of NOTES) data[note.id] = load(note);
 const ICON_SUN  = '<svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
 const ICON_MOON = '<svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
 const ICON_MENU = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
-const ICON_OUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l5-5-5-5"/><path d="M20 12H9"/><path d="M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/></svg>';
 const ICON_SIZE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 7.5 6l4.5 11"/><path d="M4.6 13.6h5.8"/><path d="M14 17l3.4-8 3.4 8"/><path d="M15.2 14.4h4.4"/></svg>';
 const ICON_TICK = '<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>';
 const ICON_SEARCH = '<svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
 const ICON_RAIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg>';
 
 /* --- Shared chrome -------------------------------------------------------- */
-const AUTH_TOKEN = 'v11xb7';
-
-/* Runs in <head>, before the page renders: applies the stored theme and rail
-   state (so neither flashes), then sends a signed-out visitor to the login
-   page. See login.html — this is a gate, not a security boundary.
-
-   `next` is the current page relative to the site root, and the site root is
-   whatever `base` resolves to from here. Counting path segments instead breaks
-   on a directory URL — `/garvits-notes/` has no filename to count, so the
-   repository name gets carried into `next` and signing in lands on
-   `/garvits-notes/garvits-notes`. */
-
-/* Blocks a signed-out visitor who has JavaScript turned off, and keeps the
-   note out of the page for the moment before the refresh takes effect. In
-   <head> a <noscript> may hold only link, style and meta — which is exactly
-   enough. */
-const noscriptGate = (base) => `<noscript>
-<meta http-equiv="refresh" content="0;url=${base}login.html">
-<style>body{display:none}</style>
-</noscript>`;
-const boot = (base) => `<script>(function(){var d=document.documentElement;
+/* Runs in <head>, before the page renders: applies the stored theme, rail and
+   size state so none of them flashes on load. */
+const boot = () => `<script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
 if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');
 var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data-size',z);}catch(e){}
-var ok=false;try{ok=localStorage.getItem('gn-auth')==='${AUTH_TOKEN}';}catch(e){ok=false;}
-if(!ok){var next='';
-try{var root=new URL('${base}'||'./',location.href).pathname;
-var here=location.pathname+location.search+location.hash;
-if(here.slice(0,root.length)===root)next=here.slice(root.length);}catch(e){}
-location.replace('${base}login.html'+(next?'?next='+encodeURIComponent(next):''));}
 })();</script>`;
 
 const header = (base) => `<header class="site-header">
@@ -171,7 +146,6 @@ const header = (base) => `<header class="site-header">
     </div>
   </div>
   <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme">${ICON_SUN}${ICON_MOON}</button>
-  <button class="icon-btn head-only" data-sign-out type="button" aria-label="Sign out" title="Sign out">${ICON_OUT}</button>
   <div class="read-progress" id="read-progress"><span></span></div>
 </header>`;
 
@@ -183,9 +157,7 @@ const shell = ({ title, desc, base, main, toc, note, topic, wide }) => `<!doctyp
 <title>${attr(title)}</title>
 <meta name="description" content="${attr(desc)}">
 <meta name="color-scheme" content="light dark">
-<meta name="robots" content="noindex, nofollow">
-${boot(base)}
-${noscriptGate(base)}
+${boot()}
 <link rel="stylesheet" href="${base}assets/css/main.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
 </head>
@@ -194,9 +166,6 @@ ${header(base)}
 <div class="layout">
   <nav class="sidebar" id="sidebar" aria-label="All notes">
     <div class="tree" id="tree"></div>
-    <div class="side-foot">
-      <button class="side-out" data-sign-out type="button">${ICON_OUT}<span>Sign out</span></button>
-    </div>
   </nav>
   <main class="main" id="main">${main}</main>
   ${toc ? '<aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>' : ''}
@@ -434,8 +403,9 @@ pageCount++;
    topics as anchors inside it. Those URLs are in bookmarks and in links from
    off the site, so each stays alive as a stub that forwards to the new page —
    and, where the old anchor named a topic, to that topic's own page rather
-   than dropping the reader at the top of the note. No content lives here, so
-   the stub is not gated; whatever it forwards to does its own gating. */
+   than dropping the reader at the top of the note. It carries `noindex` and a
+   canonical link of its own — a redirect stub has no content to be found by,
+   so search results should point at the real page instead. */
 let redirectCount = 0;
 NOTES.forEach((note) => {
   const topics = data[note.id].map((t) => t.id);

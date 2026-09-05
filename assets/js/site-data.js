@@ -11,9 +11,14 @@ window.GN_PARTS = [
     "short": "Part two — the AI track"
   },
   {
+    "id": "ops",
+    "title": "Part three — shipping it",
+    "short": "Part three — shipping it"
+  },
+  {
     "id": "next",
-    "title": "Part three — where this goes",
-    "short": "Part three — where this goes"
+    "title": "Part four — where this goes",
+    "short": "Part four — where this goes"
   }
 ];
 
@@ -1228,7 +1233,91 @@ window.GN_MODULES = [
     ]
   },
   {
-    "n": "23",
+    "n": "24",
+    "slug": "devops",
+    "title": "CI/CD, Docker & Kubernetes",
+    "label": "CI/CD, Docker & Kubernetes",
+    "part": "ops",
+    "blurb": "Docker packages the app the same way everywhere, Kubernetes keeps many copies of it running reliably, and CI/CD is the automation connecting a git push to a live deploy.",
+    "level": "No experience needed",
+    "minutes": 13,
+    "topics": [
+      {
+        "id": "what",
+        "title": "Why this layer exists",
+        "minutes": 2
+      },
+      {
+        "id": "docker",
+        "title": "Docker: packaging the app so it runs the same everywhere",
+        "minutes": 2
+      },
+      {
+        "id": "cicd",
+        "title": "Building the pipeline: from git push to a deployed container",
+        "minutes": 2
+      },
+      {
+        "id": "kubernetes",
+        "title": "Kubernetes: running many containers reliably",
+        "minutes": 3
+      },
+      {
+        "id": "vms",
+        "title": "Where the virtual machine still fits",
+        "minutes": 2
+      },
+      {
+        "id": "mistakes",
+        "title": "Common mistakes, and what to remember",
+        "minutes": 2
+      }
+    ]
+  },
+  {
+    "n": "25",
+    "slug": "ai-project",
+    "title": "Building a Full Project with AI",
+    "label": "Building with AI",
+    "part": "ops",
+    "blurb": "A worked, real-world scenario: a task tracker built slice by slice with AI, its API and frontend wired together, and shipped through the CI/CD pipeline from the previous note.",
+    "level": "Read CI/CD, Docker & Kubernetes first",
+    "minutes": 12,
+    "topics": [
+      {
+        "id": "how",
+        "title": "How to actually use AI to build a project",
+        "minutes": 2
+      },
+      {
+        "id": "scenario",
+        "title": "The scenario: QuickTasks, a real task tracker",
+        "minutes": 2
+      },
+      {
+        "id": "backend",
+        "title": "The backend and API, built with AI",
+        "minutes": 2
+      },
+      {
+        "id": "frontend",
+        "title": "The frontend, wired to the actual API",
+        "minutes": 2
+      },
+      {
+        "id": "integration",
+        "title": "Wiring frontend, backend and database together locally",
+        "minutes": 2
+      },
+      {
+        "id": "shipping",
+        "title": "Shipping it: containers, CI/CD and Kubernetes for this app",
+        "minutes": 2
+      }
+    ]
+  },
+  {
+    "n": "26",
     "slug": "roadmap",
     "title": "What to Learn Next",
     "label": "What to Learn Next",
