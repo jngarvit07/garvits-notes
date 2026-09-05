@@ -1,9 +1,9 @@
 # Garvit's Notes
 
-Twenty-three notes on the stack I build on, and on the AI systems I am learning to
-build. Every note is a folder; every topic inside it is its own page. Written in
-plain language first, then a real example, then the features and the mistakes
-that actually matter.
+Twenty-five notes on the stack I build on, on the AI systems I am learning to
+build, and on shipping any of it for real. Every note is a folder; every topic
+inside it is its own page. Written in plain language first, then a real
+example, then the features and the mistakes that actually matter.
 
 **Live:** https://jngarvit07.github.io/garvits-notes/
 
@@ -60,11 +60,19 @@ the deep dives underneath it.
 | 21 | Cloud & GCP Deployment | Cloud Run, storage, IAM, secrets, Vertex, the bill | 9 |
 | 22 | AI Ops — Running It in Production | Logging, tracing, prompt versioning, rollouts, incidents | 7 |
 
-**Part three — where this goes.**
+**Part three — shipping it.** Container, pipeline and cluster fundamentals,
+then one real product built and shipped through exactly that pipeline.
 
 | # | Note | | Topics |
 |---|------|---|---|
-| 23 | What to Learn Next | The path, the foundations, and how to tell you have learned it | 6 |
+| 24 | CI/CD, Docker & Kubernetes | VM vs container vs cluster, Docker, pipelines, K8s objects | 6 |
+| 25 | Building a Full Project with AI | Spec-first workflow, a real API and frontend, shipping it | 6 |
+
+**Part four — where this goes.**
+
+| # | Note | | Topics |
+|---|------|---|---|
+| 26 | What to Learn Next | The path, the foundations, and how to tell you have learned it | 6 |
 
 ## Public, and unindexed only where it should be
 

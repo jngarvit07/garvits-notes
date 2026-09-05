@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kubernetes: running many containers reliably — CI/CD, Docker &amp; Kubernetes — Garvit's Notes</title>
+<meta name="description" content="Pods, Deployments, Services and Ingress — the four objects that do almost everything, and a real manifest for a two-service app.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){var d=document.documentElement;
+try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
+if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');
+var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data-size',z);}catch(e){}
+})();</script>
+<link rel="stylesheet" href="../../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../../" data-note="devops" data-topic="kubernetes">
+<header class="site-header">
+  <button class="icon-btn nav-only" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <button class="icon-btn rail-only" id="rail-toggle" type="button" aria-label="Hide the sidebar" aria-pressed="false" title="Hide the sidebar  ⌘\"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg></button>
+  <a class="brand" href="../../index.html"><span class="brand-mark">GN</span><span class="brand-text">Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search every topic&hellip;" autocomplete="off" aria-label="Search notes">
+    <kbd class="search-kbd">/</kbd>
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <div class="size-wrap">
+    <button class="icon-btn" id="size-toggle" type="button" aria-label="Reading size"
+            aria-haspopup="menu" aria-expanded="false" title="Reading size"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 7.5 6l4.5 11"/><path d="M4.6 13.6h5.8"/><path d="M14 17l3.4-8 3.4 8"/><path d="M15.2 14.4h4.4"/></svg></button>
+    <div class="size-menu" id="size-menu" role="menu" hidden>
+      <div class="size-menu-head">Reading size</div>
+      <button type="button" role="menuitemradio" data-size="sm"><span>Small</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="md"><span>Medium</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="lg"><span>Large</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+    </div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <div class="read-progress" id="read-progress"><span></span></div>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="All notes">
+    <div class="tree" id="tree"></div>
+  </nav>
+  <main class="main" id="main"><article class="content">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/devops/index.html">CI/CD, Docker &amp; Kubernetes</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Kubernetes: running many containers reliably</span></nav>
+<header class="topic-head reveal">
+  <span class="eyebrow">Note 24 &middot; CI/CD, Docker &amp; Kubernetes &middot; Topic 4 of 6</span>
+  <h1>Kubernetes: running many containers reliably</h1>
+  <div class="page-meta">
+    <span>3 min read</span>
+    <span>No experience needed</span>
+  </div>
+</header>
+<div class="topic-body">
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> You tell Kubernetes "I want three copies of this container running, always" and it makes that true — starting them, restarting the ones that crash, moving them off a machine that dies, and spreading them across the machines you have. You describe the desired state; Kubernetes' whole job is closing the gap between that and reality, continuously. </div></div>
+<p> Four objects cover most of what you will actually touch. </p>
+<div class="table-wrap"><table><thead><tr><th>Object</th><th>What it is</th></tr></thead><tbody>
+<tr><td><strong>Pod</strong></td><td>The smallest unit — one or more containers that always run together, on the same machine. Usually one container per Pod.</td></tr>
+<tr><td><strong>Deployment</strong></td><td>"Keep N copies of this Pod running, and here is how to roll out a new version." You almost never create a Pod directly — you create a Deployment and it manages Pods for you.</td></tr>
+<tr><td><strong>Service</strong></td><td>A stable network address for a set of Pods, which come and go and change IP addresses constantly. Other things talk to the Service, never to a Pod directly.</td></tr>
+<tr><td><strong>Ingress</strong></td><td>Routes traffic from outside the cluster (the internet) to the right Service inside it, usually by hostname or path.</td></tr>
+</tbody></table></div>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>How they relate</div><pre><code>Internet
+   |
+   v
+Ingress            "requests for api.quicktasks.app go to the api-service"
+   |
+   v
+Service (api)      a stable address; picks one of the healthy Pods below
+   |
+   +---> Pod (api, replica 1)   \
+   +---> Pod (api, replica 2)    }  managed by a Deployment,
+   +---> Pod (api, replica 3)   /   which keeps exactly 3 running</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="lang">yaml</span>deployment.yaml — three replicas of the API, with resource limits</div><pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: api }
+  template:
+    metadata:
+      labels: { app: api }
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/acme/api:a1b2c3d      # the exact commit SHA, from CI
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef: { name: api-secrets, key: database-url }
+          resources:
+            requests: { cpu: "100m", memory: "128Mi" }   # what it's guaranteed
+            limits:   { cpu: "500m", memory: "256Mi" }   # what it can't exceed
+          readinessProbe:
+            httpGet: { path: /healthz, port: 8080 }
+            initialDelaySeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+spec:
+  selector: { app: api }        # sends traffic to any Pod with this label
+  ports:
+    - port: 80
+      targetPort: 8080</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Always set resource requests and limits.</strong> Without them, one misbehaving Pod can consume an entire node's memory and take every other Pod on that machine down with it — the "noisy neighbour" failure, and it is the single most common way a Kubernetes cluster has a bad day. Without a <code>readinessProbe</code>, the Service starts sending traffic to a Pod before its process has actually finished starting up, and some fraction of requests fail for no reason a log will make obvious. </div></div>
+<h3>Kubernetes, or a managed container platform?</h3>
+<div class="table-wrap"><table><thead><tr><th></th><th>Cloud Run / Fargate / App Service</th><th>Kubernetes (GKE / EKS / AKS)</th></tr></thead><tbody>
+<tr><td>You manage</td><td>Nothing below the container</td><td>Cluster shape, node upgrades, networking, scaling policy</td></tr>
+<tr><td>Scales to zero</td><td>Yes</td><td>No — nodes cost money even idle</td></tr>
+<tr><td>Good for</td><td>Almost everything — one or a few services</td><td>Many services, complex internal networking, a platform team to run it</td></tr>
+<tr><td>Setup for "hello world"</td><td>Minutes</td><td>Hours, and there is a cluster to keep patched afterwards</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Teams often reach for Kubernetes because it is the well-known name, then spend the first few months operating a cluster instead of building the product. It earns its complexity once you have enough services that the orchestration itself becomes the hard problem — until then, a managed platform gives you the same "many containers, restarted automatically" guarantee for a fraction of the operational cost. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">A Deployment says <code>replicas: 3</code>, but you only ever create or delete a Pod directly during testing. Two minutes later, three Pods are running again. Why?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> The Deployment is not describing what to do once — it is continuously reconciling reality against the desired state you gave it. Delete a Pod, and the Deployment notices the count dropped below 3 and starts a replacement immediately. This is the core idea of Kubernetes: you declare the end state, and a controller keeps making it true, indefinitely, without anyone re-running a command. </p></div></details>
+</div>
+<nav class="page-nav">
+<a class="pn-prev" href="cicd.html">
+  <span class="pn-dir">&larr; Previous</span>
+  <span class="pn-title">Building the pipeline: from git push to a deployed container</span>
+  
+</a>
+<a class="pn-next" href="vms.html">
+  <span class="pn-dir">Next &rarr;</span>
+  <span class="pn-title">Where the virtual machine still fits</span>
+  
+</a>
+</nav>
+<nav class="siblings" aria-label="Other topics in this note">
+  <div class="sib-head">More in <a href="index.html">CI/CD, Docker &amp; Kubernetes</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>Why this layer exists</a><a class="sib" href="docker.html"><span class="sib-n">02</span>Docker: packaging the app so it runs the same everywhere</a><a class="sib" href="cicd.html"><span class="sib-n">03</span>Building the pipeline: from git push to a deployed container</a><a class="sib is-current" href="kubernetes.html"><span class="sib-n">04</span>Kubernetes: running many containers reliably</a><a class="sib" href="vms.html"><span class="sib-n">05</span>Where the virtual machine still fits</a><a class="sib" href="mistakes.html"><span class="sib-n">06</span>Common mistakes, and what to remember</a></div>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../../assets/js/site-data.js"></script>
+<script src="../../assets/js/app.js"></script>
+</body>
+</html>

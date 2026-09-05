@@ -13,9 +13,15 @@
       "lede": "What a model is and what is going on inside it, how to give it your knowledge and your tools, how to adapt it, how to run it, how to prove it works, how it gets attacked, how to draw it, and how to operate it. The overview note stands alone and can be read first."
     },
     {
+      "id": "ops",
+      "short": "Part three — shipping it",
+      "title": "Part three — shipping it",
+      "lede": "Containers, pipelines and clusters — the practical layer between writing code and somebody being able to use it — plus a full real-world scenario that builds one small product with AI and ships it through exactly that pipeline."
+    },
+    {
       "id": "next",
-      "short": "Part three — where this goes",
-      "title": "Part three — where this goes",
+      "short": "Part four — where this goes",
+      "title": "Part four — where this goes",
       "lede": "The honest version of what to learn after this, in what order, and how to tell you have actually learned it rather than just read it."
     }
   ],
@@ -263,8 +269,30 @@
       "minutes": 40
     },
     {
+      "id": "devops",
+      "n": "24",
+      "part": "ops",
+      "label": "CI/CD, Docker & Kubernetes",
+      "title": "CI/CD, Docker & Kubernetes",
+      "tagline": "Docker packages the app the same way everywhere, Kubernetes keeps many copies of it running reliably, and CI/CD is the automation connecting a git push to a live deploy.",
+      "description": "How a virtual machine, a Docker container, a Kubernetes cluster and a CI/CD pipeline actually relate — one layered stack, not four competing choices — with a real Dockerfile, a real GitHub Actions pipeline, and real Kubernetes manifests.",
+      "level": "No experience needed",
+      "minutes": 45
+    },
+    {
+      "id": "ai-project",
+      "n": "25",
+      "part": "ops",
+      "label": "Building with AI",
+      "title": "Building a Full Project with AI",
+      "tagline": "A worked, real-world scenario: a task tracker built slice by slice with AI, its API and frontend wired together, and shipped through the CI/CD pipeline from the previous note.",
+      "description": "The discipline that keeps AI-assisted work reviewable — a spec, one vertical slice at a time, real context instead of a blank page — applied end to end to one product: its schema, its API, its frontend, and the exact pipeline that ships it.",
+      "level": "Read CI/CD, Docker & Kubernetes first",
+      "minutes": 45
+    },
+    {
       "id": "roadmap",
-      "n": "23",
+      "n": "26",
       "part": "next",
       "label": "What to Learn Next",
       "title": "What to Learn Next",

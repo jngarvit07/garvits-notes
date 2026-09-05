@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Where you are now — What to Learn Next — Garvit's Notes</title>
-<meta name="description" content="In plain English Before choosing what to learn next it is worth being accurate about where you are.">
+<title>Wiring frontend, backend and database together locally — Building with AI — Garvit's Notes</title>
+<meta name="description" content="One docker-compose.yml, one .env file, and the CORS line every AI-scaffolded frontend forgets until the browser console explains why.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -14,7 +14,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 <link rel="stylesheet" href="../../assets/css/main.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
 </head>
-<body data-base="../../" data-note="roadmap" data-topic="where">
+<body data-base="../../" data-note="ai-project" data-topic="integration">
 <header class="site-header">
   <button class="icon-btn nav-only" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
   <button class="icon-btn rail-only" id="rail-toggle" type="button" aria-label="Hide the sidebar" aria-pressed="false" title="Hide the sidebar  ⌘\"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg></button>
@@ -44,43 +44,58 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
     <div class="tree" id="tree"></div>
   </nav>
   <main class="main" id="main"><article class="content">
-<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/roadmap/index.html">What to Learn Next</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Where you are now</span></nav>
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/ai-project/index.html">Building with AI</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Wiring frontend, backend and database together locally</span></nav>
 <header class="topic-head reveal">
-  <span class="eyebrow">Note 26 &middot; What to Learn Next &middot; Topic 1 of 6</span>
-  <h1>Where you are now</h1>
+  <span class="eyebrow">Note 25 &middot; Building with AI &middot; Topic 5 of 6</span>
+  <h1>Wiring frontend, backend and database together locally</h1>
   <div class="page-meta">
     <span>2 min read</span>
-    <span>No experience needed</span>
+    <span>Read CI/CD, Docker &amp; Kubernetes first</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Before choosing what to learn next it is worth being accurate about where you are. Having read something is not the same as being able to build it without the tab open, and the gap between those two is where most people misjudge what they should do next. </div></div>
-<p>If you have read the notes before this one, you know more than most people writing about AI on the internet. Specifically, you can now answer these &mdash; and knowing what you know is the precondition for choosing what to learn next.</p>
-<div class="card-grid cols-2">
-<div class="card"><div class="card-title">What a model is doing</div><p>Next-token prediction, attention, context windows, why hallucination is structural rather than a bug to be patched.</p></div>
-<div class="card"><div class="card-title">How to give it knowledge</div><p>Embeddings, chunking, retrieval, grounding, citations &mdash; and where in that pipeline it actually goes wrong.</p></div>
-<div class="card"><div class="card-title">How to give it abilities</div><p>Tools, the agent loop, workflow patterns, MCP, skills &mdash; and the ladder that says which one to reach for.</p></div>
-<div class="card"><div class="card-title">How to know it works</div><p>Eval sets, graders, scoring retrieval and generation separately, wiring it into CI.</p></div>
-<div class="card"><div class="card-title">How it gets attacked</div><p>Prompt injection, the three-ingredient rule, and why architecture beats prompt wording every time.</p></div>
-<div class="card"><div class="card-title">What the rules are</div><p>Risk tiers, the frameworks by name, and the one-page artefact that answers most of what anyone asks.</p></div>
-</div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Reading is not the same as knowing.</strong> The honest test for every item above is whether you have built something that used it and watched it fail. If not, that gap is the next thing to close &mdash; not the next note.</p></div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Three pieces built separately need one place where they actually run together — this is where a schema mismatch, a missing environment variable, or a CORS setting nobody configured finally shows up, before any of it reaches production. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">yaml</span>docker-compose.yml — the whole app, one command</div><pre><code>services:
+  db:
+    image: postgres:16-alpine
+    environment: { POSTGRES_PASSWORD: dev, POSTGRES_DB: quicktasks }
+
+  api:
+    build: ./api
+    environment:
+      DATABASE_URL: postgresql://postgres:dev@db:5432/quicktasks
+      CORS_ORIGIN: http://localhost:3000
+    ports: ["8080:8080"]
+    depends_on: [db]
+
+  web:
+    build: ./web
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+    ports: ["3000:3000"]
+    depends_on: [api]</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>api/src/server.ts — the CORS line every scaffold forgets</div><pre><code>import cors from 'cors';
+// Without this, the browser blocks every request from the web
+// container to the api container — even though curl works fine,
+// because curl doesn't enforce CORS. Only browsers do.
+app.use(cors({ origin: process.env.CORS_ORIGIN }));</code></pre></div>
+<details class="selfcheck"><summary><span class="sc-q">Your frontend's fetch call to the API fails with a CORS error in the browser console, but running the exact same request with curl works perfectly. Why the difference?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> CORS is a browser-enforced rule, not a server-enforced one. The browser sends an <code>Origin</code> header and refuses to hand the response to your page's JavaScript unless the server explicitly allows that origin back — a protection against a malicious page silently calling APIs on your behalf using your logged-in session. <code>curl</code> has no such page context to protect, so it never triggers the check at all; the API responds identically either way. </p></div></details>
 </div>
 <nav class="page-nav">
-<a class="pn-prev" href="../../notes/ai-project/shipping.html">
+<a class="pn-prev" href="frontend.html">
   <span class="pn-dir">&larr; Previous</span>
-  <span class="pn-title">Shipping it: containers, CI/CD and Kubernetes for this app</span>
-  <span class="pn-note">in Building with AI</span>
+  <span class="pn-title">The frontend, wired to the actual API</span>
+  
 </a>
-<a class="pn-next" href="path.html">
+<a class="pn-next" href="shipping.html">
   <span class="pn-dir">Next &rarr;</span>
-  <span class="pn-title">The path, in the order that works</span>
+  <span class="pn-title">Shipping it: containers, CI/CD and Kubernetes for this app</span>
   
 </a>
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
-  <div class="sib-head">More in <a href="index.html">What to Learn Next</a></div>
-  <div class="sib-row"><a class="sib is-current" href="where.html"><span class="sib-n">01</span>Where you are now</a><a class="sib" href="path.html"><span class="sib-n">02</span>The path, in the order that works</a><a class="sib" href="foundations.html"><span class="sib-n">03</span>The foundations worth filling in</a><a class="sib" href="deeper.html"><span class="sib-n">04</span>Where to go deeper, once the basics hold</a><a class="sib" href="watching.html"><span class="sib-n">05</span>What is actually changing, and what is not</a><a class="sib" href="honest.html"><span class="sib-n">06</span>How to tell you have actually learned it</a></div>
+  <div class="sib-head">More in <a href="index.html">Building with AI</a></div>
+  <div class="sib-row"><a class="sib" href="how.html"><span class="sib-n">01</span>How to actually use AI to build a project</a><a class="sib" href="scenario.html"><span class="sib-n">02</span>The scenario: QuickTasks, a real task tracker</a><a class="sib" href="backend.html"><span class="sib-n">03</span>The backend and API, built with AI</a><a class="sib" href="frontend.html"><span class="sib-n">04</span>The frontend, wired to the actual API</a><a class="sib is-current" href="integration.html"><span class="sib-n">05</span>Wiring frontend, backend and database together locally</a><a class="sib" href="shipping.html"><span class="sib-n">06</span>Shipping it: containers, CI/CD and Kubernetes for this app</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

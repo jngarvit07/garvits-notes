@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why this layer exists — CI/CD, Docker &amp; Kubernetes — Garvit's Notes</title>
+<meta name="description" content="Docker packages the app the same way everywhere, Kubernetes runs many of those packages reliably, and CI/CD is the assembly line that connects a git push to a running service without anyone typing a deploy command by hand.">
+<meta name="color-scheme" content="light dark">
+<script>(function(){var d=document.documentElement;
+try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
+if(localStorage.getItem('gn-rail')==='closed')d.setAttribute('data-rail','closed');
+var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data-size',z);}catch(e){}
+})();</script>
+<link rel="stylesheet" href="../../assets/css/main.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
+</head>
+<body data-base="../../" data-note="devops" data-topic="what">
+<header class="site-header">
+  <button class="icon-btn nav-only" id="nav-toggle" type="button" aria-label="Open navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  <button class="icon-btn rail-only" id="rail-toggle" type="button" aria-label="Hide the sidebar" aria-pressed="false" title="Hide the sidebar  ⌘\"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg></button>
+  <a class="brand" href="../../index.html"><span class="brand-mark">GN</span><span class="brand-text">Garvit&rsquo;s Notes</span></a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input class="search-input" id="search" type="search" placeholder="Search every topic&hellip;" autocomplete="off" aria-label="Search notes">
+    <kbd class="search-kbd">/</kbd>
+    <div class="search-results" id="search-results" hidden></div>
+  </div>
+  <div class="size-wrap">
+    <button class="icon-btn" id="size-toggle" type="button" aria-label="Reading size"
+            aria-haspopup="menu" aria-expanded="false" title="Reading size"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 7.5 6l4.5 11"/><path d="M4.6 13.6h5.8"/><path d="M14 17l3.4-8 3.4 8"/><path d="M15.2 14.4h4.4"/></svg></button>
+    <div class="size-menu" id="size-menu" role="menu" hidden>
+      <div class="size-menu-head">Reading size</div>
+      <button type="button" role="menuitemradio" data-size="sm"><span>Small</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="md"><span>Medium</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+      <button type="button" role="menuitemradio" data-size="lg"><span>Large</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg></button>
+    </div>
+  </div>
+  <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle colour theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <div class="read-progress" id="read-progress"><span></span></div>
+</header>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="All notes">
+    <div class="tree" id="tree"></div>
+  </nav>
+  <main class="main" id="main"><article class="content">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/devops/index.html">CI/CD, Docker &amp; Kubernetes</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Why this layer exists</span></nav>
+<header class="topic-head reveal">
+  <span class="eyebrow">Note 24 &middot; CI/CD, Docker &amp; Kubernetes &middot; Topic 1 of 6</span>
+  <h1>Why this layer exists</h1>
+  <div class="page-meta">
+    <span>2 min read</span>
+    <span>No experience needed</span>
+  </div>
+</header>
+<div class="topic-body">
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Writing the app is one job. Getting it to run reliably on a machine that is not yours, every time someone pushes a change, without a person doing it by hand at 11pm, is a different job — and it has its own four tools. A <strong>virtual machine</strong> is a rentable computer. <strong>Docker</strong> packs your app and everything it needs into one box that runs identically on any of those computers. <strong>Kubernetes</strong> is the manager that keeps many of those boxes running, restarts the ones that die, and spreads them across machines. <strong>CI/CD</strong> is the conveyor belt that takes a git push and, if it passes the checks, turns it into an updated box running in production — with nobody typing a command. </div></div>
+<p> Four ideas, and the confusion between them is almost always a layering problem — each one sits on top of the one before it. </p>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>The stack, bottom to top</div><pre><code>Virtual machine        a rentable computer: CPU, memory, disk, an OS
+      |
+      |  Docker packages your app + its dependencies into one file
+      v
+Container image        "this exact app, guaranteed to run the same everywhere"
+      |
+      |  Kubernetes decides which machines run which containers,
+      |  how many copies, and what happens when one dies
+      v
+Running service         your app, actually reachable, actually surviving failure
+      ^
+      |  CI/CD is the automation that pushes a new image through
+      |  this whole chain every time the code changes
+   git push</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>Layer</th><th>Answers</th><th>Everyday analogy</th></tr></thead><tbody>
+<tr><td><strong>Virtual machine</strong></td><td>Where does code physically run?</td><td>Renting an apartment — walls, plumbing, an address. You still have to move your own furniture in.</td></tr>
+<tr><td><strong>Docker</strong></td><td>How do I make sure it runs the same on my laptop, in CI, and in production?</td><td>A shipping container — whatever is inside, the crane, the ship and the truck all handle it the same way.</td></tr>
+<tr><td><strong>Kubernetes</strong></td><td>How do I run many containers, reliably, across many machines?</td><td>A shipping port's control tower — deciding which crane loads which container onto which ship, and re-routing the moment one crane breaks.</td></tr>
+<tr><td><strong>CI/CD</strong></td><td>How does a code change become a running update, automatically?</td><td>A factory conveyor belt — the part only moves forward once it has passed the inspection station.</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>You very rarely need all four, fully, on day one.</strong> Plenty of real products run happily as one Docker container on one managed platform (Cloud Run, Render, Fly.io) with a simple CI/CD pipeline and no Kubernetes and no VM you manage yourself. Kubernetes earns its complexity when you have many services, need fine control over networking and scaling, or already have a platform team to run it. Reach for it because you have that problem, not because it is the well-known name. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Where does a plain virtual machine still fit once you have Docker and Kubernetes?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Underneath both of them. Every Kubernetes cluster's worker nodes are themselves virtual machines — Kubernetes does not replace VMs, it automates what runs on a fleet of them. You reach for a <em>raw</em> VM yourself, outside that automation, for the cases that do not fit the container model well: a box you need full OS-level control over, a GPU machine you configure by hand, or a self-hosted CI runner. </p></div></details>
+</div>
+<nav class="page-nav">
+<a class="pn-prev" href="../../notes/aiops/incident.html">
+  <span class="pn-dir">&larr; Previous</span>
+  <span class="pn-title">When it goes wrong at 3am</span>
+  <span class="pn-note">in AI Ops</span>
+</a>
+<a class="pn-next" href="docker.html">
+  <span class="pn-dir">Next &rarr;</span>
+  <span class="pn-title">Docker: packaging the app so it runs the same everywhere</span>
+  
+</a>
+</nav>
+<nav class="siblings" aria-label="Other topics in this note">
+  <div class="sib-head">More in <a href="index.html">CI/CD, Docker &amp; Kubernetes</a></div>
+  <div class="sib-row"><a class="sib is-current" href="what.html"><span class="sib-n">01</span>Why this layer exists</a><a class="sib" href="docker.html"><span class="sib-n">02</span>Docker: packaging the app so it runs the same everywhere</a><a class="sib" href="cicd.html"><span class="sib-n">03</span>Building the pipeline: from git push to a deployed container</a><a class="sib" href="kubernetes.html"><span class="sib-n">04</span>Kubernetes: running many containers reliably</a><a class="sib" href="vms.html"><span class="sib-n">05</span>Where the virtual machine still fits</a><a class="sib" href="mistakes.html"><span class="sib-n">06</span>Common mistakes, and what to remember</a></div>
+</nav>
+</article></main>
+  <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>
+</div>
+<script src="../../assets/js/site-data.js"></script>
+<script src="../../assets/js/app.js"></script>
+</body>
+</html>

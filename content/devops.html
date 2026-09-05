@@ -1,0 +1,274 @@
+<section class="note-section" data-tagline="Docker packages the app the same way everywhere, Kubernetes runs many of those packages reliably, and CI/CD is the assembly line that connects a git push to a running service without anyone typing a deploy command by hand.">
+<h2 id="what">Why this layer exists</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Writing the app is one job. Getting it to run reliably on a machine that is not yours, every time someone pushes a change, without a person doing it by hand at 11pm, is a different job — and it has its own four tools. A <strong>virtual machine</strong> is a rentable computer. <strong>Docker</strong> packs your app and everything it needs into one box that runs identically on any of those computers. <strong>Kubernetes</strong> is the manager that keeps many of those boxes running, restarts the ones that die, and spreads them across machines. <strong>CI/CD</strong> is the conveyor belt that takes a git push and, if it passes the checks, turns it into an updated box running in production — with nobody typing a command. </div></div>
+<p> Four ideas, and the confusion between them is almost always a layering problem — each one sits on top of the one before it. </p>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>The stack, bottom to top</div><pre><code>Virtual machine        a rentable computer: CPU, memory, disk, an OS
+      |
+      |  Docker packages your app + its dependencies into one file
+      v
+Container image        "this exact app, guaranteed to run the same everywhere"
+      |
+      |  Kubernetes decides which machines run which containers,
+      |  how many copies, and what happens when one dies
+      v
+Running service         your app, actually reachable, actually surviving failure
+      ^
+      |  CI/CD is the automation that pushes a new image through
+      |  this whole chain every time the code changes
+   git push</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>Layer</th><th>Answers</th><th>Everyday analogy</th></tr></thead><tbody>
+<tr><td><strong>Virtual machine</strong></td><td>Where does code physically run?</td><td>Renting an apartment — walls, plumbing, an address. You still have to move your own furniture in.</td></tr>
+<tr><td><strong>Docker</strong></td><td>How do I make sure it runs the same on my laptop, in CI, and in production?</td><td>A shipping container — whatever is inside, the crane, the ship and the truck all handle it the same way.</td></tr>
+<tr><td><strong>Kubernetes</strong></td><td>How do I run many containers, reliably, across many machines?</td><td>A shipping port's control tower — deciding which crane loads which container onto which ship, and re-routing the moment one crane breaks.</td></tr>
+<tr><td><strong>CI/CD</strong></td><td>How does a code change become a running update, automatically?</td><td>A factory conveyor belt — the part only moves forward once it has passed the inspection station.</td></tr>
+</tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>You very rarely need all four, fully, on day one.</strong> Plenty of real products run happily as one Docker container on one managed platform (Cloud Run, Render, Fly.io) with a simple CI/CD pipeline and no Kubernetes and no VM you manage yourself. Kubernetes earns its complexity when you have many services, need fine control over networking and scaling, or already have a platform team to run it. Reach for it because you have that problem, not because it is the well-known name. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Where does a plain virtual machine still fit once you have Docker and Kubernetes?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Underneath both of them. Every Kubernetes cluster's worker nodes are themselves virtual machines — Kubernetes does not replace VMs, it automates what runs on a fleet of them. You reach for a <em>raw</em> VM yourself, outside that automation, for the cases that do not fit the container model well: a box you need full OS-level control over, a GPU machine you configure by hand, or a self-hosted CI runner. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="An image is the recipe, a container is the dish. One Dockerfile, one docker-compose.yml for local development, and the layer-caching trick that makes rebuilds fast.">
+<h2 id="docker">Docker: packaging the app so it runs the same everywhere</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> "Works on my machine" is a real bug, not an excuse — it means the app depends on something about your laptop that production does not have. Docker's whole job is to remove that gap: you describe the exact environment the app needs once, in a file, and every machine that runs it — your laptop, the CI server, production — gets the identical thing. </div></div>
+<p> An <strong>image</strong> is the packaged recipe — your code, the runtime, the dependencies, frozen. A <strong>container</strong> is a running instance of that image. You build one image and can start as many containers from it as you like, identical every time. </p>
+<div class="code-block"><div class="code-head"><span class="lang">dockerfile</span>Dockerfile — a Node/Express API, multi-stage</div><pre><code># Stage 1: everything needed to INSTALL and BUILD, discarded afterwards.
+FROM node:20-slim AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# Stage 2: only what is needed to RUN. This is the image that ships —
+# smaller image means a faster pull and a faster cold start.
+FROM node:20-slim
+WORKDIR /app
+ENV NODE_ENV=production
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY --from=build /app/dist ./dist
+
+EXPOSE 8080
+CMD ["node", "dist/server.js"]</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>Order your Dockerfile from least to most likely to change.</strong> Docker caches each line as a layer and reuses the cache for every line above the first one that changed. Copying <code>package*.json</code> and running <code>npm ci</code> <em>before</em> copying the rest of the source means a source-only change reuses the cached, already-installed dependencies instead of reinstalling everything on every build. This one ordering choice is the difference between a ten-second rebuild and a two-minute one. </div></div>
+<h3>Local development: several containers, one command</h3>
+<p> A real app is rarely one container — it is an API, a database, maybe a frontend dev server. <code>docker-compose.yml</code> describes all of them together, so <code>docker compose up</code> gives every teammate the exact same local environment. </p>
+<div class="code-block"><div class="code-head"><span class="lang">yaml</span>docker-compose.yml — API + Postgres, for local development</div><pre><code>services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: devpassword
+      POSTGRES_DB: quicktasks
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  api:
+    build: ./api                 # uses ./api/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://postgres:devpassword@db:5432/quicktasks
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    volumes:
+      - ./api/src:/app/src        # live-reload: edit locally, see it inside the container
+
+volumes:
+  db-data:</code></pre></div>
+<p> Inside the Compose network, the API reaches the database at the hostname <code>db</code> — the service name — never <code>localhost</code>. That one detail catches almost everyone once. </p>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">"Connection refused" that only happens inside Docker</span></div><div class="example-body"><p> The API's <code>DATABASE_URL</code> says <code>localhost:5432</code>. On your laptop this worked, because Postgres was running directly on it. Inside a container, <code>localhost</code> means <em>that container itself</em> — there is no Postgres listening there, only the API. The fix is always the same: point at the service name Compose (or Kubernetes) gives the other container, never <code>localhost</code>. </p></div></div>
+<details class="selfcheck"><summary><span class="sc-q">You change one line of application code and rebuild. It takes two minutes instead of the usual ten seconds. Why?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Almost certainly the Dockerfile copies the whole source tree before installing dependencies, so any source change invalidates Docker's cache for the <code>npm ci</code> layer too, and every dependency reinstalls. Move <code>COPY package*.json</code> and <code>RUN npm ci</code> above <code>COPY . .</code>, and a source-only change no longer touches the dependency layer at all. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="A pipeline is the deploy command, written down and run automatically — with gates in front of it so a broken change never reaches production on its own.">
+<h2 id="cicd">Building the pipeline: from git push to a deployed container</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> <strong>Continuous Integration</strong> means every change is automatically built and tested the moment it is pushed, so problems surface in minutes, not at the next release. <strong>Continuous Delivery</strong> means a passing change is automatically packaged and ready to ship. <strong>Continuous Deployment</strong> goes one step further and actually ships it, with no human clicking "approve". Most teams want CI plus delivery, with a deliberate human or automatic gate before production. </div></div>
+<div class="table-wrap"><table><thead><tr><th>Term</th><th>What happens automatically</th></tr></thead><tbody>
+<tr><td><strong>CI</strong> — Continuous Integration</td><td>Every push is built, linted and tested. A broken change is caught in minutes, not discovered a week later by someone else's pull.</td></tr>
+<tr><td><strong>CD</strong> — Continuous Delivery</td><td>A change that passes CI is automatically packaged (a container image, built and pushed to a registry) and is one click away from production.</td></tr>
+<tr><td><strong>CD</strong> — Continuous Deployment</td><td>The same, minus the click — a passing change on the main branch goes to production with no human step at all.</td></tr>
+</tbody></table></div>
+<div class="code-block"><div class="code-head"><span class="lang">yaml</span>.github/workflows/deploy.yml — a complete pipeline, GitHub Actions</div><pre><code>name: build-test-deploy
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test                     # gate: nothing below runs if this fails
+
+  build-and-push-image:
+    needs: build-and-test                 # only starts once tests pass
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          docker build -t ghcr.io/acme/api:${{ github.sha }} ./api
+          docker push ghcr.io/acme/api:${{ github.sha }}
+
+  deploy:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          # Point kubectl at the cluster (credentials come from a secret),
+          # then update the running Deployment to the new image.
+          kubectl set image deployment/api api=ghcr.io/acme/api:${{ github.sha }}
+          kubectl rollout status deployment/api</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>Tag every image with the git commit SHA, never <code>:latest</code>.</strong> <code>:latest</code> means the thing running in production has no name you can trace back to a commit, rolling back is guesswork, and two deploys racing each other can push in any order. A commit SHA makes "what is actually running?" and "put yesterday's version back" both a single, unambiguous command. </div></div>
+<h3>Where the gates go</h3>
+<figure class="figure is-flow">
+<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">A push, and everywhere it can stop</span>{{replay}}</div>
+<div class="figure-stage"><ol class="flow flow-column">
+<li class="flow-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Lint and type-check</span><span class="flow-detail">Fast, cheap, catches typos and drift before anything expensive runs.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">Automated tests</span><span class="flow-detail">Unit and integration. This is the gate that catches most real regressions — nothing past here runs if it fails.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Build and push the image</span><span class="flow-detail">Tagged with the commit SHA, pushed to a registry. This artefact never changes again — the same image goes to staging and production.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">Database migrations</span><span class="flow-detail">Run before the new code, and additive-only — see the mistakes section below for why.</span></div></li>
+<li class="flow-step" data-tone="accent" style="--i:4"><span class="flow-num">5</span><div class="flow-text"><span class="flow-label">Deploy, then watch</span><span class="flow-detail">Roll out gradually, watch the error rate, and roll back automatically to the previous image if it climbs.</span></div></li>
+</ol></div>
+</figure>
+<details class="selfcheck"><summary><span class="sc-q">Why build the container image once and deploy that exact same image to staging and then production, rather than rebuilding for each?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Rebuilding gives you a chance for the two environments to end up running different bytes — a dependency version resolved differently, a base image that updated between builds. Building once and promoting the identical, already-tested image means "it worked in staging" is a statement about the exact thing about to run in production, not about something similar to it. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="Pods, Deployments, Services and Ingress — the four objects that do almost everything, and a real manifest for a two-service app.">
+<h2 id="kubernetes">Kubernetes: running many containers reliably</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> You tell Kubernetes "I want three copies of this container running, always" and it makes that true — starting them, restarting the ones that crash, moving them off a machine that dies, and spreading them across the machines you have. You describe the desired state; Kubernetes' whole job is closing the gap between that and reality, continuously. </div></div>
+<p> Four objects cover most of what you will actually touch. </p>
+<div class="table-wrap"><table><thead><tr><th>Object</th><th>What it is</th></tr></thead><tbody>
+<tr><td><strong>Pod</strong></td><td>The smallest unit — one or more containers that always run together, on the same machine. Usually one container per Pod.</td></tr>
+<tr><td><strong>Deployment</strong></td><td>"Keep N copies of this Pod running, and here is how to roll out a new version." You almost never create a Pod directly — you create a Deployment and it manages Pods for you.</td></tr>
+<tr><td><strong>Service</strong></td><td>A stable network address for a set of Pods, which come and go and change IP addresses constantly. Other things talk to the Service, never to a Pod directly.</td></tr>
+<tr><td><strong>Ingress</strong></td><td>Routes traffic from outside the cluster (the internet) to the right Service inside it, usually by hostname or path.</td></tr>
+</tbody></table></div>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>How they relate</div><pre><code>Internet
+   |
+   v
+Ingress            "requests for api.quicktasks.app go to the api-service"
+   |
+   v
+Service (api)      a stable address; picks one of the healthy Pods below
+   |
+   +---> Pod (api, replica 1)   \
+   +---> Pod (api, replica 2)    }  managed by a Deployment,
+   +---> Pod (api, replica 3)   /   which keeps exactly 3 running</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="lang">yaml</span>deployment.yaml — three replicas of the API, with resource limits</div><pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: api }
+  template:
+    metadata:
+      labels: { app: api }
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/acme/api:a1b2c3d      # the exact commit SHA, from CI
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef: { name: api-secrets, key: database-url }
+          resources:
+            requests: { cpu: "100m", memory: "128Mi" }   # what it's guaranteed
+            limits:   { cpu: "500m", memory: "256Mi" }   # what it can't exceed
+          readinessProbe:
+            httpGet: { path: /healthz, port: 8080 }
+            initialDelaySeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+spec:
+  selector: { app: api }        # sends traffic to any Pod with this label
+  ports:
+    - port: 80
+      targetPort: 8080</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Always set resource requests and limits.</strong> Without them, one misbehaving Pod can consume an entire node's memory and take every other Pod on that machine down with it — the "noisy neighbour" failure, and it is the single most common way a Kubernetes cluster has a bad day. Without a <code>readinessProbe</code>, the Service starts sending traffic to a Pod before its process has actually finished starting up, and some fraction of requests fail for no reason a log will make obvious. </div></div>
+<h3>Kubernetes, or a managed container platform?</h3>
+<div class="table-wrap"><table><thead><tr><th></th><th>Cloud Run / Fargate / App Service</th><th>Kubernetes (GKE / EKS / AKS)</th></tr></thead><tbody>
+<tr><td>You manage</td><td>Nothing below the container</td><td>Cluster shape, node upgrades, networking, scaling policy</td></tr>
+<tr><td>Scales to zero</td><td>Yes</td><td>No — nodes cost money even idle</td></tr>
+<tr><td>Good for</td><td>Almost everything — one or a few services</td><td>Many services, complex internal networking, a platform team to run it</td></tr>
+<tr><td>Setup for "hello world"</td><td>Minutes</td><td>Hours, and there is a cluster to keep patched afterwards</td></tr>
+</tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Teams often reach for Kubernetes because it is the well-known name, then spend the first few months operating a cluster instead of building the product. It earns its complexity once you have enough services that the orchestration itself becomes the hard problem — until then, a managed platform gives you the same "many containers, restarted automatically" guarantee for a fraction of the operational cost. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">A Deployment says <code>replicas: 3</code>, but you only ever create or delete a Pod directly during testing. Two minutes later, three Pods are running again. Why?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> The Deployment is not describing what to do once — it is continuously reconciling reality against the desired state you gave it. Delete a Pod, and the Deployment notices the count dropped below 3 and starts a replacement immediately. This is the core idea of Kubernetes: you declare the end state, and a controller keeps making it true, indefinitely, without anyone re-running a command. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="A container shares the host's kernel; a VM brings its own. Every Kubernetes node is a VM underneath — and there are still good reasons to provision one yourself.">
+<h2 id="vms">Where the virtual machine still fits</h2>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A virtual machine is a whole pretend computer — its own operating system, booted from scratch, running on top of a real one via a hypervisor. A container is much lighter: it shares the host machine's kernel and only packages the application layer on top. That difference is why containers start in milliseconds and VMs take tens of seconds, and why a single physical machine can run far more containers than VMs. </div></div>
+<div class="table-wrap"><table><thead><tr><th></th><th>Virtual machine</th><th>Container</th></tr></thead><tbody>
+<tr><td>Includes</td><td>A full guest operating system</td><td>Just the app and its dependencies</td></tr>
+<tr><td>Isolation</td><td>Strong — a separate kernel</td><td>Weaker — shares the host kernel</td></tr>
+<tr><td>Startup time</td><td>Tens of seconds</td><td>Milliseconds to a couple of seconds</td></tr>
+<tr><td>Density per machine</td><td>A handful</td><td>Dozens to hundreds</td></tr>
+</tbody></table></div>
+<p> This is why the layers stack the way they do: every worker node in a Kubernetes cluster (or a Cloud Run instance, underneath the abstraction) <strong>is itself a virtual machine</strong>. Kubernetes does not remove VMs — it automates what runs on a fleet of them, so you stop thinking about any one of them individually. </p>
+<h3>When you still reach for a raw VM</h3>
+<div class="card-grid cols-2">
+  <div class="card"><div class="card-title">Full OS-level control</div><p>Kernel modules, specific system libraries, licensing that assumes a dedicated machine — anything that does not fit the "just the app" container model.</p></div>
+  <div class="card"><div class="card-title">A GPU box you configure yourself</div><p>Specific driver versions, a long-lived training or inference job that should not be interrupted by a scheduler moving it.</p></div>
+  <div class="card"><div class="card-title">A self-hosted CI runner</div><p>Faster builds with a warm cache, or access to internal network resources a cloud-hosted runner cannot reach.</p></div>
+  <div class="card"><div class="card-title">Legacy software</div><p>Something that was never designed to be containerised and is not worth the effort of making it so.</p></div>
+</div>
+<div class="code-block"><div class="code-head"><span class="lang">bash</span>Creating one, when you need one</div><pre><code>gcloud compute instances create ci-runner \
+  --zone=europe-west2-a \
+  --machine-type=e2-standard-4 \
+  --image-family=debian-12 \
+  --image-project=debian-cloud \
+  --tags=ci-runner
+
+# It is now a computer like any other: SSH in, install what you need.
+gcloud compute ssh ci-runner --zone=europe-west2-a</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>A VM you provision by hand is a VM someone has to patch by hand.</strong> Unlike a managed container platform, nobody rotates its OS security updates for you. If you do reach for one, put it behind infrastructure-as-code (Terraform, or even just a documented creation script) so it can be recreated identically rather than becoming the one server nobody remembers how to rebuild. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Why do containers start in milliseconds while virtual machines take tens of seconds?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> A VM has to boot an entire guest operating system from scratch — its own kernel, its own init process — before your application even starts. A container skips all of that: it shares the host machine's already-running kernel and starts straight into your application process. The trade-off is isolation — a VM's separate kernel is a stronger security boundary than a container's shared one. </p></div></details>
+</section>
+
+<section class="note-section" data-tagline="The mistakes that show up after it works in the demo: the mutable tag, the unbounded pipeline, the migration that breaks the old version still running.">
+<h2 id="mistakes">Common mistakes, and what to remember</h2>
+<div class="compare">
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; deploy on green, no gate</div><pre><code>on: push
+jobs:
+  deploy:
+    steps:
+      - run: docker build -t app .
+      - run: docker push app:latest
+      - run: kubectl set image ...
+# No tests. No lint. ":latest" everywhere.
+# A typo reaches production in under a minute.</code></pre></div>
+<div class="compare-pane is-good"><div class="compare-head">Do this &middot; tests gate the deploy</div><pre><code>on: push
+jobs:
+  test:            # deploy job has "needs: test"
+    steps: [lint, unit tests, integration tests]
+  deploy:
+    needs: test
+    steps:
+      - run: docker build -t app:${{ github.sha }} .
+      - run: docker push app:${{ github.sha }}
+      - run: kubectl set image ... app:${{ github.sha }}</code></pre></div>
+</div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Migrations must be backwards-compatible during a rollout.</strong> A rolling deploy means old and new code run against the same database at the same time, briefly. A migration that drops or renames a column the old code still reads breaks production for whichever users happen to be served by the old Pods. Add new columns first, deploy code that writes both old and new, then remove the old column in a later release — see the PostgreSQL note for the full pattern. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>Do not run your database as a Pod in the same cluster</strong> unless you have a specific reason and the operational experience to back it up. A managed database (Cloud SQL, RDS) handles backups, failover and patching for you; a database Pod restarted by the same scheduler that just redeployed your API is one misconfigured rollout away from data loss. </div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>VM, Docker, Kubernetes and CI/CD are four layers, not four competing choices — each sits on top of the one before it.</li><li>Order a Dockerfile from least to most likely to change, so the dependency layer stays cached.</li><li>Never point one container at another with <code>localhost</code> — use the service name.</li><li>Tag every image with the git commit SHA. Never deploy <code>:latest</code>.</li><li>Tests gate the deploy job — nothing ships if they fail.</li><li>Always set Kubernetes resource requests, limits and a readiness probe.</li><li>Reach for Kubernetes because you have many services to orchestrate, not because it's the well-known name.</li><li>Database migrations must tolerate old and new code running at once.</li></ul></div>
+<details class="selfcheck"><summary><span class="sc-q">A rollout finishes, and for about thirty seconds a fraction of requests get errors before settling down. What's the most likely missing piece?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> A missing or too-eager <code>readinessProbe</code>. Without one, Kubernetes considers a Pod ready as soon as its container process starts, and the Service begins routing real traffic to it — even though the application inside might still be connecting to the database or warming up. A readiness probe that checks a real <code>/healthz</code> endpoint keeps a Pod out of rotation until it can actually serve a request. </p></div></details>
+</section>

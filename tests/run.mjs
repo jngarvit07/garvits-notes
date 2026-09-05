@@ -63,7 +63,7 @@ for (const rel of builtPages) {
 }
 ok('no page carries the gate or a blanket noindex', true);
 
-ok('every page is built', builtPages.length === 219, `found ${builtPages.length}, expected 219`);
+ok('every page is built', builtPages.length === 233, `found ${builtPages.length}, expected 233`);
 
 const cfg = read('_config.yml');
 for (const dir of ['content', 'tools', 'tests']) {

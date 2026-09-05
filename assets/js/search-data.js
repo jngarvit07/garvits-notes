@@ -1513,6 +1513,102 @@ window.GN_SECTIONS = [
   "text": "In plain English At 3am the instinct is to start rewriting the prompt, because that feels like the part you control. It is almost never the cause, it cannot be verified quickly, and a prompt changed under pressure with no eval run tends to become tomorrow s incident. Work the list in order instead. An AI incident is usually one of five things. Working through them in this order finds it quickly, because it goes from cheapest-to-check to hardest. txt The triage order i The order is deliberate. The instinct at 3am is to start rewriting the prompt, because that is the part you feel you control. It is almost never the cause, it cannot be tested quickly, and a prompt change made under pressure wi"
  },
  {
+  "slug": "devops",
+  "topic": "what",
+  "note": "CI/CD, Docker & Kubernetes",
+  "noteTitle": "CI/CD, Docker & Kubernetes",
+  "section": "Why this layer exists",
+  "text": "In plain English Writing the app is one job. Getting it to run reliably on a machine that is not yours, every time someone pushes a change, without a person doing it by hand at 11pm, is a different job — and it has its own four tools. A virtual machine is a rentable computer. Docker packs your app and everything it needs into one box that runs identically on any of those computers. Kubernetes is the manager that keeps many of those boxes running, restarts the ones that die, and spreads them across machines. CI/CD is the conveyor belt that takes a git push and, if it passes the checks, turns it into an updated box running in production — with nobody typing a command. Four ideas, and the confu"
+ },
+ {
+  "slug": "devops",
+  "topic": "docker",
+  "note": "CI/CD, Docker & Kubernetes",
+  "noteTitle": "CI/CD, Docker & Kubernetes",
+  "section": "Docker: packaging the app so it runs the same everywhere",
+  "text": "In plain English \"Works on my machine\" is a real bug, not an excuse — it means the app depends on something about your laptop that production does not have. Docker's whole job is to remove that gap: you describe the exact environment the app needs once, in a file, and every machine that runs it — your laptop, the CI server, production — gets the identical thing. An image is the packaged recipe — your code, the runtime, the dependencies, frozen. A container is a running instance of that image. You build one image and can start as many containers from it as you like, identical every time. dockerfile Dockerfile — a Node/Express API, multi-stage i Order your Dockerfile from least to most likely "
+ },
+ {
+  "slug": "devops",
+  "topic": "cicd",
+  "note": "CI/CD, Docker & Kubernetes",
+  "noteTitle": "CI/CD, Docker & Kubernetes",
+  "section": "Building the pipeline: from git push to a deployed container",
+  "text": "In plain English Continuous Integration means every change is automatically built and tested the moment it is pushed, so problems surface in minutes, not at the next release. Continuous Delivery means a passing change is automatically packaged and ready to ship. Continuous Deployment goes one step further and actually ships it, with no human clicking \"approve\". Most teams want CI plus delivery, with a deliberate human or automatic gate before production. Term What happens automatically CI — Continuous Integration Every push is built, linted and tested. A broken change is caught in minutes, not discovered a week later by someone else's pull. CD — Continuous Delivery A change that passes CI is"
+ },
+ {
+  "slug": "devops",
+  "topic": "kubernetes",
+  "note": "CI/CD, Docker & Kubernetes",
+  "noteTitle": "CI/CD, Docker & Kubernetes",
+  "section": "Kubernetes: running many containers reliably",
+  "text": "In plain English You tell Kubernetes \"I want three copies of this container running, always\" and it makes that true — starting them, restarting the ones that crash, moving them off a machine that dies, and spreading them across the machines you have. You describe the desired state; Kubernetes' whole job is closing the gap between that and reality, continuously. Four objects cover most of what you will actually touch. Object What it is Pod The smallest unit — one or more containers that always run together, on the same machine. Usually one container per Pod. Deployment \"Keep N copies of this Pod running, and here is how to roll out a new version.\" You almost never create a Pod directly — you "
+ },
+ {
+  "slug": "devops",
+  "topic": "vms",
+  "note": "CI/CD, Docker & Kubernetes",
+  "noteTitle": "CI/CD, Docker & Kubernetes",
+  "section": "Where the virtual machine still fits",
+  "text": "In plain English A virtual machine is a whole pretend computer — its own operating system, booted from scratch, running on top of a real one via a hypervisor. A container is much lighter: it shares the host machine's kernel and only packages the application layer on top. That difference is why containers start in milliseconds and VMs take tens of seconds, and why a single physical machine can run far more containers than VMs. Virtual machine Container Includes A full guest operating system Just the app and its dependencies Isolation Strong — a separate kernel Weaker — shares the host kernel Startup time Tens of seconds Milliseconds to a couple of seconds Density per machine A handful Dozens "
+ },
+ {
+  "slug": "devops",
+  "topic": "mistakes",
+  "note": "CI/CD, Docker & Kubernetes",
+  "noteTitle": "CI/CD, Docker & Kubernetes",
+  "section": "Common mistakes, and what to remember",
+  "text": "Not this deploy on green, no gate Do this tests gate the deploy ! Migrations must be backwards-compatible during a rollout. A rolling deploy means old and new code run against the same database at the same time, briefly. A migration that drops or renames a column the old code still reads breaks production for whichever users happen to be served by the old Pods. Add new columns first, deploy code that writes both old and new, then remove the old column in a later release — see the PostgreSQL note for the full pattern. i Do not run your database as a Pod in the same cluster unless you have a specific reason and the operational experience to back it up. A managed database (Cloud SQL, RDS) handl"
+ },
+ {
+  "slug": "ai-project",
+  "topic": "how",
+  "note": "Building with AI",
+  "noteTitle": "Building a Full Project with AI",
+  "section": "How to actually use AI to build a project",
+  "text": "In plain English The failure mode is asking for the whole app in one prompt and hoping. It can write a lot of code fast, which is exactly the danger — a hundred lines you didn't read is a hundred lines you don't understand when they break at 2am. The fix isn't asking for less; it's asking for it in an order you can review as it arrives, the same discipline you'd want from any engineer moving fast. Four habits separate a project an AI helped build well from one that collapses under its own code six weeks in. 1. Write the spec first, yourself One page: what it does, the main entities, the endpoints, what \"done\" looks like for the first slice. An AI given a clear spec produces focused code; giv"
+ },
+ {
+  "slug": "ai-project",
+  "topic": "scenario",
+  "note": "Building with AI",
+  "noteTitle": "Building a Full Project with AI",
+  "section": "The scenario: QuickTasks, a real task tracker",
+  "text": "In plain English A small, genuinely buildable product: a team creates a board, adds tasks to it, assigns them to people, and marks them done. Small enough to build in an afternoon with help, real enough that every decision below — the schema, the API shape, the deploy pipeline — is one you would actually make on a real product. The one-page spec , written before any code — this is the thing you hand the AI, not \"build me a task tracker\": Entity Fields Rule User id, email, name, passwordHash Signs in with email + password, gets a JWT. Board id, name, ownerId Belongs to one user; that user can invite others (out of scope for v1). Task id, boardId, title, done, assigneeId Belongs to one board. "
+ },
+ {
+  "slug": "ai-project",
+  "topic": "backend",
+  "note": "Building with AI",
+  "noteTitle": "Building a Full Project with AI",
+  "section": "The backend and API, built with AI",
+  "text": "In plain English The useful prompt is never \"build the backend.\" It's \"here is the schema, here is how the existing routes are written, add exactly this one endpoint.\" The model isn't inventing a design — it's extending one you already committed to, which is why the result matches the rest of the codebase instead of looking like it came from a different project. prisma schema.prisma — given to the model as context, not guessed at The prompt for one slice: \"Add POST /api/boards/:id/tasks . Validate title is a non-empty string. Confirm the board exists and belongs to the signed-in user before creating anything. Return 201 with the created row, matching the error-handling style in routes/boards"
+ },
+ {
+  "slug": "ai-project",
+  "topic": "frontend",
+  "note": "Building with AI",
+  "noteTitle": "Building a Full Project with AI",
+  "section": "The frontend, wired to the actual API",
+  "text": "In plain English The recurring failure when frontend and backend are built in separate AI sessions is drift: the frontend expects a field the API doesn't send, or the wrong casing, or a type that's a string on one side and a number on the other. Generating the frontend's types straight from the same Prisma schema removes an entire category of bug by construction rather than by discipline. tsx TaskBoard.tsx — fetches real tasks, optimistic create Not this the frontend guesses the shape Do this one shared source of truth The API renames done to completed . With a shared, generated types package, how does the frontend find out? Answer The frontend's TypeScript build fails at compile time, on th"
+ },
+ {
+  "slug": "ai-project",
+  "topic": "integration",
+  "note": "Building with AI",
+  "noteTitle": "Building a Full Project with AI",
+  "section": "Wiring frontend, backend and database together locally",
+  "text": "In plain English Three pieces built separately need one place where they actually run together — this is where a schema mismatch, a missing environment variable, or a CORS setting nobody configured finally shows up, before any of it reaches production. yaml docker-compose.yml — the whole app, one command js api/src/server.ts — the CORS line every scaffold forgets Your frontend's fetch call to the API fails with a CORS error in the browser console, but running the exact same request with curl works perfectly. Why the difference? Answer CORS is a browser-enforced rule, not a server-enforced one. The browser sends an Origin header and refuses to hand the response to your page's JavaScript unles"
+ },
+ {
+  "slug": "ai-project",
+  "topic": "shipping",
+  "note": "Building with AI",
+  "noteTitle": "Building a Full Project with AI",
+  "section": "Shipping it: containers, CI/CD and Kubernetes for this app",
+  "text": "In plain English Everything from here is a direct application of the DevOps note, not new ideas — two Dockerfiles, one pipeline that builds and tests both, and two Kubernetes Deployments behind one Ingress. The scenario was never separate from that note; this is the point where they meet. yaml .github/workflows/deploy.yml — both services, one pipeline yaml ingress.yaml — one address, two services behind it One push to main now means: AI-assisted code change reviewed and merged tested in CI two images built and tagged with that commit migration applied both Deployments updated live, with the DevOps note's rollout and rollback discipline covering the last step. Worth remembering Spec first, on"
+ },
+ {
   "slug": "roadmap",
   "topic": "where",
   "note": "What to Learn Next",
