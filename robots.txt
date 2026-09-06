@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jngarvit07.github.io/garvits-notes/sitemap.xml

@@ -1046,6 +1046,96 @@ tr:last-child td { border-bottom: 0; }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+
+/* --- Skip link -------------------------------------------------------------
+   The sidebar is the whole catalogue — around 230 links — and it comes before
+   the article in the DOM, which is right for a crawler and wrong for anybody
+   moving by keyboard. This is the way past it. It is deliberately not
+   display:none, because an element that is not rendered cannot take focus: it
+   waits just above the top edge and slides down when it is tabbed to. */
+.skip-link {
+  position: fixed; top: 0; left: 14px; z-index: 200;
+  transform: translateY(-130%);
+  background: var(--accent); color: #fff;
+  padding: 10px 18px; border-radius: 0 0 var(--radius) var(--radius);
+  font-size: 0.9375rem; font-weight: 600;
+  box-shadow: var(--shadow-md);
+  transition: transform .24s cubic-bezier(.22,.68,.4,1);
+}
+.skip-link:focus {
+  transform: translateY(0);
+  color: #fff; text-decoration: none; outline: none;
+}
+
+/* --- Focus ------------------------------------------------------------------
+   One ring, everywhere, and only for keyboard users — :focus-visible leaves a
+   mouse click alone. The site had exactly one focus style before this, on the
+   copy button, so tabbing through it was mostly guesswork. */
+:where(a, button, summary, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* --- Moving between pages ---------------------------------------------------
+   Every page carries the same header and the same sidebar, so a normal
+   navigation throws away an identical frame and paints it again — which reads
+   as a flash. Where the browser supports it, the two frames are crossfaded
+   instead and the chrome is held still, which makes a multi-page site feel
+   like one. Browsers without it navigate exactly as before. */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root) { animation: vtOut .16s ease both; }
+::view-transition-new(root) { animation: vtIn .24s cubic-bezier(.22,.68,.4,1) both; }
+@keyframes vtOut { to { opacity: 0; } }
+@keyframes vtIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* The chrome is the same on both pages, so it should not take part. */
+.site-header { view-transition-name: gn-header; }
+.sidebar     { view-transition-name: gn-sidebar; }
+::view-transition-group(gn-header),
+::view-transition-group(gn-sidebar) { animation: none; }
+::view-transition-old(gn-header), ::view-transition-new(gn-header),
+::view-transition-old(gn-sidebar), ::view-transition-new(gn-sidebar) { animation: none; opacity: 1; }
+
+/* --- Changing theme ---------------------------------------------------------
+   Switching light to dark repainted every surface on the same frame, which is
+   a hard cut across the whole screen. The class is added for the length of the
+   fade and taken off again, so this costs nothing while reading. */
+:root.is-theming * {
+  transition: background-color .3s ease, border-color .3s ease,
+              color .3s ease, box-shadow .3s ease !important;
+}
+
+/* --- Opening a folder in the sidebar ---------------------------------------
+   The drawer height already animates. This gives the topics inside it a short
+   stagger as it opens, so the list reads as arriving in order rather than
+   appearing all at once. It runs on a click only — .is-unfolding is added
+   there and removed when it finishes — never on page load, where the note you
+   are reading is already open and animating it would just be noise. */
+.tree-note.is-unfolding > .tn-drawer .tn-topics > li {
+  animation: tnIn .32s cubic-bezier(.22,.68,.4,1) both;
+  animation-delay: calc(var(--tn-i, 0) * 22ms);
+}
+@keyframes tnIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* --- Search results --------------------------------------------------------- */
+.search-results a { animation: srIn .2s ease both; animation-delay: calc(var(--sr-i, 0) * 22ms); }
+@keyframes srIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* --- Reading -----------------------------------------------------------------
+   Small things that only show up while actually using the page. */
+.tn-topics a, .sib a, .topic-card { transition: background .16s, color .16s, border-color .16s, transform .16s; }
+.tn-topics a:hover { transform: translateX(2px); }
+.note-ref { transition: background .15s, color .15s; border-radius: 3px; }
+.note-ref:hover { background: var(--accent-soft); }
+
 /* --- Motion off ----------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -1054,6 +1144,13 @@ tr:last-child td { border-bottom: 0; }
   }
   .will-reveal { opacity: 1; transform: none; }
   .hero-glow { animation: none; }
+  /* `*` does not reach the view-transition pseudo-elements, so they need
+     naming directly — otherwise the one animation that survives is the one
+     that crossfades the whole page. */
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
+  .tree-note.is-unfolding > .tn-drawer .tn-topics > li { animation: none !important; }
+  .search-results a { animation: none !important; }
+  .tn-topics a:hover { transform: none; }
 }
 
 /* --- Fixes found by looking at real pages --------------------------------- */

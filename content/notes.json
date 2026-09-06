@@ -1,4 +1,8 @@
 {
+  "site": {
+    "url": "https://jngarvit07.github.io/garvits-notes/",
+    "name": "Garvit’s Notes"
+  },
   "parts": [
     {
       "id": "stack",

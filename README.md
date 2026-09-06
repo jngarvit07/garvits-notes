@@ -76,17 +76,27 @@ then one real product built and shipped through exactly that pipeline.
 
 ## Public, and unindexed only where it should be
 
-The site carries no sign-in gate, and `robots.txt` doesn't exist — a search
-engine is free to crawl and index every note. There used to be a sign-in gate
-here, backed by `robots.txt` and a blanket `noindex` on every page. On a
-static site a gate like that was never a security boundary — `curl` returned
-every note in full without signing in, and the repository is public on GitHub
-Pages regardless — so it only ever kept out a casual visitor. Once the goal
-stopped being privacy, the gate was pure friction (re-signing in on every new
-browser or cleared cache, JavaScript required just to read a note) for
-protection that was never real, and the `noindex`/`robots.txt` pair was
-working against the point of publishing at all: it made the notes
-un-Googleable. All three are gone now.
+The site carries no sign-in gate and no blanket `noindex` — a search engine is
+free to crawl and index every note. There used to be a sign-in gate here,
+backed by `robots.txt` and a `noindex` on every page. On a static site a gate
+like that was never a security boundary — `curl` returned every note in full
+without signing in, and the repository is public on GitHub Pages regardless —
+so it only ever kept out a casual visitor. Once the goal stopped being privacy,
+the gate was pure friction (re-signing in on every new browser or cleared
+cache, JavaScript required just to read a note) for protection that was never
+real, and the `noindex`/`robots.txt` pair was working against the point of
+publishing at all: it made the notes un-Googleable. The gate and the `noindex`
+are gone.
+
+`robots.txt` is back, saying the opposite of what it used to: it blocks
+nothing and names the sitemap. Removing the blocks was only half the job —
+until recently there was no `sitemap.xml` either, so a crawler had to walk
+down from the home page to discover 233 pages, and a link shared anywhere
+showed a bare URL. The build now writes `sitemap.xml` listing every real page
+(never the redirect stubs, which are `noindex`), and every page carries a
+`canonical` link and an Open Graph / Twitter card. The absolute URL those need
+is the one thing that cannot be relative; it lives in `content/notes.json`
+under `site`, and it is the only place to change it.
 
 The one place `noindex` remains is the pre-restructure redirect stubs
 (`notes/<slug>.html`) — they hold no content of their own, so search results
@@ -96,6 +106,11 @@ link instead of indexing the stub.
 `_config.yml` still keeps `content/` (the unbuilt note source) and `tools/`,
 `tests/` off the published site — that's about not shipping build machinery
 and drafts, not about gating the notes themselves.
+
+`404.html` is served by GitHub Pages for any path it does not have, at any
+depth — so it cannot use a relative stylesheet or a relative link home. It
+carries its own styling inline and links absolutely, which is why it is the one
+page that does not go through the shared shell.
 
 ## Reading it locally
 
@@ -224,6 +239,9 @@ domain, or opened straight off disk.
 
 ```
 index.html               the overview
+404.html                 generated — self-contained; served at any depth
+sitemap.xml              generated — every real page, for crawlers
+robots.txt               generated — blocks nothing, names the sitemap
 _config.yml              keeps content/, tools/ and tests/ off the built site
 notes/<id>/index.html    generated — a note, listing its topics
 notes/<id>/<topic>.html  generated — one topic  ·  do not edit by hand
@@ -242,9 +260,16 @@ tests/run.mjs            checks the built site and the source
 
 ## What the pages do
 
-- **A folder tree** in the sidebar. Every note expands to its topics; what you
-  have opened is remembered per browser, and the note you are reading is always
-  open.
+- **A folder tree** in the sidebar, rendered into every page as plain HTML.
+  Every note expands to its topics; what you have opened is remembered per
+  browser, and the note you are reading is always open. The tree used to be
+  built by JavaScript from the catalogue, which meant that with scripts off —
+  or before a slow script arrived, or for a crawler that does not run one —
+  there was no navigation at all. `app.js` now only restores which folders
+  were open and wires the carets.
+- **A skip link**, first in the tab order. The sidebar is the whole catalogue,
+  around 230 links, and it comes before the article in the DOM: right for a
+  crawler, wrong for anyone moving by keyboard without a way past it.
 - **A collapsing sidebar** — the button beside the logo, or <kbd>⌘</kbd> +
   <kbd>\\</kbd> — which widens the reading column and is remembered.
 - **Three reading sizes** — small, medium, large, from the `Aa` button. Every
@@ -261,9 +286,16 @@ tests/run.mjs            checks the built site and the source
 - **Animated flow diagrams** that reveal a step at a time on scroll, with a
   replay button; content that rises into place as you reach it; a reading
   progress bar; copy buttons on every code block.
+- **Motion that follows the reading.** Moving between pages crossfades where
+  the browser supports view transitions, holding the header and sidebar still
+  so a multi-page site behaves like one. Switching theme fades rather than
+  cutting. Opening a folder staggers its topics in. Search results arrive in
+  sequence. One focus ring, keyboard-only, everywhere.
 - **Self-checks** that stay collapsed until you commit to an answer.
 - Reduced-motion, keyboard navigation and mobile are all handled. Every
-  animation is switched off under `prefers-reduced-motion`.
+  animation is switched off under `prefers-reduced-motion` — including the
+  view-transition pseudo-elements, which a `*` selector does not reach and
+  which therefore have to be named directly.
 
 ### On a phone
 

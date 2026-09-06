@@ -26,6 +26,12 @@ const CONTENT = path.join(SITE, 'content');
 
 const CATALOGUE = JSON.parse(fs.readFileSync(path.join(CONTENT, 'notes.json'), 'utf8'));
 const PARTS = CATALOGUE.parts;
+/* The one place an absolute URL is needed. Every link in the site itself stays
+   relative — this is only for the things that cannot be: the canonical link,
+   the social card, and the sitemap, all of which a crawler reads out of
+   context. */
+const SITE_URL = (CATALOGUE.site && CATALOGUE.site.url || '').replace(/\/?$/, '/');
+const SITE_NAME = (CATALOGUE.site && CATALOGUE.site.name) || "Garvit's Notes";
 const NOTES = CATALOGUE.notes;
 
 /* --- Escaping -------------------------------------------------------------
@@ -143,6 +149,55 @@ const ICON_TICK = '<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="cur
 const ICON_SEARCH = '<svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
 const ICON_RAIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path class="rail-arrow" d="M14.5 9.5 12 12l2.5 2.5"/></svg>';
 
+/* --- The sidebar tree ------------------------------------------------------
+   This is rendered here, into every page, rather than built by app.js from the
+   catalogue. It used to be an empty <div> that JavaScript filled in, which
+   meant the whole navigation — 25 notes, 207 topics — simply did not exist for
+   a reader without JavaScript, for a crawler that does not run it, or for the
+   seconds before a slow script arrives. app.js now only *enhances* what is
+   already here: it restores which folders you had open and wires the carets.
+
+   The markup below must stay in step with the click handling in app.js. Only
+   the note being read is open when the page is served; app.js reopens the rest
+   from localStorage before the first paint. */
+const ICON_HOME  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5"/></svg>';
+const ICON_CARET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
+
+const tree = (base, here, currentTopic) => {
+  let html = `<a class="tree-home${here ? '' : ' is-current'}" href="${base}index.html">${ICON_HOME}<span>Overview</span></a>`;
+
+  PARTS.forEach((part) => {
+    const mine = NOTES.filter((n) => n.part === part.id);
+    if (!mine.length) return;
+    html += `<div class="tree-part">${esc(part.short)}</div>`;
+
+    mine.forEach((note) => {
+      const isHere = note.id === here;
+      const topics = data[note.id];
+      html += `<div class="tree-note${isHere ? ' is-open is-here' : ''}" data-note="${attr(note.id)}">` +
+        '<div class="tn-row">' +
+          `<button class="tn-caret" type="button" aria-expanded="${isHere}" ` +
+            `aria-label="${isHere ? 'Collapse ' : 'Expand '}${attr(note.label)}">${ICON_CARET}</button>` +
+          `<a class="tn-link" href="${base}notes/${note.id}/index.html">` +
+            `<span class="tn-num">${esc(note.n)}</span>` +
+            `<span class="tn-label">${esc(note.label)}</span>` +
+            `<span class="tn-count">${topics.length}</span>` +
+          '</a>' +
+        '</div>' +
+        '<div class="tn-drawer"><ul class="tn-topics">' +
+          topics.map((t, i) => {
+            const cur = isHere && t.id === currentTopic;
+            return `<li style="--tn-i:${i}"><a${cur ? ' class="is-current"' : ''} href="${base}notes/${note.id}/${t.id}.html">` +
+              `<span class="tt-n">${String(i + 1).padStart(2, '0')}</span>` +
+              `<span class="tt-t">${esc(t.title)}</span></a></li>`;
+          }).join('') +
+        '</ul></div>' +
+      '</div>';
+    });
+  });
+  return html;
+};
+
 /* --- Shared chrome -------------------------------------------------------- */
 /* Runs in <head>, before the page renders: applies the stored theme, rail and
    size state so none of them flashes on load. */
@@ -177,7 +232,7 @@ const header = (base) => `<header class="site-header">
   <div class="read-progress" id="read-progress"><span></span></div>
 </header>`;
 
-const shell = ({ title, desc, base, main, toc, note, topic, wide }) => `<!doctype html>
+const shell = ({ title, desc, base, main, toc, note, topic, wide, url }) => `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -185,15 +240,25 @@ const shell = ({ title, desc, base, main, toc, note, topic, wide }) => `<!doctyp
 <title>${attr(title)}</title>
 <meta name="description" content="${attr(desc)}">
 <meta name="color-scheme" content="light dark">
+${url && SITE_URL ? `<link rel="canonical" href="${attr(SITE_URL + url)}">` : ''}
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="${attr(SITE_NAME)}">
+<meta property="og:title" content="${attr(title)}">
+<meta property="og:description" content="${attr(desc)}">
+${url && SITE_URL ? `<meta property="og:url" content="${attr(SITE_URL + url)}">` : ''}
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="${attr(title)}">
+<meta name="twitter:description" content="${attr(desc)}">
 ${boot()}
 <link rel="stylesheet" href="${base}assets/css/main.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128218;</text></svg>">
 </head>
 <body data-base="${base}"${note ? ` data-note="${attr(note)}"` : ''}${topic ? ` data-topic="${attr(topic)}"` : ''}${wide ? ' class="is-wide"' : ''}>
+<a class="skip-link" href="#main">Skip to the note</a>
 ${header(base)}
 <div class="layout">
   <nav class="sidebar" id="sidebar" aria-label="All notes">
-    <div class="tree" id="tree"></div>
+    <div class="tree" id="tree">${tree(base, note || '', topic || '')}</div>
   </nav>
   <main class="main" id="main">${main}</main>
   ${toc ? '<aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>' : ''}
@@ -272,6 +337,7 @@ ${cards}
     title: `${note.title} — Garvit's Notes`,
     desc: note.description,
     base, main: noteMain, toc: false, note: note.id, wide: true,
+    url: `notes/${note.id}/index.html`,
   }));
   pageCount++;
 
@@ -326,6 +392,7 @@ ${siblings}
       title: `${t.title} — ${note.label} — Garvit's Notes`,
       desc: t.blurb,
       base, main, toc: true, note: note.id, topic: t.id,
+      url: `notes/${note.id}/${t.id}.html`,
     }));
     pageCount++;
   });
@@ -422,7 +489,7 @@ ${PARTS.map(partBlock).join('\n')}
 fs.writeFileSync(path.join(SITE, 'index.html'), shell({
   title: "Garvit's Notes — the stack, and the AI track",
   desc: 'Plain-language notes on the stack I build on, and on LLMs, RAG, agents, MCP, evals, security, governance, architecture and cloud.',
-  base: '', main: home, toc: false, wide: true,
+  base: '', main: home, toc: false, wide: true, url: 'index.html',
 }));
 pageCount++;
 
@@ -455,12 +522,15 @@ location.replace('${note.id}/'+(t.indexOf(h)!==-1?h:'index')+'.html'+location.se
   redirectCount++;
 });
 
-/* --- The catalogue the browser sees --------------------------------------- */
+/* --- The catalogue the browser sees ---------------------------------------
+   Only what search needs before its shards arrive: enough to match a note by
+   title the moment somebody types, so the first keystroke is never a dead end.
+   It used to carry every topic of every note as well, because app.js built the
+   sidebar tree from it — the tree is server-rendered now, so all of that left
+   the critical path with it. */
 const modules = NOTES.map((n) => ({
-  n: n.n, slug: n.id, title: n.title, label: n.label, part: n.part,
-  blurb: n.tagline, level: n.level,
-  minutes: data[n.id].reduce((a, t) => a + t.minutes, 0),
-  topics: data[n.id].map((t) => ({ id: t.id, title: t.title, minutes: t.minutes })),
+  slug: n.id, title: n.title, label: n.label,
+  blurb: n.tagline, topics: data[n.id].length,
 }));
 
 /* The search prose, one file per note rather than one blob for the whole site.
@@ -492,18 +562,99 @@ ${rows.map((r) => JSON.stringify(r)).join(',\n')}
   shards.push(rel);
 });
 
-/* site-data.js is the sidebar and the home page — small, and needed by every
-   page on load. It also carries the shard manifest, so app.js never has to
-   guess a filename. */
+/* site-data.js is what every page loads up front. Now that the tree is static
+   HTML it is only the note-level search catalogue and the shard manifest, so
+   app.js never has to guess a filename. */
 fs.writeFileSync(path.join(SITE, 'assets/js/site-data.js'),
 `/* Generated by tools/build.mjs — do not edit. Source: content/ */
-window.GN_PARTS = ${JSON.stringify(PARTS.map(({ id, title, short }) => ({ id, title, short })), null, 2)};
-
 window.GN_MODULES = ${JSON.stringify(modules, null, 2)};
 
 window.GN_SEARCH_SHARDS = ${JSON.stringify(shards, null, 2)};
 `);
 
+/* --- Sitemap ---------------------------------------------------------------
+   The gate and the blanket noindex came off so these notes could be found. A
+   crawler still has to discover 233 pages, and until now the only way in was
+   to walk down from the home page. This lists all of them. The redirect stubs
+   are deliberately absent: they carry noindex and point at the real page. */
+const sitemapUrls = ['index.html'];
+NOTES.forEach((note) => {
+  sitemapUrls.push(`notes/${note.id}/index.html`);
+  data[note.id].forEach((t) => sitemapUrls.push(`notes/${note.id}/${t.id}.html`));
+});
+
+if (SITE_URL) {
+  fs.writeFileSync(path.join(SITE, 'sitemap.xml'),
+`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${sitemapUrls.map((u) => `  <url><loc>${attr(SITE_URL + u)}</loc></url>`).join('\n')}
+</urlset>
+`);
+
+  /* robots.txt is back, but saying the opposite of what it used to: the old one
+     existed to keep crawlers out. This one only points at the sitemap. */
+  fs.writeFileSync(path.join(SITE, 'robots.txt'),
+`User-agent: *
+Allow: /
+
+Sitemap: ${SITE_URL}sitemap.xml
+`);
+}
+
+/* --- 404 -------------------------------------------------------------------
+   GitHub Pages serves this for any path it does not have, at any depth — so it
+   cannot use a relative stylesheet or a relative link home. It carries its own
+   styling and links absolutely, which is why it does not go through shell(). */
+fs.writeFileSync(path.join(SITE, '404.html'), `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Not found — ${attr(SITE_NAME)}</title>
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<style>
+  :root { --bg:#f4f5f7; --surface:#fbfbfc; --text:#16191f; --muted:#565e6b; --border:#e0e3e8; --accent:#2b49c4; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#12161d; --surface:#181d26; --text:#e7eaf0; --muted:#a0a9b8; --border:#262c37; --accent:#7d9bff; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 32px;
+    background: var(--bg); color: var(--text); line-height: 1.7;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Arial, sans-serif;
+  }
+  .box { max-width: 30rem; text-align: center; animation: rise .5s cubic-bezier(.22,.68,.4,1) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .box { animation: none; } }
+  .code { font-size: 3.5rem; font-weight: 700; letter-spacing: -.02em; margin: 0 0 4px; }
+  h1 { font-size: 1.25rem; margin: 0 0 10px; }
+  p { color: var(--muted); margin: 0 0 22px; }
+  a.btn {
+    display: inline-block; padding: 11px 20px; border-radius: 8px;
+    background: var(--accent); color: #fff; text-decoration: none; font-weight: 600;
+  }
+  a.btn:hover { opacity: .9; }
+  .note { margin-top: 26px; font-size: .875rem; color: var(--muted); }
+  .note a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="box">
+  <p class="code">404</p>
+  <h1>That page is not here</h1>
+  <p>The notes were reorganised — every note became a folder, and every topic
+     inside it its own page. An old link may have pointed at something that has
+     since moved or been renamed.</p>
+  <a class="btn" href="${attr(SITE_URL || '/')}">Go to the overview</a>
+  <p class="note">From there the sidebar lists all ${NOTES.length} notes, or you can search
+     with <kbd>/</kbd>.</p>
+</div>
+</body>
+</html>
+`);
+
 console.log(`built ${pageCount} pages — ${NOTES.length} notes, ${allTopics} topics, ${totalMin} min total`);
 console.log(`${redirectCount} redirects for the pre-restructure URLs`);
+console.log(`sitemap lists ${sitemapUrls.length} pages; 404 and robots.txt written`);
 console.log(`search index split across ${shards.length} shards — ${(searchBytes / 1024).toFixed(0)}KB, none of it on the critical path`);

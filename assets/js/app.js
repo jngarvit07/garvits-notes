@@ -34,6 +34,14 @@
         current = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       }
       var next = current === 'dark' ? 'light' : 'dark';
+      /* Every surface on the page changes colour on the same frame, which
+         reads as a hard cut. The transition is switched on for the length of
+         the fade only, so it costs nothing while reading. */
+      if (!REDUCED) {
+        root.classList.add('is-theming');
+        window.clearTimeout(themeBtn._fade);
+        themeBtn._fade = window.setTimeout(function () { root.classList.remove('is-theming'); }, 340);
+      }
       root.setAttribute('data-theme', next);
       store.set('gn-theme', next);
     });
@@ -140,11 +148,14 @@
   }
 
   /* --- 5. The sidebar tree ------------------------------------------------ */
-  // Every note is a folder that opens to its topics. One catalogue
-  // (site-data.js) drives this, the search and the home page, so they cannot
-  // drift apart.
+  // The tree itself is rendered by tools/build.mjs and is already in the page:
+  // without it, a reader with no JavaScript had no navigation at all. What is
+  // left for this file is the part that cannot be served as static HTML —
+  // which folders *this* browser had open, and the carets that toggle them.
   (function () {
-    if (!sidebar || !window.GN_MODULES) return;
+    if (!sidebar) return;
+    var treeHost = document.getElementById('tree');
+    if (!treeHost) return;
 
     var OPEN_KEY = 'gn-open';
     var open = {};
@@ -152,50 +163,26 @@
     // The note you are reading is always open, whatever was stored.
     if (NOTE) open[NOTE] = true;
 
-    var CARET = svg('<path d="m9 6 6 6-6 6"/>', 2.2);
-    var esc = function (t) {
-      return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    var setOpen = function (folder, want) {
+      folder.classList.toggle('is-open', want);
+      var caret = folder.querySelector('.tn-caret');
+      var label = folder.querySelector('.tn-label');
+      if (caret) {
+        caret.setAttribute('aria-expanded', String(want));
+        caret.setAttribute('aria-label', (want ? 'Collapse ' : 'Expand ') +
+          (label ? label.textContent : ''));
+      }
     };
 
-    var html = '<a class="tree-home' + (!NOTE ? ' is-current' : '') + '" href="' + BASE + 'index.html">' +
-      svg('<path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5"/>', 1.9) +
-      '<span>Overview</span></a>';
-
-    (window.GN_PARTS || [{ id: null, short: 'The notes' }]).forEach(function (part) {
-      var mine = window.GN_MODULES.filter(function (m) { return !part.id || m.part === part.id; });
-      if (!mine.length) return;
-
-      html += '<div class="tree-part">' + esc(part.short) + '</div>';
-
-      mine.forEach(function (m) {
-        var isOpen = !!open[m.slug];
-        var isHere = m.slug === NOTE;
-        html += '<div class="tree-note' + (isOpen ? ' is-open' : '') +
-                (isHere ? ' is-here' : '') + '" data-note="' + m.slug + '">' +
-          '<div class="tn-row">' +
-            '<button class="tn-caret" type="button" aria-expanded="' + isOpen + '" ' +
-              'aria-label="' + (isOpen ? 'Collapse ' : 'Expand ') + esc(m.label) + '">' + CARET + '</button>' +
-            '<a class="tn-link" href="' + BASE + 'notes/' + m.slug + '/index.html">' +
-              '<span class="tn-num">' + esc(m.n) + '</span>' +
-              '<span class="tn-label">' + esc(m.label) + '</span>' +
-              '<span class="tn-count">' + m.topics.length + '</span>' +
-            '</a>' +
-          '</div>' +
-          '<div class="tn-drawer"><ul class="tn-topics">' +
-            m.topics.map(function (t, i) {
-              var cur = isHere && t.id === TOPIC;
-              return '<li><a' + (cur ? ' class="is-current"' : '') +
-                ' href="' + BASE + 'notes/' + m.slug + '/' + t.id + '.html">' +
-                '<span class="tt-n">' + String(i + 1).padStart(2, '0') + '</span>' +
-                '<span class="tt-t">' + esc(t.title) + '</span></a></li>';
-            }).join('') +
-          '</ul></div>' +
-        '</div>';
-      });
-    });
-
-    var treeHost = document.getElementById('tree') || sidebar;
-    treeHost.innerHTML = html;
+    /* Restore the stored state. This runs before the first paint — app.js is a
+       synchronous script at the end of <body> — so the drawers do not animate
+       open on load; the transition is for clicks only. */
+    var folders = treeHost.querySelectorAll('.tree-note');
+    for (var i = 0; i < folders.length; i++) {
+      var slug = folders[i].getAttribute('data-note');
+      var want = !!open[slug];
+      if (want !== folders[i].classList.contains('is-open')) setOpen(folders[i], want);
+    }
 
     // Expand and collapse. The drawer animates via grid-template-rows, which
     // is the one way to transition to a height you do not know in advance.
@@ -204,11 +191,18 @@
       if (!caret) return;
       e.preventDefault();
       var folder = caret.closest('.tree-note');
-      var nowOpen = folder.classList.toggle('is-open');
-      caret.setAttribute('aria-expanded', String(nowOpen));
-      caret.setAttribute('aria-label', (nowOpen ? 'Collapse ' : 'Expand ') +
-        folder.querySelector('.tn-label').textContent);
-      open[folder.getAttribute('data-note')] = nowOpen;
+      var opening = !folder.classList.contains('is-open');
+      setOpen(folder, opening);
+      /* The stagger belongs to the click, not to the page: on load the note
+         being read is already open and animating it would just be noise. */
+      if (opening && !REDUCED) {
+        folder.classList.add('is-unfolding');
+        window.clearTimeout(folder._unfold);
+        folder._unfold = window.setTimeout(function () {
+          folder.classList.remove('is-unfolding');
+        }, 900);
+      }
+      open[folder.getAttribute('data-note')] = folder.classList.contains('is-open');
       store.set(OPEN_KEY, JSON.stringify(open));
     });
 
@@ -547,7 +541,7 @@
   var INDEX = [];
   (window.GN_MODULES || []).forEach(function (m) {
     INDEX.push({
-      section: m.title, title: m.topics.length + ' topics \u00b7 whole note',
+      section: m.title, title: m.topics + ' topics \u00b7 whole note',
       url: 'notes/' + m.slug + '/index.html', keywords: m.label + ' ' + m.blurb, kind: 'note',
     });
   });
@@ -636,7 +630,7 @@
                '</mark>' + escapeHtml(s.slice(i + n));
       };
 
-      out.innerHTML = hits.map(function (hit) {
+      out.innerHTML = hits.map(function (hit, hitIndex) {
         var item = hit.item;
         var at = item.section.toLowerCase().indexOf(needle);
         var heading = at !== -1 ? mark(item.section, at, needle.length) : escapeHtml(item.section);
@@ -650,7 +644,7 @@
           meta = escapeHtml(item.title) + ' &mdash; ' + (from > 0 ? '&hellip;' : '') +
                  mark(snip, hit.at - from, needle.length) + '&hellip;';
         }
-        return '<a href="' + BASE + item.url + '">' +
+        return '<a href="' + BASE + item.url + '" style="--sr-i:' + hitIndex + '">' +
                '<span class="sr-kind sr-' + item.kind + '">' + (item.kind === 'note' ? 'Note' : 'Topic') + '</span>' +
                '<span class="sr-title">' + heading + '</span>' +
                '<span class="sr-meta">' + meta + '</span></a>';

@@ -57,7 +57,14 @@ const builtPages = [];
 group('1. no sign-in gate, no crawler blocks');
 
 ok('login.html is gone', !exists('login.html'));
-ok('robots.txt is gone', !exists('robots.txt'));
+
+/* robots.txt is back, and it must stay the opposite of the one that was
+   removed: that one existed to keep crawlers out, this one only points at the
+   sitemap. A stray Disallow here would quietly undo the whole point. */
+ok('robots.txt exists and points at the sitemap',
+   exists('robots.txt') && /Sitemap:\s*https?:\/\//.test(read('robots.txt')));
+ok('robots.txt blocks nothing', exists('robots.txt') && !/^\s*Disallow:\s*\S/m.test(read('robots.txt')),
+   exists('robots.txt') ? read('robots.txt') : '');
 
 for (const rel of builtPages) {
   const html = read(rel);
@@ -67,7 +74,16 @@ for (const rel of builtPages) {
 }
 ok('no page carries the gate or a blanket noindex', true);
 
-ok('every page is built', builtPages.length === 233, `found ${builtPages.length}, expected 233`);
+/* Derived, not hand-counted: the home page, one folder page per note, one page
+   per topic, and the 404. A hard-coded number here just goes stale. */
+const cat = JSON.parse(read('content/notes.json'));
+const topicTotal = cat.notes.reduce((a, n) => {
+  const stub = read(`notes/${n.id}.html`);
+  return a + JSON.parse(stub.match(/var t=(\[[^\]]*\])/)[1]).length;
+}, 0);
+const expectedPages = 1 + cat.notes.length + topicTotal + 1;
+ok('every page is built', builtPages.length === expectedPages,
+   `found ${builtPages.length}, expected ${expectedPages}`);
 
 const cfg = read('_config.yml');
 for (const dir of ['content', 'tools', 'tests']) {
@@ -317,6 +333,99 @@ for (const f of fragments) {
 }
 ok('none of the register the rewrite removed has come back', registerHits.length === 0,
    registerHits.slice(0, 8).join('\n        '));
+
+/* --- 8. The site without JavaScript -----------------------------------------
+   The sidebar used to be an empty <div> that app.js filled in, so the entire
+   navigation — every note, every topic — existed only for a reader running
+   scripts. It is static HTML now, and app.js only restores which folders were
+   open. This group is what keeps it that way. */
+group('8. navigation works with scripts switched off');
+
+const samplePages = ['index.html', 'notes/react/index.html', 'notes/react/hooks.html'];
+for (const rel of samplePages) {
+  const html = read(rel);
+  const treeInner = /<div class="tree" id="tree">([\s\S]*?)<\/nav>/.exec(html);
+  const links = treeInner ? (treeInner[1].match(/<a [^>]*href=/g) || []).length : 0;
+  ok(`${rel} ships the tree as HTML`, links >= cat.notes.length + topicTotal,
+     `${links} links in the sidebar, expected at least ${cat.notes.length + topicTotal}`);
+}
+
+/* Every note and every topic must be reachable from any page without JS. */
+const homeTree = /<div class="tree" id="tree">([\s\S]*?)<\/nav>/.exec(read('index.html'))[1];
+const missingFromTree = [];
+for (const n of cat.notes) {
+  if (!homeTree.includes(`notes/${n.id}/index.html`)) missingFromTree.push(n.id);
+}
+ok('every note appears in the served tree', missingFromTree.length === 0, missingFromTree.join(', '));
+
+ok('the note being read is open in the served HTML',
+   /<div class="tree-note is-open is-here" data-note="react">/.test(read('notes/react/hooks.html')));
+ok('other notes are served closed',
+   /<div class="tree-note" data-note="redux">/.test(read('notes/react/hooks.html')));
+
+/* The sidebar is ~232 links and sits before <main>, so a keyboard user needs a
+   way past it. */
+/* The 404 has no sidebar to skip past, so it is exempt. */
+const skipMissing = [...builtPages]
+  .filter((rel) => rel !== '404.html')
+  .filter((rel) => !read(rel).includes('class="skip-link"'));
+ok('every page has a skip link', skipMissing.length === 0, skipMissing.slice(0, 3).join(', '));
+ok('the skip link is the first focusable thing on the page',
+   /<body[^>]*>\s*<a class="skip-link" href="#main">/.test(read('notes/react/hooks.html')));
+ok('it points at something that exists',
+   read('notes/react/hooks.html').includes('id="main"'));
+ok('the skip link is visible when focused', /\.skip-link:focus/.test(css));
+
+/* --- 9. Discovery and sharing ------------------------------------------------
+   The gate and the blanket noindex came off so these notes could be found.
+   That only pays if a crawler can enumerate them and a shared link shows what
+   it is. */
+group('9. the site can be found and shared');
+
+const siteUrl = cat.site && cat.site.url;
+ok('the catalogue names an absolute site URL', !!siteUrl, String(siteUrl));
+
+ok('sitemap.xml exists', exists('sitemap.xml'));
+const sitemap = exists('sitemap.xml') ? read('sitemap.xml') : '';
+const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+ok('the sitemap lists every real page', locs.length === 1 + cat.notes.length + topicTotal,
+   `${locs.length} entries, expected ${1 + cat.notes.length + topicTotal}`);
+ok('every sitemap entry is an absolute URL', locs.every((u) => u.startsWith('http')));
+const sitemapMissing = locs.map((u) => u.replace(siteUrl, '')).filter((r) => !exists(r));
+ok('every sitemap entry resolves to a built page', sitemapMissing.length === 0,
+   sitemapMissing.slice(0, 5).join(', '));
+/* A redirect stub carries noindex and has no content of its own. Listing one
+   would ask a crawler to index a page that tells it not to. */
+ok('the sitemap lists no redirect stubs',
+   !locs.some((u) => /\/notes\/[a-z0-9-]+\.html$/.test(u)));
+
+const noCard = [];
+const noCanonical = [];
+for (const rel of builtPages) {
+  if (rel === '404.html') continue;
+  const html = read(rel);
+  if (!html.includes('property="og:title"') || !html.includes('name="twitter:card"')) noCard.push(rel);
+  if (!html.includes('rel="canonical"')) noCanonical.push(rel);
+}
+ok('every page carries a social card', noCard.length === 0, noCard.slice(0, 3).join(', '));
+ok('every page names its canonical URL', noCanonical.length === 0, noCanonical.slice(0, 3).join(', '));
+
+/* --- 10. The 404 -------------------------------------------------------------
+   GitHub Pages serves this file for any missing path at any depth, so a
+   relative stylesheet or a relative link home would break exactly when it is
+   needed. It has to stand alone. */
+group('10. the 404 stands on its own');
+
+ok('404.html exists', exists('404.html'));
+const notFound = exists('404.html') ? read('404.html') : '';
+ok('it carries its own styling', notFound.includes('<style>'));
+ok('it loads no external stylesheet or script',
+   !/<link[^>]+stylesheet/.test(notFound) && !/<script[^>]+src=/.test(notFound));
+const relLinks = [...notFound.matchAll(/(?:href|src)="([^"]+)"/g)]
+  .map((m) => m[1])
+  .filter((u) => !/^(https?:|#|data:)/.test(u));
+ok('every link on it is absolute', relLinks.length === 0, relLinks.join(', '));
+ok('it is not indexable', /name="robots"[^>]*noindex/.test(notFound));
 
 /* --- Result --------------------------------------------------------------- */
 console.log(`\n${failures ? `${failures} FAILED` : 'all passed'} — ${checks} checks\n`);
