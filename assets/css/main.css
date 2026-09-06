@@ -3,32 +3,40 @@
    Formal documentation style. Light default, dark via [data-theme="dark"].
    ========================================================================== */
 
-/* --- Tokens: light is the base, defined on bare :root --------------------- */
+/* --- Tokens: light is the base, defined on bare :root ---------------------
+   The page ground is deliberately not #fff. A full-white background is the
+   brightest thing a screen can do, and holding it for a forty-minute note is
+   what makes long reading tiring — so the ground is a soft off-white and cards
+   sit very slightly *above* it. That inversion is the point: against pure
+   white a card had nothing to lift off, and every border had to do the work
+   alone. Body text stays far past AAA (16:1), and the muted and faint greys
+   were re-picked against the new ground rather than left where they were —
+   both are more legible on it than they were on white, not less. */
 :root {
-  --bg:            #ffffff;
-  --bg-sunken:     #f6f7f9;
-  --surface:       #ffffff;
-  --surface-alt:   #f9fafb;
-  --border:        #e4e7ec;
-  --border-strong: #cfd4dc;
+  --bg:            #f4f5f7;
+  --bg-sunken:     #eaecef;
+  --surface:       #fbfbfc;
+  --surface-alt:   #f1f2f5;
+  --border:        #e0e3e8;
+  --border-strong: #c8cdd5;
 
   --text:          #16191f;
-  --text-muted:    #5a626f;
-  --text-faint:    #868e9c;
+  --text-muted:    #565e6b;
+  --text-faint:    #767e8c;
 
-  --accent:        #2f4fd0;
-  --accent-hover:  #2440ae;
-  --accent-soft:   #eef1fd;
-  --accent-line:   #c3cdf5;
+  --accent:        #2b49c4;
+  --accent-hover:  #21389c;
+  --accent-soft:   #e9edfb;
+  --accent-line:   #bfcaf2;
 
   --ok:            #0f7b52;
-  --ok-soft:       #e8f5ef;
+  --ok-soft:       #e4f2ec;
   --warn:          #9a6208;
-  --warn-soft:     #fdf4e3;
+  --warn-soft:     #faf0dd;
   --danger:        #b42318;
-  --danger-soft:   #fdecea;
+  --danger-soft:   #fbe7e4;
 
-  --code-bg:       #f6f7f9;
+  --code-bg:       #eef0f3;
   --code-text:     #1f2937;
 
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -48,10 +56,10 @@
 /* System preference — only when the user hasn't forced light */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg:            #0e1116;
-    --bg-sunken:     #0a0c10;
-    --surface:       #151920;
-    --surface-alt:   #1a1f28;
+    --bg:            #12161d;
+    --bg-sunken:     #0d1014;
+    --surface:       #181d26;
+    --surface-alt:   #1d232d;
     --border:        #262c37;
     --border-strong: #39414f;
 
@@ -81,10 +89,10 @@
 
 /* Explicit toggle wins in both directions */
 :root[data-theme="dark"] {
-  --bg:            #0e1116;
-  --bg-sunken:     #0a0c10;
-  --surface:       #151920;
-  --surface-alt:   #1a1f28;
+  --bg:            #12161d;
+  --bg-sunken:     #0d1014;
+  --surface:       #181d26;
+  --surface-alt:   #1d232d;
   --border:        #262c37;
   --border-strong: #39414f;
 
@@ -310,12 +318,24 @@ body.is-wide .content { max-width: 58.75rem; }
 }
 .page-meta span { display: inline-flex; align-items: center; gap: 6px; }
 
+/* A pointer to another note, written {{note:<id>}} in the fragment. Underlined
+   rather than merely coloured: in running prose the colour alone is easy to
+   read straight past, and this is the one link a reader is meant to follow. */
+.note-ref { white-space: nowrap; text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+
 /* Anchor links on headings */
 .anchor {
   opacity: 0; margin-left: 8px; font-weight: 400;
   color: var(--text-faint); text-decoration: none; font-size: .8em;
 }
 h2:hover .anchor, h3:hover .anchor { opacity: 1; }
+
+/* A single unbroken token — a file path in inline code, a long URL — is the one
+   thing that can still push a page wider than the phone reading it. Everything
+   large enough to overflow otherwise scrolls inside its own box (pre, tables,
+   figures); in running prose the token is allowed to break instead. */
+.content { overflow-wrap: break-word; }
+:not(pre) > code { overflow-wrap: anywhere; }
 
 /* --- Code ----------------------------------------------------------------- */
 code {
@@ -372,7 +392,6 @@ pre code { background: none; border: 0; padding: 0; font-size: inherit; color: v
 .callout.is-note  { border-left-color: var(--accent); background: var(--accent-soft); }
 .callout.is-tip   { border-left-color: var(--ok);     background: var(--ok-soft); }
 .callout.is-warn  { border-left-color: var(--warn);   background: var(--warn-soft); }
-.callout.is-risk  { border-left-color: var(--danger); background: var(--danger-soft); }
 
 /* --- Real-world example block --------------------------------------------- */
 .example {
@@ -415,24 +434,8 @@ a.card:hover {
   text-decoration: none; border-color: var(--accent-line);
   box-shadow: var(--shadow-md); transform: translateY(-2px);
 }
-.card-kicker {
-  font-family: var(--font-mono); font-size: 0.6875rem; font-weight: 600;
-  letter-spacing: .08em; text-transform: uppercase; color: var(--text-faint);
-  margin-bottom: 7px;
-}
 .card h3, .card-title { margin: 0 0 6px; font-size: 1.0312rem; font-weight: 650; line-height: 1.35; }
 .card p { margin: 0; font-size: 0.9062rem; color: var(--text-muted); line-height: 1.6; }
-.card .tag-row { margin-top: 11px; }
-
-.tag {
-  display: inline-block; margin: 0 5px 5px 0;
-  font-size: 0.7188rem; font-family: var(--font-mono);
-  color: var(--text-muted); background: var(--surface-alt);
-  border: 1px solid var(--border); border-radius: 20px;
-  padding: 2px 9px;
-}
-.tag.is-soon { color: var(--warn); background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 28%, transparent); }
-.tag.is-ready { color: var(--ok); background: var(--ok-soft); border-color: color-mix(in srgb, var(--ok) 28%, transparent); }
 
 /* --- Tables --------------------------------------------------------------- */
 .table-wrap { overflow-x: auto; margin: 0 0 24px; border: 1px solid var(--border); border-radius: var(--radius); }
@@ -474,17 +477,6 @@ tr:last-child td { border-bottom: 0; }
 .replay-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-line); }
 .replay-btn svg { width: 12px; height: 12px; }
 
-/* SVG diagram primitives */
-.dg-box { fill: var(--surface); stroke: var(--border-strong); stroke-width: 1.5; }
-.dg-box-accent { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
-.dg-label { fill: var(--text); font-family: var(--font-sans); font-size: 0.75rem; font-weight: 600; }
-.dg-sub { fill: var(--text-muted); font-family: var(--font-sans); font-size: 0.6562rem; }
-.dg-mono { fill: var(--text-muted); font-family: var(--font-mono); font-size: 0.625rem; }
-.dg-line { stroke: var(--border-strong); stroke-width: 1.5; fill: none; }
-.dg-line-accent { stroke: var(--accent); stroke-width: 1.75; fill: none; }
-.dg-dot { fill: var(--accent); }
-.dg-arrow { fill: var(--border-strong); }
-
 /* Sequenced reveal — driven by --i on each .dg-step */
 .is-animating .dg-step {
   opacity: 0;
@@ -495,56 +487,6 @@ tr:last-child td { border-bottom: 0; }
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
-/* Packet travelling along a path */
-.is-animating .dg-packet {
-  offset-path: var(--path);
-  animation: dgTravel 1.5s ease-in-out infinite;
-  animation-delay: calc(var(--i, 0) * .26s + .3s);
-}
-@keyframes dgTravel {
-  0%   { offset-distance: 0%;   opacity: 0; }
-  12%  { opacity: 1; }
-  88%  { opacity: 1; }
-  100% { offset-distance: 100%; opacity: 0; }
-}
-
-/* Dash flow along connectors */
-.is-animating .dg-flow {
-  stroke-dasharray: 5 6;
-  animation: dgDash 1s linear infinite;
-}
-@keyframes dgDash { to { stroke-dashoffset: -22; } }
-
-/* --- Step list (numbered workflow) ---------------------------------------- */
-.steps { list-style: none; margin: 0 0 26px; padding: 0; counter-reset: step; }
-.steps > li {
-  position: relative; counter-increment: step;
-  padding: 0 0 22px 44px; margin: 0;
-  border-left: 2px solid var(--border); margin-left: 15px;
-}
-.steps > li:last-child { border-left-color: transparent; padding-bottom: 0; }
-.steps > li::before {
-  content: counter(step);
-  position: absolute; left: -16px; top: -2px;
-  width: 30px; height: 30px;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--accent); color: #fff;
-  font-family: var(--font-mono); font-size: 0.8125rem; font-weight: 700;
-  border-radius: 50%;
-  box-shadow: 0 0 0 4px var(--bg);
-}
-.steps h4 { margin: 3px 0 6px; }
-.steps p:last-child { margin-bottom: 0; }
-
-/* --- Key-term list -------------------------------------------------------- */
-.terms { margin: 0 0 26px; }
-.terms dt {
-  font-weight: 650; font-size: 0.9688rem; margin-top: 16px;
-  font-family: var(--font-mono); color: var(--accent);
-}
-.terms dt:first-child { margin-top: 0; }
-.terms dd { margin: 4px 0 0; color: var(--text-muted); }
 
 /* --- Page footer nav ------------------------------------------------------ */
 .page-nav {
@@ -1104,6 +1046,96 @@ tr:last-child td { border-bottom: 0; }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+
+/* --- Skip link -------------------------------------------------------------
+   The sidebar is the whole catalogue — around 230 links — and it comes before
+   the article in the DOM, which is right for a crawler and wrong for anybody
+   moving by keyboard. This is the way past it. It is deliberately not
+   display:none, because an element that is not rendered cannot take focus: it
+   waits just above the top edge and slides down when it is tabbed to. */
+.skip-link {
+  position: fixed; top: 0; left: 14px; z-index: 200;
+  transform: translateY(-130%);
+  background: var(--accent); color: #fff;
+  padding: 10px 18px; border-radius: 0 0 var(--radius) var(--radius);
+  font-size: 0.9375rem; font-weight: 600;
+  box-shadow: var(--shadow-md);
+  transition: transform .24s cubic-bezier(.22,.68,.4,1);
+}
+.skip-link:focus {
+  transform: translateY(0);
+  color: #fff; text-decoration: none; outline: none;
+}
+
+/* --- Focus ------------------------------------------------------------------
+   One ring, everywhere, and only for keyboard users — :focus-visible leaves a
+   mouse click alone. The site had exactly one focus style before this, on the
+   copy button, so tabbing through it was mostly guesswork. */
+:where(a, button, summary, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* --- Moving between pages ---------------------------------------------------
+   Every page carries the same header and the same sidebar, so a normal
+   navigation throws away an identical frame and paints it again — which reads
+   as a flash. Where the browser supports it, the two frames are crossfaded
+   instead and the chrome is held still, which makes a multi-page site feel
+   like one. Browsers without it navigate exactly as before. */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root) { animation: vtOut .16s ease both; }
+::view-transition-new(root) { animation: vtIn .24s cubic-bezier(.22,.68,.4,1) both; }
+@keyframes vtOut { to { opacity: 0; } }
+@keyframes vtIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* The chrome is the same on both pages, so it should not take part. */
+.site-header { view-transition-name: gn-header; }
+.sidebar     { view-transition-name: gn-sidebar; }
+::view-transition-group(gn-header),
+::view-transition-group(gn-sidebar) { animation: none; }
+::view-transition-old(gn-header), ::view-transition-new(gn-header),
+::view-transition-old(gn-sidebar), ::view-transition-new(gn-sidebar) { animation: none; opacity: 1; }
+
+/* --- Changing theme ---------------------------------------------------------
+   Switching light to dark repainted every surface on the same frame, which is
+   a hard cut across the whole screen. The class is added for the length of the
+   fade and taken off again, so this costs nothing while reading. */
+:root.is-theming * {
+  transition: background-color .3s ease, border-color .3s ease,
+              color .3s ease, box-shadow .3s ease !important;
+}
+
+/* --- Opening a folder in the sidebar ---------------------------------------
+   The drawer height already animates. This gives the topics inside it a short
+   stagger as it opens, so the list reads as arriving in order rather than
+   appearing all at once. It runs on a click only — .is-unfolding is added
+   there and removed when it finishes — never on page load, where the note you
+   are reading is already open and animating it would just be noise. */
+.tree-note.is-unfolding > .tn-drawer .tn-topics > li {
+  animation: tnIn .32s cubic-bezier(.22,.68,.4,1) both;
+  animation-delay: calc(var(--tn-i, 0) * 22ms);
+}
+@keyframes tnIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* --- Search results --------------------------------------------------------- */
+.search-results a { animation: srIn .2s ease both; animation-delay: calc(var(--sr-i, 0) * 22ms); }
+@keyframes srIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* --- Reading -----------------------------------------------------------------
+   Small things that only show up while actually using the page. */
+.tn-topics a, .sib a, .topic-card { transition: background .16s, color .16s, border-color .16s, transform .16s; }
+.tn-topics a:hover { transform: translateX(2px); }
+.note-ref { transition: background .15s, color .15s; border-radius: 3px; }
+.note-ref:hover { background: var(--accent-soft); }
+
 /* --- Motion off ----------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -1112,6 +1144,13 @@ tr:last-child td { border-bottom: 0; }
   }
   .will-reveal { opacity: 1; transform: none; }
   .hero-glow { animation: none; }
+  /* `*` does not reach the view-transition pseudo-elements, so they need
+     naming directly — otherwise the one animation that survives is the one
+     that crossfades the whole page. */
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
+  .tree-note.is-unfolding > .tn-drawer .tn-topics > li { animation: none !important; }
+  .search-results a { animation: none !important; }
+  .tn-topics a:hover { transform: none; }
 }
 
 /* --- Fixes found by looking at real pages --------------------------------- */

@@ -1,4 +1,8 @@
 {
+  "site": {
+    "url": "https://jngarvit07.github.io/garvits-notes/",
+    "name": "Garvit’s Notes"
+  },
   "parts": [
     {
       "id": "stack",
@@ -270,7 +274,7 @@
     },
     {
       "id": "devops",
-      "n": "24",
+      "n": "23",
       "part": "ops",
       "label": "CI/CD, Docker & Kubernetes",
       "title": "CI/CD, Docker & Kubernetes",
@@ -281,7 +285,7 @@
     },
     {
       "id": "ai-project",
-      "n": "25",
+      "n": "24",
       "part": "ops",
       "label": "Building with AI",
       "title": "Building a Full Project with AI",
@@ -292,7 +296,7 @@
     },
     {
       "id": "roadmap",
-      "n": "26",
+      "n": "25",
       "part": "next",
       "label": "What to Learn Next",
       "title": "What to Learn Next",

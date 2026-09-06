@@ -14,7 +14,7 @@ server. Open `index.html` and it works.
 
 Each note is a folder in the sidebar. Opening it reveals its topics, and each
 topic is a short page you can finish in a few minutes — so the site reads as a
-tree rather than as eighteen very long documents.
+tree rather than as twenty-five very long documents.
 
 ```
 notes/react/index.html        the React note — a list of its topics
@@ -38,7 +38,7 @@ crossing from the last topic of one note into the first of the next.
 | 05 | Express | Routes, middleware, auth, validation, error handling | 11 |
 | 06 | PostgreSQL & Prisma | Tables, SQL, joins, indexes, transactions, migrations | 11 |
 
-**Part two — the AI track.** Note 07 is the overview and stands alone; 08–12 are
+**Part two — the AI track.** Note 07 is the overview and stands alone; 08–22 are
 the deep dives underneath it.
 
 | # | Note | | Topics |
@@ -65,28 +65,38 @@ then one real product built and shipped through exactly that pipeline.
 
 | # | Note | | Topics |
 |---|------|---|---|
-| 24 | CI/CD, Docker & Kubernetes | VM vs container vs cluster, Docker, pipelines, K8s objects | 6 |
-| 25 | Building a Full Project with AI | Spec-first workflow, a real API and frontend, shipping it | 6 |
+| 23 | CI/CD, Docker & Kubernetes | VM vs container vs cluster, Docker, pipelines, K8s objects | 6 |
+| 24 | Building a Full Project with AI | Spec-first workflow, a real API and frontend, shipping it | 6 |
 
 **Part four — where this goes.**
 
 | # | Note | | Topics |
 |---|------|---|---|
-| 26 | What to Learn Next | The path, the foundations, and how to tell you have learned it | 6 |
+| 25 | What to Learn Next | The path, the foundations, and how to tell you have learned it | 6 |
 
 ## Public, and unindexed only where it should be
 
-The site carries no sign-in gate, and `robots.txt` doesn't exist — a search
-engine is free to crawl and index every note. There used to be a sign-in gate
-here, backed by `robots.txt` and a blanket `noindex` on every page. On a
-static site a gate like that was never a security boundary — `curl` returned
-every note in full without signing in, and the repository is public on GitHub
-Pages regardless — so it only ever kept out a casual visitor. Once the goal
-stopped being privacy, the gate was pure friction (re-signing in on every new
-browser or cleared cache, JavaScript required just to read a note) for
-protection that was never real, and the `noindex`/`robots.txt` pair was
-working against the point of publishing at all: it made the notes
-un-Googleable. All three are gone now.
+The site carries no sign-in gate and no blanket `noindex` — a search engine is
+free to crawl and index every note. There used to be a sign-in gate here,
+backed by `robots.txt` and a `noindex` on every page. On a static site a gate
+like that was never a security boundary — `curl` returned every note in full
+without signing in, and the repository is public on GitHub Pages regardless —
+so it only ever kept out a casual visitor. Once the goal stopped being privacy,
+the gate was pure friction (re-signing in on every new browser or cleared
+cache, JavaScript required just to read a note) for protection that was never
+real, and the `noindex`/`robots.txt` pair was working against the point of
+publishing at all: it made the notes un-Googleable. The gate and the `noindex`
+are gone.
+
+`robots.txt` is back, saying the opposite of what it used to: it blocks
+nothing and names the sitemap. Removing the blocks was only half the job —
+until recently there was no `sitemap.xml` either, so a crawler had to walk
+down from the home page to discover 233 pages, and a link shared anywhere
+showed a bare URL. The build now writes `sitemap.xml` listing every real page
+(never the redirect stubs, which are `noindex`), and every page carries a
+`canonical` link and an Open Graph / Twitter card. The absolute URL those need
+is the one thing that cannot be relative; it lives in `content/notes.json`
+under `site`, and it is the only place to change it.
 
 The one place `noindex` remains is the pre-restructure redirect stubs
 (`notes/<slug>.html`) — they hold no content of their own, so search results
@@ -96,6 +106,11 @@ link instead of indexing the stub.
 `_config.yml` still keeps `content/` (the unbuilt note source) and `tools/`,
 `tests/` off the published site — that's about not shipping build machinery
 and drafts, not about gating the notes themselves.
+
+`404.html` is served by GitHub Pages for any path it does not have, at any
+depth — so it cannot use a relative stylesheet or a relative link home. It
+carries its own styling inline and links absolutely, which is why it is the one
+page that does not go through the shared shell.
 
 ## Reading it locally
 
@@ -116,10 +131,17 @@ npm test          # check the built site
 npm run check     # both
 ```
 
-`tests/run.mjs` has no dependencies and starts no browser; it reads the built
-site only. It checks that no page carries the old gate or a blanket noindex,
-the `_config.yml` source-exclusion rules, the payload split, the old-URL
-redirects, and every internal link.
+`tests/run.mjs` has no dependencies and starts no browser. It checks that no
+page carries the old gate or a blanket noindex, the `_config.yml`
+source-exclusion rules, the search-shard split, the old-URL redirects, every
+internal link, every cross-reference between notes, the structure that keeps a
+page from scrolling sideways on a phone, and the reading level of the prose.
+
+Because it starts no browser it cannot measure a real layout. The mobile group
+checks the structure that makes overflow impossible — every table inside a
+scrolling wrapper, the overflow rules present in the stylesheet, no unbreakable
+token long enough to stick out — not the rendered pixels. That is a weaker
+promise than a viewport test, and it is the one actually kept.
 
 ## Editing
 
@@ -157,6 +179,21 @@ There is nothing to install. The build uses Node's standard library only.
 
 Reading time per topic is counted from the words. Do not hand-maintain it.
 
+### Pointing at another note
+
+Never write the number. A note that said “see note 12” was correct until the
+running order changed, and then it silently pointed a reader at the wrong note
+— which is worse than no pointer at all. Name the note instead:
+
+| In the fragment | Renders as |
+|---|---|
+| `{{note:ai-security}}` | a link reading **note 18** |
+| `{{n:ai-security}}` | the linked number alone, **18**, for prose that already said “notes” |
+
+The number comes from `content/notes.json` at build time, so renumbering can
+never leave a stale pointer behind. An id that names no note stops the build,
+and `tests/run.mjs` fails on any note number written out by hand.
+
 ### The components available in a fragment
 
 | Markup | Renders as |
@@ -179,9 +216,8 @@ the replay button.
 ### The beginner layer
 
 Every topic opens with an **In plain English** callout — an analogy a
-non-technical reader can follow — before any code appears. `tools/lib/enrich.mjs`
-is the helper that inserted these; it is idempotent, so a topic that already has
-one is skipped rather than given a second.
+non-technical reader can follow — before any code appears. Write it by hand in
+the fragment, as the first thing inside the section.
 
 ## Publishing
 
@@ -191,7 +227,10 @@ the one thing they do act on: it keeps `content/`, `tools/` and `tests/` out
 of what gets served.
 
 Run `npm run check` in `tools/` before pushing — the committed HTML is the
-deployed site, so a stale build ships as-is.
+deployed site, so a stale build would otherwise ship as-is. If you forget,
+`.github/workflows/check.yml` rebuilds on every push and pull request and fails
+if the committed HTML differs from what `content/` produces, so a stale build
+cannot reach `main` unnoticed.
 
 Every path is relative, so the site works from a subdirectory, from a custom
 domain, or opened straight off disk.
@@ -200,6 +239,9 @@ domain, or opened straight off disk.
 
 ```
 index.html               the overview
+404.html                 generated — self-contained; served at any depth
+sitemap.xml              generated — every real page, for crawlers
+robots.txt               generated — blocks nothing, names the sitemap
 _config.yml              keeps content/, tools/ and tests/ off the built site
 notes/<id>/index.html    generated — a note, listing its topics
 notes/<id>/<topic>.html  generated — one topic  ·  do not edit by hand
@@ -209,17 +251,25 @@ content/notes.json       the parts and the catalogue, in reading order
 assets/css/main.css      the whole design system
 assets/js/app.js         theme, size, tree, rail, TOC, search, motion, highlighting
 assets/js/site-data.js   generated — the sidebar catalogue, loaded by every page
-assets/js/search-data.js generated — the search prose, loaded on first keystroke
+assets/js/search/<id>.js generated — one note's search prose, fetched on first keystroke
 tools/build.mjs          the build
-tools/lib/enrich.mjs     the beginner-layer inserter
-tests/run.mjs            checks the built site
+tests/run.mjs            checks the built site and the source
+.github/workflows/check.yml  rebuilds on every push; fails if the commit is stale
+.gitattributes           marks the generated files so diffs stay readable
 ```
 
 ## What the pages do
 
-- **A folder tree** in the sidebar. Every note expands to its topics; what you
-  have opened is remembered per browser, and the note you are reading is always
-  open.
+- **A folder tree** in the sidebar, rendered into every page as plain HTML.
+  Every note expands to its topics; what you have opened is remembered per
+  browser, and the note you are reading is always open. The tree used to be
+  built by JavaScript from the catalogue, which meant that with scripts off —
+  or before a slow script arrived, or for a crawler that does not run one —
+  there was no navigation at all. `app.js` now only restores which folders
+  were open and wires the carets.
+- **A skip link**, first in the tab order. The sidebar is the whole catalogue,
+  around 230 links, and it comes before the article in the DOM: right for a
+  crawler, wrong for anyone moving by keyboard without a way past it.
 - **A collapsing sidebar** — the button beside the logo, or <kbd>⌘</kbd> +
   <kbd>\\</kbd> — which widens the reading column and is remembered.
 - **Three reading sizes** — small, medium, large, from the `Aa` button. Every
@@ -229,27 +279,33 @@ tests/run.mjs            checks the built site
 - **Light and dark**, following the system by default; the toggle overrides it
   and is remembered per browser.
 - **Search** across every topic heading and its body text, showing the sentence
-  the match was found in. `/` focuses it; arrows and Enter navigate.
+  the match was found in. `/` focuses it; arrows and Enter navigate. The prose
+  it searches is the bulk of the payload, so no page loads it: the first
+  keystroke fetches one small file per note, in parallel.
 - **`[` and `]`** move to the previous and next topic.
 - **Animated flow diagrams** that reveal a step at a time on scroll, with a
   replay button; content that rises into place as you reach it; a reading
   progress bar; copy buttons on every code block.
+- **Motion that follows the reading.** Moving between pages crossfades where
+  the browser supports view transitions, holding the header and sidebar still
+  so a multi-page site behaves like one. Switching theme fades rather than
+  cutting. Opening a folder staggers its topics in. Search results arrive in
+  sequence. One focus ring, keyboard-only, everywhere.
 - **Self-checks** that stay collapsed until you commit to an answer.
 - Reduced-motion, keyboard navigation and mobile are all handled. Every
-  animation is switched off under `prefers-reduced-motion`.
+  animation is switched off under `prefers-reduced-motion` — including the
+  view-transition pseudo-elements, which a `*` selector does not reach and
+  which therefore have to be named directly.
 
 ### On a phone
 
 - The sidebar becomes a drawer, and every tap target is at least 40px.
 - Search collapses to an icon that opens a full-width bar under the header,
   because a field sharing that row would be about 90px wide.
-- Sign out is in the header on a desktop and at the foot of the sidebar
-  everywhere; the header copy is hidden on a phone, where the row has no room
-  for it.
-- Tables, code blocks and fixed-width diagrams scroll inside their own box, so
-  the page itself never scrolls sideways. This is checked in CI-style by
-  loading every page at 320, 390, 412 and 768px wide, at all three reading
-  sizes, and asserting `scrollWidth <= innerWidth`.
+- Tables, code blocks and fixed-width diagrams scroll inside their own box, and
+  a long token in running prose is allowed to break, so the page itself never
+  scrolls sideways. `tests/run.mjs` enforces the structure this relies on; it
+  starts no browser, so it does not measure the rendered width.
 
 ## A note on what is not here
 

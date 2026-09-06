@@ -142,10 +142,10 @@ for (const project of projects) {
 // Prisma fetches the related rows together
 // instead of once per project.</code></pre></div>
 </div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> It hides well: with ten test rows the loop version is imperceptibly slower. With ten thousand rows it is thousands of round trips, and the fix is one word. Any loop containing an <code>await</code> on the database deserves a second look. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> It hides well: with ten test rows the loop version is so slightly slower that you cannot notice it. With ten thousand rows it is thousands of round trips, and the fix is one word. Any loop containing an <code>await</code> on the database deserves a second look. </div></div>
 
 <details class="selfcheck"><summary><span class="sc-q">What is the practical difference between an inner join and a left join?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> An inner join returns only rows that have a match on both sides. A left join keeps every row from the left table and fills in blanks where there is no match. </p>
-<p> The difference shows up as a bug when you count things: &ldquo;every customer and how many orders they have placed&rdquo; written with an inner join silently omits every customer who has never ordered — which is usually the group you most wanted to see. </p></div></details>
+<p> The difference turns into a bug the moment you start counting things. Take &ldquo;every customer and how many orders they have placed&rdquo;. Written with an inner join, it quietly leaves out every customer who has never ordered anything — and that is usually the exact group you wanted to look at. </p></div></details>
 </section>
 
 <section class="note-section">
@@ -230,7 +230,7 @@ COMMIT;      -- both, or ROLLBACK: neither. Money is never in flight.</code></pr
 
 <section class="note-section">
 <h2 id="postgres">What Postgres gives you beyond plain SQL</h2>
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Most databases speak roughly the same SQL. This topic is what Postgres gives you on top: proper JSON columns you can query into, full-text search without another service, real date and time handling, and extensions — <code>pgvector</code> among them, which is what lets one database serve both your rows and your embeddings. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Most databases speak roughly the same SQL. This topic is about what Postgres gives you on top of that: proper JSON columns you can search inside, full-text search without running another service, real date and time handling, and extensions — <code>pgvector</code> among them, which is what lets one database serve both your rows and your embeddings. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Feature</th><th>What it is for</th></tr></thead><tbody><tr><td><code>jsonb</code></td><td>Store a whole structure in one column — page content, settings — and still query inside it. This product keeps page structures this way, because their shape is defined by the editor, not by the schema.</td></tr>
 <tr><td><code>arrays</code></td><td>A list in a column: tags, allowed origins. Simpler than a side table when the list is short and never joined against.</td></tr>
 <tr><td><code>enum types</code></td><td>A column that can only ever hold one of a fixed set. Illegal states become unrepresentable rather than merely discouraged.</td></tr>
@@ -390,7 +390,7 @@ const rows = await prisma.$queryRawUnsafe(
 
 <section class="note-section">
 <h2 id="ops">Backups, connections and safety</h2>
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The unglamorous half. A backup you have never restored is not a backup — it is a hope. A connection pool sized wrongly takes an application down under exactly the load you built it for. Neither is interesting until the day it is the only thing that matters. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The boring half. A backup you have never restored is not a backup — it is a hope. A connection pool sized wrongly takes an application down under exactly the load you built it for. Neither is interesting until the day it is the only thing that matters. </div></div>
 <div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">The bug that only appears with real data</span></div><div class="example-body"><p> An admin screen lists every user with their project count. In development, with fifty accounts, it answers instantly. In production it times out — because the code fetched all users, then ran one count query per user. Fifty round trips is nothing; fifty thousand is a page nobody can open. </p>
 <p> The fix is not a faster server. It is one grouped query, or a single Prisma call with the count included. Test on data the shape of production, or discover this on the day you cannot afford to. </p>
 </div></div>
