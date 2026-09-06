@@ -1233,7 +1233,7 @@ window.GN_MODULES = [
     ]
   },
   {
-    "n": "24",
+    "n": "23",
     "slug": "devops",
     "title": "CI/CD, Docker & Kubernetes",
     "label": "CI/CD, Docker & Kubernetes",
@@ -1275,7 +1275,7 @@ window.GN_MODULES = [
     ]
   },
   {
-    "n": "25",
+    "n": "24",
     "slug": "ai-project",
     "title": "Building a Full Project with AI",
     "label": "Building with AI",
@@ -1317,7 +1317,7 @@ window.GN_MODULES = [
     ]
   },
   {
-    "n": "26",
+    "n": "25",
     "slug": "roadmap",
     "title": "What to Learn Next",
     "label": "What to Learn Next",
@@ -1358,4 +1358,32 @@ window.GN_MODULES = [
       }
     ]
   }
+];
+
+window.GN_SEARCH_SHARDS = [
+  "assets/js/search/react.js",
+  "assets/js/search/redux.js",
+  "assets/js/search/nextjs.js",
+  "assets/js/search/nodejs.js",
+  "assets/js/search/express.js",
+  "assets/js/search/postgresql.js",
+  "assets/js/search/ai.js",
+  "assets/js/search/inside-a-model.js",
+  "assets/js/search/rag-advanced.js",
+  "assets/js/search/fine-tuning.js",
+  "assets/js/search/self-hosting.js",
+  "assets/js/search/structured-output.js",
+  "assets/js/search/agents.js",
+  "assets/js/search/mcp.js",
+  "assets/js/search/skills-artifacts.js",
+  "assets/js/search/model-landscape.js",
+  "assets/js/search/evals.js",
+  "assets/js/search/ai-security.js",
+  "assets/js/search/governance.js",
+  "assets/js/search/architecture.js",
+  "assets/js/search/cloud-gcp.js",
+  "assets/js/search/aiops.js",
+  "assets/js/search/devops.js",
+  "assets/js/search/ai-project.js",
+  "assets/js/search/roadmap.js"
 ];

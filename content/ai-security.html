@@ -120,7 +120,7 @@ async function run() {
 <section class="note-section">
 <h2 id="testing">Testing your defences</h2>
 <div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Attack your own system, on purpose, on a regular schedule. Keep the attempts that worked as test cases, so a future change cannot quietly open them up again. It is the same habit as any regression test, applied to a kind of bug where the input is hostile rather than accidental. </div></div>
-<p>Security you have never attacked is security you are only guessing about. This belongs in the same test runner as note 11 &mdash; the cases are simply hostile ones.</p>
+<p>Security you have never attacked is security you are only guessing about. This belongs in the same test runner as {{note:evals}} &mdash; the cases are simply hostile ones.</p>
 <div class="table-wrap"><table><thead><tr><th>Test</th><th>What you are checking</th></tr></thead><tbody>
 <tr><td>Put an injection into every input route you have &mdash; the ticket body, an uploaded PDF, a file name, a code comment, a web page.</td><td>Whether an indirect injection reaches the model at all, and what it manages to do when it does.</td></tr>
 <tr><td>Ask for another user's data, in several different ways, politely and rudely.</td><td>Whether the limit is enforced in code, or only politely requested in a prompt.</td></tr>

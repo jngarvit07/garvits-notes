@@ -1,0 +1,40 @@
+# The built HTML is committed and GitHub Pages serves it directly, with no
+# build step on their side. That makes one mistake very easy and completely
+# silent: edit a fragment in content/, forget to rebuild, push, and the live
+# site keeps showing the old text while the repository shows the new. Nothing
+# used to catch that. This does.
+name: check
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # No `npm ci` on purpose — the build and the tests use Node's standard
+      # library only, so there is nothing to install.
+
+      - name: Build the site from content/
+        run: node tools/build.mjs
+
+      - name: The committed site must match the source it was built from
+        run: |
+          if ! git diff --quiet; then
+            echo "::error::The committed HTML is stale. Run 'cd tools && npm run build' and commit the result."
+            git diff --stat
+            exit 1
+          fi
+
+      - name: Check the built site
+        run: node tests/run.mjs

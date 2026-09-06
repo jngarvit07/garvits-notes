@@ -1,0 +1,9 @@
+# Everything below is written by tools/build.mjs from content/. Marking it
+# generated collapses it in pull request diffs by default, so a one-line edit
+# to a fragment shows up as that one line rather than as the couple of hundred
+# rebuilt files that come with it. The files are still committed and still
+# served — this only changes how GitHub presents them.
+index.html               linguist-generated=true
+notes/**                 linguist-generated=true
+assets/js/site-data.js   linguist-generated=true
+assets/js/search/**      linguist-generated=true

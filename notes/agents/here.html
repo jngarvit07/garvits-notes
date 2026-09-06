@@ -55,7 +55,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </header>
 <div class="topic-body">
 <div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> What building one on this stack actually looks like — where the loop lives, where the tools live, and what the limits are set to. </div></div>
-<p>Nothing here needs a framework. The pieces map onto what notes 03 and 04 already covered.</p>
+<p>Nothing here needs a framework. The pieces map onto what notes <a class="note-ref" href="../express/index.html" title="Express">05</a> and <a class="note-ref" href="../postgresql/index.html" title="PostgreSQL &amp; Prisma">06</a> already covered.</p>
 <div class="card-grid cols-2">
 <div class="card"><div class="card-title">The loop belongs on the server</div><p>An agent loop running in the browser hands your API key to a stranger. It runs in Express, behind your login check, exactly like any other route that touches money.</p></div>
 <div class="card"><div class="card-title">Tools are just functions you already have</div><p>Your existing service functions <em>are</em> the tools. Wrap them with a schema and a description; do not write a second copy just for the agent.</p></div>

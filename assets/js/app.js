@@ -540,7 +540,8 @@
   /* The note titles come free — site-data.js is already loaded for the sidebar.
      The prose every topic is searched against is the bulk of the payload and
      is wanted only by someone who actually searches, so it is fetched on the
-     first keystroke and folded in when it lands. Typing before it arrives is
+     first keystroke — one small file per note, in parallel — and folded in
+     when the last one lands. Typing before it arrives is
      not a dead end: the titles already match, and the results re-render by
      themselves once the rest is in. */
   var INDEX = [];
@@ -563,21 +564,33 @@
 
   var searchData = 'idle';
   var wantSearchData = function (done) {
-    if (searchData === 'ready') return;
-    if (searchData === 'loading') return;
+    if (searchData !== 'idle') return;
+    var shards = window.GN_SEARCH_SHARDS || [];
+    if (!shards.length) return;
     searchData = 'loading';
-    // The generated file calls this back, so a cached copy that runs before
-    // onload is still noticed.
-    window.GN_ON_SEARCH_DATA = function () {
-      if (searchData === 'ready') return;
+
+    // A retry after a failed attempt must not append a shard twice: whatever
+    // landed last time is discarded and the whole set is fetched again.
+    window.GN_SECTIONS = [];
+
+    var left = shards.length;
+    var failed = false;
+    var landed = function () {
+      if (failed || --left > 0) return;
       searchData = 'ready';
       addSections();
       done();
     };
-    var el = document.createElement('script');
-    el.src = BASE + 'assets/js/search-data.js';
-    el.onerror = function () { searchData = 'idle'; };   // let a later keystroke retry
-    document.head.appendChild(el);
+    shards.forEach(function (src) {
+      var el = document.createElement('script');
+      el.src = BASE + src;
+      el.onload = landed;
+      el.onerror = function () {          // let a later keystroke retry the set
+        failed = true;
+        searchData = 'idle';
+      };
+      document.head.appendChild(el);
+    });
   };
 
   var input = document.getElementById('search');

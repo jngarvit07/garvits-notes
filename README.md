@@ -14,7 +14,7 @@ server. Open `index.html` and it works.
 
 Each note is a folder in the sidebar. Opening it reveals its topics, and each
 topic is a short page you can finish in a few minutes — so the site reads as a
-tree rather than as eighteen very long documents.
+tree rather than as twenty-five very long documents.
 
 ```
 notes/react/index.html        the React note — a list of its topics
@@ -38,7 +38,7 @@ crossing from the last topic of one note into the first of the next.
 | 05 | Express | Routes, middleware, auth, validation, error handling | 11 |
 | 06 | PostgreSQL & Prisma | Tables, SQL, joins, indexes, transactions, migrations | 11 |
 
-**Part two — the AI track.** Note 07 is the overview and stands alone; 08–12 are
+**Part two — the AI track.** Note 07 is the overview and stands alone; 08–22 are
 the deep dives underneath it.
 
 | # | Note | | Topics |
@@ -65,14 +65,14 @@ then one real product built and shipped through exactly that pipeline.
 
 | # | Note | | Topics |
 |---|------|---|---|
-| 24 | CI/CD, Docker & Kubernetes | VM vs container vs cluster, Docker, pipelines, K8s objects | 6 |
-| 25 | Building a Full Project with AI | Spec-first workflow, a real API and frontend, shipping it | 6 |
+| 23 | CI/CD, Docker & Kubernetes | VM vs container vs cluster, Docker, pipelines, K8s objects | 6 |
+| 24 | Building a Full Project with AI | Spec-first workflow, a real API and frontend, shipping it | 6 |
 
 **Part four — where this goes.**
 
 | # | Note | | Topics |
 |---|------|---|---|
-| 26 | What to Learn Next | The path, the foundations, and how to tell you have learned it | 6 |
+| 25 | What to Learn Next | The path, the foundations, and how to tell you have learned it | 6 |
 
 ## Public, and unindexed only where it should be
 
@@ -116,10 +116,17 @@ npm test          # check the built site
 npm run check     # both
 ```
 
-`tests/run.mjs` has no dependencies and starts no browser; it reads the built
-site only. It checks that no page carries the old gate or a blanket noindex,
-the `_config.yml` source-exclusion rules, the payload split, the old-URL
-redirects, and every internal link.
+`tests/run.mjs` has no dependencies and starts no browser. It checks that no
+page carries the old gate or a blanket noindex, the `_config.yml`
+source-exclusion rules, the search-shard split, the old-URL redirects, every
+internal link, every cross-reference between notes, the structure that keeps a
+page from scrolling sideways on a phone, and the reading level of the prose.
+
+Because it starts no browser it cannot measure a real layout. The mobile group
+checks the structure that makes overflow impossible — every table inside a
+scrolling wrapper, the overflow rules present in the stylesheet, no unbreakable
+token long enough to stick out — not the rendered pixels. That is a weaker
+promise than a viewport test, and it is the one actually kept.
 
 ## Editing
 
@@ -157,6 +164,21 @@ There is nothing to install. The build uses Node's standard library only.
 
 Reading time per topic is counted from the words. Do not hand-maintain it.
 
+### Pointing at another note
+
+Never write the number. A note that said “see note 12” was correct until the
+running order changed, and then it silently pointed a reader at the wrong note
+— which is worse than no pointer at all. Name the note instead:
+
+| In the fragment | Renders as |
+|---|---|
+| `{{note:ai-security}}` | a link reading **note 18** |
+| `{{n:ai-security}}` | the linked number alone, **18**, for prose that already said “notes” |
+
+The number comes from `content/notes.json` at build time, so renumbering can
+never leave a stale pointer behind. An id that names no note stops the build,
+and `tests/run.mjs` fails on any note number written out by hand.
+
 ### The components available in a fragment
 
 | Markup | Renders as |
@@ -179,9 +201,8 @@ the replay button.
 ### The beginner layer
 
 Every topic opens with an **In plain English** callout — an analogy a
-non-technical reader can follow — before any code appears. `tools/lib/enrich.mjs`
-is the helper that inserted these; it is idempotent, so a topic that already has
-one is skipped rather than given a second.
+non-technical reader can follow — before any code appears. Write it by hand in
+the fragment, as the first thing inside the section.
 
 ## Publishing
 
@@ -191,7 +212,10 @@ the one thing they do act on: it keeps `content/`, `tools/` and `tests/` out
 of what gets served.
 
 Run `npm run check` in `tools/` before pushing — the committed HTML is the
-deployed site, so a stale build ships as-is.
+deployed site, so a stale build would otherwise ship as-is. If you forget,
+`.github/workflows/check.yml` rebuilds on every push and pull request and fails
+if the committed HTML differs from what `content/` produces, so a stale build
+cannot reach `main` unnoticed.
 
 Every path is relative, so the site works from a subdirectory, from a custom
 domain, or opened straight off disk.
@@ -209,10 +233,11 @@ content/notes.json       the parts and the catalogue, in reading order
 assets/css/main.css      the whole design system
 assets/js/app.js         theme, size, tree, rail, TOC, search, motion, highlighting
 assets/js/site-data.js   generated — the sidebar catalogue, loaded by every page
-assets/js/search-data.js generated — the search prose, loaded on first keystroke
+assets/js/search/<id>.js generated — one note's search prose, fetched on first keystroke
 tools/build.mjs          the build
-tools/lib/enrich.mjs     the beginner-layer inserter
-tests/run.mjs            checks the built site
+tests/run.mjs            checks the built site and the source
+.github/workflows/check.yml  rebuilds on every push; fails if the commit is stale
+.gitattributes           marks the generated files so diffs stay readable
 ```
 
 ## What the pages do
@@ -229,7 +254,9 @@ tests/run.mjs            checks the built site
 - **Light and dark**, following the system by default; the toggle overrides it
   and is remembered per browser.
 - **Search** across every topic heading and its body text, showing the sentence
-  the match was found in. `/` focuses it; arrows and Enter navigate.
+  the match was found in. `/` focuses it; arrows and Enter navigate. The prose
+  it searches is the bulk of the payload, so no page loads it: the first
+  keystroke fetches one small file per note, in parallel.
 - **`[` and `]`** move to the previous and next topic.
 - **Animated flow diagrams** that reveal a step at a time on scroll, with a
   replay button; content that rises into place as you reach it; a reading
@@ -243,13 +270,10 @@ tests/run.mjs            checks the built site
 - The sidebar becomes a drawer, and every tap target is at least 40px.
 - Search collapses to an icon that opens a full-width bar under the header,
   because a field sharing that row would be about 90px wide.
-- Sign out is in the header on a desktop and at the foot of the sidebar
-  everywhere; the header copy is hidden on a phone, where the row has no room
-  for it.
-- Tables, code blocks and fixed-width diagrams scroll inside their own box, so
-  the page itself never scrolls sideways. This is checked in CI-style by
-  loading every page at 320, 390, 412 and 768px wide, at all three reading
-  sizes, and asserting `scrollWidth <= innerWidth`.
+- Tables, code blocks and fixed-width diagrams scroll inside their own box, and
+  a long token in running prose is allowed to break, so the page itself never
+  scrolls sideways. `tests/run.mjs` enforces the structure this relies on; it
+  starts no browser, so it does not measure the rendered width.
 
 ## A note on what is not here
 

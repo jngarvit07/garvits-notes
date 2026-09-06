@@ -61,7 +61,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 <tr><td><strong>Runs</strong></td><td>On the user&rsquo;s own machine.</td><td>Anywhere &mdash; shared by many users.</td></tr>
 <tr><td><strong>Auth</strong></td><td>Whatever the local program already has. No network involved.</td><td>Real authentication required. OAuth is the norm.</td></tr>
 <tr><td><strong>Good for</strong></td><td>Local files, local databases, developer tools, anything that touches the machine itself.</td><td>Team services, SaaS integrations, anything centrally managed.</td></tr>
-<tr><td><strong>Watch out</strong></td><td><strong>Never write to stdout.</strong> That channel is the protocol itself &mdash; one stray <code>console.log</code> and the whole stream is corrupted. Log to stderr instead.</td><td>You are now running a public service that takes actions. Everything in note 12 applies to it.</td></tr>
+<tr><td><strong>Watch out</strong></td><td><strong>Never write to stdout.</strong> That channel is the protocol itself &mdash; one stray <code>console.log</code> and the whole stream is corrupted. Log to stderr instead.</td><td>You are now running a public service that takes actions. Everything in <a class="note-ref" href="../ai-security/index.html" title="AI Security">note 18</a> applies to it.</td></tr>
 </tbody></table></div>
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p>The stdout rule catches nearly everybody at least once. A server that works perfectly until you add one debug print, and then fails with a parse error nobody can make sense of, is always this. Use <code>console.error</code>, which goes to stderr and is safe.</p></div></div>
 </div>

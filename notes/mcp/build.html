@@ -131,7 +131,7 @@ await server.connect(new StdioServerTransport());</code></pre></div>
 <div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>The exact registration API in the SDK has changed once or twice as MCP has grown up &mdash; older examples use <code>server.tool(...)</code>. Check the version you actually have installed rather than trusting any code snippet, including this one. The <em>shape</em> stays the same: a name, a description, a schema, and an async function that returns content.</p></div></div>
 <details class="selfcheck"><summary><span class="sc-q">Why does <code>get_invoice</code> return <code>isError: true</code> with a sentence, instead of throwing?</span><span class="sc-cue">Answer</span></summary><div class="sc-body">
 <p>Because the model is the one reading it. A thrown exception turns into a connection-level failure the model cannot understand, so it usually retries the exact same call and gets the exact same failure. An error <em>result</em> arrives as ordinary text in the context, so the model can read &ldquo;no invoice with that number, try search_invoices&rdquo; and go and do exactly that.</p>
-<p>The general rule from note 07 holds here too: a tool failure is a normal outcome that should be explained in words, not an exception to be thrown upwards.</p>
+<p>The general rule from <a class="note-ref" href="../agents/index.html" title="Agents &amp; Workflows">note 13</a> holds here too: a tool failure is a normal outcome that should be explained in words, not an exception to be thrown upwards.</p>
 </div></details>
 </div>
 <nav class="page-nav">

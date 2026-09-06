@@ -55,7 +55,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </header>
 <div class="topic-body">
 <div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A server that people can actually use is mostly about holding back. A few tools rather than many, each doing one clearly named thing. Errors that say what to do next rather than only what broke. Descriptions written for a reader who has no other manual — because they really do not have one. </div></div>
-<p>The protocol is the easy part. What separates a useful server from an annoying one is the same judgement as tool design in note 07, with one extra point: <strong>your server will be used by applications you did not write, in conversations you will never see.</strong></p>
+<p>The protocol is the easy part. What separates a useful server from an annoying one is the same judgement as tool design in <a class="note-ref" href="../agents/index.html" title="Agents &amp; Workflows">note 13</a>, with one extra point: <strong>your server will be used by applications you did not write, in conversations you will never see.</strong></p>
 <div class="table-wrap"><table><thead><tr><th>Do</th><th>Because</th></tr></thead><tbody>
 <tr><td>Bound every result. Take 20, not all.</td><td>A query with no limit fills the context window with rows nobody reads, and you pay for every one of them on every turn after that.</td></tr>
 <tr><td>Return only the fields that matter.</td><td>Dumping a whole row including internal ids, timestamps and empty fields is expensive noise. Pick out what a person would actually want to see.</td></tr>

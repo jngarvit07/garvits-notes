@@ -32,11 +32,11 @@
 <figure class="figure is-flow"><div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">One tool call, end to end</span>{{replay}}</div><div class="figure-stage"><ol class="flow flow-column">
 <li class="flow-step dg-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Host starts the server</span><span class="flow-detail">When it starts up, it runs your server program (or opens an HTTP connection to it) and asks what it can do.</span></div></li>
 <li class="flow-step dg-step" data-tone="plain" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">Server lists its capabilities</span><span class="flow-detail">Tool names, descriptions and JSON schemas come back. The host turns those into tool definitions for the model.</span></div></li>
-<li class="flow-step dg-step" data-tone="accent" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Model asks for a tool</span><span class="flow-detail">Exactly as in note 07 &mdash; a name and some JSON. It does not know, and does not care, that MCP is involved.</span></div></li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Model asks for a tool</span><span class="flow-detail">Exactly as in {{note:agents}} &mdash; a name and some JSON. It does not know, and does not care, that MCP is involved.</span></div></li>
 <li class="flow-step dg-step" data-tone="danger" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">Host decides</span><span class="flow-detail">The approval gate sits here, in the host — not in your server. This is the security line.</span></div></li>
 <li class="flow-step dg-step" data-tone="plain" style="--i:4"><span class="flow-num">5</span><div class="flow-text"><span class="flow-label">Client calls the server</span><span class="flow-detail">A JSON-RPC <code>tools/call</code> request crosses the transport.</span></div></li>
 <li class="flow-step dg-step" data-tone="plain" style="--i:5"><span class="flow-num">6</span><div class="flow-text"><span class="flow-label">Server runs it, returns content</span><span class="flow-detail">Your code does the real work and returns text or structured content. The host passes it back as a tool result.</span></div></li>
-</ol></div><div class="figure-caption">Steps 3 and 4 are the agent loop from note 07. MCP only changes how step 5 travels from one place to the other.</div></figure>
+</ol></div><div class="figure-caption">Steps 3 and 4 are the agent loop from {{note:agents}}. MCP only changes how step 5 travels from one place to the other.</div></figure>
 </section>
 
 <section class="note-section">
@@ -59,7 +59,7 @@
 <tr><td><strong>Runs</strong></td><td>On the user&rsquo;s own machine.</td><td>Anywhere &mdash; shared by many users.</td></tr>
 <tr><td><strong>Auth</strong></td><td>Whatever the local program already has. No network involved.</td><td>Real authentication required. OAuth is the norm.</td></tr>
 <tr><td><strong>Good for</strong></td><td>Local files, local databases, developer tools, anything that touches the machine itself.</td><td>Team services, SaaS integrations, anything centrally managed.</td></tr>
-<tr><td><strong>Watch out</strong></td><td><strong>Never write to stdout.</strong> That channel is the protocol itself &mdash; one stray <code>console.log</code> and the whole stream is corrupted. Log to stderr instead.</td><td>You are now running a public service that takes actions. Everything in note 12 applies to it.</td></tr>
+<tr><td><strong>Watch out</strong></td><td><strong>Never write to stdout.</strong> That channel is the protocol itself &mdash; one stray <code>console.log</code> and the whole stream is corrupted. Log to stderr instead.</td><td>You are now running a public service that takes actions. Everything in {{note:ai-security}} applies to it.</td></tr>
 </tbody></table></div>
 <div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p>The stdout rule catches nearly everybody at least once. A server that works perfectly until you add one debug print, and then fails with a parse error nobody can make sense of, is always this. Use <code>console.error</code>, which goes to stderr and is safe.</p></div></div>
 </section>
@@ -143,7 +143,7 @@ await server.connect(new StdioServerTransport());</code></pre></div>
 <div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>The exact registration API in the SDK has changed once or twice as MCP has grown up &mdash; older examples use <code>server.tool(...)</code>. Check the version you actually have installed rather than trusting any code snippet, including this one. The <em>shape</em> stays the same: a name, a description, a schema, and an async function that returns content.</p></div></div>
 <details class="selfcheck"><summary><span class="sc-q">Why does <code>get_invoice</code> return <code>isError: true</code> with a sentence, instead of throwing?</span><span class="sc-cue">Answer</span></summary><div class="sc-body">
 <p>Because the model is the one reading it. A thrown exception turns into a connection-level failure the model cannot understand, so it usually retries the exact same call and gets the exact same failure. An error <em>result</em> arrives as ordinary text in the context, so the model can read &ldquo;no invoice with that number, try search_invoices&rdquo; and go and do exactly that.</p>
-<p>The general rule from note 07 holds here too: a tool failure is a normal outcome that should be explained in words, not an exception to be thrown upwards.</p>
+<p>The general rule from {{note:agents}} holds here too: a tool failure is a normal outcome that should be explained in words, not an exception to be thrown upwards.</p>
 </div></details>
 </section>
 
@@ -187,7 +187,7 @@ await server.connect(new StdioServerTransport());</code></pre></div>
 <section class="note-section">
 <h2 id="design">Designing a server people can actually use</h2>
 <div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A server that people can actually use is mostly about holding back. A few tools rather than many, each doing one clearly named thing. Errors that say what to do next rather than only what broke. Descriptions written for a reader who has no other manual — because they really do not have one. </div></div>
-<p>The protocol is the easy part. What separates a useful server from an annoying one is the same judgement as tool design in note 07, with one extra point: <strong>your server will be used by applications you did not write, in conversations you will never see.</strong></p>
+<p>The protocol is the easy part. What separates a useful server from an annoying one is the same judgement as tool design in {{note:agents}}, with one extra point: <strong>your server will be used by applications you did not write, in conversations you will never see.</strong></p>
 <div class="table-wrap"><table><thead><tr><th>Do</th><th>Because</th></tr></thead><tbody>
 <tr><td>Bound every result. Take 20, not all.</td><td>A query with no limit fills the context window with rows nobody reads, and you pay for every one of them on every turn after that.</td></tr>
 <tr><td>Return only the fields that matter.</td><td>Dumping a whole row including internal ids, timestamps and empty fields is expensive noise. Pick out what a person would actually want to see.</td></tr>
