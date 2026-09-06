@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>What to log on every call — AI Ops — Garvit's Notes</title>
-<meta name="description" content="One log line per model call, with the twelve fields that let you answer any question later. Get this right and most of the rest of the note becomes easy.">
+<meta name="description" content="One log line for every model call, with the twelve fields that let you answer any question later. Get this right and most of the rest of this note becomes easy.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,8 +54,8 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> This is the highest-value habit in the note, because it is the one thing you cannot add retrospectively. Every question you will later want to answer — why was this answer wrong, what does this feature cost, when did quality drop — is only answerable if the data was written down at the time. </div></div>
-<p> This is the highest-value thing in the note. Everything downstream &mdash; debugging, cost analysis, evaluation, incident response &mdash; is possible only if the data was captured at the time. You cannot go back and add it. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> This is the most valuable habit in the whole note, because it is the one thing you cannot go back and add later. Every question you will want to answer afterwards — why was this answer wrong, what does this feature cost, when did the quality drop — can only be answered if somebody wrote the data down at the time. </div></div>
+<p> This is the most valuable thing in the note. Everything that comes after it &mdash; debugging, working out costs, testing, handling an incident &mdash; is only possible if the data was captured at the time. You cannot go back and add it later. </p>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>One structured line per model call</div><pre><code>log.info('llm.call', {
   // Who and what — so you can group by anything later.
   trace_id:   'req_8f3a...',    // ties every step of ONE request together

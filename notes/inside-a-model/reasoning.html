@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reasoning models and thinking time — Inside a Model — Garvit's Notes</title>
-<meta name="description" content="Models that think before answering are not a different architecture. They are the same loop, allowed to spend more tokens on the working out.">
+<meta name="description" content="Models that think before answering are not built differently. They are the same loop, allowed to spend more tokens on the rough work.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,27 +54,27 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Asked a hard question, a person does better with a pencil and a minute than answering instantly. A reasoning model is that: it generates a long internal working-out before its visible answer, and the extra tokens are where the improvement comes from. You are buying accuracy with time and money, quite literally. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Given a hard question, a person does better with a rough sheet and one minute than by answering instantly. A reasoning model is exactly that: it writes out a long rough working before its visible answer, and those extra tokens are where the improvement comes from. You are buying accuracy with time and money, quite literally. </div></div>
 <div class="code-block"><div class="code-head"><span class="lang">txt</span>The same question, two behaviours</div><pre><code>STANDARD MODEL
   prompt -> [~40 tokens of answer] -> done            fast, cheap
 
 REASONING MODEL
-  prompt -> [~3,000 tokens of working out, hidden]
+  prompt -> [~3,000 tokens of rough working, hidden]
          -> [~40 tokens of answer]  -> done           slow, ~10x the cost
 
-  The working-out tokens are billed. They are usually not shown to you.</code></pre></div>
+  The rough-working tokens are charged for. You usually never see them.</code></pre></div>
 <div class="table-wrap"><table><thead><tr><th>Worth the extra tokens</th><th>Not worth them</th></tr></thead><tbody>
-<tr><td>Multi-step maths and logic</td><td>Classification into a few known buckets</td></tr>
-<tr><td>Debugging, planning a code change across files</td><td>Extraction from a document</td></tr>
-<tr><td>Anything where being wrong is expensive to discover</td><td>Rewriting or summarising</td></tr>
-<tr><td>Ambiguous problems needing a plan first</td><td>Anything answered correctly by a cheap model already</td></tr>
+<tr><td>Multi-step maths and logic</td><td>Sorting into a few known buckets</td></tr>
+<tr><td>Debugging, planning a code change across many files</td><td>Pulling fields out of a document</td></tr>
+<tr><td>Anything where a mistake is expensive to spot later</td><td>Rewriting or summarising</td></tr>
+<tr><td>Unclear problems that need a plan first</td><td>Anything a cheap model already answers correctly</td></tr>
 </tbody></table></div>
-<h3>Chain-of-thought, and the honest caveat</h3>
-<p> Asking an ordinary model to &ldquo;work through it step by step&rdquo; gets some of the same effect, because the intermediate tokens genuinely give the computation somewhere to happen. It is a real technique and it is cheap to try. </p>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>The stated reasoning is not necessarily the actual reasoning.</strong> A model can produce sound-looking steps that lead to a conclusion it would have reached anyway, and it can reach a right answer through wrong steps. Treat visible reasoning as useful evidence and a debugging aid &mdash; never as a guarantee, and never as an explanation you would put in front of a regulator. See the <a href="../governance/index.html">AI Governance</a> note on what counts as an explanation. </div></div>
-<details class="selfcheck"><summary><span class="sc-q">Your classifier sorts support tickets into five categories. Should you upgrade it to a reasoning model?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Almost certainly not. Classification into known buckets is a task cheap models do well, and reasoning tokens are pure cost on a problem with no multi-step structure to reason about. You would pay perhaps ten times as much for a difference your eval set will struggle to detect.</p>
-<p> The decision should come from the eval set rather than from instinct in either direction. Run both, compare the scores, compare the cost, and let the numbers choose. That is what an eval set is <em>for</em> &mdash; see the <a href="../evals/index.html">Evaluating AI Systems</a> note. </p></div></details>
-<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Text becomes tokens becomes vectors. Character-level tasks are hard because the model never sees characters.</li><li>Attention lets any token reach any other in one step, and its cost grows with the square of the input.</li><li>A Transformer is one attention block repeated many times, with residuals and normalisation holding it together.</li><li>The model outputs scores for the whole vocabulary; temperature and top_p decide how you pick from them.</li><li>Prefill is parallel and cheap, decode is sequential and expensive. Put stable text first to make prompt caching work.</li><li>Reasoning models buy accuracy with tokens. Let an eval set decide whether that trade pays on your task.</li></ul></div>
+<h3>Chain-of-thought, and the honest warning</h3>
+<p> Asking an ordinary model to "work through it step by step" gets you some of the same benefit, because those in-between tokens genuinely give the thinking somewhere to happen. It is a real technique and it costs nothing to try. </p>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>The reasoning it shows you is not necessarily the reasoning it used.</strong> A model can write out sensible-looking steps leading to a conclusion it would have reached anyway, and it can also reach a right answer through wrong steps. Treat visible reasoning as useful evidence and a debugging aid &mdash; never as a guarantee, and never as an explanation you would hand to a regulator. See the <a href="../governance/index.html">AI Governance</a> note on what actually counts as an explanation. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Your classifier sorts support tickets into five categories. Should you upgrade it to a reasoning model?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Almost certainly not. Sorting into known buckets is something cheap models do well, and reasoning tokens are pure cost on a problem that has no multi-step structure to reason about. You would pay maybe ten times as much for a difference your test set will struggle to even detect.</p>
+<p> The decision should come from the test set, not from gut feeling in either direction. Run both, compare the scores, compare the cost, and let the numbers choose. That is what a test set is <em>for</em> &mdash; see the <a href="../evals/index.html">Evaluating AI Systems</a> note. </p></div></details>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Text becomes tokens, tokens become vectors. Letter-level tasks are hard because the model never sees letters.</li><li>Attention lets any token reach any other in one step, and its cost grows with the square of the input.</li><li>A Transformer is one attention block repeated many times, held together by residuals and normalisation.</li><li>The model gives scores for the whole vocabulary; temperature and top_p decide how you pick from them.</li><li>Prefill happens all at once and is cheap; decode happens in order and is expensive. Put unchanging text first so prompt caching works.</li><li>Reasoning models buy accuracy with tokens. Let a test set decide whether that trade is worth it for your task.</li></ul></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="inference.html">

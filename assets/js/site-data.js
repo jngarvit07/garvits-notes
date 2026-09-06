@@ -438,7 +438,7 @@ window.GN_MODULES = [
     "part": "ai",
     "blurb": "What a language model is, how to give it your own knowledge, how to ship it, and how it gets attacked.",
     "level": "No experience needed",
-    "minutes": 60,
+    "minutes": 65,
     "topics": [
       {
         "id": "what",
@@ -458,7 +458,7 @@ window.GN_MODULES = [
       {
         "id": "training",
         "title": "How a model is made, and why that matters to you",
-        "minutes": 2
+        "minutes": 3
       },
       {
         "id": "sampling",
@@ -527,23 +527,23 @@ window.GN_MODULES = [
       },
       {
         "id": "production",
-        "title": "Shipping it: the unglamorous half",
-        "minutes": 2
+        "title": "Shipping it: the boring half",
+        "minutes": 3
       },
       {
         "id": "cost",
         "title": "Cost and latency, engineered rather than hoped for",
-        "minutes": 2
+        "minutes": 3
       },
       {
         "id": "security",
         "title": "AI security",
-        "minutes": 5
+        "minutes": 6
       },
       {
         "id": "ethics",
         "title": "Bias, law and telling people",
-        "minutes": 2
+        "minutes": 3
       },
       {
         "id": "cases",
@@ -631,7 +631,7 @@ window.GN_MODULES = [
       },
       {
         "id": "hybrid",
-        "title": "Hybrid search: the highest-value upgrade",
+        "title": "Hybrid search: the biggest single upgrade",
         "minutes": 2
       },
       {
@@ -664,7 +664,7 @@ window.GN_MODULES = [
     "part": "ai",
     "blurb": "It teaches a manner, not a fact. LoRA, preference tuning, distillation, and the arithmetic that decides whether any of it pays.",
     "level": "Some experience helps",
-    "minutes": 12,
+    "minutes": 13,
     "topics": [
       {
         "id": "what",
@@ -689,7 +689,7 @@ window.GN_MODULES = [
       {
         "id": "distill",
         "title": "Distillation, and the case that actually pays",
-        "minutes": 2
+        "minutes": 3
       },
       {
         "id": "ops",
@@ -706,7 +706,7 @@ window.GN_MODULES = [
     "part": "ai",
     "blurb": "Open weights, VRAM arithmetic, quantisation and serving — and the honest answer about when renting still wins.",
     "level": "Some experience helps",
-    "minutes": 12,
+    "minutes": 13,
     "topics": [
       {
         "id": "why",
@@ -720,7 +720,7 @@ window.GN_MODULES = [
       },
       {
         "id": "memory",
-        "title": "Will it fit? The VRAM arithmetic",
+        "title": "Will it fit? The VRAM sum",
         "minutes": 2
       },
       {
@@ -736,7 +736,7 @@ window.GN_MODULES = [
       {
         "id": "ops",
         "title": "What you have just taken on",
-        "minutes": 2
+        "minutes": 3
       }
     ]
   },
@@ -772,7 +772,7 @@ window.GN_MODULES = [
       },
       {
         "id": "design",
-        "title": "Designing the tool surface",
+        "title": "Designing the set of tools",
         "minutes": 2
       },
       {
@@ -814,7 +814,7 @@ window.GN_MODULES = [
       },
       {
         "id": "tools",
-        "title": "Designing the tool surface",
+        "title": "Designing the set of tools",
         "minutes": 2
       },
       {
@@ -824,7 +824,7 @@ window.GN_MODULES = [
       },
       {
         "id": "structure",
-        "title": "A folder structure that survives contact",
+        "title": "A folder structure that survives real use",
         "minutes": 2
       },
       {
@@ -909,7 +909,7 @@ window.GN_MODULES = [
     "part": "ai",
     "blurb": "Four different ways to extend a model, and how to tell which one your problem actually needs.",
     "level": "No experience needed",
-    "minutes": 9,
+    "minutes": 10,
     "topics": [
       {
         "id": "what",
@@ -919,7 +919,7 @@ window.GN_MODULES = [
       {
         "id": "skills",
         "title": "Skills: instructions that load themselves",
-        "minutes": 3
+        "minutes": 4
       },
       {
         "id": "artifacts",
@@ -941,7 +941,7 @@ window.GN_MODULES = [
     "part": "ai",
     "blurb": "Claude, OpenAI, Gemini, Copilot and the open-weight world — what actually differs, without a horse race or a price list.",
     "level": "No experience needed",
-    "minutes": 11,
+    "minutes": 12,
     "topics": [
       {
         "id": "layers",
@@ -961,7 +961,7 @@ window.GN_MODULES = [
       {
         "id": "choosing",
         "title": "Choosing, without the horse race",
-        "minutes": 2
+        "minutes": 3
       },
       {
         "id": "portability",
@@ -978,7 +978,7 @@ window.GN_MODULES = [
     "part": "ai",
     "blurb": "The only way to know whether a change made things better. Without it, every prompt edit is a gamble.",
     "level": "Some experience helps",
-    "minutes": 10,
+    "minutes": 12,
     "topics": [
       {
         "id": "why",
@@ -993,7 +993,7 @@ window.GN_MODULES = [
       {
         "id": "graders",
         "title": "How to score an answer",
-        "minutes": 2
+        "minutes": 3
       },
       {
         "id": "rag-agents",
@@ -1003,7 +1003,7 @@ window.GN_MODULES = [
       {
         "id": "running",
         "title": "Running them, and running them automatically",
-        "minutes": 2
+        "minutes": 3
       }
     ]
   },
@@ -1015,7 +1015,7 @@ window.GN_MODULES = [
     "part": "ai",
     "blurb": "Prompt injection has no complete fix. What that means for how you design, rather than how you word things.",
     "level": "Some experience helps",
-    "minutes": 10,
+    "minutes": 12,
     "topics": [
       {
         "id": "model",
@@ -1035,12 +1035,12 @@ window.GN_MODULES = [
       {
         "id": "risks",
         "title": "The rest of the risk surface",
-        "minutes": 2
+        "minutes": 3
       },
       {
         "id": "testing",
         "title": "Testing your defences",
-        "minutes": 2
+        "minutes": 3
       }
     ]
   },
@@ -1052,7 +1052,7 @@ window.GN_MODULES = [
     "part": "ai",
     "blurb": "Risk tiers, the frameworks by name, and the one page per feature that answers most of what anyone will ask.",
     "level": "No experience needed",
-    "minutes": 11,
+    "minutes": 13,
     "topics": [
       {
         "id": "why",
@@ -1072,12 +1072,12 @@ window.GN_MODULES = [
       {
         "id": "practice",
         "title": "What this looks like in a repository",
-        "minutes": 2
+        "minutes": 3
       },
       {
         "id": "bias",
         "title": "Bias, and why it is an engineering problem",
-        "minutes": 2
+        "minutes": 3
       }
     ]
   },
@@ -1089,7 +1089,7 @@ window.GN_MODULES = [
     "part": "ai",
     "blurb": "How to draw the system before you build it: the layers, the boundaries, and the trade-off waiting at each one.",
     "level": "Some experience helps",
-    "minutes": 14,
+    "minutes": 16,
     "topics": [
       {
         "id": "what",
@@ -1109,7 +1109,7 @@ window.GN_MODULES = [
       {
         "id": "boundaries",
         "title": "The six boundaries, and the trade at each",
-        "minutes": 2
+        "minutes": 3
       },
       {
         "id": "diagrams",
@@ -1124,7 +1124,7 @@ window.GN_MODULES = [
       {
         "id": "worked",
         "title": "A worked architecture, end to end",
-        "minutes": 2
+        "minutes": 3
       }
     ]
   },

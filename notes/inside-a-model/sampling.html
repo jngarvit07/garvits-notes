@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>How a word is actually chosen — Inside a Model — Garvit's Notes</title>
-<meta name="description" content="The output is not a word. It is a score for every token in the vocabulary — and the settings you send decide how that list is turned into a choice.">
+<meta name="description" content="The output is not a word. It is a score for every token in the vocabulary — and the settings you send decide how that list becomes one choice.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,7 +54,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The model never picks a word. It produces a score for all hundred thousand tokens in its vocabulary, every single time. Turning that ranked list into one choice is a separate step that <em>you</em> control &mdash; and the settings people treat as mysterious dials are all just different ways of deciding how far down the list you are willing to go. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The model never picks a word. It produces a score for all one lakh tokens in its vocabulary, every single time. Turning that ranked list into one choice is a separate step that <em>you</em> control &mdash; and the settings people treat as mysterious dials are all just different ways of deciding how far down the list you are willing to go. </div></div>
 <div class="code-block"><div class="code-head"><span class="lang">txt</span>After &ldquo;The capital of France is&rdquo;</div><pre><code>raw scores            probabilities        after temperature 0.2
   " Paris"   14.2   ->    0.89       ->        0.997
   " located"  9.1   ->    0.06       ->        0.002
@@ -63,19 +63,19 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   ...99,996 others      ~0.00
 
 Temperature divides the scores before ranking:
-   LOW  (0.0-0.3)  gaps widen   -> the top answer nearly always wins
-   HIGH (1.0-1.5)  gaps narrow  -> unlikely tokens get a real chance</code></pre></div>
+   LOW  (0.0-0.3)  gaps get wider   -> the top answer almost always wins
+   HIGH (1.0-1.5)  gaps get smaller -> unlikely tokens get a real chance</code></pre></div>
 <div class="table-wrap"><table><thead><tr><th>Setting</th><th>What it does</th><th>Use it when</th></tr></thead><tbody>
-<tr><td><code>temperature</code></td><td>Flattens or sharpens the whole distribution</td><td>The main dial. Low for extraction, classification and code; higher for drafting and ideas.</td></tr>
-<tr><td><code>top_p</code></td><td>Keeps only the most likely tokens that together make up p of the probability</td><td>A safety net &mdash; it cuts off the long tail of nonsense that high temperature would otherwise admit. Adjust this <em>or</em> temperature, not both.</td></tr>
-<tr><td><code>top_k</code></td><td>Keeps only the k highest-scoring tokens</td><td>Blunter than top_p. Rarely the better choice.</td></tr>
-<tr><td><code>stop</code></td><td>Ends generation when a string appears</td><td>Structured output where you know the terminator. Saves real money on long responses.</td></tr>
-<tr><td><code>max_tokens</code></td><td>A hard ceiling on the response</td><td>Always set it. It is your only defence against a runaway generation.</td></tr>
-<tr><td><code>seed</code></td><td>Makes sampling repeatable</td><td>Testing and debugging. Note it does not guarantee identical output across model versions or infrastructure.</td></tr>
+<tr><td><code>temperature</code></td><td>Flattens or sharpens the whole spread of scores</td><td>The main dial. Low for pulling out data, sorting and code; higher for drafting and ideas.</td></tr>
+<tr><td><code>top_p</code></td><td>Keeps only the most likely tokens that together add up to p of the chance</td><td>A safety net &mdash; it cuts off the long tail of nonsense that a high temperature would otherwise let in. Adjust this <em>or</em> temperature, not both.</td></tr>
+<tr><td><code>top_k</code></td><td>Keeps only the k highest-scoring tokens</td><td>Rougher than top_p. Rarely the better choice.</td></tr>
+<tr><td><code>stop</code></td><td>Stops the writing when a certain string appears</td><td>Structured output where you know the ending marker. Saves real money on long answers.</td></tr>
+<tr><td><code>max_tokens</code></td><td>A hard limit on the answer length</td><td>Always set it. It is your only protection against an answer that runs away.</td></tr>
+<tr><td><code>seed</code></td><td>Makes the random picking repeatable</td><td>Testing and debugging. Note that it does not promise identical output across model versions or different machines.</td></tr>
 </tbody></table></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Temperature 0 is not deterministic in practice.</strong> It is the closest you can get, and it is not a guarantee: floating-point arithmetic on GPUs is order-sensitive, batching changes that order, and two identical requests can diverge. Build systems that tolerate variation rather than systems that assume it away. </div></div>
-<details class="selfcheck"><summary><span class="sc-q">You are extracting an invoice total into JSON. What temperature, and why?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Near zero. There is one correct answer sitting on the document, so every bit of randomness is a chance to be wrong for no benefit whatsoever. Creativity has no value in extraction. </p>
-<p> The inverse case is worth stating too: at temperature 0 a brainstorming feature returns the same five ideas every time, and users notice quickly. The setting follows the task, and any codebase that has one global temperature for every call has almost certainly got it wrong for half of them. </p></div></details>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Temperature 0 is not truly fixed in practice.</strong> It is as close as you can get, and it is not a promise. Rounding in GPU maths depends on the order of operations, grouping requests together changes that order, and two identical requests can drift apart. Build systems that can live with small variations rather than systems that assume they cannot happen. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">You are pulling an invoice total out into JSON. What temperature, and why?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Close to zero. There is exactly one correct answer sitting on the document, so every bit of randomness is a chance to be wrong with no upside at all. Creativity is worth nothing when you are extracting a number. </p>
+<p> The opposite case is worth saying too: at temperature 0 a brainstorming feature returns the same five ideas every time, and users spot that very quickly. The setting follows the task, and any codebase with one global temperature for every call has almost certainly got it wrong for half of them. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="transformer.html">

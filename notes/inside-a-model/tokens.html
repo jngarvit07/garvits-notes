@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tokens: what the model actually reads — Inside a Model — Garvit's Notes</title>
-<meta name="description" content="Text does not go into a model. Numbers do. Tokenisation is the conversion, and it quietly explains a surprising number of things that look like bugs.">
+<meta name="description" content="Text does not go into a model. Numbers do. Tokenisation is that conversion, and it quietly explains a surprising number of things that look like bugs.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,25 +54,25 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A model cannot read letters or words &mdash; it only handles numbers. So text is first chopped into pieces from a fixed vocabulary of about a hundred thousand fragments, and each piece is swapped for its number in that list. A common word is one piece. An unusual one gets broken into several. Everything odd about how models handle spelling, numbers and non-English text starts here. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A model cannot read letters or words &mdash; it only handles numbers. So the text is first cut into pieces taken from a fixed list of about one lakh fragments, and each piece is swapped for its number in that list. A common word is one piece. An unusual word gets broken into several. Everything strange about how models handle spelling, numbers and non-English text starts right here. </div></div>
 <div class="code-block"><div class="code-head"><span class="lang">txt</span>The same sentence, as the model sees it</div><pre><code>"The unbelievability of it"
 
   ["The"] [" un"] ["bel"] ["iev"] ["ability"] [" of"] [" it"]
     976    650     6667    12776    2965      315    433
 
-Notice: the leading SPACE is part of the token.
+Notice: the SPACE in front is part of the token.
 "cat" and " cat" are two different numbers.</code></pre></div>
 <h3>What this explains</h3>
-<div class="table-wrap"><table><thead><tr><th>The thing that looks like a bug</th><th>The cause</th></tr></thead><tbody>
-<tr><td>&ldquo;How many r's in strawberry?&rdquo; answered wrongly</td><td>The model never saw the letters. It saw three tokens. Asking it to count characters is asking it to count something it cannot see.</td></tr>
-<tr><td>Arithmetic on long numbers going wrong</td><td><code>1234567</code> might split as <code>123</code> + <code>4567</code>. Digits do not line up in columns the way they would on paper.</td></tr>
-<tr><td>Hindi, Thai or Chinese costing far more than English</td><td>The vocabulary was built mostly from English text, so other scripts fragment into many more tokens for the same meaning. Same sentence, several times the price.</td></tr>
-<tr><td>A trailing space changing the answer</td><td>It genuinely changes the input. The token sequence is different, so the prediction is different.</td></tr>
-<tr><td>JSON and code being expensive</td><td>Braces, indentation and punctuation are all tokens. Minifying a payload before sending it is a real saving.</td></tr>
+<div class="table-wrap"><table><thead><tr><th>The thing that looks like a bug</th><th>The reason</th></tr></thead><tbody>
+<tr><td>"How many r's in strawberry?" answered wrongly</td><td>The model never saw the letters. It saw three tokens. Asking it to count letters is asking it to count something it cannot see.</td></tr>
+<tr><td>Sums on long numbers going wrong</td><td><code>1234567</code> might split as <code>123</code> + <code>4567</code>. The digits do not line up in columns the way they would on paper.</td></tr>
+<tr><td>Hindi, Tamil or Chinese costing far more than English</td><td>The word list was built mostly from English text, so other scripts break into many more tokens for the same meaning. Same sentence, several times the price.</td></tr>
+<tr><td>An extra space at the end changing the answer</td><td>It genuinely changes the input. The tokens are different, so the prediction is different.</td></tr>
+<tr><td>JSON and code being expensive</td><td>Brackets, indentation and punctuation are all tokens. Squeezing out the extra spaces before sending is a real saving.</td></tr>
 </tbody></table></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Never estimate cost in words or characters.</strong> The rough rule for English is about 0.75 words per token, but it collapses for code, for other languages and for anything with heavy punctuation. Every provider ships a tokeniser you can run locally &mdash; count properly, especially before designing anything around a context limit. </div></div>
-<details class="selfcheck"><summary><span class="sc-q">A user asks your assistant to reverse the word &ldquo;deterministic&rdquo; and it produces something close but wrong. Is this fixable with a better prompt?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Not reliably. The model is manipulating four or five tokens, not thirteen letters, so character-level work is being done indirectly at best. Chain-of-thought prompting helps a little by making it spell the word out first, which converts the problem into one it can see. </p>
-<p> The robust fix is not a prompt at all: give the model a tool that reverses a string, or do it in your own code. This is the general shape of the lesson &mdash; when a task is a poor fit for the mechanism, route around the mechanism rather than arguing with it. </p></div></details>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Never guess your cost from words or letters.</strong> The rough rule for English is about 0.75 words per token, but it falls apart for code, for other languages and for anything with a lot of punctuation. Every provider gives you a tokeniser you can run on your own machine &mdash; count properly, especially before you design anything around a context limit. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">A user asks your assistant to reverse the word &ldquo;deterministic&rdquo; and it gives something close but wrong. Can a better prompt fix this?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Not reliably. The model is moving four or five tokens around, not thirteen letters, so letter-level work is happening indirectly at best. Asking it to think step by step helps a little, because it spells the word out first, which turns the problem into one it can actually see. </p>
+<p> The solid fix is not a prompt at all: give the model a tool that reverses a string, or just do it in your own code. That is the general lesson &mdash; when a task does not suit the machinery, go around the machinery instead of arguing with it. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="../../notes/ai/glossary.html">

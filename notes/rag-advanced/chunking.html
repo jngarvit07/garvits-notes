@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chunking: the decision you make once — Advanced RAG — Garvit's Notes</title>
-<meta name="description" content="Where you cut a document decides what can ever be retrieved from it. Five strategies, and the one that is right far more often than the default.">
+<meta name="description" content="Where you cut a document decides what can ever be found in it. Five ways to cut, and the one that is right far more often than the default.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,15 +54,15 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A chunk is the unit of retrieval &mdash; the smallest thing that can come back. Cut too small and an answer gets split across two pieces so neither is convincing on its own. Cut too large and one relevant sentence arrives wrapped in three pages of noise that dilutes it. Where you cut is not a tuning parameter; it decides what your system is capable of answering. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A chunk is the unit of search &mdash; the smallest thing that can come back. Cut too small and an answer gets split across two pieces, so neither one is convincing on its own. Cut too large and one useful sentence arrives wrapped in three pages of noise that drown it. Where you cut is not a small tuning knob; it decides what your system is even able to answer. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Strategy</th><th>How it cuts</th><th>Good for</th><th>Fails on</th></tr></thead><tbody>
-<tr><td><strong>Fixed size</strong></td><td>Every N tokens, with an overlap</td><td>Nothing much. It is the default because it is easy.</td><td>Cuts mid-sentence and mid-table. Ignores every structural clue the document gives you.</td></tr>
-<tr><td><strong>Recursive</strong></td><td>Split on paragraphs; if still too big, sentences; then words</td><td>The sensible baseline. Respects natural boundaries where it can.</td><td>Still blind to what the document <em>means</em>.</td></tr>
-<tr><td><strong>Structural</strong></td><td>On headings, sections, list items, table rows</td><td><strong>Usually the right answer</strong> for documentation, policies, manuals, wikis, code.</td><td>Documents with no structure &mdash; scanned pages, transcripts.</td></tr>
-<tr><td><strong>Semantic</strong></td><td>Where the topic shifts, measured by embedding distance</td><td>Long unstructured prose. Transcripts, interviews, articles.</td><td>Costs an embedding pass over everything, and the threshold needs tuning.</td></tr>
-<tr><td><strong>Parent&ndash;child</strong></td><td>Index small pieces, return the larger section around a hit</td><td><strong>Best of both.</strong> Precise matching, full context in the answer.</td><td>Two stores to keep consistent. Worth it.</td></tr>
+<tr><td><strong>Fixed size</strong></td><td>Every N tokens, with a small overlap</td><td>Not much. It is the default only because it is easy.</td><td>Cuts through the middle of sentences and tables. Ignores every clue the document's structure gives you.</td></tr>
+<tr><td><strong>Recursive</strong></td><td>Split on paragraphs; if still too big, on sentences; then on words</td><td>A sensible starting point. Respects natural boundaries where it can.</td><td>Still blind to what the document actually <em>means</em>.</td></tr>
+<tr><td><strong>Structural</strong></td><td>On headings, sections, list items, table rows</td><td><strong>Usually the right answer</strong> for documentation, policies, manuals, wikis, code.</td><td>Documents with no structure &mdash; scanned pages, call transcripts.</td></tr>
+<tr><td><strong>Semantic</strong></td><td>Wherever the topic changes, measured by embedding distance</td><td>Long unstructured writing. Transcripts, interviews, articles.</td><td>Costs one embedding pass over everything, and the cut-off needs tuning.</td></tr>
+<tr><td><strong>Parent&ndash;child</strong></td><td>Index small pieces, return the bigger section around a hit</td><td><strong>Best of both.</strong> Precise matching, plus full context in the answer.</td><td>Two stores to keep in sync. Worth it.</td></tr>
 </tbody></table></div>
-<div class="code-block"><div class="code-head"><span class="lang">ts</span>Parent&ndash;child, which is what most systems should be doing</div><pre><code>// Index the SMALL piece — a precise thing to match against.
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>Parent&ndash;child, which is what most systems should be doing</div><pre><code>// Index the SMALL piece — something precise to match against.
 // Return the BIG piece — enough context for the model to answer from.
 for (const section of doc.sections) {
   const parentId = store.saveParent(section.text);        // ~2000 tokens
@@ -78,15 +78,15 @@ for (const section of doc.sections) {
   }
 }
 
-// At query time: match on paragraphs, but send the parent sections.
+// At question time: match on paragraphs, but send the parent sections.
 const hits    = index.search(embed(question), { k: 20 });
 const parents = dedupe(hits.map((h) =&gt; store.getParent(h.parent)));</code></pre></div>
 <h3>Two things to put in every chunk</h3>
 <div class="card-grid cols-2">
-  <div class="card"><div class="card-title">Its heading trail</div><p>Prefix the chunk text with <code>Document &rsaquo; Section &rsaquo; Subsection</code>. A paragraph reading &ldquo;the limit is 30 days&rdquo; is useless alone and precise once it says which policy and which section it came from. Costs a handful of tokens, and it improves both retrieval and the answer.</p></div>
-  <div class="card"><div class="card-title">Metadata you can filter on</div><p>Owner, date, document type, permissions, version. Filtering <em>during</em> the search is what lets you exclude superseded documents and other people's data — and doing it after retrieval is not the same thing at all.</p></div>
+  <div class="card"><div class="card-title">Its heading path</div><p>Start the chunk text with <code>Document &rsaquo; Section &rsaquo; Subsection</code>. A paragraph saying "the limit is 30 days" is useless on its own, and exact once it also says which policy and which section it came from. It costs a handful of tokens, and it improves both the search and the answer.</p></div>
+  <div class="card"><div class="card-title">Metadata you can filter on</div><p>Owner, date, document type, permissions, version. Filtering <em>during</em> the search is what lets you leave out old replaced documents and other people's data — and filtering afterwards is not the same thing at all.</p></div>
 </div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>Sensible defaults if you need to start somewhere:</strong> structural chunking on headings; a target of 400&ndash;800 tokens; 10&ndash;15% overlap when you must split mid-section; heading trail prefixed to every chunk. Then measure on your own retrieval eval set before touching any of those numbers, because the right values differ enormously by corpus. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>Sensible defaults, if you need somewhere to start:</strong> cut on headings; aim for 400&ndash;800 tokens; 10&ndash;15% overlap when you have to split inside a section; put the heading path at the start of every chunk. Then measure on your own retrieval test set before you change any of those numbers, because the right values differ hugely from one set of documents to another. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="why.html">
@@ -96,13 +96,13 @@ const parents = dedupe(hits.map((h) =&gt; store.getParent(h.parent)));</code></p
 </a>
 <a class="pn-next" href="hybrid.html">
   <span class="pn-dir">Next &rarr;</span>
-  <span class="pn-title">Hybrid search: the highest-value upgrade</span>
+  <span class="pn-title">Hybrid search: the biggest single upgrade</span>
   
 </a>
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Advanced RAG</a></div>
-  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why basic RAG disappoints</a><a class="sib is-current" href="chunking.html"><span class="sib-n">02</span>Chunking: the decision you make once</a><a class="sib" href="hybrid.html"><span class="sib-n">03</span>Hybrid search: the highest-value upgrade</a><a class="sib" href="rerank.html"><span class="sib-n">04</span>Reranking</a><a class="sib" href="query.html"><span class="sib-n">05</span>Transforming the question first</a><a class="sib" href="security.html"><span class="sib-n">06</span>Permissions and untrusted passages</a><a class="sib" href="measure.html"><span class="sib-n">07</span>Measuring retrieval on its own</a></div>
+  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why basic RAG disappoints</a><a class="sib is-current" href="chunking.html"><span class="sib-n">02</span>Chunking: the decision you make once</a><a class="sib" href="hybrid.html"><span class="sib-n">03</span>Hybrid search: the biggest single upgrade</a><a class="sib" href="rerank.html"><span class="sib-n">04</span>Reranking</a><a class="sib" href="query.html"><span class="sib-n">05</span>Transforming the question first</a><a class="sib" href="security.html"><span class="sib-n">06</span>Permissions and untrusted passages</a><a class="sib" href="measure.html"><span class="sib-n">07</span>Measuring retrieval on its own</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

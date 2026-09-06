@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Designing a schema the model reads well — Structured Output — Garvit's Notes</title>
-<meta name="description" content="A schema is a prompt. The field names, the descriptions and the enums do more to shape the answer than most of the sentences above them.">
+<meta name="description" content="A schema is a prompt. The field names, the descriptions and the enums shape the answer more than most of the sentences above them.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,22 +54,22 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The schema is not just a validator bolted on afterwards &mdash; the model sees it, and reads it as part of the instructions. A field called <code>d</code> with no description gets filled in with a guess. A field called <code>invoice_date</code> described as &ldquo;the date on the invoice in YYYY-MM-DD, not today's date&rdquo; gets filled in correctly. Time spent on the schema is time not spent on prompt wording. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The schema is not just a checker bolted on at the end &mdash; the model sees it and reads it as part of your instructions. A field called <code>d</code> with no description gets filled in with a guess. A field called <code>invoice_date</code> described as "the date printed on the invoice in YYYY-MM-DD, not today's date" gets filled in correctly. Time spent on the schema is time you do not have to spend on prompt wording. </div></div>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>A schema that does most of the prompting for you</div><pre><code>const InvoiceSchema = z.object({
   invoice_number: z.string()
     .describe('As printed on the document. Null if not present.')
     .nullable(),
 
-  // An enum removes an entire category of variation. Without it you
-  // get "GBP", "gbp", "£", "pounds", "British Pound" across a corpus.
-  currency: z.enum(['GBP', 'USD', 'EUR', 'OTHER']),
+  // An enum removes a whole category of variation. Without it you get
+  // "INR", "inr", "₹", "rupees", "Indian Rupee" across the same set of files.
+  currency: z.enum(['INR', 'USD', 'EUR', 'OTHER']),
 
   total: z.number()
     .describe('Grand total INCLUDING tax, as a number with no symbol.'),
 
-  // Every optional field must be nullable rather than absent, and the
+  // Every optional field should be nullable rather than missing, and the
   // description must say when to use null. Otherwise the model invents
-  // something plausible rather than admitting the field was not there.
+  // something believable instead of admitting the field was not there.
   due_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
     .describe('ISO date. Null if the invoice states no due date.')
     .nullable(),
@@ -80,20 +80,20 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
     unit_price: z.number(),
   })).describe('One entry per row of the itemised table.'),
 
-  // The escape hatch. Without one, a model asked for structure will
-  // produce structure — even from a photograph of a cat.
+  // The way out. Without one, a model asked for a structure will produce
+  // that structure — even from a photograph of a cat.
   extraction_confidence: z.enum(['high', 'low'])
     .describe('low if the document was unclear or is not an invoice'),
 });</code></pre></div>
 <div class="card-grid cols-2">
-  <div class="card"><div class="card-title">Name fields as you would for a colleague</div><p><code>shipping_address_country</code>, not <code>c3</code>. The name is the strongest signal the model has about what belongs there.</p></div>
-  <div class="card"><div class="card-title">Enums over free strings</div><p>Any field with a known set of valid values should be an enum. It removes normalisation work downstream and eliminates a whole class of near-miss values.</p></div>
-  <div class="card"><div class="card-title">Nullable, not optional</div><p>An absent field is ambiguous — was it missing from the document, or did the model forget? An explicit <code>null</code> with a description saying when to use it is a real answer.</p></div>
-  <div class="card"><div class="card-title">Always give it a way out</div><p>A confidence field, a <code>not_applicable</code> enum value, or a <code>reason_declined</code>. Forced to produce a shape with no exit, a model will fill it in regardless of whether the input supported it.</p></div>
+  <div class="card"><div class="card-title">Name fields as you would for a colleague</div><p><code>shipping_address_country</code>, not <code>c3</code>. The name is the strongest clue the model has about what belongs in there.</p></div>
+  <div class="card"><div class="card-title">Enums instead of free text</div><p>Any field with a known set of valid values should be an enum. It saves you cleaning up the values later and removes a whole class of nearly-right answers.</p></div>
+  <div class="card"><div class="card-title">Nullable, not optional</div><p>A missing field is confusing — was it absent from the document, or did the model just forget? An explicit <code>null</code>, with a description saying when to use it, is a real answer.</p></div>
+  <div class="card"><div class="card-title">Always give it a way out</div><p>A confidence field, a <code>not_applicable</code> enum value, or a <code>reason_declined</code>. Forced into a shape with no exit, a model will fill it in whether or not the input supported it.</p></div>
 </div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Deeply nested schemas degrade quality.</strong> Four levels of nesting with arrays of objects containing arrays produces noticeably worse extraction than a flat structure, and it is slower. If you need a complex shape, extract flat and assemble it in your own code &mdash; that assembly is code you can test, and the model's part gets easier. </div></div>
-<details class="selfcheck"><summary><span class="sc-q">Your extractor returns a plausible <code>due_date</code> for invoices that do not have one. The field is marked optional. What is wrong?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Optional means the model may simply omit the key, which reads to it as an unremarkable choice &mdash; and producing a plausible date is a <em>better</em> next-token prediction than producing nothing. It has no instruction telling it that absence is a valid and expected outcome. </p>
-<p> Make it nullable and required, and describe when null applies: &ldquo;Null if the invoice states no due date.&rdquo; You have converted &ldquo;you may skip this&rdquo; into &ldquo;you must answer, and <em>nothing</em> is one of the answers.&rdquo; </p></div></details>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Deeply nested schemas make the quality worse.</strong> Four levels of nesting, with arrays of objects containing more arrays, gives noticeably worse extraction than a flat structure, and it is slower too. If you need a complicated shape, extract it flat and assemble it in your own code &mdash; that assembly is code you can test, and the model's part of the job gets easier. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Your extractor returns a believable <code>due_date</code> for invoices that do not have one. The field is marked optional. What is wrong?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Optional means the model is allowed to simply leave the key out, which feels to it like an unremarkable choice &mdash; and producing a believable date is a <em>better</em> next-token guess than producing nothing at all. Nothing has told it that "absent" is a valid and expected outcome. </p>
+<p> Make it nullable and required, and describe when null applies: "Null if the invoice states no due date." You have turned "you may skip this" into "you must answer, and <em>nothing</em> is one of the allowed answers." </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="how.html">
@@ -109,7 +109,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Structured Output</a></div>
-  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why shape matters more than wording</a><a class="sib" href="how.html"><span class="sib-n">02</span>The four levels of enforcement</a><a class="sib is-current" href="schema.html"><span class="sib-n">03</span>Designing a schema the model reads well</a><a class="sib" href="tools.html"><span class="sib-n">04</span>Tool calling, precisely</a><a class="sib" href="design.html"><span class="sib-n">05</span>Designing the tool surface</a><a class="sib" href="failure.html"><span class="sib-n">06</span>When the shape is right and the content is wrong</a></div>
+  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why shape matters more than wording</a><a class="sib" href="how.html"><span class="sib-n">02</span>The four levels of enforcement</a><a class="sib is-current" href="schema.html"><span class="sib-n">03</span>Designing a schema the model reads well</a><a class="sib" href="tools.html"><span class="sib-n">04</span>Tool calling, precisely</a><a class="sib" href="design.html"><span class="sib-n">05</span>Designing the set of tools</a><a class="sib" href="failure.html"><span class="sib-n">06</span>When the shape is right and the content is wrong</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

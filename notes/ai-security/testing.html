@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Testing your defences — AI Security — Garvit's Notes</title>
-<meta name="description" content="In plain English Attack your own system, on purpose, on a schedule.">
+<meta name="description" content="In plain English Attack your own system, on purpose, on a regular schedule.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -49,33 +49,33 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   <span class="eyebrow">Note 18 &middot; AI Security &middot; Topic 5 of 5</span>
   <h1>Testing your defences</h1>
   <div class="page-meta">
-    <span>2 min read</span>
+    <span>3 min read</span>
     <span>Some experience helps</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Attack your own system, on purpose, on a schedule. Keep the attempts that worked as test cases so a future change cannot quietly reopen them. This is the same discipline as a regression test, applied to a category of bug where the input is adversarial rather than accidental. </div></div>
-<p>Security you have not attacked is security you are guessing about. This belongs in the same eval harness as note 11 &mdash; the cases are just adversarial ones.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Attack your own system, on purpose, on a regular schedule. Keep the attempts that worked as test cases, so a future change cannot quietly open them up again. It is the same habit as any regression test, applied to a kind of bug where the input is hostile rather than accidental. </div></div>
+<p>Security you have never attacked is security you are only guessing about. This belongs in the same test runner as note 11 &mdash; the cases are simply hostile ones.</p>
 <div class="table-wrap"><table><thead><tr><th>Test</th><th>What you are checking</th></tr></thead><tbody>
-<tr><td>Put an injection in every input channel you have &mdash; ticket body, uploaded PDF, file name, code comment, web page.</td><td>Whether indirect injection reaches the model at all, and what it manages to do when it does.</td></tr>
-<tr><td>Ask for another user&rsquo;s data, several ways, politely and impolitely.</td><td>Whether scoping is enforced in code or merely requested in a prompt.</td></tr>
-<tr><td>Try to make it call a tool it should not have.</td><td>Whether the tool set is genuinely least-privilege.</td></tr>
-<tr><td>Try to get data out &mdash; a URL, an email, an image tag pointing at a domain you control.</td><td>Whether egress is actually restricted. Rendered-image exfiltration surprises people.</td></tr>
-<tr><td>Send the same request 200 times.</td><td>Whether rate limits and spend caps exist and fire.</td></tr>
+<tr><td>Put an injection into every input route you have &mdash; the ticket body, an uploaded PDF, a file name, a code comment, a web page.</td><td>Whether an indirect injection reaches the model at all, and what it manages to do when it does.</td></tr>
+<tr><td>Ask for another user's data, in several different ways, politely and rudely.</td><td>Whether the limit is enforced in code, or only politely requested in a prompt.</td></tr>
+<tr><td>Try to make it call a tool it should not have.</td><td>Whether the set of tools really is as narrow as you think.</td></tr>
+<tr><td>Try to get data out &mdash; through a URL, an email, or an image tag pointing at a domain you own.</td><td>Whether outgoing traffic is actually restricted. Stealing data through a displayed image surprises most people.</td></tr>
+<tr><td>Send the same request 200 times.</td><td>Whether your rate limits and spending caps actually exist and actually trigger.</td></tr>
 </tbody></table></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>Every attack you find becomes a permanent case in the eval set. That is how a security posture stops being a one-off review and becomes something CI enforces on every change.</p></div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>Every attack you find becomes a permanent case in the test set. That is how security stops being a one-time review and becomes something your CI enforces on every single change.</p></div></div>
 <div class="callout is-note is-practice"><span class="callout-icon">&#9654;</span><div class="callout-body"><div class="callout-title">Practice</div>
-<p>Take any AI feature you have built. Write down the three ingredients: what untrusted content can reach it, what private data it can see, and every way bytes can leave. Draw the arrows.</p>
-<p>If all three are present, you have found a real problem, and the fix is almost never in the prompt. Remove one ingredient &mdash; narrow the tools, scope the identity in code, or put a human on the outbound step.</p>
+<p>Take any AI feature you have already built. Write down the three ingredients: what untrusted content can reach it, what private data it can see, and every possible way data can leave. Draw the arrows on paper.</p>
+<p>If all three are there, you have found a real problem, and the fix is almost never in the prompt. Take away one ingredient &mdash; narrow the tools, fix the identity in code, or put a human in front of the step that sends things out.</p>
 </div></div>
 <div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul>
-<li>A model cannot reliably tell instructions from data. Prompt injection has no complete fix &mdash; design as if it will succeed.</li>
-<li>Indirect injection is the dangerous one: the harm lands on someone other than the attacker.</li>
-<li>Untrusted content + private data + an outbound channel = an incident. Remove one ingredient.</li>
-<li>Identity comes from the authenticated session, never from an argument the model fills in.</li>
-<li>Model output is untrusted input to the rest of your system. Escape it, parameterise it, never eval it.</li>
-<li>Prompt-level defences reduce the odds; only architecture sets a boundary. Know which one you are relying on.</li>
-<li>Attack your own system, and turn every finding into a permanent eval case.</li>
+<li>A model cannot reliably tell instructions apart from data. Prompt injection has no complete fix &mdash; design as though it will succeed.</li>
+<li>Indirect injection is the dangerous one: the damage lands on somebody other than the attacker.</li>
+<li>Untrusted content + private data + a way out = an incident. Remove any one ingredient.</li>
+<li>Who the user is comes from the logged-in session, never from a value the model fills in.</li>
+<li>Model output is untrusted input as far as the rest of your system goes. Escape it, use query parameters, never eval it.</li>
+<li>Defences written into the prompt only shift the odds; only the design draws a real line. Always know which of the two you are relying on.</li>
+<li>Attack your own system, and turn every single finding into a permanent test case.</li>
 </ul></div>
 </div>
 <nav class="page-nav">

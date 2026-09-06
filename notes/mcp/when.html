@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>When MCP is worth it — MCP — Garvit's Notes</title>
-<meta name="description" content="In plain English MCP is worth it when more than one application needs the same integration, or when someone else will use what you build.">
+<meta name="description" content="In plain English MCP is worth it when more than one application needs the same integration, or when somebody else will use what you build.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,26 +54,26 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> MCP is worth it when more than one application needs the same integration, or when someone else will use what you build. For a single tool used by a single app you control, a plain function is less work and there is no shame in it. The protocol earns its overhead through reuse. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> MCP is worth it when more than one application needs the same integration, or when somebody else will use what you build. For one tool used by one app that you control, a plain function is less work and there is nothing wrong with that. The protocol earns its extra effort through being reused. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Situation</th><th>Verdict</th></tr></thead><tbody>
-<tr><td>One application, one integration, no plans to reuse it.</td><td><strong>Skip it.</strong> A plain tool definition in your own agent loop is less machinery and less to secure.</td></tr>
-<tr><td>The same capability is needed in Claude Code, Claude Desktop and your app.</td><td><strong>Use it.</strong> This is precisely the case it exists for &mdash; write once, three hosts.</td></tr>
-<tr><td>You want your product usable from AI tools you did not build.</td><td><strong>Use it.</strong> A public MCP server is becoming the expected way to offer that.</td></tr>
-<tr><td>You want the model to browse your local files and databases while you work.</td><td><strong>Use it</strong>, over stdio. This is the everyday case and it is genuinely transformative for development.</td></tr>
-<tr><td>You need the model to reach a system with sensitive, unscoped access.</td><td><strong>Stop.</strong> Scope the credentials first. MCP will faithfully expose whatever you give it.</td></tr>
+<tr><td>One application, one integration, no plans to reuse it.</td><td><strong>Skip it.</strong> A plain tool definition in your own agent loop means less machinery and less to make secure.</td></tr>
+<tr><td>The same capability is needed in Claude Code, Claude Desktop and your app.</td><td><strong>Use it.</strong> This is exactly the case it was made for &mdash; write it once, use it in three places.</td></tr>
+<tr><td>You want your product usable from AI tools you did not build.</td><td><strong>Use it.</strong> A public MCP server is fast becoming the expected way to offer that.</td></tr>
+<tr><td>You want the model to browse your local files and databases while you work.</td><td><strong>Use it</strong>, over stdio. This is the everyday case, and it genuinely changes how development feels.</td></tr>
+<tr><td>You need the model to reach a system with sensitive, unscoped access.</td><td><strong>Stop.</strong> Cut the credentials down first. MCP will hand over exactly whatever you give it, without question.</td></tr>
 </tbody></table></div>
 <div class="callout is-note is-practice"><span class="callout-icon">&#9654;</span><div class="callout-body"><div class="callout-title">Practice</div>
-<p>Write a server with exactly one tool: <code>list_files</code>, scoped to a single directory, returning at most 50 names. Wire it into Claude Code with a <code>.mcp.json</code> and ask a question that requires it.</p>
-<p>Then try to break your own scoping. Pass <code>../</code> in the path. Pass an absolute path. If either escapes the directory, you have just found the exact bug that matters most in this note &mdash; fix it by resolving the path and checking it still sits under your root, never by asking the model not to do that.</p>
+<p>Write a server with exactly one tool: <code>list_files</code>, limited to one single folder, returning at most 50 names. Connect it to Claude Code with a <code>.mcp.json</code> and ask a question that forces it to be used.</p>
+<p>Then try to break your own limit. Pass <code>../</code> in the path. Pass a full absolute path. If either one escapes the folder, you have just found the exact bug that matters most in this note &mdash; fix it by working out the full path and checking it still sits under your root folder, never by asking the model politely not to do that.</p>
 </div></div>
 <div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul>
-<li>MCP is a plug shape: write the integration once, and every host that speaks the protocol can use it.</li>
-<li>The server holds no model and no API key. It answers &ldquo;what can you do&rdquo; and &ldquo;do this&rdquo;.</li>
-<li>Tools are chosen by the model, resources by the host, prompts by the user. Most of what you write is tools.</li>
-<li>stdio for local, HTTP for shared. On stdio, stdout is the protocol &mdash; log to stderr.</li>
+<li>MCP is a plug shape: write the integration once, and every application that speaks the protocol can use it.</li>
+<li>The server holds no model and no API key. It only answers &ldquo;what can you do&rdquo; and &ldquo;do this&rdquo;.</li>
+<li>Tools are chosen by the model, resources by the host, prompts by the user. Most of what you write will be tools.</li>
+<li>stdio for local, HTTP for shared. On stdio, stdout is the protocol itself &mdash; log to stderr.</li>
 <li>From the API, <code>mcp_servers</code> and a matching <code>mcp_toolset</code> entry are both required.</li>
-<li>Identity comes from the connection, never from a parameter the model fills in.</li>
-<li>Installing a server is closer to installing a browser extension than adding a library. Read it, scope it, pin it.</li>
+<li>Who the user is comes from the connection, never from a value the model fills in.</li>
+<li>Installing a server is closer to installing a browser extension than to adding a library. Read it, limit it, pin its version.</li>
 </ul></div>
 </div>
 <nav class="page-nav">

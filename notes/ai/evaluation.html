@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Evaluation: what turns this into engineering — AI, RAG &amp; Security — Garvit's Notes</title>
-<meta name="description" content="Every team building with models goes through the same arc: a prompt that works, a change that seems better, a slow discovery that something else broke, and fina">
+<meta name="description" content="Every team building with models goes through the same story.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,55 +54,55 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<p> Every team building with models goes through the same arc: a prompt that works, a change that seems better, a slow discovery that something else broke, and finally the realisation that nobody can tell whether the system is improving. Evaluation is what ends that. </p>
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A test suite for something that never gives the same answer twice. You cannot assert equality, so you assert properties: did it find the right document, did it stay inside the sources, did it refuse when it should, is it under the length limit. </div></div>
+<p> Every team building with models goes through the same story. A prompt that works. A change that looks better. A slow discovery that something else broke. And finally the realisation that nobody can actually say whether the system is getting better or worse. Proper testing is what ends that story. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> It is a test suite for something that never gives the same answer twice. You cannot check "is the answer exactly this", so you check qualities instead: did it find the right document, did it stick to the given sources, did it say no when it should have, is it within the length limit. </div></div>
 <figure class="figure is-flow" id="flow-3">
-<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">An evaluation loop that fits in an afternoon</span>
+<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">A testing loop you can finish in one afternoon</span>
   <button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button>
 </div>
 <div class="figure-stage"><ol class="flow flow-column"><li class="flow-step dg-step" data-tone="plain" style="--i:0">
   <span class="flow-num">1</span>
   <div class="flow-text">
     <span class="flow-label">Collect real inputs</span>
-    <span class="flow-detail">Thirty to fifty, from actual users if you have them. Invented examples flatter you.</span>
+    <span class="flow-detail">Thirty to fifty of them, from actual users if you have any. Examples you make up yourself will always flatter you.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="accent" style="--i:1">
   <span class="flow-num">2</span>
   <div class="flow-text">
-    <span class="flow-label">Write down what good looks like</span>
-    <span class="flow-detail">The expected answer, or the properties it must have. The hard part, and the valuable one.</span>
+    <span class="flow-label">Write down what a good answer looks like</span>
+    <span class="flow-detail">The expected answer, or the qualities it must have. This is the hard part, and the valuable one.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="plain" style="--i:2">
   <span class="flow-num">3</span>
   <div class="flow-text">
     <span class="flow-label">Run and score</span>
-    <span class="flow-detail">Exact match where possible, a model-graded rubric where not, human review on a sample.</span>
+    <span class="flow-detail">Exact match where you can, a model examiner with a marking scheme where you cannot, and a human check on a sample.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="accent" style="--i:3">
   <span class="flow-num">4</span>
   <div class="flow-text">
     <span class="flow-label">Change one thing</span>
-    <span class="flow-detail">Prompt, model, chunking or retrieval — one, or you will not know which did it.</span>
+    <span class="flow-detail">The prompt, the model, the chunking or the retrieval — one at a time, or you will never know which one did it.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="plain" style="--i:4">
   <span class="flow-num">5</span>
   <div class="flow-text">
-    <span class="flow-label">Re-run and compare</span>
-    <span class="flow-detail">Keep the numbers per version. A change that helps one case and breaks three is a regression.</span>
+    <span class="flow-label">Run again and compare</span>
+    <span class="flow-detail">Keep the scores for each version. A change that fixes one case and breaks three has made things worse.</span>
   </div>
 </li></ol></div>
 </figure>
-<div class="table-wrap"><table><thead><tr><th>What to measure</th><th>How</th><th>Catches</th></tr></thead><tbody><tr><td>Retrieval quality</td><td>Is the correct chunk in the top five, for known questions?</td><td>The commonest cause of bad RAG answers.</td></tr>
-<tr><td>Grounding</td><td>Does every claim trace to a retrieved source?</td><td>Confident invention that reads perfectly.</td></tr>
-<tr><td>Refusal behaviour</td><td>Ask things the corpus cannot answer.</td><td>A system that would rather guess than say no.</td></tr>
-<tr><td>Format validity</td><td>Does the output parse against the schema?</td><td>The failure that breaks code rather than annoying a reader.</td></tr>
-<tr><td>Safety</td><td>Injection attempts, hostile inputs, out-of-scope requests.</td><td>Regressions in the defences the security chapter describes.</td></tr>
-<tr><td>Cost and latency</td><td>Tokens and seconds per answer, per version.</td><td>A quality improvement that quietly tripled the bill.</td></tr></tbody></table></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><strong>Log real failures back into the set.</strong> The suite should grow every time somebody reports something odd. A year in, that file — not the prompt — is the asset. </div></div>
+<div class="table-wrap"><table><thead><tr><th>What to measure</th><th>How</th><th>Catches</th></tr></thead><tbody><tr><td>Retrieval quality</td><td>For questions you know the answer to, is the correct chunk in the top five?</td><td>The most common reason RAG answers are bad.</td></tr>
+<tr><td>Grounding</td><td>Can every claim be traced back to a fetched source?</td><td>Confident invention that reads perfectly.</td></tr>
+<tr><td>Saying no</td><td>Ask things your documents cannot answer.</td><td>A system that would rather guess than admit it does not know.</td></tr>
+<tr><td>Format validity</td><td>Does the output parse against the schema?</td><td>The failure that breaks your code, not just annoys a reader.</td></tr>
+<tr><td>Safety</td><td>Injection attempts, nasty inputs, out-of-scope requests.</td><td>Defences from the security section quietly breaking again.</td></tr>
+<tr><td>Cost and speed</td><td>Tokens and seconds per answer, for each version.</td><td>A quality improvement that quietly tripled the bill.</td></tr></tbody></table></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><strong>Every real failure should go back into the test set.</strong> The suite should grow every time somebody reports something odd. A year later, that file — not the prompt — is the thing of real value. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="limits.html">
@@ -118,7 +118,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">AI, RAG &amp; Security</a></div>
-  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>AI, machine learning and language models</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>The wider AI family</a><a class="sib" href="how.html"><span class="sib-n">03</span>How a model actually works</a><a class="sib" href="training.html"><span class="sib-n">04</span>How a model is made, and why that matters to you</a><a class="sib" href="sampling.html"><span class="sib-n">05</span>Decoding: the settings on the request</a><a class="sib" href="models.html"><span class="sib-n">06</span>Choosing a model</a><a class="sib" href="multimodal.html"><span class="sib-n">07</span>Beyond text: images, documents and voice</a><a class="sib" href="prompting.html"><span class="sib-n">08</span>Prompting that actually works</a><a class="sib" href="context.html"><span class="sib-n">09</span>Context engineering: what the model can see</a><a class="sib" href="limits.html"><span class="sib-n">10</span>What models get wrong, and why</a><a class="sib is-current" href="evaluation.html"><span class="sib-n">11</span>Evaluation: what turns this into engineering</a><a class="sib" href="embeddings.html"><span class="sib-n">12</span>Embeddings and vector search</a><a class="sib" href="rag.html"><span class="sib-n">13</span>RAG, in detail</a><a class="sib" href="choose.html"><span class="sib-n">14</span>RAG, fine-tuning, or just a better prompt</a><a class="sib" href="tuning.html"><span class="sib-n">15</span>Fine-tuning, when it is genuinely the answer</a><a class="sib" href="agents.html"><span class="sib-n">16</span>Tools and agents</a><a class="sib" href="patterns.html"><span class="sib-n">17</span>Agent patterns worth knowing by name</a><a class="sib" href="production.html"><span class="sib-n">18</span>Shipping it: the unglamorous half</a><a class="sib" href="cost.html"><span class="sib-n">19</span>Cost and latency, engineered rather than hoped for</a><a class="sib" href="security.html"><span class="sib-n">20</span>AI security</a><a class="sib" href="ethics.html"><span class="sib-n">21</span>Bias, law and telling people</a><a class="sib" href="cases.html"><span class="sib-n">22</span>Four case studies, with the part that goes wrong</a><a class="sib" href="build.html"><span class="sib-n">23</span>Building it here — a worked design</a><a class="sib" href="glossary.html"><span class="sib-n">24</span>The jargon, decoded</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>AI, machine learning and language models</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>The wider AI family</a><a class="sib" href="how.html"><span class="sib-n">03</span>How a model actually works</a><a class="sib" href="training.html"><span class="sib-n">04</span>How a model is made, and why that matters to you</a><a class="sib" href="sampling.html"><span class="sib-n">05</span>Decoding: the settings on the request</a><a class="sib" href="models.html"><span class="sib-n">06</span>Choosing a model</a><a class="sib" href="multimodal.html"><span class="sib-n">07</span>Beyond text: images, documents and voice</a><a class="sib" href="prompting.html"><span class="sib-n">08</span>Prompting that actually works</a><a class="sib" href="context.html"><span class="sib-n">09</span>Context engineering: what the model can see</a><a class="sib" href="limits.html"><span class="sib-n">10</span>What models get wrong, and why</a><a class="sib is-current" href="evaluation.html"><span class="sib-n">11</span>Evaluation: what turns this into engineering</a><a class="sib" href="embeddings.html"><span class="sib-n">12</span>Embeddings and vector search</a><a class="sib" href="rag.html"><span class="sib-n">13</span>RAG, in detail</a><a class="sib" href="choose.html"><span class="sib-n">14</span>RAG, fine-tuning, or just a better prompt</a><a class="sib" href="tuning.html"><span class="sib-n">15</span>Fine-tuning, when it is genuinely the answer</a><a class="sib" href="agents.html"><span class="sib-n">16</span>Tools and agents</a><a class="sib" href="patterns.html"><span class="sib-n">17</span>Agent patterns worth knowing by name</a><a class="sib" href="production.html"><span class="sib-n">18</span>Shipping it: the boring half</a><a class="sib" href="cost.html"><span class="sib-n">19</span>Cost and latency, engineered rather than hoped for</a><a class="sib" href="security.html"><span class="sib-n">20</span>AI security</a><a class="sib" href="ethics.html"><span class="sib-n">21</span>Bias, law and telling people</a><a class="sib" href="cases.html"><span class="sib-n">22</span>Four case studies, with the part that goes wrong</a><a class="sib" href="build.html"><span class="sib-n">23</span>Building it here — a worked design</a><a class="sib" href="glossary.html"><span class="sib-n">24</span>The jargon, decoded</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

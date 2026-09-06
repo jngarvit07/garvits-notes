@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Why you cannot ship without this — Evaluation — Garvit's Notes</title>
-<meta name="description" content="Ordinary code is deterministic: the same input gives the same output, so a test that passed yesterday means something today.">
+<meta name="description" content="Ordinary code is predictable: the same input gives the same output, so a test that passed yesterday still means something today.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,17 +54,17 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<p>Ordinary code is deterministic: the same input gives the same output, so a test that passed yesterday means something today. A model gives you a <em>distribution</em> of outputs, and the distribution shifts when you change the prompt, the model version, the retrieval, or nothing at all.</p>
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>Testing normal code is checking a calculator: 2 + 2 must be 4 every time. Testing a model is closer to marking exam papers &mdash; you cannot check for one exact string, you have to decide whether an answer is <em>good</em>, and you need enough papers that one lucky guess does not fool you.</p></div></div>
-<p>An <strong>eval</strong> is that marking scheme, automated: a set of real inputs, a definition of a good outcome, and a score you can watch over time.</p>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Without evals you are not engineering, you are gambling.</strong> Every prompt change becomes a vibe check on three examples somebody remembers. The regression you introduce on the fourth case ships, and you find out from a customer six weeks later &mdash; if at all.</p></div></div>
+<p>Ordinary code is predictable: the same input gives the same output, so a test that passed yesterday still means something today. A model gives you a <em>range</em> of possible outputs, and that range shifts when you change the prompt, the model version, the retrieval &mdash; or when you change nothing at all.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>Testing normal code is like checking a calculator: 2 + 2 must give 4 every single time. Testing a model is much more like correcting exam papers &mdash; you cannot look for one exact sentence, you have to judge whether an answer is <em>good</em>, and you need enough papers that one lucky guess does not fool you.</p></div></div>
+<p>An <strong>eval</strong> is that marking scheme, done automatically: a set of real inputs, a clear description of what a good answer looks like, and a score you can watch over time.</p>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Without a test set you are not doing engineering, you are gambling.</strong> Every prompt change turns into a quick eyeball check on three examples somebody happens to remember. Whatever you broke on the fourth case goes live, and you hear about it from a customer six weeks later &mdash; if you hear about it at all.</p></div></div>
 <h3>What evals actually catch</h3>
 <div class="table-wrap"><table><thead><tr><th>Change</th><th>What goes wrong without an eval set</th></tr></thead><tbody>
-<tr><td>You improve the prompt.</td><td>It gets better on the case you were looking at and worse on two you were not. Nobody notices.</td></tr>
-<tr><td>The model version updates.</td><td>Behaviour your prompt quietly depended on changes. A newer model is better on average and not identical.</td></tr>
-<tr><td>You switch to a cheaper model.</td><td>You have no way to know whether the saving cost you anything, so you either never try it or try it blind.</td></tr>
-<tr><td>You change chunking or retrieval.</td><td>Answers get subtly less grounded. Nothing errors. Quality drifts down for a month.</td></tr>
-<tr><td>Someone edits a tool description.</td><td>The agent starts choosing the wrong tool in a class of cases nobody tests by hand.</td></tr>
+<tr><td>You improve the prompt.</td><td>It gets better on the case you were looking at, and worse on two you were not looking at. Nobody notices.</td></tr>
+<tr><td>The model version updates.</td><td>Something your prompt was quietly relying on changes. A newer model is better on average but it is not the same.</td></tr>
+<tr><td>You switch to a cheaper model.</td><td>You have no way to know whether the money you saved cost you any quality, so you either never try it or try it blindfolded.</td></tr>
+<tr><td>You change chunking or retrieval.</td><td>The answers slowly become less tied to the sources. Nothing throws an error. Quality slides downwards for a month.</td></tr>
+<tr><td>Someone edits a tool description.</td><td>The agent starts picking the wrong tool for a whole group of cases that nobody checks by hand.</td></tr>
 </tbody></table></div>
 </div>
 <nav class="page-nav">

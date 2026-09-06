@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bias, and why it is an engineering problem — AI Governance — Garvit's Notes</title>
-<meta name="description" content="In plain English Bias is not a moral failing in the model, it is a measurable property of its outputs — and that framing is what makes it an engineering problem">
+<meta name="description" content="In plain English Bias is not a moral failing inside the model.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -49,32 +49,32 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   <span class="eyebrow">Note 19 &middot; AI Governance &middot; Topic 5 of 5</span>
   <h1>Bias, and why it is an engineering problem</h1>
   <div class="page-meta">
-    <span>2 min read</span>
+    <span>3 min read</span>
     <span>No experience needed</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Bias is not a moral failing in the model, it is a measurable property of its outputs — and that framing is what makes it an engineering problem. If the system behaves differently for two groups who should be treated the same, that difference can be tested for, and a test can be run on every release. </div></div>
-<p>A model learns from text people wrote, and reproduces the patterns in it &mdash; including the ones nobody wanted. This is not fixed by intent, and it is not detected by reading the code.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Bias is not a moral failing inside the model. It is something measurable in the outputs — and looking at it that way is what turns it into an engineering problem. If the system behaves differently for two groups who should be treated the same, that difference can be tested for, and that test can run on every single release. </div></div>
+<p>A model learns from text that people wrote, and it repeats the patterns in that text &mdash; including the ones nobody wanted. Good intentions do not fix this, and reading the code will not reveal it.</p>
 <div class="table-wrap"><table><thead><tr><th>Where it enters</th><th>What to do about it</th></tr></thead><tbody>
-<tr><td>Training data reflects historical patterns.</td><td>You cannot change this. You can decide not to use a model for decisions where it matters, or measure the disparity and act.</td></tr>
-<tr><td>Your retrieval corpus over-represents some groups.</td><td>Audit what is actually in the index. This is inspectable, unlike the model.</td></tr>
-<tr><td>Your prompt carries assumptions.</td><td>Cheap to test: run the same case with names, genders and locations varied and compare outcomes.</td></tr>
-<tr><td>Your eval set only contains typical cases.</td><td>Build cases specifically for the groups you might disadvantage. Absent from the set means invisible in the score.</td></tr>
+<tr><td>Training data reflects historical patterns.</td><td>You cannot change this. What you can do is decide not to use a model for decisions where it matters, or measure the gap and act on it.</td></tr>
+<tr><td>Your retrieval corpus over-represents some groups.</td><td>Go and check what is actually in the index. Unlike the model, you can look inside this.</td></tr>
+<tr><td>Your prompt carries assumptions.</td><td>Cheap to test: run the same case with different names, genders and locations, and compare the results.</td></tr>
+<tr><td>Your eval set only contains typical cases.</td><td>Build cases specifically for the groups you might be treating unfairly. If they are not in the set, they cannot show up in the score.</td></tr>
 </tbody></table></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>The engineering move is to make it measurable. Take a set of cases, vary only the attribute you are worried about, and compare outcomes. A disparity you can put a number on is a bug you can work on; one you cannot measure is one you will argue about.</p></div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>The engineering move is to make it measurable. Take a set of cases, change only the one thing you are worried about, and compare the results. A gap you can put a number on is a bug you can go and fix; a gap you cannot measure is a gap you will just argue about.</p></div></div>
 <div class="callout is-note is-practice"><span class="callout-icon">&#9654;</span><div class="callout-body"><div class="callout-title">Practice</div>
-<p>Write a system card for something you have already shipped. Give it twenty minutes and do not aim for polish.</p>
-<p>The value is in the questions you cannot answer. &ldquo;What is our retention on prompt logs?&rdquo; and &ldquo;what happens when the provider is down?&rdquo; are usually the two that produce an uncomfortable pause &mdash; and both are real gaps you can close this week.</p>
+<p>Write a system card for something you have already shipped. Give it twenty minutes and do not try to make it perfect.</p>
+<p>The value is in the questions you cannot answer. &ldquo;How long do we keep prompt logs?&rdquo; and &ldquo;what happens when the provider is down?&rdquo; are usually the two that cause an awkward silence &mdash; and both are real gaps you can close this week.</p>
 </div></div>
 <div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul>
-<li>Obligations scale with potential harm, and the use case sets the tier &mdash; not the model or the architecture.</li>
-<li>The question that decides everything: what decision does this influence, and about whom?</li>
-<li>GDPR probably applies to you already. Deletion, retention and lawful basis are the parts that bite.</li>
-<li>Prompt and completion logs are a personal-data store. Set retention deliberately; redact on write.</li>
-<li>Human oversight only counts if the person can realistically reach a different conclusion.</li>
-<li>A one-page system card per feature answers most of what anyone will ask &mdash; if every claim points at something real.</li>
-<li>Bias is measurable: vary one attribute across your eval cases and compare. A number is a bug you can fix.</li>
+<li>The duties grow with the possible harm, and what you use it for sets the level &mdash; not the model, and not the design.</li>
+<li>The one question that decides everything: what decision does this influence, and about whom?</li>
+<li>GDPR probably already applies to you. Deletion, how long you keep things, and your lawful reason are the parts that bite.</li>
+<li>Logs of prompts and answers are a store of personal data. Decide a deletion date on purpose, and strip sensitive parts out as you write them.</li>
+<li>Human oversight only counts if that person could realistically reach a different conclusion.</li>
+<li>A one-page system card for each feature answers most of what anybody will ask &mdash; as long as every claim in it points at something real.</li>
+<li>Bias can be measured: change one detail across your test cases and compare the results. A number is a bug you can fix.</li>
 </ul></div>
 </div>
 <nav class="page-nav">

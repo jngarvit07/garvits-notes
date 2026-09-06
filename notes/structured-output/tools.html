@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tool calling, precisely — Structured Output — Garvit's Notes</title>
-<meta name="description" content="Tool calling is the same schema machinery pointed at actions instead of answers. What the model returns is a request, never an execution.">
+<meta name="description" content="Tool calling is the same schema machinery pointed at actions instead of answers. What the model returns is a request, never an action.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,45 +54,45 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The model cannot run anything. It never could. What it produces is a structured message saying &ldquo;I would like to call <code>lookup_order</code> with this order number&rdquo; &mdash; and then your code decides whether to comply, runs it, and hands the result back. That decision point is not a formality. It is where every permission check, every rate limit and every audit log belongs. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The model cannot run anything. It never could. What it produces is a neat message saying "I would like to call <code>lookup_order</code> with this order number" &mdash; and then your code decides whether to allow it, runs it, and hands the result back. That decision point is not a formality. It is where every permission check, every rate limit and every audit log belongs. </div></div>
 <figure class="figure is-flow">
 <div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">One tool call, and who is responsible at each step</span><button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button></div>
 <div class="figure-stage"><ol class="flow flow-column">
-<li class="flow-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">You declare the tools</span><span class="flow-detail">Name, description and an argument schema for each. This is the model&rsquo;s only documentation, so it is doing real work.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">You declare the tools</span><span class="flow-detail">A name, a description and an argument schema for each. This is the only documentation the model gets, so it is doing real work.</span></div></li>
 <li class="flow-step" data-tone="plain" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">The model asks</span><span class="flow-detail">It returns a tool-call message with arguments matching your schema. It has run nothing and changed nothing.</span></div></li>
-<li class="flow-step" data-tone="accent" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">YOUR code decides</span><span class="flow-detail">Is this tool allowed for this user? Are the arguments sane? Is it within the rate limit? Refusing here is a normal outcome, not an error.</span></div></li>
-<li class="flow-step" data-tone="plain" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">You run it and reply</span><span class="flow-detail">The result goes back as a tool-result message, tied to the call by its id.</span></div></li>
-<li class="flow-step" data-tone="plain" style="--i:4"><span class="flow-num">5</span><div class="flow-text"><span class="flow-label">The model continues</span><span class="flow-detail">It either answers, or asks for another tool. That loop is what makes an agent — see the <a href="../agents/index.html">Agents &amp; Workflows</a> note.</span></div></li>
+<li class="flow-step" data-tone="accent" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">YOUR code decides</span><span class="flow-detail">Is this tool allowed for this user? Do the arguments make sense? Is it within the rate limit? Saying no here is a normal outcome, not an error.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">You run it and reply</span><span class="flow-detail">The result goes back as a tool-result message, linked to the call by its id.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:4"><span class="flow-num">5</span><div class="flow-text"><span class="flow-label">The model carries on</span><span class="flow-detail">It either answers, or asks for another tool. That loop is what makes an agent — see the <a href="../agents/index.html">Agents &amp; Workflows</a> note.</span></div></li>
 </ol></div>
 </figure>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>The gate every tool call should pass through</div><pre><code>for (const call of response.toolCalls) {
   // 1. Is this tool available to THIS user? The model's opinion that it
-  //    should be called is not an authorisation decision.
+  //    should be called is not a permission decision.
   if (!allowedTools(user).includes(call.name)) {
     results.push({ id: call.id, error: 'not_permitted' });
-    continue;                                   // tell it, do not throw
+    continue;                                   // tell it; do not throw
   }
 
-  // 2. Validate again on your side. Provider validation is not your
-  //    validation, and business rules are not expressible in a schema.
+  // 2. Check the arguments again on your side. The provider's check is
+  //    not your check, and business rules cannot fit inside a schema.
   const args = TOOLS[call.name].schema.safeParse(call.arguments);
   if (!args.success) {
     results.push({ id: call.id, error: 'invalid_arguments: ' + args.error });
     continue;                                   // it can correct itself
   }
 
-  // 3. Anything irreversible stops here and waits for a person, who is
-  //    shown the ACTUAL effect — the amount, the recipient, the diff.
+  // 3. Anything that cannot be undone stops here and waits for a person,
+  //    who is shown the REAL effect — the amount, the recipient, the change.
   if (TOOLS[call.name].irreversible) {
     results.push({ id: call.id, status: await askHuman(call, user) });
     continue;
   }
 
-  // 4. Scope the execution to the user. Never to your service account.
+  // 4. Run it as the user. Never as your service account.
   audit.log({ user: user.id, tool: call.name, args: args.data });
   results.push({ id: call.id, result: await TOOLS[call.name].run(args.data, user) });
 }</code></pre></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Return errors to the model as tool results, not as exceptions.</strong> A tool that returns <code>{"error": "no order found with that number"}</code> lets the model recover &mdash; ask the user, try a different search, explain the problem. An exception that breaks the loop turns a recoverable situation into a failed request. Write tool errors as messages to a colleague, not as stack traces. </div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Send errors back to the model as tool results, not as exceptions.</strong> A tool that returns <code>{"error": "no order found with that number"}</code> lets the model recover &mdash; ask the user, try a different search, explain the problem. An exception that breaks the loop turns a fixable situation into a failed request. Write tool errors the way you would write a message to a colleague, not as a stack trace. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="schema.html">
@@ -102,13 +102,13 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </a>
 <a class="pn-next" href="design.html">
   <span class="pn-dir">Next &rarr;</span>
-  <span class="pn-title">Designing the tool surface</span>
+  <span class="pn-title">Designing the set of tools</span>
   
 </a>
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Structured Output</a></div>
-  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why shape matters more than wording</a><a class="sib" href="how.html"><span class="sib-n">02</span>The four levels of enforcement</a><a class="sib" href="schema.html"><span class="sib-n">03</span>Designing a schema the model reads well</a><a class="sib is-current" href="tools.html"><span class="sib-n">04</span>Tool calling, precisely</a><a class="sib" href="design.html"><span class="sib-n">05</span>Designing the tool surface</a><a class="sib" href="failure.html"><span class="sib-n">06</span>When the shape is right and the content is wrong</a></div>
+  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why shape matters more than wording</a><a class="sib" href="how.html"><span class="sib-n">02</span>The four levels of enforcement</a><a class="sib" href="schema.html"><span class="sib-n">03</span>Designing a schema the model reads well</a><a class="sib is-current" href="tools.html"><span class="sib-n">04</span>Tool calling, precisely</a><a class="sib" href="design.html"><span class="sib-n">05</span>Designing the set of tools</a><a class="sib" href="failure.html"><span class="sib-n">06</span>When the shape is right and the content is wrong</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

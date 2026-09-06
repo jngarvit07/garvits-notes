@@ -54,26 +54,26 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The models change every few months. The way to survive that is not to pick correctly — it is to make the choice cheap to revisit. One function in your codebase that every model call goes through turns &ldquo;switch provider&rdquo; from a rewrite into a configuration change, and it costs you about twenty lines. </div></div>
-<p>Models improve, prices move, vendors change terms, and the best choice today is not the best choice in eighteen months. The goal is not to pick correctly forever &mdash; it is to make being wrong cheap.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The models change every few months. The way to survive that is not to pick the right one — it is to make the choice cheap to change later. One function in your codebase that every model call passes through turns &ldquo;switch provider&rdquo; from a rewrite into a config change, and it costs you about twenty lines of code. </div></div>
+<p>Models get better, prices move, companies change their terms, and the best choice today will not be the best choice in eighteen months. The goal is not to choose correctly forever &mdash; it is to make being wrong cheap to fix.</p>
 <div class="table-wrap"><table><thead><tr><th>Practice</th><th>What it buys you</th></tr></thead><tbody>
-<tr><td>Model ids in config, never inline in code.</td><td>Switching is a deploy, not a refactor. It also lets you pin a version in production and test a new one alongside.</td></tr>
-<tr><td>Prompts as files, not string literals.</td><td>They get reviewed and reverted like code &mdash; and prompts genuinely need re-tuning between models.</td></tr>
-<tr><td>An evaluation set you actually maintain.</td><td>The only way to know a switch was an improvement. Without it you are choosing on vibes and vendor blog posts.</td></tr>
-<tr><td>A thin wrapper over the SDK call.</td><td>One place to change when a request shape differs. Do not build a heavy abstraction &mdash; the APIs are similar enough that a large one costs more than it saves.</td></tr>
-<tr><td>Pin the exact model version in production.</td><td>A newer version is better on average and not identical. Move deliberately, after running your evals &mdash; not because it appeared.</td></tr>
+<tr><td>Model ids in config, never inline in code.</td><td>Switching becomes a deploy, not a rewrite. It also lets you lock a version in production while testing a new one beside it.</td></tr>
+<tr><td>Prompts as files, not string literals.</td><td>They get reviewed and rolled back like code &mdash; and prompts genuinely do need re-tuning when you change model.</td></tr>
+<tr><td>An evaluation set you actually maintain.</td><td>The only way to know that a switch actually made things better. Without it you are choosing on gut feeling and marketing blog posts.</td></tr>
+<tr><td>A thin wrapper over the SDK call.</td><td>One single place to change when a request looks different. Do not build a huge layer on top &mdash; the APIs are similar enough that a big one costs more than it saves.</td></tr>
+<tr><td>Pin the exact model version in production.</td><td>A newer version is better on average but it is not the same. Move on purpose, after running your tests &mdash; not just because it turned up.</td></tr>
 </tbody></table></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Do not over-abstract.</strong> The temptation is a grand provider-agnostic interface supporting every vendor equally. In practice it converges on the least capable common denominator, and you lose the features you chose the model for &mdash; caching, thinking, structured outputs, tool semantics. A thin seam is portability. A framework is a second product to maintain.</p></div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Do not build too much on top.</strong> The temptation is a grand universal interface that supports every provider equally. In practice it settles at whatever the weakest provider can do, and you lose the very features you chose the model for &mdash; caching, thinking, structured outputs, the way tools work. A thin joining layer gives you portability. A whole framework gives you a second product to maintain.</p></div></div>
 <div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul>
-<li>Products, models and platforms are three layers. Most confused comparisons are a layer mix-up.</li>
-<li>Copilot is a brand across several unrelated products, not a model. Ask which one, and on what.</li>
-<li>Benchmark leadership rotates and rarely predicts your result. Thirty real examples beat every leaderboard.</li>
-<li>Hard constraints &mdash; residency, cloud commitments, procurement &mdash; usually decide this before quality does.</li>
-<li>Start with the smallest model and step up only where it fails. One product sensibly uses three.</li>
-<li>Model ids in config, prompts in files, evals maintained. Make being wrong cheap rather than trying to be right forever.</li>
+<li>Products, models and platforms are three different levels. Most confused comparisons are simply mixing up the levels.</li>
+<li>Copilot is a brand name across several unrelated products, not a model. Ask which one, and running on what.</li>
+<li>Who leads the benchmarks keeps changing, and it rarely predicts your result. Thirty real examples beat every leaderboard.</li>
+<li>Hard limits &mdash; where data may live, cloud contracts, purchasing rules &mdash; usually settle this before quality gets a say.</li>
+<li>Start with the smallest model and move up only where it fails. One product can sensibly use three.</li>
+<li>Model ids in config, prompts in files, test sets kept up to date. Make being wrong cheap to fix, instead of trying to be right forever.</li>
 </ul></div>
-<details class="selfcheck"><summary><span class="sc-q">Why is being able to switch models quickly worth more than picking the best one today?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because today&rsquo;s ranking has a shelf life measured in months, while the code you write around it lasts years. A system that can change model in an afternoon gets to take advantage of every improvement; one with provider-specific calls scattered through it is stuck with a decision made when it knew least. </p>
-<p> It is also your outage plan. A provider having a bad day is a config change rather than an incident. </p></div></details>
+<details class="selfcheck"><summary><span class="sc-q">Why is being able to switch models quickly worth more than picking the best one today?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because today's ranking lasts a few months, while the code you write around it lasts years. A system that can change model in one afternoon gets the benefit of every improvement that comes along. One with provider-specific calls scattered all through it is stuck with a decision made at the moment you knew the least. </p>
+<p> It is also your backup plan for outages. A provider having a bad day becomes a config change instead of an incident. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="choosing.html">

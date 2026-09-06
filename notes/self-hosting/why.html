@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>When to run a model yourself — Running Models Yourself — Garvit's Notes</title>
-<meta name="description" content="Four reasons that justify running your own model, and the one reason that does not survive the arithmetic.">
+<meta name="description" content="Four reasons that justify running your own model, and the one reason that does not survive the maths.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,32 +54,32 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Calling an API is renting. Running your own model is buying a machine and operating it. Renting is cheaper, faster to start and someone else is on call &mdash; which is why it is the right answer for most teams most of the time. The cases where owning wins are real, and they are narrower and more specific than the enthusiasm around them suggests. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Calling an API is like taking a taxi. Running your own model is like buying a car and maintaining it. The taxi is cheaper to start with, needs no effort, and somebody else worries about servicing &mdash; which is why it is the right answer for most teams most of the time. The cases where owning wins are real, and they are narrower and more specific than all the excitement suggests. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Reason</th><th>Does it hold up?</th></tr></thead><tbody>
-<tr><td><strong>Data cannot leave our network</strong></td><td><strong>Yes.</strong> Regulatory or contractual, and no amount of provider assurance satisfies it. The strongest reason there is.</td></tr>
-<tr><td><strong>Very high volume on one narrow task</strong></td><td><strong>Yes</strong>, above a real threshold. A small model saturating a GPU around the clock beats per-token pricing. Below that, you are paying for an idle GPU.</td></tr>
-<tr><td><strong>We need the model to be frozen forever</strong></td><td><strong>Yes.</strong> Weights on your disk do not change. A hosted model behind an alias does, and there is no version of that you control.</td></tr>
-<tr><td><strong>Latency floor matters</strong></td><td><strong>Sometimes.</strong> No network hop is worth tens of milliseconds. Only meaningful when the model call is already fast.</td></tr>
-<tr><td><strong>Heavy customisation on open weights</strong></td><td><strong>Sometimes.</strong> Full fine-tuning, unusual decoding, direct access to internals.</td></tr>
-<tr><td><strong>It will be cheaper</strong></td><td><strong>Usually no.</strong> See below. This is the reason most often given and the one that most often fails.</td></tr>
+<tr><td><strong>Data is not allowed to leave our network</strong></td><td><strong>Yes.</strong> A legal or contract rule, and no promise from a provider will satisfy it. The strongest reason there is.</td></tr>
+<tr><td><strong>Very high volume on one narrow task</strong></td><td><strong>Yes</strong>, above a certain level. A small model keeping a GPU busy round the clock beats paying per token. Below that level, you are paying for a GPU that sits idle.</td></tr>
+<tr><td><strong>We need the model to never change</strong></td><td><strong>Yes.</strong> Weights on your own disk do not change. A hosted model behind a name does change, and you control none of it.</td></tr>
+<tr><td><strong>Every millisecond counts</strong></td><td><strong>Sometimes.</strong> Skipping the network trip saves tens of milliseconds. Only worth it when the model call is already fast.</td></tr>
+<tr><td><strong>Heavy customisation of open weights</strong></td><td><strong>Sometimes.</strong> Full fine-tuning, unusual decoding, direct access to the model's internals.</td></tr>
+<tr><td><strong>It will be cheaper</strong></td><td><strong>Usually no.</strong> See below. This is the reason people give most often and the one that most often falls apart.</td></tr>
 </tbody></table></div>
-<div class="code-block"><div class="code-head"><span class="lang">txt</span>The arithmetic people skip</div><pre><code>A capable open model on one cloud GPU, running continuously:
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>The maths people skip</div><pre><code>A capable open model on one cloud GPU, running non-stop:
     GPU instance                    ~$1-3 per hour
     x 24 x 30                       ~$700-2,200 / month
-    + a second for redundancy       x 2
-    + storage, networking, egress
-    + ENGINEER TIME: serving, upgrades, monitoring, on-call
+    + a second one for backup       x 2
+    + storage, networking, data transfer
+    + ENGINEER TIME: serving, upgrades, monitoring, being on call
 
-  That is the floor. It is the same whether you serve
+  That is the floor. It costs the same whether you serve
   10 requests a day or 10,000.
 
-  An API costs nothing when idle and scales to zero.
+  An API costs nothing when nobody is using it.
 
-  So the question is not "which is cheaper per token" but
-  "do we have enough steady volume to keep a GPU busy?"
-  If a GPU would sit idle half the day, renting wins — and
-  it keeps winning for longer than most teams expect.</code></pre></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>The engineer time is the line that gets left out.</strong> Somebody has to own the serving stack, respond when a GPU node fails at 2am, test each model upgrade, and keep the driver and library versions coherent. That is not a one-off setup cost, it is a permanent share of a person. Include it and the crossover point moves a long way further out. </div></div>
+  So the real question is not "which is cheaper per token" but
+  "do we have enough steady traffic to keep a GPU busy?"
+  If a GPU would sit idle half the day, renting wins — and it
+  keeps on winning for far longer than most teams expect.</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Engineer time is the line that always gets left out.</strong> Somebody has to own the serving setup, answer the phone when a GPU node dies at 2am, test every model upgrade, and keep the driver and library versions matching each other. That is not a one-time setup cost; it is a permanent share of a person. Include it and the break-even point moves a long way further out. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="../../notes/fine-tuning/ops.html">
@@ -95,7 +95,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Running Models Yourself</a></div>
-  <div class="sib-row"><a class="sib is-current" href="why.html"><span class="sib-n">01</span>When to run a model yourself</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>Open weights, and what the licence actually says</a><a class="sib" href="memory.html"><span class="sib-n">03</span>Will it fit? The VRAM arithmetic</a><a class="sib" href="quantisation.html"><span class="sib-n">04</span>Quantisation</a><a class="sib" href="serving.html"><span class="sib-n">05</span>Serving it properly</a><a class="sib" href="ops.html"><span class="sib-n">06</span>What you have just taken on</a></div>
+  <div class="sib-row"><a class="sib is-current" href="why.html"><span class="sib-n">01</span>When to run a model yourself</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>Open weights, and what the licence actually says</a><a class="sib" href="memory.html"><span class="sib-n">03</span>Will it fit? The VRAM sum</a><a class="sib" href="quantisation.html"><span class="sib-n">04</span>Quantisation</a><a class="sib" href="serving.html"><span class="sib-n">05</span>Serving it properly</a><a class="sib" href="ops.html"><span class="sib-n">06</span>What you have just taken on</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RAG, in detail — AI, RAG &amp; Security — Garvit's Notes</title>
-<meta name="description" content="Retrieval-Augmented Generation is the standard way to make a model answer from knowledge it was never trained on — your documentation, your policies, your ticke">
+<meta name="description" content="Retrieval-Augmented Generation — RAG for short — is the standard way to make a model answer from knowledge it was never trained on: your documentation, your pol">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,78 +54,78 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<p><strong>Retrieval-Augmented Generation</strong> is the standard way to make a model answer from knowledge it was never trained on — your documentation, your policies, your tickets. The idea is unremarkable and the execution is where all the difficulty lives: <strong> find the relevant passages, put them in the prompt, and ask the model to answer using only those.</strong></p>
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> An open-book exam. The model is a well-read graduate who has never seen your company handbook. RAG is handing them the three relevant pages, opened, seconds before you ask the question — rather than expecting them to have memorised it. </div></div>
-<div class="code-block"><div class="code-head"><span class="lang">js</span>The pipeline, and where each stage fails</div><pre><code>INDEXING — done once, and repeated when documents change
-  1. Load        documents, pages, tickets, transcripts
+<p><strong>Retrieval-Augmented Generation</strong> — RAG for short — is the standard way to make a model answer from knowledge it was never trained on: your documentation, your policies, your support tickets. The idea is simple and all the difficulty is in doing it well: <strong>find the relevant passages, put them into the prompt, and tell the model to answer using only those.</strong></p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> It is an open-book exam. The model is a well-read topper who has never seen your company handbook. RAG means handing over the three relevant pages, already open, a second before you ask the question — instead of expecting the model to have learnt the handbook by heart. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>The pipeline, and where each stage goes wrong</div><pre><code>INDEXING — done once, and again whenever documents change
+  1. Load        documents, pages, tickets, call transcripts
   2. Chunk       split into passages of a few hundred tokens
   3. Embed       turn each chunk into a vector
   4. Store       vector + text + metadata (source, section, date, permissions)
 
-ANSWERING — done per question
-  5. Embed       the question, the same way
-  6. Retrieve    nearest chunks, usually with a keyword search alongside
-  7. Rerank      re-order the candidates by actual relevance; keep the top few
-  8. Assemble    a prompt: instructions + chunks + question
-  9. Generate    the answer, with citations back to the sources
+ANSWERING — done for every question
+  5. Embed       the question, in exactly the same way
+  6. Retrieve    the nearest chunks, usually with a keyword search alongside
+  7. Rerank      re-order the candidates by real relevance; keep the top few
+  8. Assemble    build the prompt: instructions + chunks + question
+  9. Generate    the answer, with citations pointing back to the sources
  10. Verify      check the citations exist and the answer stayed inside them</code></pre></div>
 <figure class="figure is-flow" id="flow-4">
-<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Answering one question, and who is to blame at each stage</span>
+<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Answering one question, and whose fault it is at each stage</span>
   <button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button>
 </div>
 <div class="figure-stage"><ol class="flow flow-column"><li class="flow-step dg-step" data-tone="plain" style="--i:0">
   <span class="flow-num">1</span>
   <div class="flow-text">
     <span class="flow-label">Rewrite the question</span>
-    <span class="flow-detail">"What about the second one?" is unsearchable. Resolve it against the conversation first.</span>
+    <span class="flow-detail">"What about the second one?" cannot be searched. First work out what it means from the conversation.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="accent" style="--i:1">
   <span class="flow-num">2</span>
   <div class="flow-text">
     <span class="flow-label">Embed &amp; search</span>
-    <span class="flow-detail">Vector search for meaning, keyword search for exact terms. Failures here cannot be fixed later.</span>
+    <span class="flow-detail">Vector search for meaning, keyword search for exact words. What you miss here cannot be fixed later.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="danger" style="--i:2">
   <span class="flow-num">3</span>
   <div class="flow-text">
     <span class="flow-label">Filter by permission</span>
-    <span class="flow-detail">Drop anything this asker may not read. In code, never in the prompt.</span>
+    <span class="flow-detail">Drop anything this person is not allowed to read. Do it in code, never by asking the model.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="plain" style="--i:3">
   <span class="flow-num">4</span>
   <div class="flow-text">
     <span class="flow-label">Rerank</span>
-    <span class="flow-detail">Twenty candidates in, the best four out.</span>
+    <span class="flow-detail">Twenty candidates go in, the best four come out.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="plain" style="--i:4">
   <span class="flow-num">5</span>
   <div class="flow-text">
     <span class="flow-label">Assemble</span>
-    <span class="flow-detail">Instructions, fenced context, then the question.</span>
+    <span class="flow-detail">Instructions first, then the fetched text inside clear markers, then the question.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="plain" style="--i:5">
   <span class="flow-num">6</span>
   <div class="flow-text">
     <span class="flow-label">Generate</span>
-    <span class="flow-detail">Answer from the context only, with citations and a way to refuse.</span>
+    <span class="flow-detail">Answer from the given text only, with citations and a clear way to say "not found".</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="accent" style="--i:6">
   <span class="flow-num">7</span>
   <div class="flow-text">
     <span class="flow-label">Verify &amp; log</span>
-    <span class="flow-detail">Check the citations resolve. Log which chunks were used — this is your only debugging handle.</span>
+    <span class="flow-detail">Check that the citations point to something real. Log which chunks were used — this is your only way to debug later.</span>
   </div>
 </li></ol></div>
 </figure>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Almost every disappointing RAG system fails at steps 2, 6 and 7 and gets blamed on step 9.</strong> If the right passage was never retrieved, no model and no prompt can rescue the answer. When quality is poor, print what was retrieved before touching the prompt — the answer to “why did it say that” is usually visible in one look. </div></div>
-<p><strong>Chunking</strong> — the decision people spend least time on and pay most for.</p>
-<ul><li><strong>Too large</strong> and one chunk covers three topics: its embedding is an average of all three and matches nothing precisely. It also eats the context you were trying to save. </li><li><strong>Too small</strong> and the passage loses the context that made it meaningful — a sentence saying “this is not permitted” with no indication of what “this” was. </li><li><strong>Split on structure, not on character counts.</strong> Headings, sections, paragraphs. A chunk that begins mid-sentence is a chunk that will confuse retrieval and the reader. </li><li><strong>Overlap slightly</strong> — a sentence or two carried between neighbours — so an answer straddling a boundary is not cut in half. </li><li><strong>Keep a header trail on each chunk</strong> (“Billing &gt; Refunds &gt; Partial refunds”). It improves both the embedding and the citation for a few tokens. </li></ul>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Almost every disappointing RAG system fails at steps 2, 6 and 7, and then step 9 gets the blame.</strong> If the right passage was never fetched, no model and no prompt can save the answer. When quality is poor, print out what was fetched before you touch the prompt — one look usually answers "why did it say that". </div></div>
+<p><strong>Chunking</strong> — the decision people think about least and pay for most.</p>
+<ul><li><strong>Too big</strong> and one chunk covers three topics. Its embedding becomes an average of all three and matches nothing properly. It also eats up the context you were trying to save. </li><li><strong>Too small</strong> and the passage loses the context that gave it meaning — a sentence saying "this is not allowed" with no clue about what "this" was. </li><li><strong>Split on structure, not on letter counts.</strong> Use headings, sections, paragraphs. A chunk that starts in the middle of a sentence will confuse both the search and the reader. </li><li><strong>Overlap a little</strong> — carry a sentence or two into the next chunk — so an answer sitting on the boundary is not cut in half. </li><li><strong>Keep the heading path on each chunk</strong> ("Billing &gt; Refunds &gt; Partial refunds"). For a few extra tokens it improves both the search and the citation. </li></ul>
 <figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">Why chunk size decides answer quality</span></div><div class="figure-stage"><pre class="ascii-art">  ONE 4,000-WORD PAGE, THREE WAYS
 
   (a) one chunk           [ billing | refunds | cancellations ]
@@ -138,11 +138,11 @@ ANSWERING — done per question
 
   (c) by heading            [ Billing &gt; Refunds &gt; Partial refunds ]
                             [ Billing &gt; Cancellations             ]
-      one topic each, header trail kept
-      -&gt; matches precisely, cites precisely, costs the fewest tokens</pre></div></figure>
-<p><strong>Retrieval</strong> — vectors alone are not enough.</p>
-<ul><li><strong>Hybrid search.</strong> Combine semantic search with old-fashioned keyword search. Embeddings are poor at exact tokens — an error code, a product SKU, a surname — and keyword search is poor at meaning. Together they cover each other, and this is usually the single largest quality win available. </li><li><strong>Reranking.</strong> Fetch twenty candidates cheaply, then have a smaller model score each against the question and keep the best four. Retrieval optimises for recall; reranking supplies the precision. </li><li><strong>Filter by metadata first.</strong> Date, product, language, and above all permissions. </li><li><strong>Rewrite the question.</strong> “What about the second one?” is unsearchable; resolve it against the conversation into a standalone query before embedding it. </li></ul>
-<div class="code-block"><div class="code-head"><span class="lang">js</span>Assembling the prompt — where the rules are set</div><pre><code>const system = `Answer using ONLY the context below.
+      one topic each, heading path kept
+      -&gt; matches exactly, cites exactly, uses the fewest tokens</pre></div></figure>
+<p><strong>Retrieval</strong> — vectors on their own are not enough.</p>
+<ul><li><strong>Hybrid search.</strong> Use semantic search together with plain old keyword search. Embeddings are bad at exact strings — an error code, a product code, a surname — and keyword search is bad at meaning. Together they cover each other's gaps, and this is usually the single biggest quality jump you can get. </li><li><strong>Reranking.</strong> Fetch twenty candidates cheaply, then let a smaller model score each one against the question and keep the best four. Retrieval is about not missing anything; reranking is about being precise. </li><li><strong>Filter on metadata first.</strong> Date, product, language, and above everything else, permissions. </li><li><strong>Rewrite the question.</strong> "What about the second one?" cannot be searched. Turn it into a complete, standalone question using the conversation before you embed it. </li></ul>
+<div class="code-block"><div class="code-head"><span class="lang">js</span>Assembling the prompt — where the rules get set</div><pre><code>const system = `Answer using ONLY the context below.
 If the context does not contain the answer, reply exactly:
 "I could not find that in the documentation."
 Cite the source id in square brackets after each claim.
@@ -160,15 +160,15 @@ const response = await client.messages.create({
     { role: 'user', content: `&lt;context&gt;\n${context}\n&lt;/context&gt;\n\nQuestion: ${question}` },
   ],
 });</code></pre></div>
-<p> Three things in that prompt are load-bearing. <strong>Only the context</strong> stops the model blending in half-remembered training data. <strong>An exact refusal string</strong> gives it a way out that your code can detect. <strong>The line about instructions</strong> is the first line of defence against a document that tries to give orders — which the security section takes apart properly. </p>
-<p><strong>Evaluating it</strong> — measure the two halves separately, or you will tune the wrong one.</p>
-<div class="table-wrap"><table><thead><tr><th>Question</th><th>Measure</th><th>If it is bad</th></tr></thead><tbody><tr><td>Did we retrieve the right passage?</td><td>For a set of known questions, is the correct chunk in the top five?</td><td>Fix chunking, add hybrid search, add reranking. The model is not the problem.</td></tr>
-<tr><td>Did the answer stay inside it?</td><td>Does every claim trace to a retrieved chunk?</td><td>Tighten the instructions, lower the temperature, require citations.</td></tr>
-<tr><td>Did it refuse when it should?</td><td>Ask questions the corpus cannot answer.</td><td>Make the refusal path explicit and reward it.</td></tr></tbody></table></div>
-<details class="selfcheck"><summary><span class="sc-q">Your RAG assistant answers a question that is definitely covered in the documentation — but answers it wrongly. Where do you look first?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> At what was retrieved, before touching a single word of the prompt. Print the chunks that went into the context. In most cases the correct passage is not among them, and no change to the instructions could have helped — the fault is chunking, search, or a permission filter that was too aggressive. </p>
-<p> Only when the right passage <i>was</i> in the context and the answer still wandered is it a generation problem, and then the fixes are grounding instructions, citations, and a lower temperature. </p>
+<p> Three parts of that prompt are doing real work. <strong>"Only the context"</strong> stops the model mixing in half-remembered training data. <strong>An exact refusal sentence</strong> gives it a way out that your code can detect. <strong>The line about instructions</strong> is the first defence against a document that tries to give orders — the security section covers that properly. </p>
+<p><strong>Testing it</strong> — measure the two halves separately, or you will end up tuning the wrong one.</p>
+<div class="table-wrap"><table><thead><tr><th>Question</th><th>Measure</th><th>If it is bad</th></tr></thead><tbody><tr><td>Did we fetch the right passage?</td><td>For a set of questions where you know the answer, is the correct chunk in the top five?</td><td>Fix the chunking, add hybrid search, add reranking. The model is not the problem.</td></tr>
+<tr><td>Did the answer stay inside it?</td><td>Can every claim be traced to a fetched chunk?</td><td>Tighten the instructions, lower the temperature, insist on citations.</td></tr>
+<tr><td>Did it say no when it should have?</td><td>Ask questions your documents cannot answer.</td><td>Make the "not found" path explicit and easy for the model to take.</td></tr></tbody></table></div>
+<details class="selfcheck"><summary><span class="sc-q">Your RAG assistant answers a question that is definitely covered in the documentation — but answers it wrongly. Where do you look first?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> At what was fetched, before touching a single word of the prompt. Print the chunks that went into the context. Most of the time the correct passage is not among them, and no change to the instructions could have helped — the fault is the chunking, the search, or a permission filter that was too strict. </p>
+<p> Only when the right passage <i>was</i> in the context and the answer still went wrong is it a generation problem. Then the fixes are stricter instructions, citations, and a lower temperature. </p>
 </div></details>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><strong>Permissions belong in the retrieval filter, not in the prompt.</strong> A chunk the asker may not read must never enter the context — asking the model to keep a secret it has been shown is not access control, and it fails silently and unpredictably. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><strong>Permissions belong in the retrieval filter, not in the prompt.</strong> A chunk this person is not allowed to read must never enter the context at all. Asking the model to keep a secret you have already shown it is not access control — it fails quietly and you cannot predict when. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="embeddings.html">
@@ -184,7 +184,7 @@ const response = await client.messages.create({
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">AI, RAG &amp; Security</a></div>
-  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>AI, machine learning and language models</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>The wider AI family</a><a class="sib" href="how.html"><span class="sib-n">03</span>How a model actually works</a><a class="sib" href="training.html"><span class="sib-n">04</span>How a model is made, and why that matters to you</a><a class="sib" href="sampling.html"><span class="sib-n">05</span>Decoding: the settings on the request</a><a class="sib" href="models.html"><span class="sib-n">06</span>Choosing a model</a><a class="sib" href="multimodal.html"><span class="sib-n">07</span>Beyond text: images, documents and voice</a><a class="sib" href="prompting.html"><span class="sib-n">08</span>Prompting that actually works</a><a class="sib" href="context.html"><span class="sib-n">09</span>Context engineering: what the model can see</a><a class="sib" href="limits.html"><span class="sib-n">10</span>What models get wrong, and why</a><a class="sib" href="evaluation.html"><span class="sib-n">11</span>Evaluation: what turns this into engineering</a><a class="sib" href="embeddings.html"><span class="sib-n">12</span>Embeddings and vector search</a><a class="sib is-current" href="rag.html"><span class="sib-n">13</span>RAG, in detail</a><a class="sib" href="choose.html"><span class="sib-n">14</span>RAG, fine-tuning, or just a better prompt</a><a class="sib" href="tuning.html"><span class="sib-n">15</span>Fine-tuning, when it is genuinely the answer</a><a class="sib" href="agents.html"><span class="sib-n">16</span>Tools and agents</a><a class="sib" href="patterns.html"><span class="sib-n">17</span>Agent patterns worth knowing by name</a><a class="sib" href="production.html"><span class="sib-n">18</span>Shipping it: the unglamorous half</a><a class="sib" href="cost.html"><span class="sib-n">19</span>Cost and latency, engineered rather than hoped for</a><a class="sib" href="security.html"><span class="sib-n">20</span>AI security</a><a class="sib" href="ethics.html"><span class="sib-n">21</span>Bias, law and telling people</a><a class="sib" href="cases.html"><span class="sib-n">22</span>Four case studies, with the part that goes wrong</a><a class="sib" href="build.html"><span class="sib-n">23</span>Building it here — a worked design</a><a class="sib" href="glossary.html"><span class="sib-n">24</span>The jargon, decoded</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>AI, machine learning and language models</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>The wider AI family</a><a class="sib" href="how.html"><span class="sib-n">03</span>How a model actually works</a><a class="sib" href="training.html"><span class="sib-n">04</span>How a model is made, and why that matters to you</a><a class="sib" href="sampling.html"><span class="sib-n">05</span>Decoding: the settings on the request</a><a class="sib" href="models.html"><span class="sib-n">06</span>Choosing a model</a><a class="sib" href="multimodal.html"><span class="sib-n">07</span>Beyond text: images, documents and voice</a><a class="sib" href="prompting.html"><span class="sib-n">08</span>Prompting that actually works</a><a class="sib" href="context.html"><span class="sib-n">09</span>Context engineering: what the model can see</a><a class="sib" href="limits.html"><span class="sib-n">10</span>What models get wrong, and why</a><a class="sib" href="evaluation.html"><span class="sib-n">11</span>Evaluation: what turns this into engineering</a><a class="sib" href="embeddings.html"><span class="sib-n">12</span>Embeddings and vector search</a><a class="sib is-current" href="rag.html"><span class="sib-n">13</span>RAG, in detail</a><a class="sib" href="choose.html"><span class="sib-n">14</span>RAG, fine-tuning, or just a better prompt</a><a class="sib" href="tuning.html"><span class="sib-n">15</span>Fine-tuning, when it is genuinely the answer</a><a class="sib" href="agents.html"><span class="sib-n">16</span>Tools and agents</a><a class="sib" href="patterns.html"><span class="sib-n">17</span>Agent patterns worth knowing by name</a><a class="sib" href="production.html"><span class="sib-n">18</span>Shipping it: the boring half</a><a class="sib" href="cost.html"><span class="sib-n">19</span>Cost and latency, engineered rather than hoped for</a><a class="sib" href="security.html"><span class="sib-n">20</span>AI security</a><a class="sib" href="ethics.html"><span class="sib-n">21</span>Bias, law and telling people</a><a class="sib" href="cases.html"><span class="sib-n">22</span>Four case studies, with the part that goes wrong</a><a class="sib" href="build.html"><span class="sib-n">23</span>Building it here — a worked design</a><a class="sib" href="glossary.html"><span class="sib-n">24</span>The jargon, decoded</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

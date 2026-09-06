@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Quantisation — Running Models Yourself — Garvit's Notes</title>
-<meta name="description" content="Making the numbers smaller so the model fits and runs faster. What you actually give up, and where the line is.">
+<meta name="description" content="Making the numbers smaller so the model fits and runs faster. What you actually give up, and where the line sits.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,20 +54,20 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Every parameter is stored with a certain precision, like decimal places. Quantisation keeps fewer of them &mdash; storing 0.7 instead of 0.7182 &mdash; so the model takes less memory and moves through the chip faster. The remarkable finding is how little quality this costs: going from 16 bits to 8 is close to free, and 4 is usually a good trade. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Every parameter is stored to a certain number of decimal places. Quantisation keeps fewer of them &mdash; storing 0.7 instead of 0.7182 &mdash; so the model takes less memory and moves through the chip faster. The surprising finding is how little quality this costs: going from 16 bits to 8 is nearly free, and 4 is usually a good deal. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Precision</th><th>Memory</th><th>Quality</th><th>Use it</th></tr></thead><tbody>
-<tr><td>FP16 / BF16</td><td>Baseline</td><td>Reference</td><td>When memory is not the constraint</td></tr>
-<tr><td>INT8</td><td>~50%</td><td>Almost indistinguishable</td><td><strong>Sensible default.</strong> Nearly free.</td></tr>
-<tr><td>INT4</td><td>~25%</td><td>Small but measurable loss</td><td><strong>The usual production choice.</strong> Especially good on larger models.</td></tr>
-<tr><td>Below 4-bit</td><td>&lt;25%</td><td>Noticeable degradation</td><td>Experiments and very constrained devices</td></tr>
+<tr><td>FP16 / BF16</td><td>The baseline</td><td>The reference</td><td>When memory is not your limit</td></tr>
+<tr><td>INT8</td><td>~50%</td><td>Almost impossible to tell apart</td><td><strong>A sensible default.</strong> Nearly free.</td></tr>
+<tr><td>INT4</td><td>~25%</td><td>Small but measurable loss</td><td><strong>The usual production choice.</strong> Especially good on bigger models.</td></tr>
+<tr><td>Below 4-bit</td><td>&lt;25%</td><td>You can notice it getting worse</td><td>Experiments and very small devices</td></tr>
 </tbody></table></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>A large model quantised usually beats a small model at full precision</strong> for the same memory. A 70B at INT4 (~35GB) generally outperforms a 13B at FP16 (~26GB) on hard tasks. If you are choosing between &ldquo;bigger and compressed&rdquo; and &ldquo;smaller and pristine&rdquo; at a fixed memory budget, bigger and compressed is the better starting bet &mdash; then confirm it on your eval set. </div></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Quantisation degrades unevenly, so measure it on your task.</strong> Losses tend to show up first in long-chain reasoning, arithmetic, exact-format output and less-common languages &mdash; while conversational quality looks untouched. A casual test will tell you it is fine. Your eval set will tell you whether it is fine <em>for what you do</em>. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>A big model squeezed down usually beats a small model at full precision</strong> for the same memory. A 70B at INT4 (~35GB) generally does better than a 13B at FP16 (~26GB) on hard tasks. If you are choosing between "bigger and squeezed" and "smaller and untouched" within a fixed memory budget, bigger and squeezed is the better first bet &mdash; then confirm it on your test set. </div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Quantisation hurts some things more than others, so measure it on your own task.</strong> The losses tend to show up first in long chains of reasoning, in arithmetic, in exact-format output, and in less common languages &mdash; while ordinary chat looks completely untouched. A casual test will tell you it is fine. Your test set will tell you whether it is fine <em>for what you actually do</em>. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="memory.html">
   <span class="pn-dir">&larr; Previous</span>
-  <span class="pn-title">Will it fit? The VRAM arithmetic</span>
+  <span class="pn-title">Will it fit? The VRAM sum</span>
   
 </a>
 <a class="pn-next" href="serving.html">
@@ -78,7 +78,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Running Models Yourself</a></div>
-  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>When to run a model yourself</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>Open weights, and what the licence actually says</a><a class="sib" href="memory.html"><span class="sib-n">03</span>Will it fit? The VRAM arithmetic</a><a class="sib is-current" href="quantisation.html"><span class="sib-n">04</span>Quantisation</a><a class="sib" href="serving.html"><span class="sib-n">05</span>Serving it properly</a><a class="sib" href="ops.html"><span class="sib-n">06</span>What you have just taken on</a></div>
+  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>When to run a model yourself</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>Open weights, and what the licence actually says</a><a class="sib" href="memory.html"><span class="sib-n">03</span>Will it fit? The VRAM sum</a><a class="sib is-current" href="quantisation.html"><span class="sib-n">04</span>Quantisation</a><a class="sib" href="serving.html"><span class="sib-n">05</span>Serving it properly</a><a class="sib" href="ops.html"><span class="sib-n">06</span>What you have just taken on</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

@@ -55,22 +55,22 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </header>
 <div class="topic-body">
 <h3>RAG: score retrieval and generation separately</h3>
-<p>This is the single most useful idea in this note. Almost every disappointing RAG system fails at retrieval and gets blamed on the model &mdash; and one combined score cannot tell you which half is broken.</p>
+<p>This is the single most useful idea in this note. Almost every disappointing RAG system fails at the search step and gets the blame put on the model &mdash; and one combined score cannot tell you which half is broken.</p>
 <div class="table-wrap"><table><thead><tr><th>Stage</th><th>Question</th><th>How to score it</th></tr></thead><tbody>
-<tr><td><strong>Retrieval</strong></td><td>Did the chunk containing the answer come back at all?</td><td>Mark the correct chunk id per case; check whether it appears in the top k. Programmatic, exact, no judgement needed.</td></tr>
-<tr><td><strong>Grounding</strong></td><td>Is every claim in the answer supported by what was retrieved?</td><td>A judge, with the retrieved context in front of it. Binary, per claim.</td></tr>
-<tr><td><strong>Refusal</strong></td><td>When the answer genuinely is not in the corpus, does it say so?</td><td>Cases with no answer, and an exact expected refusal. This one catches the failure that damages trust most.</td></tr>
-<tr><td><strong>Answer quality</strong></td><td>Is it actually useful to a person?</td><td>A judge with a rubric &mdash; only meaningful once the three above pass.</td></tr>
+<tr><td><strong>Retrieval</strong></td><td>Did the chunk containing the answer come back at all?</td><td>Write down the correct chunk id for each case, then check whether it turns up in the top k. Done by code, exact, no judgement needed.</td></tr>
+<tr><td><strong>Grounding</strong></td><td>Is every claim in the answer supported by what was retrieved?</td><td>A model examiner, with the fetched text in front of it. A yes-or-no answer for each claim.</td></tr>
+<tr><td><strong>Refusal</strong></td><td>When the answer genuinely is not in the corpus, does it say so?</td><td>Cases with no answer at all, and an exact refusal sentence you expect back. This one catches the failure that damages trust the most.</td></tr>
+<tr><td><strong>Answer quality</strong></td><td>Is it actually useful to a person?</td><td>A model examiner with a marking scheme &mdash; and it only means anything once the three above are passing.</td></tr>
 </tbody></table></div>
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>If retrieval scores 60%, no prompt engineering will save you &mdash; the answer was never in the room. Fix the search before you touch the wording. Teams routinely spend weeks on the prompt for a retrieval bug.</p></div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>If the search scores 60%, no amount of prompt writing will save you &mdash; the answer was never in the room. Fix the search before you touch a single word of the prompt. Teams routinely spend weeks rewriting a prompt to fix what is actually a search bug.</p></div></div>
 <h3>Agents: score the trajectory, not just the ending</h3>
-<p>An agent can reach the right answer through twelve wasteful steps, or reach a wrong one having done everything sensibly. Only scoring the final output hides both.</p>
+<p>An agent can arrive at the right answer after twelve wasteful steps, or arrive at the wrong one having done everything sensibly. Scoring only the final answer hides both of those.</p>
 <div class="table-wrap"><table><thead><tr><th>What to measure</th><th>Why it matters</th></tr></thead><tbody>
-<tr><td><strong>Task success</strong> &mdash; did it achieve the goal?</td><td>The headline number, but on its own it is not diagnostic.</td></tr>
-<tr><td><strong>Steps taken</strong></td><td>A rising step count is the earliest signal that something in the tool set has become confusing.</td></tr>
-<tr><td><strong>Tool choice accuracy</strong></td><td>Did it pick the right tool at each decision point? This localises the fault to a description you can rewrite.</td></tr>
-<tr><td><strong>Tokens and cost per run</strong></td><td>The thing that quietly ruins the economics. Track per run, not per request.</td></tr>
-<tr><td><strong>Gate hits</strong></td><td>How often it attempted something requiring approval. A sudden rise is worth investigating immediately.</td></tr>
+<tr><td><strong>Task success</strong> &mdash; did it achieve the goal?</td><td>The number everybody quotes, but on its own it does not tell you what went wrong.</td></tr>
+<tr><td><strong>Steps taken</strong></td><td>A step count that keeps rising is the earliest sign that something about your tools has become confusing.</td></tr>
+<tr><td><strong>Tool choice accuracy</strong></td><td>Did it pick the right tool at each decision point? This narrows the problem down to one description you can go and rewrite.</td></tr>
+<tr><td><strong>Tokens and cost per run</strong></td><td>The thing that quietly destroys the economics. Measure it per run, not per request.</td></tr>
+<tr><td><strong>Gate hits</strong></td><td>How often it tried to do something that needed approval. A sudden jump is worth looking into straight away.</td></tr>
 </tbody></table></div>
 </div>
 <nav class="page-nav">

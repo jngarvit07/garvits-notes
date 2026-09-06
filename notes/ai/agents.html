@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tools and agents — AI, RAG &amp; Security — Garvit's Notes</title>
-<meta name="description" content="In plain English A tool is a function you let the model call — look up an order, send an email, run a search.">
+<meta name="description" content="In plain English A tool is a function you allow the model to call — look up an order, send an email, run a search.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,8 +54,8 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A tool is a function you let the model call — look up an order, send an email, run a search. The model does not run it; it says which one it wants and with what arguments, your code decides whether to comply, runs it, and hands the result back. That decision point is where all your control lives. </div></div>
-<p><strong>Tool use</strong> is how a model does something rather than merely saying something. You describe the functions available; when the model wants one it returns a structured request instead of text; <strong>your code</strong> executes it and passes the result back. The model never runs anything itself. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A tool is a function you allow the model to call — look up an order, send an email, run a search. The model does not run it. It says which one it wants and with what values; your code decides whether to allow it, runs it, and hands the result back. That decision point is where all your control sits. </div></div>
+<p><strong>Tool use</strong> is how a model does something instead of only saying something. You describe the functions that are available. When the model wants one, it returns a neat request instead of text. <strong>Your code</strong> runs it and passes the result back. The model never runs anything by itself. </p>
 <div class="code-block"><div class="code-head"><span class="lang">prisma</span>Defining a tool</div><pre><code>const tools = [
   {
     name: 'get_project_status',
@@ -76,58 +76,58 @@ const response = await client.messages.create({
 });
 
 // response.stop_reason === 'tool_use' -&gt; a tool_use block names the tool and
-// its arguments. You validate the arguments, run the function, and send the
-// result back as the next message. Your code is the gate, every time.</code></pre></div>
-<p> An <strong>agent</strong> is that loop left running: the model calls a tool, sees the result, decides what to do next, and repeats until the job is done. It is genuinely useful for open-ended work, and it is where the risk concentrates — because now a system that can be talked into things can also act. </p>
+// its arguments. You check the arguments, run the function, and send the
+// result back as the next message. Your code is the gate, every single time.</code></pre></div>
+<p> An <strong>agent</strong> is that loop left running: the model calls a tool, sees the result, decides what to do next, and repeats until the job is finished. It is genuinely useful for open-ended work, and it is also where the risk piles up — because now a system that can be talked into things can also do things. </p>
 <figure class="figure is-flow" id="flow-5">
-<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">The agent loop — and every place your code gets a veto</span>
+<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">The agent loop — and every place your code can say no</span>
   <button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button>
 </div>
 <div class="figure-stage"><ol class="flow flow-column"><li class="flow-step dg-step" data-tone="plain" style="--i:0">
   <span class="flow-num">1</span>
   <div class="flow-text">
     <span class="flow-label">Goal</span>
-    <span class="flow-detail">A task, plus the tools you decided to offer.</span>
+    <span class="flow-detail">A task, plus the tools you chose to offer.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="plain" style="--i:1">
   <span class="flow-num">2</span>
   <div class="flow-text">
-    <span class="flow-label">Model proposes</span>
-    <span class="flow-detail">It returns a tool name and arguments. It has not run anything.</span>
+    <span class="flow-label">Model suggests</span>
+    <span class="flow-detail">It returns a tool name and some values. It has not run anything.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="accent" style="--i:2">
   <span class="flow-num">3</span>
   <div class="flow-text">
-    <span class="flow-label">You validate</span>
-    <span class="flow-detail">Schema, permissions, blast radius. This is the gate, and it is yours.</span>
+    <span class="flow-label">You check it</span>
+    <span class="flow-detail">Schema, permissions, how much damage it could do. This is the gate, and it belongs to you.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="danger" style="--i:3">
   <span class="flow-num">4</span>
   <div class="flow-text">
-    <span class="flow-label">Confirm if irreversible</span>
-    <span class="flow-detail">Sending, spending, deleting, publishing — a person approves.</span>
+    <span class="flow-label">Ask a human if it cannot be undone</span>
+    <span class="flow-detail">Sending, spending, deleting, publishing — a person approves first.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="plain" style="--i:4">
   <span class="flow-num">5</span>
   <div class="flow-text">
-    <span class="flow-label">Execute &amp; return</span>
-    <span class="flow-detail">Run it, hand back the result, log both.</span>
+    <span class="flow-label">Run it &amp; return</span>
+    <span class="flow-detail">Run the function, hand back the result, log both.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="accent" style="--i:5">
   <span class="flow-num">6</span>
   <div class="flow-text">
     <span class="flow-label">Repeat, with a limit</span>
-    <span class="flow-detail">A hard cap on iterations and tokens. Loops happen, and they cost money.</span>
+    <span class="flow-detail">A hard cap on rounds and on tokens. Loops do happen, and they cost money.</span>
   </div>
 </li></ol></div>
 </figure>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><strong>Do not build an agent by reflex.</strong> The ladder goes: one call, then a fixed sequence of calls your code controls, then tools, and only then an agent. Each rung is cheaper, faster and easier to reason about. Use an agent when the steps genuinely cannot be known in advance. </div></div>
-<p> You will also meet <strong>MCP</strong>, the Model Context Protocol: a standard way to expose tools and data to a model so the same connector works across different applications. Useful, and it changes nothing about the rules below — a tool reached through a protocol is still a tool, and still needs a gate in front of it. </p>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><strong>Do not build an agent out of habit.</strong> The ladder goes like this: one call, then a fixed sequence of calls your code controls, then tools, and only then an agent. Every step down is cheaper, faster and easier to understand. Use an agent only when the steps genuinely cannot be known in advance. </div></div>
+<p> You will also come across <strong>MCP</strong>, the Model Context Protocol: a standard way to offer tools and data to a model, so the same connector works in different applications. It is useful, and it changes nothing about the rules below — a tool reached through a protocol is still a tool, and it still needs a gate in front of it. </p>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="tuning.html">
@@ -143,7 +143,7 @@ const response = await client.messages.create({
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">AI, RAG &amp; Security</a></div>
-  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>AI, machine learning and language models</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>The wider AI family</a><a class="sib" href="how.html"><span class="sib-n">03</span>How a model actually works</a><a class="sib" href="training.html"><span class="sib-n">04</span>How a model is made, and why that matters to you</a><a class="sib" href="sampling.html"><span class="sib-n">05</span>Decoding: the settings on the request</a><a class="sib" href="models.html"><span class="sib-n">06</span>Choosing a model</a><a class="sib" href="multimodal.html"><span class="sib-n">07</span>Beyond text: images, documents and voice</a><a class="sib" href="prompting.html"><span class="sib-n">08</span>Prompting that actually works</a><a class="sib" href="context.html"><span class="sib-n">09</span>Context engineering: what the model can see</a><a class="sib" href="limits.html"><span class="sib-n">10</span>What models get wrong, and why</a><a class="sib" href="evaluation.html"><span class="sib-n">11</span>Evaluation: what turns this into engineering</a><a class="sib" href="embeddings.html"><span class="sib-n">12</span>Embeddings and vector search</a><a class="sib" href="rag.html"><span class="sib-n">13</span>RAG, in detail</a><a class="sib" href="choose.html"><span class="sib-n">14</span>RAG, fine-tuning, or just a better prompt</a><a class="sib" href="tuning.html"><span class="sib-n">15</span>Fine-tuning, when it is genuinely the answer</a><a class="sib is-current" href="agents.html"><span class="sib-n">16</span>Tools and agents</a><a class="sib" href="patterns.html"><span class="sib-n">17</span>Agent patterns worth knowing by name</a><a class="sib" href="production.html"><span class="sib-n">18</span>Shipping it: the unglamorous half</a><a class="sib" href="cost.html"><span class="sib-n">19</span>Cost and latency, engineered rather than hoped for</a><a class="sib" href="security.html"><span class="sib-n">20</span>AI security</a><a class="sib" href="ethics.html"><span class="sib-n">21</span>Bias, law and telling people</a><a class="sib" href="cases.html"><span class="sib-n">22</span>Four case studies, with the part that goes wrong</a><a class="sib" href="build.html"><span class="sib-n">23</span>Building it here — a worked design</a><a class="sib" href="glossary.html"><span class="sib-n">24</span>The jargon, decoded</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>AI, machine learning and language models</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>The wider AI family</a><a class="sib" href="how.html"><span class="sib-n">03</span>How a model actually works</a><a class="sib" href="training.html"><span class="sib-n">04</span>How a model is made, and why that matters to you</a><a class="sib" href="sampling.html"><span class="sib-n">05</span>Decoding: the settings on the request</a><a class="sib" href="models.html"><span class="sib-n">06</span>Choosing a model</a><a class="sib" href="multimodal.html"><span class="sib-n">07</span>Beyond text: images, documents and voice</a><a class="sib" href="prompting.html"><span class="sib-n">08</span>Prompting that actually works</a><a class="sib" href="context.html"><span class="sib-n">09</span>Context engineering: what the model can see</a><a class="sib" href="limits.html"><span class="sib-n">10</span>What models get wrong, and why</a><a class="sib" href="evaluation.html"><span class="sib-n">11</span>Evaluation: what turns this into engineering</a><a class="sib" href="embeddings.html"><span class="sib-n">12</span>Embeddings and vector search</a><a class="sib" href="rag.html"><span class="sib-n">13</span>RAG, in detail</a><a class="sib" href="choose.html"><span class="sib-n">14</span>RAG, fine-tuning, or just a better prompt</a><a class="sib" href="tuning.html"><span class="sib-n">15</span>Fine-tuning, when it is genuinely the answer</a><a class="sib is-current" href="agents.html"><span class="sib-n">16</span>Tools and agents</a><a class="sib" href="patterns.html"><span class="sib-n">17</span>Agent patterns worth knowing by name</a><a class="sib" href="production.html"><span class="sib-n">18</span>Shipping it: the boring half</a><a class="sib" href="cost.html"><span class="sib-n">19</span>Cost and latency, engineered rather than hoped for</a><a class="sib" href="security.html"><span class="sib-n">20</span>AI security</a><a class="sib" href="ethics.html"><span class="sib-n">21</span>Bias, law and telling people</a><a class="sib" href="cases.html"><span class="sib-n">22</span>Four case studies, with the part that goes wrong</a><a class="sib" href="build.html"><span class="sib-n">23</span>Building it here — a worked design</a><a class="sib" href="glossary.html"><span class="sib-n">24</span>The jargon, decoded</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

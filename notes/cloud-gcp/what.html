@@ -69,7 +69,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
           ├─ resources  Cloud Run services, buckets, databases
           ├─ IAM        who can do what, HERE
           └─ billing    what this costs, separately</code></pre></div>
-<p> The <strong>project</strong> is the only level you need at first. It is the boundary for billing, for permissions, and for blast radius. </p>
+<p> The <strong>project</strong> is the only level you need at first. It is the line that separates billing, permissions, and how far the damage can spread if something goes wrong. </p>
 <div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>Use separate projects for dev, staging and production.</strong> Not separate folders in one project &mdash; separate projects. It is the cheapest safety measure available: a mistake in dev cannot touch production data, permissions do not leak across, and the bill tells you which environment is costing you money. Doing this on day one takes ten minutes; retrofitting it takes a week. </div></div>
 </div>
 <nav class="page-nav">

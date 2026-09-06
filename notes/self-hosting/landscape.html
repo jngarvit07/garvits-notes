@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Open weights, and what the licence actually says — Running Models Yourself — Garvit's Notes</title>
-<meta name="description" content="Open-weight is not open-source, and the licence differences are the kind that reach a lawyer. Worth ten minutes before you build on one.">
+<meta name="description" content="Open-weight is not open-source, and the licence differences are the kind that end up with a lawyer. Worth ten minutes before you build on one.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,19 +54,19 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> &ldquo;Open&rdquo; here usually means you can download the numbers and run them. It rarely means you know what they were trained on, and it does not always mean you can use them commercially. The terms vary a great deal between families, and the differences are the sort that matter to whoever signs off your product. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> "Open" here usually means you can download the numbers and run them. It rarely means you know what they were trained on, and it does not always mean you can use them in a business. The terms vary a lot between model families, and the differences are the kind that matter to whoever signs off on your product. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Term</th><th>What it means</th></tr></thead><tbody>
-<tr><td><strong>Open weights</strong></td><td>The parameters are downloadable. The training data and code usually are not.</td></tr>
-<tr><td><strong>Open source</strong></td><td>Properly: weights, data, and training code, under an OSI licence. Genuinely rare.</td></tr>
-<tr><td><strong>Permissive licence</strong></td><td>Apache 2.0 or MIT. Commercial use, modification and redistribution. The straightforward case.</td></tr>
-<tr><td><strong>Custom / community licence</strong></td><td>Downloadable, with conditions &mdash; user thresholds, naming requirements, use restrictions, or a bar on training other models on the outputs. Read it.</td></tr>
-<tr><td><strong>Research only</strong></td><td>Not for a product, whatever the benchmark says.</td></tr>
+<tr><td><strong>Open weights</strong></td><td>You can download the parameters. The training data and the training code usually are not included.</td></tr>
+<tr><td><strong>Open source</strong></td><td>Properly: weights, data and training code, under a real open-source licence. Genuinely rare.</td></tr>
+<tr><td><strong>Permissive licence</strong></td><td>Apache 2.0 or MIT. Commercial use, changes and redistribution all allowed. The easy case.</td></tr>
+<tr><td><strong>Custom / community licence</strong></td><td>Downloadable, but with conditions &mdash; user-count limits, naming rules, restrictions on use, or a ban on training other models with the outputs. Read it.</td></tr>
+<tr><td><strong>Research only</strong></td><td>Not for a product, no matter how good the benchmark looks.</td></tr>
 </tbody></table></div>
 <div class="card-grid cols-2">
-  <div class="card"><div class="card-title">Check before you build, not after</div><p>Whether commercial use is permitted, whether there is a user-count threshold, whether outputs may train another model, and whether attribution is required. Ten minutes now, versus discovering it during a due-diligence review.</p></div>
-  <div class="card"><div class="card-title">Pick by size class first</div><p>Roughly: <strong>1&ndash;4B</strong> for classification and extraction on modest hardware; <strong>7&ndash;14B</strong> the practical sweet spot for general work on one GPU; <strong>30&ndash;70B</strong> approaching hosted quality at real infrastructure cost; <strong>100B+</strong> a serving project in its own right.</p></div>
+  <div class="card"><div class="card-title">Check before you build, not after</div><p>Whether commercial use is allowed, whether there is a user-count limit, whether the outputs may train another model, and whether you must give credit. Ten minutes now, versus finding out during an investor's due-diligence review.</p></div>
+  <div class="card"><div class="card-title">Pick by size class first</div><p>Roughly: <strong>1&ndash;4B</strong> for sorting and field extraction on modest hardware; <strong>7&ndash;14B</strong> the practical sweet spot for general work on one GPU; <strong>30&ndash;70B</strong> getting close to hosted quality, at real infrastructure cost; <strong>100B+</strong> a serving project all by itself.</p></div>
 </div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Model names and rankings move faster than anything written down, so this note deliberately names none. Pick a size class, shortlist two or three current models in it, and decide with <em>your</em> eval set. A leaderboard measures general ability on somebody else's problems; your eval set measures the only thing you actually care about. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Model names and rankings change faster than anything written down, so this note deliberately names none. Pick a size class, shortlist two or three current models in it, and decide using <em>your</em> test set. A leaderboard measures general ability on somebody else's problems; your test set measures the only thing you actually care about. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="why.html">
@@ -76,13 +76,13 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </a>
 <a class="pn-next" href="memory.html">
   <span class="pn-dir">Next &rarr;</span>
-  <span class="pn-title">Will it fit? The VRAM arithmetic</span>
+  <span class="pn-title">Will it fit? The VRAM sum</span>
   
 </a>
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Running Models Yourself</a></div>
-  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>When to run a model yourself</a><a class="sib is-current" href="landscape.html"><span class="sib-n">02</span>Open weights, and what the licence actually says</a><a class="sib" href="memory.html"><span class="sib-n">03</span>Will it fit? The VRAM arithmetic</a><a class="sib" href="quantisation.html"><span class="sib-n">04</span>Quantisation</a><a class="sib" href="serving.html"><span class="sib-n">05</span>Serving it properly</a><a class="sib" href="ops.html"><span class="sib-n">06</span>What you have just taken on</a></div>
+  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>When to run a model yourself</a><a class="sib is-current" href="landscape.html"><span class="sib-n">02</span>Open weights, and what the licence actually says</a><a class="sib" href="memory.html"><span class="sib-n">03</span>Will it fit? The VRAM sum</a><a class="sib" href="quantisation.html"><span class="sib-n">04</span>Quantisation</a><a class="sib" href="serving.html"><span class="sib-n">05</span>Serving it properly</a><a class="sib" href="ops.html"><span class="sib-n">06</span>What you have just taken on</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

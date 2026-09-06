@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The jargon, decoded — AI, RAG &amp; Security — Garvit's Notes</title>
-<meta name="description" content="In plain English The vocabulary, in one place.">
+<meta name="description" content="In plain English All the vocabulary in one place.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,43 +54,43 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The vocabulary, in one place. Much of the difficulty in this field is terminology rather than concept — the ideas are usually simpler than the words used for them, and once a term is decoded it often turns out you already understood the thing. </div></div>
-<p> Every term you will meet in a meeting about this, in one place. Nothing here is new — it is the vocabulary of the sections above, collected so this page can be used as a reference once it has been read as a lesson. </p>
-<div class="table-wrap"><table><thead><tr><th>Term</th><th>What it means</th></tr></thead><tbody><tr><td>Token</td><td>A piece of a word. The unit of both billing and every size limit. Roughly 750 English words per 1,000 tokens.</td></tr>
-<tr><td>Context window</td><td>The total tokens one request may contain — instructions, history, documents, question and answer.</td></tr>
-<tr><td>Parameters / weights</td><td>The numbers learned during training. "70B" means seventy billion of them. More is usually more capable and more expensive to run.</td></tr>
-<tr><td>Transformer</td><td>The architecture behind current models. Attention is its central mechanism.</td></tr>
-<tr><td>Pre-training / fine-tuning</td><td>Learning language from an enormous corpus; then adjusting on a smaller, targeted set.</td></tr>
-<tr><td>RLHF</td><td>Reinforcement learning from human feedback — the tuning that makes a raw model behave like a helpful assistant.</td></tr>
-<tr><td>Temperature</td><td>How random the next-token choice is. Low is focused and repeatable.</td></tr>
-<tr><td>Extended thinking / reasoning</td><td>The model working through a problem internally before answering. Better on hard tasks, more tokens.</td></tr>
-<tr><td>System prompt</td><td>The instructions, sent separately from the user’s messages.</td></tr>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> All the vocabulary in one place. Much of the difficulty in this field is the words, not the ideas — the ideas are usually simpler than the terms used for them, and once a term is explained you often find you already understood the thing. </div></div>
+<p> Every term you are likely to hear in a meeting about this, in one place. Nothing here is new — it is the vocabulary from the sections above, gathered together so this page can be used as a quick reference once you have read it as a lesson. </p>
+<div class="table-wrap"><table><thead><tr><th>Term</th><th>What it means</th></tr></thead><tbody><tr><td>Token</td><td>A piece of a word. The unit used for billing and for every size limit. Roughly 750 English words make 1,000 tokens.</td></tr>
+<tr><td>Context window</td><td>The total tokens one request may hold — instructions, history, documents, question and answer.</td></tr>
+<tr><td>Parameters / weights</td><td>The numbers learned during training. "70B" means seventy billion of them. More usually means more capable and more expensive to run.</td></tr>
+<tr><td>Transformer</td><td>The design behind today's models. Attention is the main idea inside it.</td></tr>
+<tr><td>Pre-training / fine-tuning</td><td>Learning language from a huge pile of text; then adjusting on a smaller, focused set.</td></tr>
+<tr><td>RLHF</td><td>Reinforcement learning from human feedback — the tuning that turns a raw model into a helpful assistant.</td></tr>
+<tr><td>Temperature</td><td>How random the next-token choice is. Low means focused and repeatable.</td></tr>
+<tr><td>Extended thinking / reasoning</td><td>The model working through a problem in its head before answering. Better on hard tasks, uses more tokens.</td></tr>
+<tr><td>System prompt</td><td>Your instructions, sent separately from the user's messages.</td></tr>
 <tr><td>Few-shot</td><td>Including examples of the input and the output you want.</td></tr>
-<tr><td>Chain of thought</td><td>Asking for the steps rather than only the conclusion.</td></tr>
-<tr><td>Structured output</td><td>Constraining the reply to a schema so a program can parse it safely.</td></tr>
-<tr><td>Prompt caching</td><td>Reusing a stable prefix across calls at a fraction of the cost.</td></tr>
-<tr><td>Hallucination</td><td>A confident, fluent, invented answer. Not lying — the model cannot tell.</td></tr>
-<tr><td>Grounding</td><td>Tying an answer to supplied sources, and citing them.</td></tr>
-<tr><td>Embedding</td><td>Text as a list of numbers positioned by meaning.</td></tr>
-<tr><td>Vector database / pgvector</td><td>Storage that finds the nearest embeddings quickly. pgvector does it inside PostgreSQL.</td></tr>
-<tr><td>Cosine similarity</td><td>The usual measure of how close two embeddings are.</td></tr>
-<tr><td>Chunking</td><td>Splitting documents into retrievable passages. The most under-rated decision in RAG.</td></tr>
-<tr><td>Hybrid search</td><td>Semantic search plus keyword search, combined. Usually the biggest single quality win.</td></tr>
-<tr><td>Reranking</td><td>A second, sharper pass that re-orders retrieved candidates by relevance.</td></tr>
-<tr><td>RAG</td><td>Retrieval-augmented generation: retrieve the relevant passages, then answer from them.</td></tr>
-<tr><td>Tool use / function calling</td><td>The model requests an action; your code decides whether to run it.</td></tr>
-<tr><td>Agent</td><td>A loop where the model repeatedly acts, observes and decides until a task is done.</td></tr>
-<tr><td>MCP</td><td>Model Context Protocol — a standard way to expose tools and data to a model.</td></tr>
-<tr><td>Prompt injection</td><td>Text that a model reads as an instruction when it was meant as data. The central security problem.</td></tr>
+<tr><td>Chain of thought</td><td>Asking for the steps, not only the final answer.</td></tr>
+<tr><td>Structured output</td><td>Forcing the reply into a schema so a program can read it safely.</td></tr>
+<tr><td>Prompt caching</td><td>Reusing an unchanging opening block across calls at a fraction of the cost.</td></tr>
+<tr><td>Hallucination</td><td>A confident, smooth, made-up answer. Not lying — the model genuinely cannot tell.</td></tr>
+<tr><td>Grounding</td><td>Tying an answer to the sources you supplied, and citing them.</td></tr>
+<tr><td>Embedding</td><td>Text turned into a list of numbers, placed by meaning.</td></tr>
+<tr><td>Vector database / pgvector</td><td>Storage that quickly finds the nearest embeddings. pgvector does it inside PostgreSQL.</td></tr>
+<tr><td>Cosine similarity</td><td>The usual way of measuring how close two embeddings are.</td></tr>
+<tr><td>Chunking</td><td>Splitting documents into passages you can search. The most underrated decision in RAG.</td></tr>
+<tr><td>Hybrid search</td><td>Semantic search and keyword search used together. Usually the single biggest quality win.</td></tr>
+<tr><td>Reranking</td><td>A second, sharper pass that re-orders the fetched candidates by relevance.</td></tr>
+<tr><td>RAG</td><td>Retrieval-augmented generation: fetch the relevant passages, then answer from them.</td></tr>
+<tr><td>Tool use / function calling</td><td>The model asks for an action; your code decides whether to run it.</td></tr>
+<tr><td>Agent</td><td>A loop where the model acts, looks at the result and decides again, until the task is done.</td></tr>
+<tr><td>MCP</td><td>Model Context Protocol — a standard way to offer tools and data to a model.</td></tr>
+<tr><td>Prompt injection</td><td>Text the model reads as an instruction when it was meant as data. The central security problem.</td></tr>
 <tr><td>Jailbreak</td><td>Getting a model to ignore its safety training.</td></tr>
-<tr><td>Guardrails</td><td>Checks around a model — input filters, output validation, allowed-action lists.</td></tr>
-<tr><td>Eval</td><td>A test set of inputs with expected outputs, run on every prompt change.</td></tr>
-<tr><td>LLM-as-judge</td><td>Using a model to grade output against a rubric, so evaluation scales.</td></tr>
-<tr><td>Inference</td><td>Running a trained model to get an answer. Your ongoing cost.</td></tr>
-<tr><td>Quantisation</td><td>Shrinking a model’s numbers so it runs on smaller hardware, trading a little quality.</td></tr>
-<tr><td>Open weights</td><td>A model you can download and run yourself, as opposed to calling an API.</td></tr>
+<tr><td>Guardrails</td><td>Checks around a model — filters on the input, checks on the output, lists of allowed actions.</td></tr>
+<tr><td>Eval</td><td>A test set of inputs with expected outputs, run after every prompt change.</td></tr>
+<tr><td>LLM-as-judge</td><td>Using a model to grade output against a marking scheme, so testing can scale.</td></tr>
+<tr><td>Inference</td><td>Running a trained model to get an answer. This is your ongoing cost.</td></tr>
+<tr><td>Quantisation</td><td>Shrinking a model's numbers so it runs on smaller hardware, giving up a little quality.</td></tr>
+<tr><td>Open weights</td><td>A model you can download and run yourself, instead of calling an API.</td></tr>
 <tr><td>Multimodal</td><td>Accepting more than text — images, PDFs, audio.</td></tr>
-<tr><td>Batch API</td><td>Asynchronous processing at lower cost, for work nobody is waiting on.</td></tr></tbody></table></div>
+<tr><td>Batch API</td><td>Background processing at a lower cost, for work nobody is waiting on.</td></tr></tbody></table></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="build.html">
@@ -106,7 +106,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">AI, RAG &amp; Security</a></div>
-  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>AI, machine learning and language models</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>The wider AI family</a><a class="sib" href="how.html"><span class="sib-n">03</span>How a model actually works</a><a class="sib" href="training.html"><span class="sib-n">04</span>How a model is made, and why that matters to you</a><a class="sib" href="sampling.html"><span class="sib-n">05</span>Decoding: the settings on the request</a><a class="sib" href="models.html"><span class="sib-n">06</span>Choosing a model</a><a class="sib" href="multimodal.html"><span class="sib-n">07</span>Beyond text: images, documents and voice</a><a class="sib" href="prompting.html"><span class="sib-n">08</span>Prompting that actually works</a><a class="sib" href="context.html"><span class="sib-n">09</span>Context engineering: what the model can see</a><a class="sib" href="limits.html"><span class="sib-n">10</span>What models get wrong, and why</a><a class="sib" href="evaluation.html"><span class="sib-n">11</span>Evaluation: what turns this into engineering</a><a class="sib" href="embeddings.html"><span class="sib-n">12</span>Embeddings and vector search</a><a class="sib" href="rag.html"><span class="sib-n">13</span>RAG, in detail</a><a class="sib" href="choose.html"><span class="sib-n">14</span>RAG, fine-tuning, or just a better prompt</a><a class="sib" href="tuning.html"><span class="sib-n">15</span>Fine-tuning, when it is genuinely the answer</a><a class="sib" href="agents.html"><span class="sib-n">16</span>Tools and agents</a><a class="sib" href="patterns.html"><span class="sib-n">17</span>Agent patterns worth knowing by name</a><a class="sib" href="production.html"><span class="sib-n">18</span>Shipping it: the unglamorous half</a><a class="sib" href="cost.html"><span class="sib-n">19</span>Cost and latency, engineered rather than hoped for</a><a class="sib" href="security.html"><span class="sib-n">20</span>AI security</a><a class="sib" href="ethics.html"><span class="sib-n">21</span>Bias, law and telling people</a><a class="sib" href="cases.html"><span class="sib-n">22</span>Four case studies, with the part that goes wrong</a><a class="sib" href="build.html"><span class="sib-n">23</span>Building it here — a worked design</a><a class="sib is-current" href="glossary.html"><span class="sib-n">24</span>The jargon, decoded</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>AI, machine learning and language models</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>The wider AI family</a><a class="sib" href="how.html"><span class="sib-n">03</span>How a model actually works</a><a class="sib" href="training.html"><span class="sib-n">04</span>How a model is made, and why that matters to you</a><a class="sib" href="sampling.html"><span class="sib-n">05</span>Decoding: the settings on the request</a><a class="sib" href="models.html"><span class="sib-n">06</span>Choosing a model</a><a class="sib" href="multimodal.html"><span class="sib-n">07</span>Beyond text: images, documents and voice</a><a class="sib" href="prompting.html"><span class="sib-n">08</span>Prompting that actually works</a><a class="sib" href="context.html"><span class="sib-n">09</span>Context engineering: what the model can see</a><a class="sib" href="limits.html"><span class="sib-n">10</span>What models get wrong, and why</a><a class="sib" href="evaluation.html"><span class="sib-n">11</span>Evaluation: what turns this into engineering</a><a class="sib" href="embeddings.html"><span class="sib-n">12</span>Embeddings and vector search</a><a class="sib" href="rag.html"><span class="sib-n">13</span>RAG, in detail</a><a class="sib" href="choose.html"><span class="sib-n">14</span>RAG, fine-tuning, or just a better prompt</a><a class="sib" href="tuning.html"><span class="sib-n">15</span>Fine-tuning, when it is genuinely the answer</a><a class="sib" href="agents.html"><span class="sib-n">16</span>Tools and agents</a><a class="sib" href="patterns.html"><span class="sib-n">17</span>Agent patterns worth knowing by name</a><a class="sib" href="production.html"><span class="sib-n">18</span>Shipping it: the boring half</a><a class="sib" href="cost.html"><span class="sib-n">19</span>Cost and latency, engineered rather than hoped for</a><a class="sib" href="security.html"><span class="sib-n">20</span>AI security</a><a class="sib" href="ethics.html"><span class="sib-n">21</span>Bias, law and telling people</a><a class="sib" href="cases.html"><span class="sib-n">22</span>Four case studies, with the part that goes wrong</a><a class="sib" href="build.html"><span class="sib-n">23</span>Building it here — a worked design</a><a class="sib is-current" href="glossary.html"><span class="sib-n">24</span>The jargon, decoded</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

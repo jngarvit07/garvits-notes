@@ -42,7 +42,7 @@ app.listen(5000, () =&gt; console.log('listening on 5000'));</code></pre></div>
 
 <section class="note-section">
 <h2 id="routes">Routes and routers</h2>
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A route is one line in a directory: &ldquo;a GET to <code>/projects</code> is handled by this function&rdquo;. A router is a sheet of those lines that you can move around as a unit — all the project routes in one file, all the user routes in another — so a large API stays navigable instead of becoming one enormous file. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A route is one line in a directory: &ldquo;a GET to <code>/projects</code> is handled by this function&rdquo;. A router is a page of those lines that you can move around as one piece. All the project routes go in one file, all the user routes in another. That way a big API stays easy to find your way around, instead of turning into one enormous file. </div></div>
 <p> A route is a method plus a path plus a handler. A <strong>router</strong> is a group of routes that can be mounted under a prefix, which is how an API stays navigable past about twenty endpoints. </p>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>One router per resource, mounted under a prefix</div><pre><code>// routes/projects.ts
 import { Router } from 'express';
@@ -255,7 +255,7 @@ router.get('/:id', requireAuth, getProject);   // only this route</code></pre></
 <div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Answering <strong>404 rather than 403</strong> for somebody else’s record is deliberate: a 403 confirms the record exists, which is itself information. Same reason the sign-in errors above are identical. </div></div>
 
 <details class="selfcheck"><summary><span class="sc-q">A signed-in user changes the id in <code>GET /api/invoices/8412</code> to <code>8413</code> and sees somebody else&rsquo;s invoice. Which of the two failed?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Authorisation. They were genuinely who they claimed to be, and the token was valid — the server simply never asked whether <em>this</em> user owns <em>that</em> invoice. </p>
-<p> This is among the most common serious flaws in real APIs, and the fix is a habit rather than a library: every query that fetches a record by id also filters by the owner, so an id that is not yours returns nothing rather than someone else&rsquo;s data. </p></div></details>
+<p> This is one of the most common serious holes in real APIs. The fix is a habit, not a library. Every query that fetches a record by id must also filter by who owns it. Then an id that does not belong to you returns nothing, instead of returning somebody else's data. </p></div></details>
 </section>
 
 <section class="note-section">

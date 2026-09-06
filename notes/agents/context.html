@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Context over a long run — Agents &amp; Workflows — Garvit's Notes</title>
-<meta name="description" content="In plain English An agent that runs for twenty steps accumulates twenty steps of history, and there is a hard limit on how much it can hold.">
+<meta name="description" content="In plain English An agent that runs for twenty steps collects twenty steps of history, and there is a hard limit on how much it can hold.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,33 +54,33 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> An agent that runs for twenty steps accumulates twenty steps of history, and there is a hard limit on how much it can hold. So you have to decide what to keep, what to summarise and what to throw away — and doing that badly is why long runs get slower, more expensive and confused as they go. </div></div>
-<p>An agent that runs for forty steps has a problem a single call never has: the transcript grows on every turn, you pay for all of it on every request, and eventually it does not fit. Three different mechanisms address three different versions of that problem, and they are routinely confused.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> An agent that runs for twenty steps collects twenty steps of history, and there is a hard limit on how much it can hold. So you have to decide what to keep, what to summarise and what to throw away — and doing that badly is why long runs get slower, costlier and more confused as they go on. </div></div>
+<p>An agent that runs for forty steps has a problem a single call never has: the transcript grows on every turn, you pay for all of it on every request, and eventually it stops fitting. Three different mechanisms solve three different versions of that problem, and people mix them up all the time.</p>
 <div class="card-grid cols-3">
-<div class="card"><div class="card-title key-term">Context editing</div><p><strong>Prunes.</strong> Clears stale tool results and old thinking blocks out of the transcript. Within one session. Use when the history is full of large results nobody needs any more.</p></div>
-<div class="card"><div class="card-title key-term">Compaction</div><p><strong>Summarises.</strong> Condenses earlier context into a summary block when you approach the window limit. Within one session. Use for conversations that genuinely run long.</p></div>
-<div class="card"><div class="card-title key-term">Memory</div><p><strong>Persists.</strong> Files the agent reads and writes that outlive the process. Across sessions. Use when tomorrow&rsquo;s run needs to know what today&rsquo;s learned.</p></div>
+<div class="card"><div class="card-title key-term">Context editing</div><p><strong>Trims.</strong> Clears out stale tool results and old thinking blocks from the transcript. Inside one session. Use it when the history is full of big results nobody needs any more.</p></div>
+<div class="card"><div class="card-title key-term">Compaction</div><p><strong>Summarises.</strong> Squeezes earlier context into a summary block as you approach the window limit. Inside one session. Use it for conversations that genuinely run long.</p></div>
+<div class="card"><div class="card-title key-term">Memory</div><p><strong>Keeps.</strong> Files the agent reads and writes that outlive the process. Across sessions. Use it when tomorrow's run needs to know what today's run learned.</p></div>
 </div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Compaction has one non-obvious rule.</strong> Append the whole <code>response.content</code> back onto your messages each turn, not just the extracted text. The compaction blocks in the response are what the API uses to replace the compacted history on the next request &mdash; pull out only the text string and you silently lose the compaction state, and the context starts growing again with no error to tell you.</p></div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Compaction has one rule that is easy to miss.</strong> Push the whole <code>response.content</code> back onto your messages each turn, not just the text you pulled out of it. The compaction blocks inside that response are what the API uses to replace the squeezed-down history on the next request &mdash; take out only the text string and you quietly lose the compaction state, and the context starts growing again with no error to warn you.</p></div></div>
 <h3>Caching is the other half of the cost story</h3>
-<p>Because every request resends the whole conversation, a long agent run re-reads the same system prompt and tool definitions dozens of times. Prompt caching makes that stable prefix nearly free &mdash; but it is a <strong>prefix match</strong>, so one changed byte early in the request invalidates everything after it.</p>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>The order rendered is <code>tools</code>, then <code>system</code>, then <code>messages</code>. Keep everything stable at the front and everything volatile at the back. A timestamp in the system prompt, an unsorted JSON blob, or a tool list you rebuild per request will each silently drop your hit rate to zero. Check <code>usage.cache_read_input_tokens</code> &mdash; if it stays at zero across repeated calls, something up front is changing.</p></div></div>
+<p>Because every request re-sends the whole conversation, a long agent run re-reads the same system prompt and tool definitions dozens of times. Prompt caching makes that unchanging opening block nearly free &mdash; but it matches on an <strong>exact opening block</strong>, so one changed byte early in the request throws away everything after it.</p>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>The order sent is <code>tools</code>, then <code>system</code>, then <code>messages</code>. Keep everything unchanging at the front and everything that varies at the back. A timestamp in the system prompt, an unsorted JSON blob, or a tool list you rebuild in a different order each request will each quietly drop your cache hit rate to zero. Check <code>usage.cache_read_input_tokens</code> &mdash; if it stays at zero across repeated calls, something up front is changing.</p></div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="tools.html">
   <span class="pn-dir">&larr; Previous</span>
-  <span class="pn-title">Designing the tool surface</span>
+  <span class="pn-title">Designing the set of tools</span>
   
 </a>
 <a class="pn-next" href="structure.html">
   <span class="pn-dir">Next &rarr;</span>
-  <span class="pn-title">A folder structure that survives contact</span>
+  <span class="pn-title">A folder structure that survives real use</span>
   
 </a>
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Agents &amp; Workflows</a></div>
-  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What an agent actually is</a><a class="sib" href="ladder.html"><span class="sib-n">02</span>The ladder: start at the bottom</a><a class="sib" href="workflows.html"><span class="sib-n">03</span>Five workflow patterns worth knowing by name</a><a class="sib" href="loop.html"><span class="sib-n">04</span>The agent loop, drawn</a><a class="sib" href="tools.html"><span class="sib-n">05</span>Designing the tool surface</a><a class="sib is-current" href="context.html"><span class="sib-n">06</span>Context over a long run</a><a class="sib" href="structure.html"><span class="sib-n">07</span>A folder structure that survives contact</a><a class="sib" href="control.html"><span class="sib-n">08</span>Keeping it on a leash</a><a class="sib" href="mistakes.html"><span class="sib-n">09</span>Where agents actually go wrong</a><a class="sib" href="here.html"><span class="sib-n">10</span>Building one on this stack</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What an agent actually is</a><a class="sib" href="ladder.html"><span class="sib-n">02</span>The ladder: start at the bottom</a><a class="sib" href="workflows.html"><span class="sib-n">03</span>Five workflow patterns worth knowing by name</a><a class="sib" href="loop.html"><span class="sib-n">04</span>The agent loop, drawn</a><a class="sib" href="tools.html"><span class="sib-n">05</span>Designing the set of tools</a><a class="sib is-current" href="context.html"><span class="sib-n">06</span>Context over a long run</a><a class="sib" href="structure.html"><span class="sib-n">07</span>A folder structure that survives real use</a><a class="sib" href="control.html"><span class="sib-n">08</span>Keeping it on a leash</a><a class="sib" href="mistakes.html"><span class="sib-n">09</span>Where agents actually go wrong</a><a class="sib" href="here.html"><span class="sib-n">10</span>Building one on this stack</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

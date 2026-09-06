@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Distillation, and the case that actually pays — Fine-tuning — Garvit's Notes</title>
-<meta name="description" content="The strongest economic case for fine-tuning: teach a small cheap model to do one job as well as the expensive one, using the expensive one as the teacher.">
+<meta name="description" content="The strongest money argument for fine-tuning: teach a small cheap model to do one job as well as the expensive one, using the expensive one as the teacher.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -49,30 +49,30 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   <span class="eyebrow">Note 10 &middot; Fine-tuning &middot; Topic 5 of 6</span>
   <h1>Distillation, and the case that actually pays</h1>
   <div class="page-meta">
-    <span>2 min read</span>
+    <span>3 min read</span>
     <span>Some experience helps</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Use the expensive model to do the job perfectly a few thousand times, then train a small cheap model on those answers. The small model will not match it in general &mdash; but on that one narrow task it can get very close, at a fraction of the cost and a fraction of the latency. This is where fine-tuning most reliably makes financial sense. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Use the expensive model to do the job perfectly a few thousand times, then train a small cheap model on those answers. The small model will not match it in general &mdash; but on that one narrow task it can come very close, at a fraction of the cost and a fraction of the waiting time. This is where fine-tuning most reliably makes financial sense. </div></div>
 <figure class="figure is-flow">
-<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Distilling one task down to a small model</span><button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button></div>
+<div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Shrinking one task down to a small model</span><button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button></div>
 <div class="figure-stage"><ol class="flow flow-column">
-<li class="flow-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Ship on the big model first</span><span class="flow-detail">You cannot distil a task you have not defined. Get it working and get an eval set that proves it works.</span></div></li>
-<li class="flow-step" data-tone="plain" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">Collect real inputs</span><span class="flow-detail">A few thousand from production. Real ones — the distribution is the point, and invented inputs are drawn from what you already thought of.</span></div></li>
-<li class="flow-step" data-tone="plain" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Generate and filter the answers</span><span class="flow-detail">Run the big model over them, then throw away everything that fails validation. Training on the teacher&rsquo;s mistakes teaches the mistakes.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Ship on the big model first</span><span class="flow-detail">You cannot shrink a task you have not defined. Get it working, and get a test set that proves it works.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">Collect real inputs</span><span class="flow-detail">A few thousand from live traffic. Real ones — the mix of real inputs is the whole point, and made-up inputs only cover what you already thought of.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Generate the answers, then filter them</span><span class="flow-detail">Run the big model over them, then throw away everything that fails your checks. Training on the teacher's mistakes teaches the mistakes.</span></div></li>
 <li class="flow-step" data-tone="accent" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">LoRA-tune the small model</span><span class="flow-detail">Hours, not weeks, and modest hardware.</span></div></li>
-<li class="flow-step" data-tone="plain" style="--i:4"><span class="flow-num">5</span><div class="flow-text"><span class="flow-label">Compare on the same eval set</span><span class="flow-detail">Same cases, same grader. If the small model is within tolerance, the decision makes itself.</span></div></li>
-<li class="flow-step" data-tone="plain" style="--i:5"><span class="flow-num">6</span><div class="flow-text"><span class="flow-label">Shadow, canary, switch</span><span class="flow-detail">Exactly as for any other model change. Keep the big model as the fallback.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:4"><span class="flow-num">5</span><div class="flow-text"><span class="flow-label">Compare on the same test set</span><span class="flow-detail">Same cases, same marker. If the small model is close enough, the decision makes itself.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:5"><span class="flow-num">6</span><div class="flow-text"><span class="flow-label">Shadow, canary, switch</span><span class="flow-detail">Exactly as for any other model change. Keep the big model as your fallback.</span></div></li>
 </ol></div>
 </figure>
 <div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">When it is worth it, and when it is not</span></div><div class="example-body">
-<p> <strong>Worth it:</strong> a classifier running on every inbound message, a few million times a month. The task is narrow, the volume is high, and latency is in the user's path. A distilled small model can be an order of magnitude cheaper and several times faster, and the eval set tells you whether quality held. </p>
-<p> <strong>Not worth it:</strong> a feature called two hundred times a day. The engineering, the retraining as the task drifts, the serving infrastructure and the extra thing to monitor all cost more than the tokens you would save. Fine-tuning has a fixed cost that never goes away &mdash; a model you must re-tune whenever the task changes, and a pipeline somebody has to own. </p>
-<p> The honest test is arithmetic. Take your current monthly token spend on that one feature, estimate the saving, and compare it to a week of engineering plus ongoing maintenance. If the answer is not obvious, it is a no. </p>
+<p> <strong>Worth it:</strong> a classifier running on every incoming message, a few million times a month. The task is narrow, the volume is huge, and the user is waiting for it. A shrunk-down small model can be ten times cheaper and several times faster, and the test set tells you whether the quality held up. </p>
+<p> <strong>Not worth it:</strong> a feature called two hundred times a day. The engineering, the retraining as the task drifts, the serving setup and one more thing to watch all cost more than the tokens you would save. Fine-tuning has a fixed cost that never goes away &mdash; a model you must re-tune whenever the task changes, and a pipeline somebody has to own. </p>
+<p> The honest test is arithmetic. Take your current monthly token spend on that one feature, work out the saving, and compare it with a week of engineering plus ongoing upkeep. If the answer is not obvious, the answer is no. </p>
 </div></div>
-<details class="selfcheck"><summary><span class="sc-q">Why filter the teacher model&rsquo;s outputs before training on them?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because the teacher is not perfect, and the student copies everything it is shown with no way to tell good examples from bad. Training on unfiltered output bakes the teacher&rsquo;s error rate into the student permanently &mdash; and the student cannot exceed what it was taught. </p>
-<p> Filtering with your validators, your business rules and ideally a sample of human review is what makes the student&rsquo;s ceiling the teacher&rsquo;s <em>good</em> answers rather than its average ones. </p></div></details>
+<details class="selfcheck"><summary><span class="sc-q">Why filter the teacher model&rsquo;s answers before training on them?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because the teacher is not perfect, and the student copies everything it is shown with no way to tell good examples from bad. Training on unfiltered output bakes the teacher's error rate into the student permanently &mdash; and the student can never do better than what it was taught. </p>
+<p> Filtering with your own checks, your business rules, and ideally a sample checked by a human, is what makes the student's ceiling the teacher's <em>good</em> answers instead of its average ones. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="preference.html">

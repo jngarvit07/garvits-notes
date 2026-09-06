@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The problem MCP solves — MCP — Garvit's Notes</title>
-<meta name="description" content="Before MCP, every combination of AI application and data source needed its own integration.">
+<meta name="description" content="Before MCP, every pairing of an AI application with a data source needed its own custom integration.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,8 +54,8 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<p>Before MCP, every combination of AI application and data source needed its own integration. Your Postgres connector for one chat app did not work in another. Ten applications and ten data sources meant a hundred bespoke integrations, each maintained separately, each subtly different.</p>
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>MCP is a plug shape. Before USB, every device had its own connector and its own cable; the cable that charged your camera was useless for your phone. USB did not make devices better &mdash; it made them interchangeable. The <strong>Model Context Protocol</strong> does the same thing for the connection between a model and the tools or data it uses: write the server once, and every application that speaks MCP can use it.</p></div></div>
+<p>Before MCP, every pairing of an AI application with a data source needed its own custom integration. The Postgres connector you wrote for one chat app did not work in another one. Ten applications and ten data sources meant a hundred hand-built integrations, each looked after separately, each slightly different from the rest.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>MCP is a plug shape. Think of the old days when every mobile phone had a different charger, and your friend's charger was useless for your phone. Then USB-C arrived. It did not make phones better &mdash; it made the chargers interchangeable. The <strong>Model Context Protocol</strong> does the same for the connection between a model and the tools or data it uses: write the server once, and every application that speaks MCP can use it.</p></div></div>
 <figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">Ten applications, ten sources: with and without a standard</span></div><div class="figure-stage"><pre class="ascii-art">  WITHOUT a standard              WITH MCP
   ------------------              --------
 
@@ -70,7 +70,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   each written by hand.
                                   N + M integrations.
                                   Each source written once.</pre></div></figure>
-<p>That is the entire pitch. It is not a model feature, not an Anthropic-only thing, and not magic &mdash; it is an open protocol built on JSON-RPC that says how a program exposes tools and data to a model, so nobody has to agree on anything else.</p>
+<p>That is the whole idea. It is not a model feature, it is not an Anthropic-only thing, and there is no magic in it &mdash; it is an open protocol built on JSON-RPC that says how a program offers tools and data to a model, so nobody has to agree on anything beyond that.</p>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="../../notes/agents/here.html">

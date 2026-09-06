@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The model families — The Model Landscape — Garvit's Notes</title>
-<meta name="description" content="In plain English A handful of organisations train the models nearly everything is built on, and each family has a recognisable character rather than a rank.">
+<meta name="description" content="In plain English A handful of companies train the models that nearly everything else is built on.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,15 +54,15 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A handful of organisations train the models nearly everything is built on, and each family has a recognisable character rather than a rank. What actually differs between them is context length, tool-calling behaviour, how they handle refusals, availability in your region, and licensing. Those are the things worth comparing, because they change what you can build. </div></div>
-<p>Four groups matter in practice. Every one of them ships new versions on a cadence of months, so treat this as the shape of the landscape rather than a snapshot of who is ahead this week.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A handful of companies train the models that nearly everything else is built on. Each family has its own personality rather than a fixed rank. What actually differs between them is how much text they can hold, how they behave when calling tools, how they handle saying no, whether they are available in your country, and what the licence allows. Those are the things worth comparing, because they change what you can build. </div></div>
+<p>Four groups matter in practice. Every one of them releases new versions every few months, so treat this as the general shape of things rather than a snapshot of who is ahead this week.</p>
 <div class="table-wrap"><table><thead><tr><th>Family</th><th>Who</th><th>Character</th><th>Typically strongest at</th></tr></thead><tbody>
-<tr><td><strong>Claude</strong></td><td>Anthropic</td><td>Tiered by capability &mdash; Opus, Sonnet, Haiku &mdash; sharing one API. Long context, strong tool use, deliberately conservative behaviour.</td><td>Coding and agentic work, long-document reasoning, following complex instructions, tasks where you want it to say &ldquo;I don&rsquo;t know&rdquo;.</td></tr>
-<tr><td><strong>GPT</strong></td><td>OpenAI</td><td>The broadest ecosystem and the most third-party integrations. Large range from small fast models to frontier reasoning ones.</td><td>General-purpose work, image generation and voice in one place, the widest selection of tutorials and community code.</td></tr>
-<tr><td><strong>Gemini</strong></td><td>Google</td><td>Natively multimodal and tightly wired into Google&rsquo;s own products and cloud. Very large context windows.</td><td>Video and audio understanding, anything already inside Google Workspace or GCP, huge-input tasks.</td></tr>
-<tr><td><strong>Open weights</strong></td><td>Meta (Llama), Mistral, Alibaba (Qwen), DeepSeek and others</td><td>Downloadable. You can run them on your own hardware, inspect them, fine-tune them freely.</td><td>Data residency and privacy requirements, offline or air-gapped deployment, high volume where you own the GPUs, research.</td></tr>
+<tr><td><strong>Claude</strong></td><td>Anthropic</td><td>Split into levels &mdash; Opus, Sonnet, Haiku &mdash; all sharing one API. Holds a lot of text, uses tools well, and is deliberately careful in how it behaves.</td><td>Coding and agent work, thinking through long documents, following complicated instructions, and tasks where you want it to admit &ldquo;I don't know&rdquo;.</td></tr>
+<tr><td><strong>GPT</strong></td><td>OpenAI</td><td>The widest set of surrounding tools and the most integrations built by other companies. A big range, from small fast models up to top-tier reasoning ones.</td><td>General everyday work, image generation and voice all in one place, and the largest pile of tutorials and community code.</td></tr>
+<tr><td><strong>Gemini</strong></td><td>Google</td><td>Built from the start to handle images and audio, and wired tightly into Google's own products and cloud. Very large context windows.</td><td>Understanding video and audio, anything already living inside Google Workspace or GCP, and tasks with a very large input.</td></tr>
+<tr><td><strong>Open weights</strong></td><td>Meta (Llama), Mistral, Alibaba (Qwen), DeepSeek and others</td><td>You can download them. Run them on your own machines, look inside them, and fine-tune them freely.</td><td>Rules about where data may live, privacy requirements, running with no internet connection at all, high volume where you own the GPUs, and research.</td></tr>
 </tbody></table></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Benchmark leadership rotates every few months and rarely predicts your result.</strong> A published score says a model did well on somebody else&rsquo;s task. Thirty of your own real examples are worth more than every leaderboard put together &mdash; and building that set is the subject of note 11.</p></div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Who tops the benchmarks changes every few months, and it rarely predicts what you will get.</strong> A published score only says that a model did well on somebody else's task. Thirty of your own real examples are worth more than every leaderboard put together &mdash; and building that set is what note 11 is about.</p></div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="layers.html">

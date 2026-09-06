@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Choosing a model — AI, RAG &amp; Security — Garvit's Notes</title>
-<meta name="description" content="In plain English Models come in sizes, and the honest framing is a trade rather than a ranking.">
+<meta name="description" content="In plain English Models come in sizes, and the honest way to look at it is a trade-off, not a ranking.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,14 +54,14 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Models come in sizes, and the honest framing is a trade rather than a ranking. Bigger ones handle harder reasoning and cost more and answer slower. Smaller ones are fast and cheap and perfectly good at the great majority of work. Using the largest model for everything is the equivalent of taking a lorry to fetch a pint of milk. </div></div>
-<p> Models differ on four axes that actually matter to a decision: how capable they are, how much context they hold, how fast they answer, and what they cost relative to each other. There is no best model &mdash; there is a best model for one job at one budget. </p>
-<div class="table-wrap"><table><thead><tr><th>Tier</th><th>Example</th><th>Reach for it when</th></tr></thead><tbody><tr><td><strong>Frontier</strong></td><td><code>claude-opus-5</code></td><td>Open-ended work where quality is visible to a customer &mdash; analysis, planning, code, long agentic runs. The most capable tier, and the dearest per token.</td></tr>
-<tr><td><strong>Balanced</strong></td><td><code>claude-sonnet-5</code></td><td>The everyday workhorse. Most production traffic belongs here: good enough for nearly everything, materially cheaper and faster than the frontier tier.</td></tr>
-<tr><td><strong>Small &amp; fast</strong></td><td><code>claude-haiku-4-5</code></td><td>Narrow, well-defined, high-volume jobs &mdash; classification, routing, extraction, triage. Called thousands of times, cheap enough that it does not show on the bill.</td></tr></tbody></table></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>No prices in these notes, on purpose.</strong> Model names, context sizes and prices all move every few months, and a note that quotes them is wrong within a year while still looking authoritative. Check the provider&rsquo;s own pricing page before you build a budget. What does <i>not</i> move is the shape: a frontier model costs several times a small one, and the cheapest model that does your job well is the right one. <a href="../model-landscape/index.html">The Model Landscape</a> compares the families without quoting a single figure. </div></div>
-<p> The other distinctions worth knowing when you read about this elsewhere: </p>
-<ul><li><strong>Closed vs open weights.</strong> Closed models are called over an API. Open-weight models can be downloaded and run on your own hardware — attractive for data-residency reasons, and a real operational commitment: GPUs, scaling, evaluation and updates all become yours. </li><li><strong>Multimodal.</strong> Models that accept images and PDFs alongside text. This is what makes “read this screenshot” or “extract the table from this invoice” a single call rather than a pipeline. </li><li><strong>Latency tiers.</strong> Batch processing is cheaper and asynchronous; interactive requests cost more. If nobody is waiting, do not pay for speed. </li></ul>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Models come in sizes, and the honest way to look at it is a trade-off, not a ranking. Bigger ones handle harder thinking, cost more and answer slower. Smaller ones are fast and cheap and perfectly good for most of the work. Using the biggest model for everything is like booking a truck to bring one packet of milk from the shop next door. </div></div>
+<p> Models differ on four things that actually change your decision: how capable they are, how much text they can hold at once, how fast they answer, and what they cost compared to each other. There is no best model &mdash; there is a best model for one job at one budget. </p>
+<div class="table-wrap"><table><thead><tr><th>Tier</th><th>Example</th><th>Use it when</th></tr></thead><tbody><tr><td><strong>Top tier</strong></td><td><code>claude-opus-5</code></td><td>Open-ended work where the customer can see the quality &mdash; analysis, planning, code, long runs where the model works on its own. The most capable tier, and the costliest per token.</td></tr>
+<tr><td><strong>Balanced</strong></td><td><code>claude-sonnet-5</code></td><td>The everyday workhorse. Most of your real traffic belongs here: good enough for nearly everything, clearly cheaper and faster than the top tier.</td></tr>
+<tr><td><strong>Small &amp; fast</strong></td><td><code>claude-haiku-4-5</code></td><td>Narrow, clearly defined, high-volume jobs &mdash; sorting, routing, pulling out fields, first-level triage. Called thousands of times, and cheap enough that it barely shows on the bill.</td></tr></tbody></table></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>No prices in these notes, and that is on purpose.</strong> Model names, context sizes and prices all change every few months. A note that quotes them is wrong within a year while still sounding confident. Check the provider's own pricing page before you plan a budget. What does <i>not</i> change is the shape: a top-tier model costs several times a small one, and the cheapest model that does your job well is the right one. <a href="../model-landscape/index.html">The Model Landscape</a> compares the families without quoting a single number. </div></div>
+<p> The other differences worth knowing when you read about this elsewhere: </p>
+<ul><li><strong>Closed vs open weights.</strong> Closed models are used over the internet through an API. Open-weight models can be downloaded and run on your own machines — good when your data is not allowed to leave the country or the company, and a real commitment: GPUs, scaling, testing and updates all become your job. </li><li><strong>Multimodal.</strong> Models that take images and PDFs along with text. This is what turns "read this screenshot" or "pull the table out of this invoice" into one call instead of a whole pipeline. </li><li><strong>Speed tiers.</strong> Batch processing is cheaper and runs in the background; live requests cost more. If nobody is sitting there waiting, do not pay extra for speed. </li></ul>
 <figure class="figure is-flow" id="flow-2">
 <div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Choosing a model for one task</span>
   <button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button>
@@ -69,41 +69,41 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 <div class="figure-stage"><ol class="flow flow-column"><li class="flow-step dg-step" data-tone="plain" style="--i:0">
   <span class="flow-num">1</span>
   <div class="flow-text">
-    <span class="flow-label">Is the task narrow and well defined?</span>
-    <span class="flow-detail">Classification, extraction, routing — the smallest model first.</span>
+    <span class="flow-label">Is the task narrow and clearly defined?</span>
+    <span class="flow-detail">Sorting, pulling out fields, routing — try the smallest model first.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="accent" style="--i:1">
   <span class="flow-num">2</span>
   <div class="flow-text">
     <span class="flow-label">Measure it</span>
-    <span class="flow-detail">Run your evaluation set. If the small model passes, you are done and it costs a fifth as much.</span>
+    <span class="flow-detail">Run your test set. If the small model passes, you are done and it costs a fifth as much.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="plain" style="--i:2">
   <span class="flow-num">3</span>
   <div class="flow-text">
-    <span class="flow-label">Does quality show to a customer?</span>
-    <span class="flow-detail">Drafting, reasoning, code, anything open-ended — step up a tier.</span>
+    <span class="flow-label">Can the customer see the quality?</span>
+    <span class="flow-detail">Writing, reasoning, code, anything open-ended — go up one tier.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="plain" style="--i:3">
   <span class="flow-num">4</span>
   <div class="flow-text">
-    <span class="flow-label">Is anyone waiting?</span>
-    <span class="flow-detail">If not, use the batch endpoint at roughly half price.</span>
+    <span class="flow-label">Is anyone waiting for the answer?</span>
+    <span class="flow-detail">If not, use the batch endpoint at roughly half the price.</span>
   </div>
 </li>
 <li class="flow-step dg-step" data-tone="accent" style="--i:4">
   <span class="flow-num">5</span>
   <div class="flow-text">
     <span class="flow-label">Cascade</span>
-    <span class="flow-detail">Small model first, escalate only the cases it flags as uncertain. Most volume never reaches the expensive model.</span>
+    <span class="flow-detail">Small model first, and send only the cases it is unsure about to the big one. Most of the traffic never reaches the expensive model.</span>
   </div>
 </li></ol></div>
 </figure>
-<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">Picking per task, not per project</span></div><div class="example-body"><p> One product can use three models sensibly. Classifying incoming contact messages as spam or genuine is a small, well-defined judgement: a small fast model, cheap, called thousands of times. Drafting a page of marketing copy is open-ended and quality is visible to a customer: the capable model, called rarely. </p>
-<p> Choosing the expensive model everywhere is the common mistake, and it usually shows up as a bill rather than as a bug. </p>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">Picking per task, not per project</span></div><div class="example-body"><p> One product can sensibly use three different models. Deciding whether an incoming contact message is spam or genuine is a small, clear judgement: use a small fast model, cheap, called thousands of times a day. Writing a page of marketing copy is open-ended and the customer sees the result: use the capable model, called only now and then. </p>
+<p> Picking the expensive model for everything is the common mistake, and it usually turns up as a big bill rather than as a bug. </p>
 </div></div>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>A first call, with the official SDK</div><pre><code>import Anthropic from '@anthropic-ai/sdk';
 
@@ -112,7 +112,7 @@ const client = new Anthropic();   // reads ANTHROPIC_API_KEY from the environmen
 const response = await client.messages.create({
   model: 'claude-opus-5',
   max_tokens: 16000,
-  thinking: { type: 'adaptive' },        // let the model reason before answering
+  thinking: { type: 'adaptive' },        // let the model think before answering
   system: 'You classify support messages. Reply with one word: spam or genuine.',
   messages: [{ role: 'user', content: message }],
 });
@@ -120,10 +120,10 @@ const response = await client.messages.create({
 for (const block of response.content) {
   if (block.type === 'text') console.log(block.text);
 }</code></pre></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> The <code>system</code> field is where the instructions go; <code>messages</code> is the conversation. Keeping them separate matters for more than tidiness — see the security section on why user text should never be pasted into your instructions. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> The <code>system</code> field is where your instructions go; <code>messages</code> is the conversation. Keeping them apart matters for more than neatness — the security section explains why text from a user should never be pasted into your instructions. </div></div>
 
-<details class="selfcheck"><summary><span class="sc-q">How should you actually choose a model for a feature?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Start with the cheapest one that plausibly works and measure it on your own eval set. Move up only when the numbers say the smaller model is not good enough — for that specific task, not in general. </p>
-<p> Choosing by benchmark leaderboard is the common mistake: benchmarks measure general ability on somebody else&rsquo;s problems, and a model that is third overall may be first on the narrow thing you actually do. </p></div></details>
+<details class="selfcheck"><summary><span class="sc-q">How should you actually choose a model for a feature?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Start with the cheapest one that might work, and measure it on your own test set. Move up only when the numbers say the smaller model is not good enough — for that one task, not in general. </p>
+<p> Choosing by leaderboard is the common mistake. Benchmarks measure general ability on somebody else's problems, and a model that ranks third overall may well be first at the narrow thing you actually do. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="sampling.html">
@@ -139,7 +139,7 @@ for (const block of response.content) {
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">AI, RAG &amp; Security</a></div>
-  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>AI, machine learning and language models</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>The wider AI family</a><a class="sib" href="how.html"><span class="sib-n">03</span>How a model actually works</a><a class="sib" href="training.html"><span class="sib-n">04</span>How a model is made, and why that matters to you</a><a class="sib" href="sampling.html"><span class="sib-n">05</span>Decoding: the settings on the request</a><a class="sib is-current" href="models.html"><span class="sib-n">06</span>Choosing a model</a><a class="sib" href="multimodal.html"><span class="sib-n">07</span>Beyond text: images, documents and voice</a><a class="sib" href="prompting.html"><span class="sib-n">08</span>Prompting that actually works</a><a class="sib" href="context.html"><span class="sib-n">09</span>Context engineering: what the model can see</a><a class="sib" href="limits.html"><span class="sib-n">10</span>What models get wrong, and why</a><a class="sib" href="evaluation.html"><span class="sib-n">11</span>Evaluation: what turns this into engineering</a><a class="sib" href="embeddings.html"><span class="sib-n">12</span>Embeddings and vector search</a><a class="sib" href="rag.html"><span class="sib-n">13</span>RAG, in detail</a><a class="sib" href="choose.html"><span class="sib-n">14</span>RAG, fine-tuning, or just a better prompt</a><a class="sib" href="tuning.html"><span class="sib-n">15</span>Fine-tuning, when it is genuinely the answer</a><a class="sib" href="agents.html"><span class="sib-n">16</span>Tools and agents</a><a class="sib" href="patterns.html"><span class="sib-n">17</span>Agent patterns worth knowing by name</a><a class="sib" href="production.html"><span class="sib-n">18</span>Shipping it: the unglamorous half</a><a class="sib" href="cost.html"><span class="sib-n">19</span>Cost and latency, engineered rather than hoped for</a><a class="sib" href="security.html"><span class="sib-n">20</span>AI security</a><a class="sib" href="ethics.html"><span class="sib-n">21</span>Bias, law and telling people</a><a class="sib" href="cases.html"><span class="sib-n">22</span>Four case studies, with the part that goes wrong</a><a class="sib" href="build.html"><span class="sib-n">23</span>Building it here — a worked design</a><a class="sib" href="glossary.html"><span class="sib-n">24</span>The jargon, decoded</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>AI, machine learning and language models</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>The wider AI family</a><a class="sib" href="how.html"><span class="sib-n">03</span>How a model actually works</a><a class="sib" href="training.html"><span class="sib-n">04</span>How a model is made, and why that matters to you</a><a class="sib" href="sampling.html"><span class="sib-n">05</span>Decoding: the settings on the request</a><a class="sib is-current" href="models.html"><span class="sib-n">06</span>Choosing a model</a><a class="sib" href="multimodal.html"><span class="sib-n">07</span>Beyond text: images, documents and voice</a><a class="sib" href="prompting.html"><span class="sib-n">08</span>Prompting that actually works</a><a class="sib" href="context.html"><span class="sib-n">09</span>Context engineering: what the model can see</a><a class="sib" href="limits.html"><span class="sib-n">10</span>What models get wrong, and why</a><a class="sib" href="evaluation.html"><span class="sib-n">11</span>Evaluation: what turns this into engineering</a><a class="sib" href="embeddings.html"><span class="sib-n">12</span>Embeddings and vector search</a><a class="sib" href="rag.html"><span class="sib-n">13</span>RAG, in detail</a><a class="sib" href="choose.html"><span class="sib-n">14</span>RAG, fine-tuning, or just a better prompt</a><a class="sib" href="tuning.html"><span class="sib-n">15</span>Fine-tuning, when it is genuinely the answer</a><a class="sib" href="agents.html"><span class="sib-n">16</span>Tools and agents</a><a class="sib" href="patterns.html"><span class="sib-n">17</span>Agent patterns worth knowing by name</a><a class="sib" href="production.html"><span class="sib-n">18</span>Shipping it: the boring half</a><a class="sib" href="cost.html"><span class="sib-n">19</span>Cost and latency, engineered rather than hoped for</a><a class="sib" href="security.html"><span class="sib-n">20</span>AI security</a><a class="sib" href="ethics.html"><span class="sib-n">21</span>Bias, law and telling people</a><a class="sib" href="cases.html"><span class="sib-n">22</span>Four case studies, with the part that goes wrong</a><a class="sib" href="build.html"><span class="sib-n">23</span>Building it here — a worked design</a><a class="sib" href="glossary.html"><span class="sib-n">24</span>The jargon, decoded</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

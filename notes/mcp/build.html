@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Building a server — MCP — Garvit's Notes</title>
-<meta name="description" content="In plain English Building a server is smaller than it sounds.">
+<meta name="description" content="In plain English Building a server is a smaller job than it sounds.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,8 +54,8 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Building a server is smaller than it sounds. You declare what your tools are called, what arguments they take and what they do, then write an ordinary function for each. The protocol handles the conversation; you are really just writing well-described functions. </div></div>
-<p>Smaller than you think. This is a complete, working stdio server exposing two tools over your existing Prisma database.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Building a server is a smaller job than it sounds. You state what your tools are called, what values they take and what they do, then write an ordinary function for each one. The protocol handles the conversation; you are really just writing well-described functions. </div></div>
+<p>Smaller than you think. Below is a complete, working stdio server offering two tools over your existing Prisma database.</p>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>mcp/invoices/src/index.ts &mdash; a whole server</div><pre><code>import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
@@ -128,10 +128,10 @@ server.registerTool(
 console.error('invoices MCP server ready');
 
 await server.connect(new StdioServerTransport());</code></pre></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>The SDK&rsquo;s exact registration API has changed once or twice as MCP has matured &mdash; older examples use <code>server.tool(...)</code>. Check the version you have installed rather than trusting any snippet, this one included. The <em>shape</em> is stable: a name, a description, a schema, and an async function returning content.</p></div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>The exact registration API in the SDK has changed once or twice as MCP has grown up &mdash; older examples use <code>server.tool(...)</code>. Check the version you actually have installed rather than trusting any code snippet, including this one. The <em>shape</em> stays the same: a name, a description, a schema, and an async function that returns content.</p></div></div>
 <details class="selfcheck"><summary><span class="sc-q">Why does <code>get_invoice</code> return <code>isError: true</code> with a sentence, instead of throwing?</span><span class="sc-cue">Answer</span></summary><div class="sc-body">
-<p>Because the model is the one reading it. A thrown exception becomes a transport-level failure the model cannot interpret and often retries verbatim, producing the same failure again. An error <em>result</em> arrives in context as text, so the model can read &ldquo;no invoice with that number, try search_invoices&rdquo; and do exactly that.</p>
-<p>The general rule from note 07 holds here: a tool failure is a normal outcome that must be described, not an exception to be propagated.</p>
+<p>Because the model is the one reading it. A thrown exception turns into a connection-level failure the model cannot understand, so it usually retries the exact same call and gets the exact same failure. An error <em>result</em> arrives as ordinary text in the context, so the model can read &ldquo;no invoice with that number, try search_invoices&rdquo; and go and do exactly that.</p>
+<p>The general rule from note 07 holds here too: a tool failure is a normal outcome that should be explained in words, not an exception to be thrown upwards.</p>
 </div></details>
 </div>
 <nav class="page-nav">

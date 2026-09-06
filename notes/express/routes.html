@@ -54,7 +54,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A route is one line in a directory: &ldquo;a GET to <code>/projects</code> is handled by this function&rdquo;. A router is a sheet of those lines that you can move around as a unit — all the project routes in one file, all the user routes in another — so a large API stays navigable instead of becoming one enormous file. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A route is one line in a directory: &ldquo;a GET to <code>/projects</code> is handled by this function&rdquo;. A router is a page of those lines that you can move around as one piece. All the project routes go in one file, all the user routes in another. That way a big API stays easy to find your way around, instead of turning into one enormous file. </div></div>
 <p> A route is a method plus a path plus a handler. A <strong>router</strong> is a group of routes that can be mounted under a prefix, which is how an API stays navigable past about twenty endpoints. </p>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>One router per resource, mounted under a prefix</div><pre><code>// routes/projects.ts
 import { Router } from 'express';

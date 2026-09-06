@@ -15,7 +15,7 @@
           ├─ resources  Cloud Run services, buckets, databases
           ├─ IAM        who can do what, HERE
           └─ billing    what this costs, separately</code></pre></div>
-<p> The <strong>project</strong> is the only level you need at first. It is the boundary for billing, for permissions, and for blast radius. </p>
+<p> The <strong>project</strong> is the only level you need at first. It is the line that separates billing, permissions, and how far the damage can spread if something goes wrong. </p>
 <div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>Use separate projects for dev, staging and production.</strong> Not separate folders in one project &mdash; separate projects. It is the cheapest safety measure available: a mistake in dev cannot touch production data, permissions do not leak across, and the bill tells you which environment is costing you money. Doing this on day one takes ten minutes; retrofitting it takes a week. </div></div>
 </section>
 
@@ -199,7 +199,7 @@ printf '%s' "$NEW_PASSWORD" | gcloud secrets versions add db-url --data-file=-</
 
 <section class="note-section" data-tagline="The bill is a feature you have to build. Four things to do on day one, before there is anything to be surprised by.">
 <h2 id="cost">Keeping the bill honest</h2>
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A cloud bill goes wrong in exactly two ways: something scaled that you never bounded, or something has been quietly running for months that nobody uses. Both are prevented in an afternoon, and neither is preventable retrospectively — which is why the four things in this topic belong on day one. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A cloud bill goes wrong in exactly two ways: something scaled that you never bounded, or something has been quietly running for months that nobody uses. Both can be prevented in one afternoon, and neither can be prevented after the fact — which is exactly why the four things in this topic belong on day one. </div></div>
 <p> Cloud bills go wrong in one of two ways: something scaled that you did not bound, or something has been running for months that nobody uses. Both are preventable in an afternoon. </p>
 <div class="card-grid cols-2">
   <div class="card"><div class="card-title">1. A budget with alerts</div><p>Set one per project on the day you create it. Alerts at 50%, 90% and 100% of what you expect. It costs nothing and is the difference between noticing on the 3rd and noticing on the 30th.</p></div>

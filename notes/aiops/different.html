@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Why this is not normal ops — AI Ops — Garvit's Notes</title>
-<meta name="description" content="A normal service fails loudly and stays failed. An AI system fails quietly, intermittently, and keeps returning 200 OK the whole time.">
+<meta name="description" content="A normal service fails loudly and stays broken. An AI system fails quietly, only sometimes, and keeps replying 200 OK the whole time.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,17 +54,17 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<p> You already know how to run a service: watch the error rate, watch latency, page someone when a graph goes the wrong way. All of that still applies. The problem is that it is no longer sufficient, because an AI system has a failure mode ordinary software does not. </p>
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A broken tap either runs or it does not, and you can tell instantly. An AI system is a tap that always runs &mdash; but the water is sometimes slightly the wrong temperature, and nobody complains for three weeks. Every dial on your existing dashboard reads normal the entire time. </div></div>
+<p> You already know how to run a service: watch the error rate, watch the speed, wake somebody up when a graph goes the wrong way. All of that still applies. The problem is that it is no longer enough, because an AI system can fail in a way ordinary software never does. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A broken tap either runs or it does not, and you know straight away. An AI system is a tap that always runs &mdash; but the water is sometimes a little bit the wrong temperature, and nobody says anything for three weeks. Every reading on your existing dashboard looks perfectly normal the whole time. </div></div>
 <div class="table-wrap"><table><thead><tr><th></th><th>A normal service</th><th>An AI system</th></tr></thead><tbody>
 <tr><td>Failure looks like</td><td>A 500, a stack trace, a timeout</td><td>A 200 with a wrong answer</td></tr>
 <tr><td>Same input, same output?</td><td>Yes</td><td>No &mdash; and that is not a bug</td></tr>
-<tr><td>Degrades because</td><td>You changed the code</td><td>You changed the prompt, or your data drifted, or the provider changed the model under you</td></tr>
+<tr><td>Gets worse because</td><td>You changed the code</td><td>You changed the prompt, or your data slowly changed, or the provider swapped the model under your feet</td></tr>
 <tr><td>Detected by</td><td>Monitoring</td><td>Evaluation, sampling, and user feedback</td></tr>
-<tr><td>Cost per request</td><td>Effectively fixed</td><td>Varies by a factor of fifty depending on input</td></tr>
+<tr><td>Cost per request</td><td>Basically the same every time</td><td>Can be fifty times bigger or smaller depending on the input</td></tr>
 <tr><td>&ldquo;Works on my machine&rdquo;</td><td>Means the code is fine</td><td>Means nothing at all</td></tr>
 </tbody></table></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>The scariest row is the third one.</strong> Your system can get worse while nobody deploys anything &mdash; because the documents you retrieve went stale, because the kind of question users ask shifted, or because a provider updated a model behind the same name. If your only quality signal is &ldquo;did anyone complain&rdquo;, you will find out months late from a customer. </div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>The scariest row is the third one.</strong> Your system can get worse while nobody has deployed anything at all &mdash; because the documents you search went out of date, because the kind of questions users ask has changed, or because a provider updated a model that still has the same name. If your only signal of quality is &ldquo;has anybody complained&rdquo;, you will hear about it months later from a customer. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="../../notes/cloud-gcp/cicd.html">

@@ -147,7 +147,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 <div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Answering <strong>404 rather than 403</strong> for somebody else’s record is deliberate: a 403 confirms the record exists, which is itself information. Same reason the sign-in errors above are identical. </div></div>
 
 <details class="selfcheck"><summary><span class="sc-q">A signed-in user changes the id in <code>GET /api/invoices/8412</code> to <code>8413</code> and sees somebody else&rsquo;s invoice. Which of the two failed?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Authorisation. They were genuinely who they claimed to be, and the token was valid — the server simply never asked whether <em>this</em> user owns <em>that</em> invoice. </p>
-<p> This is among the most common serious flaws in real APIs, and the fix is a habit rather than a library: every query that fetches a record by id also filters by the owner, so an id that is not yours returns nothing rather than someone else&rsquo;s data. </p></div></details>
+<p> This is one of the most common serious holes in real APIs. The fix is a habit, not a library. Every query that fetches a record by id must also filter by who owns it. Then an id that does not belong to you returns nothing, instead of returning somebody else's data. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="input.html">

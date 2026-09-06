@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Choosing, without the horse race — The Model Landscape — Garvit's Notes</title>
-<meta name="description" content="In plain English Choosing without a horse race.">
+<meta name="description" content="In plain English Choose without treating it as a race.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -49,27 +49,27 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   <span class="eyebrow">Note 16 &middot; The Model Landscape &middot; Topic 4 of 5</span>
   <h1>Choosing, without the horse race</h1>
   <div class="page-meta">
-    <span>2 min read</span>
+    <span>3 min read</span>
     <span>No experience needed</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Choosing without a horse race. Benchmarks measure general ability on somebody else&rsquo;s problems, and the model that ranks third overall is regularly first on the narrow thing you actually do. Your own small eval set, on your own real cases, beats any leaderboard for the only question that matters — which is better <em>here</em>. </div></div>
-<p>The question &ldquo;which model is best&rdquo; has no answer. These do.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Choose without treating it as a race. Benchmarks measure general ability on somebody else's problems, and the model that ranks third overall is very often first on the narrow thing you actually do. Your own small test set, built from your own real cases, beats any leaderboard on the only question that matters — which one is better <em>for this</em>. </div></div>
+<p>The question &ldquo;which model is best&rdquo; has no answer at all. These questions do.</p>
 <figure class="figure is-flow"><div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Picking a model for one job</span><button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button></div><div class="figure-stage"><ol class="flow flow-column">
-<li class="flow-step dg-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Is there a hard constraint?</span><span class="flow-detail">Data residency, an air-gapped network, a procurement rule, an existing cloud commitment. Constraints decide this before quality does — and often the answer is open weights, or whichever family your cloud already sells.</span></div></li>
-<li class="flow-step dg-step" data-tone="plain" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">Write thirty real examples</span><span class="flow-detail">Actual inputs from your actual problem, with the outcomes you would accept. This is the only comparison that predicts anything.</span></div></li>
-<li class="flow-step dg-step" data-tone="accent" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Start with the smallest model</span><span class="flow-detail">Run the set. If a small model passes, you are finished, and it costs a fraction of the alternative. Most teams never try this and pay for it monthly.</span></div></li>
-<li class="flow-step dg-step" data-tone="accent" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">Step up only where it fails</span><span class="flow-detail">Route the hard cases to a bigger model rather than sending everything there. One product sensibly uses three models.</span></div></li>
-<li class="flow-step dg-step" data-tone="plain" style="--i:4"><span class="flow-num">5</span><div class="flow-text"><span class="flow-label">Keep the switch cheap</span><span class="flow-detail">Put the model id in config, keep prompts in files, keep the eval set current. Then next year's better model is a config change and one test run.</span></div></li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Is there a hard constraint?</span><span class="flow-detail">A rule about which country the data may sit in, a network with no internet access, a purchasing rule, a cloud contract you already signed. Hard limits decide this before quality gets a look in — and often the answer is open weights, or whichever family your cloud already sells.</span></div></li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">Write thirty real examples</span><span class="flow-detail">Real inputs from your real problem, with the answers you would be happy with. This is the only comparison that actually predicts anything.</span></div></li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Start with the smallest model</span><span class="flow-detail">Run the set. If a small model passes, you are done, and it costs a fraction of the alternative. Most teams never try this and pay for it every month.</span></div></li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">Step up only where it fails</span><span class="flow-detail">Send only the hard cases to a bigger model, instead of sending everything there. One product can sensibly use three different models.</span></div></li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:4"><span class="flow-num">5</span><div class="flow-text"><span class="flow-label">Keep the switch cheap</span><span class="flow-detail">Put the model id in a config file, keep prompts in files, and keep the test set up to date. Then next year's better model is one config change and one test run.</span></div></li>
 </ol></div></figure>
 <div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">Three models in one product</span></div><div class="example-body">
-<p>Classifying inbound contact messages as spam or genuine is narrow and well defined: a small fast model, called on everything, cheap enough to ignore. Drafting page copy is open-ended and a customer sees the result: the frontier tier, called rarely. Summarising a support thread sits between them: the balanced tier.</p>
-<p>Picking one model for the whole product is the common mistake. It shows up as a bill rather than a bug, which is why it survives so long.</p>
+<p>Sorting incoming contact messages into spam or genuine is a narrow, clearly defined job: use a small fast model, called on everything, cheap enough that nobody notices it on the bill. Writing page copy is open-ended and the customer sees the result: use the top tier, called only now and then. Summarising a support conversation sits in between: use the balanced tier.</p>
+<p>Picking one single model for the whole product is the common mistake. It shows up as a big bill rather than as a bug, which is exactly why it survives for so long.</p>
 </div></div>
 <details class="selfcheck"><summary><span class="sc-q">Your team is on Azure with a signed commitment, and legal will not allow customer data to leave the tenancy. How much does model quality matter to the decision?</span><span class="sc-cue">Answer</span></summary><div class="sc-body">
-<p>Less than the constraint does. Start from what is actually available inside that boundary &mdash; which families your platform serves, and under what data-handling terms &mdash; and choose the best option from that shortlist. Evaluating a model you are not permitted to send data to is time spent on a decision you cannot make.</p>
-<p>The order is always: constraints first, then your own evaluation set, then cost. Benchmarks come last, if at all.</p>
+<p>Far less than the rule does. Start from what is actually available inside that boundary &mdash; which model families your platform offers, and under what data-handling terms &mdash; and pick the best option from that short list. Testing a model you are not allowed to send data to is time spent on a decision you cannot make.</p>
+<p>The order is always the same: hard limits first, then your own test set, then cost. Benchmarks come last, if they come in at all.</p>
 </div></details>
 </div>
 <nav class="page-nav">

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Designing the tool surface — Structured Output — Garvit's Notes</title>
+<title>Designing the set of tools — Structured Output — Garvit's Notes</title>
 <meta name="description" content="Narrow tools can be checked, logged and reasoned about. Broad tools cannot, and no prompt makes them safe.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
@@ -44,28 +44,28 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
     <div class="tree" id="tree"></div>
   </nav>
   <main class="main" id="main"><article class="content">
-<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/structured-output/index.html">Structured Output</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Designing the tool surface</span></nav>
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/structured-output/index.html">Structured Output</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Designing the set of tools</span></nav>
 <header class="topic-head reveal">
   <span class="eyebrow">Note 12 &middot; Structured Output &middot; Topic 5 of 6</span>
-  <h1>Designing the tool surface</h1>
+  <h1>Designing the set of tools</h1>
   <div class="page-meta">
     <span>2 min read</span>
     <span>Some experience helps</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Every tool you expose is a permission you have granted to a system that can be talked into things. The design question is not &ldquo;what would be convenient&rdquo; but &ldquo;what is the smallest capability that does the job&rdquo;. A tool that runs arbitrary SQL is a convenient way to bypass every control you have ever written. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Every tool you offer is a permission you have handed to a system that can be talked into things. The design question is not "what would be convenient" but "what is the smallest ability that does this job". A tool that runs any SQL you like is a convenient way to walk straight past every control you have ever written. </div></div>
 <div class="compare">
 <div class="compare-pane is-bad"><div class="compare-head">Not this &middot; general purpose</div><pre><code>run_sql(query: string)
 read_file(path: string)
 http_request(url, method, body)
 send_email(to, subject, body)
 
-// Each one is "do anything" wearing
-// a specific-sounding name. There is
-// no check you can write on
+// Each one is "do anything at all"
+// wearing a specific-sounding name.
+// There is no check you can write on
 // run_sql(query) that is not itself
-// a database engine.</code></pre></div>
+// an entire database engine.</code></pre></div>
 <div class="compare-pane is-good"><div class="compare-head">Do this &middot; one job each</div><pre><code>get_order(order_id)
 list_orders_for_current_user(limit)
 refund_order(order_id, amount, reason)
@@ -74,19 +74,19 @@ notify_customer(order_id, template_id)
 
 // Every one can be permission-checked,
 // rate-limited, logged and reasoned
-// about. The blast radius is written
-// into the signature.</code></pre></div>
+// about. How much damage it can do is
+// written into the signature itself.</code></pre></div>
 </div>
 <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Why</th></tr></thead><tbody>
-<tr><td>The description is the documentation</td><td>It is the only thing the model has when deciding whether to reach for this tool. Say what it does, when to use it, when <em>not</em> to, and what it returns.</td></tr>
-<tr><td>Fewer tools, better chosen</td><td>Selection accuracy falls as the list grows. Past roughly fifteen or twenty, route to a subset first rather than offering everything at once.</td></tr>
-<tr><td>No overlapping tools</td><td>Two tools that could both plausibly apply produces inconsistent behaviour that is very hard to debug. Merge them or make the boundary explicit in both descriptions.</td></tr>
-<tr><td>Ids, not free text, wherever possible</td><td><code>refund_order(order_id)</code> is checkable. <code>refund(customer_name)</code> requires a fuzzy lookup that can match the wrong person.</td></tr>
-<tr><td>Return little</td><td>Every byte returned is a token in the next call, on every subsequent turn. Return the fields needed, not the whole record.</td></tr>
-<tr><td>Idempotent where you can</td><td>Retries happen. A tool called twice by accident should not refund twice. Take an idempotency key.</td></tr>
+<tr><td>The description is the documentation</td><td>It is the only thing the model has when deciding whether to reach for this tool. Say what it does, when to use it, when <em>not</em> to, and what it gives back.</td></tr>
+<tr><td>Fewer tools, better chosen</td><td>The model picks less accurately as the list grows. Past roughly fifteen or twenty, route to a smaller set first instead of offering everything at once.</td></tr>
+<tr><td>No two tools that overlap</td><td>Two tools that could both plausibly apply gives you inconsistent behaviour that is very hard to debug. Merge them, or spell out the boundary in both descriptions.</td></tr>
+<tr><td>Use ids, not free text, wherever you can</td><td><code>refund_order(order_id)</code> can be checked. <code>refund(customer_name)</code> needs a fuzzy name lookup that can match the wrong person.</td></tr>
+<tr><td>Return as little as possible</td><td>Every byte you return becomes a token in the next call, and in every call after that. Return the fields that are needed, not the whole record.</td></tr>
+<tr><td>Make it safe to call twice</td><td>Retries happen. A tool called twice by accident must not refund twice. Take an idempotency key.</td></tr>
 </tbody></table></div>
-<details class="selfcheck"><summary><span class="sc-q">You need the assistant to answer arbitrary questions about your database. Is <code>run_sql</code> justified here?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Almost never in a product. It grants read access to everything, cannot be permission-checked in any meaningful way, and a prompt injection in any retrieved text turns into data exfiltration.</p>
-<p> The workable versions are narrower: run against a read-only replica, as a database user with row-level security enforcing the tenant, restricted to a set of views built for this purpose, with a statement timeout and a row cap. Notice that every one of those is a database-level constraint. The safety comes from the boundary, never from the wording of the tool description. </p></div></details>
+<details class="selfcheck"><summary><span class="sc-q">You need the assistant to answer any question about your database. Is <code>run_sql</code> justified here?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Almost never in a real product. It gives read access to everything, cannot be permission-checked in any meaningful way, and a prompt injection hidden in any fetched text turns straight into a data leak.</p>
+<p> The workable versions are narrower: run it against a read-only copy, as a database user with row-level security enforcing which tenant's rows are visible, limited to a set of views built for exactly this purpose, with a query timeout and a row limit. Notice that every one of those is a database-level control. The safety comes from the boundary, never from the wording of the tool description. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="tools.html">
@@ -102,7 +102,7 @@ notify_customer(order_id, template_id)
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Structured Output</a></div>
-  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why shape matters more than wording</a><a class="sib" href="how.html"><span class="sib-n">02</span>The four levels of enforcement</a><a class="sib" href="schema.html"><span class="sib-n">03</span>Designing a schema the model reads well</a><a class="sib" href="tools.html"><span class="sib-n">04</span>Tool calling, precisely</a><a class="sib is-current" href="design.html"><span class="sib-n">05</span>Designing the tool surface</a><a class="sib" href="failure.html"><span class="sib-n">06</span>When the shape is right and the content is wrong</a></div>
+  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why shape matters more than wording</a><a class="sib" href="how.html"><span class="sib-n">02</span>The four levels of enforcement</a><a class="sib" href="schema.html"><span class="sib-n">03</span>Designing a schema the model reads well</a><a class="sib" href="tools.html"><span class="sib-n">04</span>Tool calling, precisely</a><a class="sib is-current" href="design.html"><span class="sib-n">05</span>Designing the set of tools</a><a class="sib" href="failure.html"><span class="sib-n">06</span>When the shape is right and the content is wrong</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

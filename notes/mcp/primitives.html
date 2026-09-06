@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The three things a server can expose — MCP — Garvit's Notes</title>
-<meta name="description" content="In plain English A server can expose three kinds of thing, and the distinction is about who decides to use them.">
+<meta name="description" content="In plain English A server can offer three kinds of thing, and the difference is about who decides to use them.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,13 +54,13 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A server can expose three kinds of thing, and the distinction is about who decides to use them. <strong>Tools</strong> are actions the model can choose to take. <strong>Resources</strong> are data the application can read. <strong>Prompts</strong> are templates the user can pick. Most servers are mostly tools, and knowing the other two exist stops you forcing everything into that shape. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A server can offer three kinds of thing, and the difference is about who decides to use them. <strong>Tools</strong> are actions the model can choose to take. <strong>Resources</strong> are data the application can read. <strong>Prompts</strong> are templates the user can pick. Most servers are mostly tools, and knowing the other two exist stops you from squeezing everything into that one shape. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Primitive</th><th>What it is</th><th>Who decides to use it</th><th>Example</th></tr></thead><tbody>
-<tr><td><strong>Tools</strong></td><td>Actions with side effects, or lookups with arguments. The workhorse.</td><td><strong>The model</strong>, during a conversation.</td><td><code>create_invoice</code>, <code>search_orders</code>, <code>deploy_branch</code></td></tr>
-<tr><td><strong>Resources</strong></td><td>Readable data identified by a URI. Passive &mdash; no side effects, no arguments beyond the URI.</td><td><strong>The host or the user</strong>, usually by attaching it.</td><td>A file, a schema dump, a wiki page at <code>docs://runbook/deploy</code></td></tr>
+<tr><td><strong>Tools</strong></td><td>Actions that change something, or lookups that take values. The workhorse.</td><td><strong>The model</strong>, during a conversation.</td><td><code>create_invoice</code>, <code>search_orders</code>, <code>deploy_branch</code></td></tr>
+<tr><td><strong>Resources</strong></td><td>Data you can read, named by a URI. It just sits there &mdash; it changes nothing and takes no values beyond the URI.</td><td><strong>The host or the user</strong>, usually by attaching it.</td><td>A file, a schema dump, a wiki page at <code>docs://runbook/deploy</code></td></tr>
 <tr><td><strong>Prompts</strong></td><td>Reusable templates the user can invoke deliberately.</td><td><strong>The user</strong>, explicitly.</td><td>A <code>/review-pr</code> command that assembles the right context</td></tr>
 </tbody></table></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>Almost everything you build will be a tool.</strong> Resources matter when the host wants to show the user a list of attachable things; prompts matter when you want a slash command. If you are unsure, write a tool &mdash; you can always add the others.</p></div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>Almost everything you build will be a tool.</strong> Resources matter when the host wants to show the user a list of things they can attach; prompts matter when you want a slash command. If you are not sure, write a tool &mdash; you can always add the others later.</p></div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="shape.html">

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Why shape matters more than wording — Structured Output — Garvit's Notes</title>
-<meta name="description" content="The moment another program consumes a model's output, prose becomes a liability. Getting a guaranteed shape is a solved problem — but only the shape.">
+<meta name="description" content="The moment another program reads a model's output, nice writing becomes a problem. Getting a guaranteed shape is a solved problem — but only the shape.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,21 +54,21 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> When a person reads the output, a stray sentence of preamble is harmless. When your code reads it, &ldquo;Sure! Here's the JSON you asked for:&rdquo; in front of the data is a crash. The instant an AI call feeds another program, you stop needing good writing and start needing a guaranteed structure. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> When a person reads the output, one extra line of introduction does no harm. When your code reads it, "Sure! Here's the JSON you asked for:" sitting in front of the data is a crash. The moment an AI call feeds another program, you stop needing good writing and start needing a guaranteed structure. </div></div>
 <div class="compare">
-<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; hoping and parsing</div><pre><code>const out = await model({
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; hope, then parse</div><pre><code>const out = await model({
   prompt: `Extract the invoice fields.
 Respond with JSON only, no markdown,
 no explanation. I mean it.`
 });
 
 const data = JSON.parse(out);
-// Throws on:
+// Crashes on:
 //   "Here is the JSON:\n{...}"
 //   "```json\n{...}\n```"
 //   "{...}  Let me know if..."
 //   a trailing comma
-//   a smart quote instead of "</code></pre></div>
+//   a curly quote instead of "</code></pre></div>
 <div class="compare-pane is-good"><div class="compare-head">Do this &middot; declare the schema</div><pre><code>const out = await model({
   prompt: 'Extract the invoice fields.',
   responseFormat: {
@@ -78,11 +78,11 @@ const data = JSON.parse(out);
 });
 
 // Guaranteed to parse and to match
-// the schema. Now validate the
-// CONTENT, which is a separate job.
+// the schema. Now check the CONTENT,
+// which is a completely separate job.
 const data = InvoiceSchema.parse(out);</code></pre></div>
 </div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>A schema guarantees the shape and nothing else.</strong> You can get perfectly valid JSON containing an <code>order_id</code> that does not exist, a refund larger than the order, a date in 1847, or a confident extraction of a field the document never contained. Structured output eliminates parse errors. It does not eliminate wrong answers, and treating it as though it does is how a whole class of bug gets past review. </div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>A schema guarantees the shape and nothing else.</strong> You can get perfectly valid JSON containing an <code>order_id</code> that does not exist, a refund bigger than the order, a date in 1847, or a confident extraction of a field the document never had. Structured output removes parse errors. It does not remove wrong answers, and treating it as if it does is how a whole class of bug slips past review. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="../../notes/self-hosting/ops.html">
@@ -98,7 +98,7 @@ const data = InvoiceSchema.parse(out);</code></pre></div>
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Structured Output</a></div>
-  <div class="sib-row"><a class="sib is-current" href="why.html"><span class="sib-n">01</span>Why shape matters more than wording</a><a class="sib" href="how.html"><span class="sib-n">02</span>The four levels of enforcement</a><a class="sib" href="schema.html"><span class="sib-n">03</span>Designing a schema the model reads well</a><a class="sib" href="tools.html"><span class="sib-n">04</span>Tool calling, precisely</a><a class="sib" href="design.html"><span class="sib-n">05</span>Designing the tool surface</a><a class="sib" href="failure.html"><span class="sib-n">06</span>When the shape is right and the content is wrong</a></div>
+  <div class="sib-row"><a class="sib is-current" href="why.html"><span class="sib-n">01</span>Why shape matters more than wording</a><a class="sib" href="how.html"><span class="sib-n">02</span>The four levels of enforcement</a><a class="sib" href="schema.html"><span class="sib-n">03</span>Designing a schema the model reads well</a><a class="sib" href="tools.html"><span class="sib-n">04</span>Tool calling, precisely</a><a class="sib" href="design.html"><span class="sib-n">05</span>Designing the set of tools</a><a class="sib" href="failure.html"><span class="sib-n">06</span>When the shape is right and the content is wrong</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

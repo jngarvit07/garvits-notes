@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Why basic RAG disappoints — Advanced RAG — Garvit's Notes</title>
-<meta name="description" content="Basic RAG works in a demo and disappoints in production. The gap is almost never the model — it is that the right passage was never retrieved.">
+<meta name="description" content="Basic RAG works in a demo and disappoints in real use. The gap is almost never the model — it is that the right passage was never found.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,9 +54,9 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Basic RAG is: chop the documents up, find the chunks most similar to the question, paste them in, ask. It takes an afternoon and it works impressively on the first ten questions you try. Then real users arrive and it is wrong perhaps a third of the time &mdash; and almost every one of those failures happened before the model was even called. </div></div>
-<h3>Split the failure before you fix anything</h3>
-<p> The single most valuable habit in this whole subject: when an answer is wrong, find out <em>which half</em> failed. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Basic RAG is: chop the documents up, find the chunks most similar to the question, paste them in, ask. It takes one afternoon and it works beautifully on the first ten questions you try. Then real users show up and it is wrong maybe one time in three &mdash; and almost every one of those failures happened before the model was even called. </div></div>
+<h3>Find out which half broke, before you fix anything</h3>
+<p> The single most useful habit in this whole subject: when an answer is wrong, work out <em>which half</em> failed. </p>
 <figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">Two failures that look identical to a user</span></div><div class="figure-stage"><pre class="ascii-art">  question
      |
      v
@@ -66,16 +66,16 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
      |                     |               |
      |            RETRIEVAL FAILURE        |
      |            (~80% of bad answers)    v
-     |                             GENERATION -> did the model use it right?
+     |                             GENERATION -> did the model use it properly?
      |                                            |            |
      v                                           NO           YES
   the user sees                          GENERATION FAILURE   correct
   a wrong answer                         (~20%)
 
   Both look the same from outside. They need OPPOSITE fixes.</pre></div></figure>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>You cannot tell these apart without logging which chunks were retrieved.</strong> That one field &mdash; the ids of the passages sent to the model &mdash; is what turns debugging from guesswork into a five-minute check. Log it from the very first version. See the <a href="../aiops/index.html">AI Ops</a> note. </div></div>
-<details class="selfcheck"><summary><span class="sc-q">An answer cites the right document but states the wrong figure from it. Which half failed?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Generation. Retrieval did its job &mdash; the correct source was in front of the model &mdash; and the model still got the number wrong. Rewriting your chunking strategy would change nothing here. </p>
-<p> Fixes for this half look different: a lower temperature, an instruction to quote figures verbatim, a smaller number of passages so the right one is not buried, or a validation step that checks the quoted number actually appears in the source text. </p></div></details>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>You cannot tell these two apart unless you log which chunks were fetched.</strong> That one field &mdash; the ids of the passages sent to the model &mdash; turns debugging from guesswork into a five-minute check. Log it from the very first version. See the <a href="../aiops/index.html">AI Ops</a> note. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">An answer cites the right document but gives the wrong figure from it. Which half failed?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Generation. Retrieval did its job &mdash; the correct source was sitting right in front of the model &mdash; and the model still got the number wrong. Rewriting your chunking would change nothing here. </p>
+<p> The fixes for this half look different: a lower temperature, an instruction to copy figures exactly, fewer passages so the right one is not buried, or a check that the quoted number actually appears in the source text. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="../../notes/inside-a-model/reasoning.html">
@@ -91,7 +91,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Advanced RAG</a></div>
-  <div class="sib-row"><a class="sib is-current" href="why.html"><span class="sib-n">01</span>Why basic RAG disappoints</a><a class="sib" href="chunking.html"><span class="sib-n">02</span>Chunking: the decision you make once</a><a class="sib" href="hybrid.html"><span class="sib-n">03</span>Hybrid search: the highest-value upgrade</a><a class="sib" href="rerank.html"><span class="sib-n">04</span>Reranking</a><a class="sib" href="query.html"><span class="sib-n">05</span>Transforming the question first</a><a class="sib" href="security.html"><span class="sib-n">06</span>Permissions and untrusted passages</a><a class="sib" href="measure.html"><span class="sib-n">07</span>Measuring retrieval on its own</a></div>
+  <div class="sib-row"><a class="sib is-current" href="why.html"><span class="sib-n">01</span>Why basic RAG disappoints</a><a class="sib" href="chunking.html"><span class="sib-n">02</span>Chunking: the decision you make once</a><a class="sib" href="hybrid.html"><span class="sib-n">03</span>Hybrid search: the biggest single upgrade</a><a class="sib" href="rerank.html"><span class="sib-n">04</span>Reranking</a><a class="sib" href="query.html"><span class="sib-n">05</span>Transforming the question first</a><a class="sib" href="security.html"><span class="sib-n">06</span>Permissions and untrusted passages</a><a class="sib" href="measure.html"><span class="sib-n">07</span>Measuring retrieval on its own</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

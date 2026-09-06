@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Designing the tool surface — Agents &amp; Workflows — Garvit's Notes</title>
-<meta name="description" content="In plain English Tool design is API design for a reader who cannot ask you a question.">
+<title>Designing the set of tools — Agents &amp; Workflows — Garvit's Notes</title>
+<meta name="description" content="In plain English Designing tools is like designing an API for a reader who cannot ask you a single question.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -44,22 +44,22 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
     <div class="tree" id="tree"></div>
   </nav>
   <main class="main" id="main"><article class="content">
-<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/agents/index.html">Agents &amp; Workflows</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Designing the tool surface</span></nav>
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/agents/index.html">Agents &amp; Workflows</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">Designing the set of tools</span></nav>
 <header class="topic-head reveal">
   <span class="eyebrow">Note 13 &middot; Agents &amp; Workflows &middot; Topic 5 of 10</span>
-  <h1>Designing the tool surface</h1>
+  <h1>Designing the set of tools</h1>
   <div class="page-meta">
     <span>2 min read</span>
     <span>Some experience helps</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Tool design is API design for a reader who cannot ask you a question. The name and description are the entire documentation, and they are what the model uses to decide when to reach for it. A vague description produces a tool called at the wrong moment, and no amount of prompt tuning elsewhere fixes that. </div></div>
-<p>The tools you expose <em>are</em> your agent&rsquo;s design. A vague tool set produces a confused agent no prompt can rescue, and the most common cause of a bad agent is not the model &mdash; it is fifteen overlapping tools with descriptions written as an afterthought.</p>
-<h3>Write the description for a competent new colleague</h3>
-<p>The description is not documentation, it is the instruction the model actually follows. It should say what the tool does, when to reach for it, when <em>not</em> to, and what it returns.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Designing tools is like designing an API for a reader who cannot ask you a single question. The name and the description are the entire manual, and they are what the model uses to decide when to pick it up. A vague description gives you a tool that gets called at the wrong moment, and no amount of prompt tuning elsewhere will fix that. </div></div>
+<p>The tools you offer <em>are</em> your agent's design. A vague set of tools produces a confused agent that no prompt can rescue, and the most common cause of a bad agent is not the model &mdash; it is fifteen overlapping tools with descriptions written as an afterthought.</p>
+<h3>Write the description for a capable new colleague</h3>
+<p>The description is not documentation, it is the instruction the model actually follows. It should say what the tool does, when to reach for it, when <em>not</em> to, and what it gives back.</p>
 <div class="compare">
-<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; a name restated</div><pre><code>{
+<div class="compare-pane is-bad"><div class="compare-head">Not this &middot; the name said twice</div><pre><code>{
   name: 'search',
   description: 'Searches.',
   input_schema: {
@@ -88,14 +88,14 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 }</code></pre></div>
 </div>
 <h3>Broad tool or specific tool?</h3>
-<p>One <code>run_sql</code> tool can do anything a hundred narrow tools can. That breadth is exactly the problem: your harness sees an opaque string and cannot tell a harmless <code>SELECT</code> from a <code>DROP TABLE</code>. Promoting an action to its own tool gives your code a typed hook it can gate, log, render and parallelise.</p>
-<div class="table-wrap"><table><thead><tr><th>Promote it to a dedicated tool when&hellip;</th><th>Why breadth fails there</th></tr></thead><tbody>
-<tr><td>It crosses a security boundary or is hard to reverse.</td><td><code>send_email</code> is trivial to gate behind a confirmation. <code>bash("curl -X POST ...")</code> is not.</td></tr>
-<tr><td>It needs an invariant enforced.</td><td>An <code>edit_file</code> tool can refuse a write if the file changed since the model last read it. A shell command cannot.</td></tr>
-<tr><td>It should render as something in your UI.</td><td>A question to the user is worth its own tool so it can appear as a modal and block the loop until answered.</td></tr>
-<tr><td>It is safe to run in parallel.</td><td>Your harness can run five <code>read_file</code> calls at once. It cannot know whether five shell commands are safe to interleave.</td></tr>
+<p>One <code>run_sql</code> tool can do anything that a hundred narrow tools can do. That reach is exactly the problem: your code sees one opaque string and cannot tell a harmless <code>SELECT</code> from a <code>DROP TABLE</code>. Turning an action into its own tool gives your code a proper, typed place to gate it, log it, show it in the UI, and run several at once.</p>
+<div class="table-wrap"><table><thead><tr><th>Give it its own tool when&hellip;</th><th>Why one broad tool fails there</th></tr></thead><tbody>
+<tr><td>It crosses a security line, or cannot be undone.</td><td><code>send_email</code> is easy to put behind a confirmation. <code>bash("curl -X POST ...")</code> is not.</td></tr>
+<tr><td>A rule has to be enforced.</td><td>An <code>edit_file</code> tool can refuse a write if the file changed since the model last read it. A shell command cannot.</td></tr>
+<tr><td>It should appear as something in your UI.</td><td>A question to the user deserves its own tool, so it can appear as a popup and hold the loop until somebody answers.</td></tr>
+<tr><td>It is safe to run several at once.</td><td>Your code can safely run five <code>read_file</code> calls together. It cannot know whether five shell commands are safe to mix.</td></tr>
 </tbody></table></div>
-<p>The rule of thumb: <strong>start broad for reach, promote to specific tools the moment you need to gate, render, audit or parallelise.</strong></p>
+<p>The rule of thumb: <strong>start broad so it can actually do things, then give an action its own tool the moment you need to gate it, show it, audit it, or run several in parallel.</strong></p>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="loop.html">
@@ -111,7 +111,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Agents &amp; Workflows</a></div>
-  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What an agent actually is</a><a class="sib" href="ladder.html"><span class="sib-n">02</span>The ladder: start at the bottom</a><a class="sib" href="workflows.html"><span class="sib-n">03</span>Five workflow patterns worth knowing by name</a><a class="sib" href="loop.html"><span class="sib-n">04</span>The agent loop, drawn</a><a class="sib is-current" href="tools.html"><span class="sib-n">05</span>Designing the tool surface</a><a class="sib" href="context.html"><span class="sib-n">06</span>Context over a long run</a><a class="sib" href="structure.html"><span class="sib-n">07</span>A folder structure that survives contact</a><a class="sib" href="control.html"><span class="sib-n">08</span>Keeping it on a leash</a><a class="sib" href="mistakes.html"><span class="sib-n">09</span>Where agents actually go wrong</a><a class="sib" href="here.html"><span class="sib-n">10</span>Building one on this stack</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What an agent actually is</a><a class="sib" href="ladder.html"><span class="sib-n">02</span>The ladder: start at the bottom</a><a class="sib" href="workflows.html"><span class="sib-n">03</span>Five workflow patterns worth knowing by name</a><a class="sib" href="loop.html"><span class="sib-n">04</span>The agent loop, drawn</a><a class="sib is-current" href="tools.html"><span class="sib-n">05</span>Designing the set of tools</a><a class="sib" href="context.html"><span class="sib-n">06</span>Context over a long run</a><a class="sib" href="structure.html"><span class="sib-n">07</span>A folder structure that survives real use</a><a class="sib" href="control.html"><span class="sib-n">08</span>Keeping it on a leash</a><a class="sib" href="mistakes.html"><span class="sib-n">09</span>Where agents actually go wrong</a><a class="sib" href="here.html"><span class="sib-n">10</span>Building one on this stack</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

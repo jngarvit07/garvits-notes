@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Transformer, assembled — Inside a Model — Garvit's Notes</title>
-<meta name="description" content="Attention is one layer. Stack it a hundred times with some plumbing in between and you have the architecture behind every model you have used.">
+<meta name="description" content="Attention is one layer. Stack it a hundred times with some plumbing in between and you have the design behind every model you have used.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,7 +54,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> One attention step is like one pass of editing: each word reconsiders itself in light of the others. Do it a hundred times, with a small amount of processing between each pass, and something remarkable happens &mdash; early passes settle grammar and word sense, middle passes assemble facts and relationships, late passes decide what to actually say. Nobody assigned those jobs. They emerged. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> One attention step is like one round of editing: each word rethinks itself in the light of the others. Do that a hundred times, with a little processing between each round, and something remarkable happens &mdash; early rounds settle the grammar and word meanings, middle rounds put together facts and relationships, late rounds decide what to actually say. Nobody handed out those jobs. They appeared on their own. </div></div>
 <figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">One block, repeated many times</span></div><div class="figure-stage"><pre class="ascii-art">           tokens in
                |
       +--------v--------+
@@ -65,11 +65,11 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
      +=========v=========+   <-- repeated 32, 80, 120 times
      |  ATTENTION        |   every token looks at every earlier one
      |     +  residual   |   keep the original, ADD the update
-     |     +  normalise  |   keep the numbers in a sane range
+     |     +  normalise  |   keep the numbers in a sensible range
      |                   |
      |  FEED-FORWARD     |   each token processed on its own;
      |     +  residual   |   this is where most PARAMETERS live,
-     |     +  normalise  |   and it is where facts are stored
+     |     +  normalise  |   and where facts seem to be stored
      +=========+=========+
                |
       +--------v--------+
@@ -78,12 +78,12 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
                |
         next-token scores</pre></div></figure>
 <div class="table-wrap"><table><thead><tr><th>Piece</th><th>What it does</th><th>Why it is there</th></tr></thead><tbody>
-<tr><td>Positional information</td><td>Tells each token where it sits</td><td>Attention alone is order-blind. Without this, &ldquo;dog bites man&rdquo; and &ldquo;man bites dog&rdquo; are identical inputs.</td></tr>
-<tr><td>Residual connection</td><td>Adds each layer's output to its input rather than replacing it</td><td>Information can travel a hundred layers without being degraded. Deep networks did not train reliably until this existed.</td></tr>
-<tr><td>Normalisation</td><td>Rescales the numbers between steps</td><td>Keeps values from exploding or vanishing across many layers. Pure plumbing, and training fails without it.</td></tr>
-<tr><td>Feed-forward</td><td>Processes each position independently</td><td>Roughly two thirds of the parameters. The evidence suggests this is where factual knowledge is retained.</td></tr>
+<tr><td>Positional information</td><td>Tells each token where it sits in the line</td><td>Attention on its own is blind to order. Without this, "dog bites man" and "man bites dog" are the same input.</td></tr>
+<tr><td>Residual connection</td><td>Adds each layer's output to its input instead of replacing it</td><td>Information can travel through a hundred layers without getting damaged. Deep networks would not train properly until this existed.</td></tr>
+<tr><td>Normalisation</td><td>Rescales the numbers between steps</td><td>Stops values from blowing up or shrinking to nothing across many layers. Pure plumbing, and training fails without it.</td></tr>
+<tr><td>Feed-forward</td><td>Processes each position on its own</td><td>Roughly two thirds of all the parameters. The evidence suggests this is where factual knowledge is kept.</td></tr>
 </tbody></table></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>What &ldquo;70 billion parameters&rdquo; means.</strong> A parameter is one number, learned during training, that shapes how signal flows through the network. Seventy billion of them is the model. They are fixed once training ends &mdash; running the model does not change them, which is why a model cannot learn from your conversation. Anything that looks like memory is text being fed back in, not the model changing. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>What "70 billion parameters" means.</strong> A parameter is one number, learned during training, that shapes how the signal flows through the network. Seventy billion of them together are the model. They are frozen once training ends &mdash; running the model does not change them, which is why a model cannot learn anything from your conversation. Anything that looks like memory is just text being fed back in, not the model changing. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="attention.html">

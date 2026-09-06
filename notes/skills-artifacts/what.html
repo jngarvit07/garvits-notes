@@ -54,15 +54,15 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<p>By this point in the notes you have met several things that all sound like &ldquo;giving the model more abilities&rdquo;. They are genuinely different mechanisms, and choosing wrongly is the most common architectural mistake in applied AI.</p>
+<p>By this point in the notes you have met several things that all sound like &ldquo;giving the model more abilities&rdquo;. They are genuinely different mechanisms, and picking the wrong one is the most common design mistake people make when building with AI.</p>
 <div class="table-wrap"><table><thead><tr><th>Mechanism</th><th>What it adds</th><th>Who invokes it</th><th>Lives where</th></tr></thead><tbody>
 <tr><td><strong>Tools</strong></td><td>The ability to <em>do</em> something &mdash; read a row, send an email, run a query.</td><td>The model, mid-conversation.</td><td>Your code, or an MCP server.</td></tr>
-<tr><td><strong>RAG</strong></td><td>Knowledge the model was never trained on, retrieved per question.</td><td>Your code, before the call.</td><td>A vector store you own.</td></tr>
-<tr><td><strong>Skills</strong></td><td><em>Know-how</em> &mdash; procedures, conventions, and files for doing a task properly.</td><td>The model, when the task calls for it.</td><td>A folder with a <code>SKILL.md</code>.</td></tr>
-<tr><td><strong>Artifacts</strong></td><td>A place to <em>put</em> substantial output, so it is a document rather than a wall of chat.</td><td>The model, when output warrants it.</td><td>The host application.</td></tr>
+<tr><td><strong>RAG</strong></td><td>Knowledge the model was never trained on, fetched fresh for each question.</td><td>Your code, before the call.</td><td>A vector store you own.</td></tr>
+<tr><td><strong>Skills</strong></td><td><em>Know-how</em> &mdash; the steps, the conventions, and the files needed to do a task properly.</td><td>The model, when the task calls for it.</td><td>A folder with a <code>SKILL.md</code>.</td></tr>
+<tr><td><strong>Artifacts</strong></td><td>A place to <em>put</em> a big piece of output, so it becomes a document instead of a wall of chat.</td><td>The model, when the output deserves it.</td><td>The host application.</td></tr>
 </tbody></table></div>
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>Think of hiring someone. <strong>Tools</strong> are the keys and logins you give them. <strong>RAG</strong> is the filing cabinet they can look things up in. <strong>Skills</strong> are the &ldquo;how we do things here&rdquo; handbook they read when a relevant job comes up. <strong>Artifacts</strong> are the difference between telling you the answer across a noisy desk and handing you a written report.</p></div></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p>The frequent error is reaching for RAG when the problem is know-how. If the model gets facts right but does the <em>procedure</em> wrong &mdash; wrong format, wrong sequence, missing the step your team always does &mdash; retrieval will not fix it. That is a skill.</p></div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>Think of a new person joining your office. <strong>Tools</strong> are the keys and the logins you hand them. <strong>RAG</strong> is the filing cabinet where they look things up. <strong>Skills</strong> are the &ldquo;this is how we do it here&rdquo; handbook they open when that kind of job comes up. <strong>Artifacts</strong> are the difference between shouting the answer to you across a noisy office and handing you a neatly typed report.</p></div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p>The common mistake is reaching for RAG when the real problem is know-how. If the model gets the facts right but follows the <em>steps</em> wrong &mdash; wrong format, wrong order, skipping the step your team always does &mdash; retrieval will not fix any of that. That is a skill.</p></div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="../../notes/mcp/when.html">

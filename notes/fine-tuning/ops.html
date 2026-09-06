@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Living with a fine-tuned model — Fine-tuning — Garvit's Notes</title>
-<meta name="description" content="A tuned model is a versioned artefact with an owner, an eval score and a rollback. Treating it as a one-off experiment is how it rots.">
+<meta name="description" content="A tuned model is a versioned thing with an owner, a test score and a rollback. Treating it as a one-off experiment is how it goes stale.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,17 +54,17 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The training run is the short part. What follows is a permanent obligation: an artefact that has to be versioned, evaluated, served, monitored and eventually retrained when the task drifts or the base model is deprecated. A fine-tuned model is a dependency you now maintain, and that cost should be in the decision from the start. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The training run is the short part. What follows is a permanent duty: something that has to be versioned, tested, served, watched, and eventually retrained when the task drifts or the base model is retired. A fine-tuned model is a dependency you now maintain, and that cost should be part of the decision from the very start. </div></div>
 <div class="table-wrap"><table><thead><tr><th>What</th><th>Because</th></tr></thead><tbody>
-<tr><td>Version the dataset alongside the model</td><td>&ldquo;Which examples produced this behaviour?&rdquo; is unanswerable otherwise, and it is the first question when something is wrong.</td></tr>
-<tr><td>Record base model, hyperparameters, and the commit</td><td>Reproducibility. A tuned model you cannot rebuild is a liability with a shelf life.</td></tr>
-<tr><td>Run the same eval set as the base model</td><td>The only way to state the improvement as a number rather than an impression.</td></tr>
-<tr><td>Watch for regression on general ability</td><td>Tuning hard on one task degrades others &mdash; catastrophic forgetting. Keep a few general cases in the eval set to catch it.</td></tr>
-<tr><td>Keep the base model as a fallback</td><td>One flag back to something that works if the tuned one misbehaves in production.</td></tr>
-<tr><td>Diarise the base model's deprecation</td><td>Your adapter is tied to a specific base. When it retires, you retrain &mdash; and you want that on a plan rather than as a surprise.</td></tr>
+<tr><td>Version the dataset along with the model</td><td>Otherwise "which examples caused this behaviour?" cannot be answered, and it is the first question when something goes wrong.</td></tr>
+<tr><td>Record the base model, the settings, and the commit</td><td>So you can rebuild it. A tuned model you cannot rebuild is a liability with an expiry date.</td></tr>
+<tr><td>Run the same test set as the base model</td><td>The only way to state the improvement as a number instead of a feeling.</td></tr>
+<tr><td>Watch for general ability getting worse</td><td>Training hard on one task damages others &mdash; catastrophic forgetting. Keep a few general cases in the test set to catch it.</td></tr>
+<tr><td>Keep the base model as a fallback</td><td>One flag takes you back to something that works if the tuned one misbehaves in production.</td></tr>
+<tr><td>Put the base model's retirement date in your calendar</td><td>Your adapter is tied to one specific base model. When it retires, you retrain &mdash; and you want that planned, not sprung on you.</td></tr>
 </tbody></table></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Re-run your evals when the base model updates.</strong> An adapter trained against one version of a base model can behave differently on the next, in ways nobody deployed and nobody expected. This is the same argument as pinning model versions in the <a href="../aiops/index.html">AI Ops</a> note, with more at stake: here the thing that shifted underneath you is something you paid to build. </div></div>
-<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Fine-tuning teaches manner, not facts. Facts belong in retrieval.</li><li>Try prompting and structured output first. Most fine-tuning projects should have stopped there.</li><li>LoRA for nearly everything: ~1% of the parameters, a small adapter, many variants on one base.</li><li>The dataset is the job. 500&ndash;1,000 consistent examples beat 50,000 inconsistent ones.</li><li>DPO over RLHF if you need preference tuning, and you may already be collecting the pairs.</li><li>Distillation is the strongest economic case &mdash; but do the arithmetic before, not after.</li><li>A tuned model is a versioned dependency you now maintain. Price that in.</li></ul></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Re-run your tests whenever the base model updates.</strong> An adapter trained against one version of a base model can behave differently on the next one, in ways nobody deployed and nobody expected. This is the same argument as pinning model versions in the <a href="../aiops/index.html">AI Ops</a> note, with more at stake: here the thing that shifted under your feet is something you paid to build. </div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Fine-tuning teaches manner, not facts. Facts belong in retrieval.</li><li>Try prompting and structured output first. Most fine-tuning projects should have stopped there.</li><li>Use LoRA for nearly everything: about 1% of the parameters, a small adapter, many versions on one base.</li><li>The dataset is the job. 500&ndash;1,000 consistent examples beat 50,000 inconsistent ones.</li><li>Prefer DPO over RLHF if you need preference tuning, and you may already be collecting the pairs.</li><li>Distillation is the strongest money argument &mdash; but do the sum before, not after.</li><li>A tuned model is a versioned dependency you now maintain. Put that cost in the decision.</li></ul></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="distill.html">

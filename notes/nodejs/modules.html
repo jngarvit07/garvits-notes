@@ -54,7 +54,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A module is one file that decides what it lets other files see. <code>package.json</code> is the list of every outside package your project depends on, and the lock file beside it records the exact versions that were actually installed — which is what makes the same code behave the same on your laptop and on a server. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A module is one file that decides what it lets other files see. <code>package.json</code> is the list of every outside package your project needs. The lock file sitting next to it records the exact versions that actually got installed. That lock file is what makes the same code behave the same way on your laptop and on a server. </div></div>
 <p> A file is a module. It shares things by exporting them and uses other files by importing them. There are two systems, and mixing them up produces the single most confusing class of Node error. </p>
 <div class="table-wrap"><table><thead><tr><th></th><th>CommonJS (older)</th><th>ES Modules (current)</th></tr></thead><tbody><tr><td>Import</td><td><code>const x = require('./x')</code></td><td><code>import x from './x.js'</code></td></tr>
 <tr><td>Export</td><td><code>module.exports = x</code></td><td><code>export default x</code></td></tr>

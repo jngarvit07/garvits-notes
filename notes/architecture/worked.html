@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>A worked architecture, end to end — Architecture — Garvit's Notes</title>
-<meta name="description" content="An architecture you could hand to somebody on Monday: every layer named, every boundary decided, and the reason written next to each one.">
+<meta name="description" content="A design you could hand to somebody on Monday: every layer named, every boundary decided, and the reason written next to each one.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -49,14 +49,14 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   <span class="eyebrow">Note 20 &middot; Architecture &middot; Topic 7 of 7</span>
   <h1>A worked architecture, end to end</h1>
   <div class="page-meta">
-    <span>2 min read</span>
+    <span>3 min read</span>
     <span>Some experience helps</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> One system designed all the way down, with the reasoning next to each decision and an explicit list of what is deliberately left out. The omissions are the more useful half — knowing what you are <em>not</em> building, and why, is what keeps a first version shippable. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> One system designed all the way down, with the reasoning written next to each decision and a clear list of what has been left out on purpose. The things left out are the more useful half — knowing what you are <em>not</em> building, and why, is what keeps a first version small enough to actually ship. </div></div>
 <div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">&ldquo;Ask a question about your own documents&rdquo; &mdash; the full design</span></div><div class="example-body">
-<p> A team uploads their documents and asks questions about them in natural language. Answers must cite their sources. This is the most common AI product shape there is, and it is worth designing all the way down once. </p>
+<p> A team uploads their documents and then asks questions about them in ordinary language. Every answer must show its sources. This is the most common AI product shape there is, and it is worth designing all the way down at least once. </p>
 <figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">Two pipelines: one runs when a document arrives, one when a question is asked</span></div><div class="figure-stage"><pre class="ascii-art">  INGEST  (offline, on upload)
   ----------------------------------------------------------
   upload -&gt; object storage -&gt; queue -&gt; worker
@@ -95,19 +95,19 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   log: question, chunk ids, model, tokens, latency, feedback</pre></div></figure>
 <h3>Every decision, and why</h3>
 <div class="table-wrap"><table><thead><tr><th>Decision</th><th>Choice</th><th>Why this one</th></tr></thead><tbody>
-<tr><td>Shape</td><td>B, RAG &mdash; not an agent</td><td>The steps are known in advance. There is nothing for a model to plan.</td></tr>
-<tr><td>Chunk size</td><td>~800 tokens, 100 overlap</td><td>Big enough to hold a whole argument, small enough that five fit in context. Overlap stops a sentence being cut in half at a boundary.</td></tr>
-<tr><td>Permission filter</td><td>Applied <em>in the search query</em></td><td>Filtering after retrieval means the forbidden chunk was already in memory and one bug away from the prompt. This is the single most commonly skipped line in RAG systems.</td></tr>
-<tr><td>Rerank</td><td>20 &rarr; 5</td><td>Vector similarity is cheap and approximate; a reranker is expensive and accurate. Use each where it is good.</td></tr>
-<tr><td>Streaming</td><td>Yes, to a human</td><td>Perceived latency. The citations are sent as structured data alongside, not parsed out of the stream.</td></tr>
-<tr><td>History</td><td>Last 3 turns only</td><td>Bounded cost, bounded latency, and it stops an old turn poisoning a new answer.</td></tr>
-<tr><td>Model</td><td>Behind <code>complete()</code></td><td>So the choice stays a configuration value. A cheaper model handles query rewriting; the capable one writes the answer.</td></tr>
-<tr><td>What is logged</td><td>Which chunks were used</td><td>Without this you cannot tell a retrieval failure from a generation failure, which is 80% of debugging this system.</td></tr>
+<tr><td>Shape</td><td>B, RAG &mdash; not an agent</td><td>All the steps are known in advance. There is nothing here for a model to plan.</td></tr>
+<tr><td>Chunk size</td><td>~800 tokens, 100 overlap</td><td>Big enough to hold one complete idea, small enough that five of them fit in the context. The overlap stops a sentence getting cut in half at the join.</td></tr>
+<tr><td>Permission filter</td><td>Applied <em>in the search query</em></td><td>Filtering after the search means the forbidden chunk was already loaded into memory and one bug away from reaching the prompt. This is the single most commonly skipped line in RAG systems.</td></tr>
+<tr><td>Rerank</td><td>20 &rarr; 5</td><td>Vector similarity is cheap and rough; a reranker is expensive and accurate. Use each one where it is good.</td></tr>
+<tr><td>Streaming</td><td>Yes, to a human</td><td>It feels much faster. The citations travel alongside as proper structured data, not pulled out of the stream by hand.</td></tr>
+<tr><td>History</td><td>Last 3 turns only</td><td>Cost stays capped, speed stays capped, and it stops an old turn spoiling a new answer.</td></tr>
+<tr><td>Model</td><td>Behind <code>complete()</code></td><td>So the choice stays a single setting. A cheaper model rewrites the query; the capable one writes the actual answer.</td></tr>
+<tr><td>What is logged</td><td>Which chunks were used</td><td>Without this you cannot tell a search failure apart from a writing failure, and that is 80% of debugging this system.</td></tr>
 </tbody></table></div>
 <h3>What is deliberately not in version one</h3>
-<p> No agent loop. No semantic cache. No fine-tuning. No multi-provider fallback. Each of those is a real technique and each is a rung you climb when the rung below has visibly failed &mdash; with an eval set to prove it did. Building all of them up front produces a system nobody can debug, whose quality nobody can measure. </p>
+<p> No agent loop. No meaning-based cache. No fine-tuning. No second provider to fall back on. Every one of those is a real technique, and every one is a step you climb only when the step below has clearly failed &mdash; with a test set to prove that it did. Building all of them up front gives you a system nobody can debug and whose quality nobody can measure. </p>
 </div></div>
-<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Architecture is the decisions that are expensive to reverse. Everything else is code.</li><li>Five layers: interface, orchestration, context, capability, model. Quality problems live in context; risk lives in capability.</li><li>Four shapes: single call, RAG, workflow, agent. Climb one rung at a time.</li><li>One wrapper around every model call turns the provider choice into a configuration value.</li><li>Label the arrows. An unlabelled box diagram is decoration.</li><li>Decide what &ldquo;degraded&rdquo; looks like before you need it.</li></ul></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Architecture is the decisions that are costly to undo. Everything else is just code.</li><li>Five layers: interface, control flow, context, ability, model. Quality problems live in the context; risk lives in the ability.</li><li>Four shapes: single call, RAG, workflow, agent. Climb one step at a time.</li><li>One wrapper around every model call turns the choice of provider into a single setting.</li><li>Label the arrows. A box diagram with blank arrows is just decoration.</li><li>Decide what &ldquo;working, but reduced&rdquo; looks like before the day you need it.</li></ul></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="failure.html">

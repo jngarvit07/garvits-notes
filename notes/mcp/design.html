@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Designing a server people can actually use — MCP — Garvit's Notes</title>
-<meta name="description" content="In plain English A server people can use is mostly a matter of restraint.">
+<meta name="description" content="In plain English A server that people can actually use is mostly about holding back.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,15 +54,15 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A server people can use is mostly a matter of restraint. Few tools rather than many, each doing one clearly-named thing. Errors that say what to do rather than what failed. Descriptions written for a reader who has no other documentation — because they have none. </div></div>
-<p>The protocol is the easy part. What separates a useful server from an annoying one is the same judgement as tool design in note 07, with one addition: <strong>your server will be used by hosts you did not write, in conversations you cannot see.</strong></p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A server that people can actually use is mostly about holding back. A few tools rather than many, each doing one clearly named thing. Errors that say what to do next rather than only what broke. Descriptions written for a reader who has no other manual — because they really do not have one. </div></div>
+<p>The protocol is the easy part. What separates a useful server from an annoying one is the same judgement as tool design in note 07, with one extra point: <strong>your server will be used by applications you did not write, in conversations you will never see.</strong></p>
 <div class="table-wrap"><table><thead><tr><th>Do</th><th>Because</th></tr></thead><tbody>
-<tr><td>Bound every result. Take 20, not all.</td><td>An unbounded query fills the context window with rows nobody reads, and you pay for every one of them on every subsequent turn.</td></tr>
-<tr><td>Return only the fields that matter.</td><td>Dumping a whole row including internal ids, timestamps and nulls is expensive noise. Select what a person would want to see.</td></tr>
-<tr><td>Say when <em>not</em> to use each tool.</td><td>The model picks between your tools from the descriptions alone. Overlap without guidance produces coin-flips.</td></tr>
-<tr><td>Make destructive tools obviously destructive.</td><td>Name it <code>delete_invoice</code>, describe it as permanent, and let the host gate it. A tool called <code>update</code> that deletes is a trap.</td></tr>
-<tr><td>Keep one tool to one job.</td><td>A single <code>manage_invoice</code> with an <code>action</code> parameter defeats the gating, logging and parallelism the host would otherwise give you for free.</td></tr>
-<tr><td>Version the server, and say so.</td><td>Hosts cache capability lists. A tool whose meaning changes without a version bump breaks conversations silently.</td></tr>
+<tr><td>Bound every result. Take 20, not all.</td><td>A query with no limit fills the context window with rows nobody reads, and you pay for every one of them on every turn after that.</td></tr>
+<tr><td>Return only the fields that matter.</td><td>Dumping a whole row including internal ids, timestamps and empty fields is expensive noise. Pick out what a person would actually want to see.</td></tr>
+<tr><td>Say when <em>not</em> to use each tool.</td><td>The model chooses between your tools using the descriptions alone. Two that overlap, with no guidance, gives you a coin toss.</td></tr>
+<tr><td>Make destructive tools obviously destructive.</td><td>Name it <code>delete_invoice</code>, say in the description that it is permanent, and let the host put a gate on it. A tool called <code>update</code> that actually deletes is a trap.</td></tr>
+<tr><td>Keep one tool to one job.</td><td>One <code>manage_invoice</code> tool with an <code>action</code> value defeats the gating, the logging and the running-in-parallel that the host would otherwise give you for free.</td></tr>
+<tr><td>Version the server, and say so.</td><td>Hosts remember the list of what you can do. A tool whose meaning changes without a version number changing breaks conversations quietly.</td></tr>
 </tbody></table></div>
 </div>
 <nav class="page-nav">

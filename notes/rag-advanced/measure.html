@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Measuring retrieval on its own — Advanced RAG — Garvit's Notes</title>
-<meta name="description" content="Retrieval has its own metrics, separate from answer quality. Measuring them is what turns tuning from opinion into engineering.">
+<meta name="description" content="Retrieval has its own scores, separate from answer quality. Measuring them turns tuning from opinion into engineering.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,14 +54,14 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> If you only score the final answer, you cannot tell whether a change helped retrieval, helped generation, or helped one while hurting the other. Scoring retrieval separately is cheap, needs no model call, and gives you a number that moves when you change chunking &mdash; which is the only way to know whether the change was an improvement. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> If you only score the final answer, you cannot tell whether a change helped the search, helped the writing, or helped one while quietly hurting the other. Scoring the search separately is cheap, needs no model call, and gives you a number that moves when you change the chunking &mdash; which is the only way to know whether the change was actually an improvement. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Metric</th><th>Question it answers</th><th>Care about it when</th></tr></thead><tbody>
-<tr><td><strong>Recall@k</strong></td><td>Was the right passage anywhere in the top k?</td><td>Always. This is the ceiling &mdash; if it is not retrieved, no model can use it.</td></tr>
-<tr><td><strong>MRR</strong></td><td>How high up was the first correct one?</td><td>You send few passages, so position matters</td></tr>
-<tr><td><strong>nDCG@k</strong></td><td>Are the good ones ranked above the mediocre ones?</td><td>Comparing rerankers</td></tr>
-<tr><td><strong>Precision@k</strong></td><td>What fraction of what you sent was actually relevant?</td><td>Watching for dilution from sending too many</td></tr>
+<tr><td><strong>Recall@k</strong></td><td>Was the right passage anywhere in the top k?</td><td>Always. This is your ceiling &mdash; if it was never fetched, no model can use it.</td></tr>
+<tr><td><strong>MRR</strong></td><td>How near the top was the first correct one?</td><td>You send only a few passages, so position matters</td></tr>
+<tr><td><strong>nDCG@k</strong></td><td>Are the good ones ranked above the average ones?</td><td>Comparing one reranker with another</td></tr>
+<tr><td><strong>Precision@k</strong></td><td>What share of what you sent was actually relevant?</td><td>Watching for the watering-down that comes from sending too many</td></tr>
 </tbody></table></div>
-<div class="code-block"><div class="code-head"><span class="lang">jsonl</span>The eval set — fifty of these is enough to start</div><pre><code>{"q": "How long do I have to return an item?",
+<div class="code-block"><div class="code-head"><span class="lang">jsonl</span>The test set — fifty of these is enough to begin</div><pre><code>{"q": "How long do I have to return an item?",
  "gold": ["policy-returns#window"]}
 {"q": "and for sale items?",
  "history": ["How long do I have to return an item?"],
@@ -70,22 +70,22 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
  "gold": ["diag-codes#p0420"]}
 {"q": "Who signed off the 2024 audit?",
  "gold": [],  "expect": "decline"}      // nothing to find: it must say so</code></pre></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>Include cases with no answer.</strong> A system that always produces something confident is worse than one that says &ldquo;I could not find that&rdquo;, and only an eval set containing unanswerable questions will ever catch the difference. This is the single most-skipped row in a retrieval eval set. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>Include cases with no answer.</strong> A system that always produces something confident is worse than one that says "I could not find that", and only a test set containing unanswerable questions will ever catch the difference. This is the most skipped row in any retrieval test set. </div></div>
 <div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">The order to fix things in</span></div><div class="example-body">
-<p> Given a RAG system that is disappointing, this sequence finds the problem faster than any other order, because each step is cheaper than the one after it. </p>
-<div class="code-block"><pre><code>1. LOG the retrieved chunk ids.        You cannot debug without this.
-2. Build a 50-case retrieval eval set. An afternoon. Gives you a number.
+<p> Given a RAG system that is disappointing, this order finds the problem faster than any other, because each step is cheaper than the one after it. </p>
+<div class="code-block"><pre><code>1. LOG the fetched chunk ids.          You cannot debug without this.
+2. Build a 50-case retrieval test set. One afternoon. Gives you a number.
 3. Measure recall@20.
-     below ~0.7  ->  RETRIEVAL is your problem. Continue.
+     below ~0.7  ->  RETRIEVAL is your problem. Carry on.
      above ~0.9  ->  skip to step 7. Retrieval is fine.
 4. Add query contextualisation.        Biggest win in any chat interface.
 5. Add hybrid search.                  Biggest win for names and codes.
-6. Fix chunking: structural, parent-child, heading trails.
+6. Fix chunking: structural, parent-child, heading paths.
 7. Add reranking, and send FEWER passages.
 8. Only now: touch the prompt or change the model.</code></pre></div>
-<p> Almost everybody starts at step 8, because the prompt is the part that feels controllable. It is the step with the smallest effect and no way to tell whether it worked. </p>
+<p> Almost everybody starts at step 8, because the prompt is the part that feels like it is under your control. It is the step with the smallest effect and no way to tell whether it worked. </p>
 </div></div>
-<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Most bad RAG answers are retrieval failures. Log the chunk ids so you can tell.</li><li>Chunk on structure, index small, return large, and prefix every chunk with its heading trail.</li><li>Hybrid search fixes names, codes and exact terms. Fuse on rank, not score.</li><li>Retrieve widely, rerank hard, then send three to five passages &mdash; not fifteen.</li><li>Rewrite follow-up questions into standalone ones before searching.</li><li>Filter permissions inside the query, and treat every retrieved passage as untrusted text.</li><li>Measure recall@k separately from answer quality, and include unanswerable questions.</li></ul></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Most bad RAG answers are search failures. Log the chunk ids so you can tell which half broke.</li><li>Cut on structure, index small, return large, and start every chunk with its heading path.</li><li>Hybrid search fixes names, codes and exact terms. Merge on rank, not on score.</li><li>Fetch widely, rerank hard, then send three to five passages &mdash; not fifteen.</li><li>Rewrite follow-up questions into standalone ones before searching.</li><li>Enforce permissions inside the query, and treat every fetched passage as untrusted text.</li><li>Measure recall@k separately from answer quality, and include questions with no answer.</li></ul></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="security.html">
@@ -101,7 +101,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Advanced RAG</a></div>
-  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why basic RAG disappoints</a><a class="sib" href="chunking.html"><span class="sib-n">02</span>Chunking: the decision you make once</a><a class="sib" href="hybrid.html"><span class="sib-n">03</span>Hybrid search: the highest-value upgrade</a><a class="sib" href="rerank.html"><span class="sib-n">04</span>Reranking</a><a class="sib" href="query.html"><span class="sib-n">05</span>Transforming the question first</a><a class="sib" href="security.html"><span class="sib-n">06</span>Permissions and untrusted passages</a><a class="sib is-current" href="measure.html"><span class="sib-n">07</span>Measuring retrieval on its own</a></div>
+  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why basic RAG disappoints</a><a class="sib" href="chunking.html"><span class="sib-n">02</span>Chunking: the decision you make once</a><a class="sib" href="hybrid.html"><span class="sib-n">03</span>Hybrid search: the biggest single upgrade</a><a class="sib" href="rerank.html"><span class="sib-n">04</span>Reranking</a><a class="sib" href="query.html"><span class="sib-n">05</span>Transforming the question first</a><a class="sib" href="security.html"><span class="sib-n">06</span>Permissions and untrusted passages</a><a class="sib is-current" href="measure.html"><span class="sib-n">07</span>Measuring retrieval on its own</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

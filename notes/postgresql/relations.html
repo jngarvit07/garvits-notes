@@ -92,10 +92,10 @@ for (const project of projects) {
 // Prisma fetches the related rows together
 // instead of once per project.</code></pre></div>
 </div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> It hides well: with ten test rows the loop version is imperceptibly slower. With ten thousand rows it is thousands of round trips, and the fix is one word. Any loop containing an <code>await</code> on the database deserves a second look. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> It hides well: with ten test rows the loop version is so slightly slower that you cannot notice it. With ten thousand rows it is thousands of round trips, and the fix is one word. Any loop containing an <code>await</code> on the database deserves a second look. </div></div>
 
 <details class="selfcheck"><summary><span class="sc-q">What is the practical difference between an inner join and a left join?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> An inner join returns only rows that have a match on both sides. A left join keeps every row from the left table and fills in blanks where there is no match. </p>
-<p> The difference shows up as a bug when you count things: &ldquo;every customer and how many orders they have placed&rdquo; written with an inner join silently omits every customer who has never ordered — which is usually the group you most wanted to see. </p></div></details>
+<p> The difference turns into a bug the moment you start counting things. Take &ldquo;every customer and how many orders they have placed&rdquo;. Written with an inner join, it quietly leaves out every customer who has never ordered anything — and that is usually the exact group you wanted to look at. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="sql.html">

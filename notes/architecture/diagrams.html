@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Drawing it so people agree — Architecture — Garvit's Notes</title>
-<meta name="description" content="The four diagrams worth drawing, what each one is for, and the one thing that makes a diagram useful rather than decorative.">
+<meta name="description" content="The four diagrams worth drawing, what each one is for, and the one thing that makes a diagram useful instead of just decoration.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,16 +54,16 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A diagram is not documentation, it is an argument. Its job is to make people disagree with you early, while disagreeing is still cheap. A diagram everyone nods along to has usually failed — it means nobody found the thing they actually disagree about. </div></div>
-<p> The point of a diagram is to make disagreement visible early, while it is still cheap. A diagram everyone nods at has usually failed, because agreement that easy means nobody found the thing they disagree about. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A diagram is not documentation, it is an argument. Its job is to make people disagree with you early, while disagreeing is still cheap. A diagram everybody nods along to has usually failed — it means nobody found the thing they actually disagree about. </div></div>
+<p> The point of a diagram is to bring disagreement out into the open early, while it is still cheap to fix. A diagram everybody nods at has usually failed, because agreement that easy means nobody found the thing they really disagree about. </p>
 <div class="card-grid cols-2">
-  <div class="card"><div class="card-title">1. Context diagram</div><p>Your system as one box in the middle. Around it: every human and every other system that talks to it, with an arrow each. Nothing about the inside. Takes ten minutes and settles most scope arguments.</p></div>
-  <div class="card"><div class="card-title">2. Container diagram</div><p>Open the box. The deployable pieces &mdash; web app, API, worker, database, vector index, model provider &mdash; and the protocol on each arrow. This is the one an engineer joining next week actually needs.</p></div>
-  <div class="card"><div class="card-title">3. Sequence diagram</div><p>One request, top to bottom, across every component it touches. This is where latency and failure become obvious, because both are visible as the length and the number of the hops.</p></div>
-  <div class="card"><div class="card-title">4. Data flow diagram</div><p>Follow the <em>data</em>, not the request: where it enters, where it is copied, where it rests, where it leaves. This is the diagram a privacy or security review asks for, and the one that catches &ldquo;wait, we send that to a third party?&rdquo;</p></div>
+  <div class="card"><div class="card-title">1. Context diagram</div><p>Your system as one box in the middle. Around it: every person and every other system that talks to it, with one arrow each. Nothing at all about the inside. Takes ten minutes and settles most arguments about scope.</p></div>
+  <div class="card"><div class="card-title">2. Container diagram</div><p>Open the box up. The pieces you actually deploy &mdash; web app, API, worker, database, vector index, model provider &mdash; and the protocol written on each arrow. This is the one a new engineer joining next week actually needs.</p></div>
+  <div class="card"><div class="card-title">3. Sequence diagram</div><p>One single request, top to bottom, across every piece it touches. This is where slowness and failure become obvious, because you can see both in the length and the number of the hops.</p></div>
+  <div class="card"><div class="card-title">4. Data flow diagram</div><p>Follow the <em>data</em>, not the request: where it comes in, where it gets copied, where it sits, where it leaves. This is the diagram a privacy or security review asks for, and the one that catches &ldquo;hang on, we send that to an outside company?&rdquo;</p></div>
 </div>
 <h3>What makes a diagram useful</h3>
-<p> One thing: <strong>label the arrows</strong>. A box diagram with unlabelled arrows tells you almost nothing. The same diagram with <em>what</em> travels on each arrow, over <em>which</em> protocol, and what happens when it fails, is a design document. </p>
+<p> One thing: <strong>write labels on the arrows</strong>. A box diagram with blank arrows tells you almost nothing. The same diagram with <em>what</em> travels along each arrow, over <em>which</em> protocol, and what happens when it fails, is a proper design document. </p>
 <div class="code-block"><div class="code-head"><span class="lang">txt</span>An arrow, labelled properly</div><pre><code>  weak:     [ API ] ------------&gt; [ Model provider ]
 
   useful:   [ API ] ------------&gt; [ Model provider ]
@@ -72,9 +72,9 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
                           + last 6 turns (PII redacted)
                    on failure: retry x2 with backoff,
                           then a cached generic reply</code></pre></div>
-<div class="callout is-note is-practice"><span class="callout-icon">&#9998;</span><div class="callout-body"><div class="callout-title">Try this</div> Draw the container diagram for something you have already built, then label every arrow with what fails when the thing on the right is down. You will find at least one arrow with no answer. That arrow is your next piece of work, and you found it with a pen instead of an outage. </div></div>
-<details class="selfcheck"><summary><span class="sc-q">What is the single change that most improves a box-and-arrow diagram?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Labelling the arrows. Boxes are the easy part and rarely where the disagreement lives. Write on each arrow what travels along it, over what protocol, roughly how long it takes, and what happens when the far end is down. </p>
-<p> You usually find at least one arrow whose failure behaviour nobody has decided. That arrow is your next piece of work, and a pen found it instead of an outage. </p></div></details>
+<div class="callout is-note is-practice"><span class="callout-icon">&#9998;</span><div class="callout-body"><div class="callout-title">Try this</div> Draw the container diagram for something you have already built, then label every arrow with what breaks when the thing on the right-hand end is down. You will find at least one arrow where nobody knows the answer. That arrow is your next piece of work, and you found it with a pen instead of with an outage. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">What is the single change that most improves a box-and-arrow diagram?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Labelling the arrows. Boxes are the easy part, and the disagreement is almost never in them. On each arrow, write what travels along it, over what protocol, roughly how long it takes, and what happens when the other end is down. </p>
+<p> You will usually find at least one arrow where nobody has decided what happens when it fails. That arrow is your next piece of work, and a pen found it for you instead of an outage. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="boundaries.html">

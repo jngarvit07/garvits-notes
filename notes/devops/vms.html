@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Where the virtual machine still fits — CI/CD, Docker &amp; Kubernetes — Garvit's Notes</title>
-<meta name="description" content="A container shares the host's kernel; a VM brings its own. Every Kubernetes node is a VM underneath — and there are still good reasons to provision one yourself.">
+<meta name="description" content="A container shares the host's kernel; a VM brings its own. Every Kubernetes node is a VM underneath — and there are still good reasons to set one up yourself.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -78,7 +78,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 
 # It is now a computer like any other: SSH in, install what you need.
 gcloud compute ssh ci-runner --zone=europe-west2-a</code></pre></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>A VM you provision by hand is a VM someone has to patch by hand.</strong> Unlike a managed container platform, nobody rotates its OS security updates for you. If you do reach for one, put it behind infrastructure-as-code (Terraform, or even just a documented creation script) so it can be recreated identically rather than becoming the one server nobody remembers how to rebuild. </div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>A VM you set up by hand is a VM somebody has to keep patched by hand.</strong> Unlike a managed container platform, nobody rotates its OS security updates for you. If you do reach for one, put it behind infrastructure-as-code (Terraform, or even just a documented creation script) so it can be recreated identically rather than becoming the one server nobody remembers how to rebuild. </div></div>
 <details class="selfcheck"><summary><span class="sc-q">Why do containers start in milliseconds while virtual machines take tens of seconds?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> A VM has to boot an entire guest operating system from scratch — its own kernel, its own init process — before your application even starts. A container skips all of that: it shares the host machine's already-running kernel and starts straight into your application process. The trade-off is isolation — a VM's separate kernel is a stronger security boundary than a container's shared one. </p></div></details>
 </div>
 <nav class="page-nav">

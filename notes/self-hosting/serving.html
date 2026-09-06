@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Serving it properly — Running Models Yourself — Garvit's Notes</title>
-<meta name="description" content="Which serving stack, and the two techniques that separate a real server from a script in a loop.">
+<meta name="description" content="Which serving stack to use, and the two ideas that separate a real server from a script running in a loop.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,43 +54,43 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Loading a model and generating in a loop works for one user and collapses for twenty. A real serving stack does two things that transform throughput: it batches requests together so the GPU is never idle waiting, and it manages the KV cache in small pages so memory is not wasted on reserved-but-unused space. Those two ideas are most of the difference. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Loading a model and generating in a loop works for one user and falls apart for twenty. A real serving stack does two things that transform how much it can handle: it groups requests together so the GPU is never sitting idle, and it manages the KV cache in small pages so memory is not wasted on space that was booked but never used. Those two ideas are most of the difference. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Stack</th><th>Best for</th><th>Notes</th></tr></thead><tbody>
-<tr><td><strong>Ollama</strong></td><td>Laptops, prototypes, one user</td><td>One command to run. Excellent for development, not built for production concurrency.</td></tr>
-<tr><td><strong>llama.cpp</strong></td><td>CPU, Apple Silicon, edge devices</td><td>Runs where there is no GPU at all. Very strong quantisation support.</td></tr>
-<tr><td><strong>vLLM</strong></td><td><strong>Production serving on GPUs</strong></td><td>Continuous batching and paged attention. The default answer for serving at volume.</td></tr>
-<tr><td><strong>TGI</strong></td><td>Production, Hugging Face ecosystem</td><td>Comparable to vLLM. Choose on ecosystem fit.</td></tr>
-<tr><td><strong>TensorRT-LLM</strong></td><td>Maximum throughput on NVIDIA</td><td>Fastest, most work to set up. For when the last 20% genuinely matters.</td></tr>
+<tr><td><strong>Ollama</strong></td><td>Laptops, prototypes, one user</td><td>One command and it runs. Excellent while developing, not built for many users at once.</td></tr>
+<tr><td><strong>llama.cpp</strong></td><td>CPU, Apple Silicon, small devices</td><td>Runs where there is no GPU at all. Very good support for quantisation.</td></tr>
+<tr><td><strong>vLLM</strong></td><td><strong>Real production serving on GPUs</strong></td><td>Continuous batching and paged attention. The default answer for serving at volume.</td></tr>
+<tr><td><strong>TGI</strong></td><td>Production, if you live in the Hugging Face world</td><td>Roughly equal to vLLM. Choose whichever fits your existing tools.</td></tr>
+<tr><td><strong>TensorRT-LLM</strong></td><td>Squeezing the most out of NVIDIA hardware</td><td>Fastest, and the most work to set up. For when the last 20% genuinely matters.</td></tr>
 </tbody></table></div>
 <div class="code-block"><div class="code-head"><span class="lang">txt</span>The two ideas that make a serving stack fast</div><pre><code>CONTINUOUS BATCHING
-  naive:      [req A ......... done]
+  simple way: [req A ......... done]
               wait            [req B ......... done]
-              GPU idle between them, and idle whenever A is short
+              The GPU sits idle between them, and idle whenever A is short
 
   continuous: [A ......][B ....][C .........]
               [D ...........][E ......]
               A finishes -> a new request joins the batch IMMEDIATELY.
-              The GPU never waits for a batch to fill or drain.
+              The GPU never waits for a batch to fill up or empty out.
 
 PAGED ATTENTION
-  naive:      reserve max_context for every request, up front
-              a 200-token chat holds 8,000 tokens of memory. Most is waste.
+  simple way: book the maximum context for every request, up front
+              a 200-token chat holds 8,000 tokens of memory. Mostly wasted.
 
-  paged:      allocate the cache in small blocks, on demand
+  paged:      hand out the cache in small blocks, only as needed
               (the same idea as virtual memory pages in an operating system)
-              2-4x more concurrent requests on identical hardware.</code></pre></div>
-<div class="code-block"><div class="code-head"><span class="lang">bash</span>An OpenAI-compatible endpoint in one command</div><pre><code># Most stacks expose the OpenAI API shape, which means the SAME client
-# code points at either — so this stays a config change, exactly as in
-# the Architecture note. Do not write provider-specific calls.
+              2-4x more simultaneous requests on exactly the same hardware.</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="lang">bash</span>An OpenAI-compatible endpoint in one command</div><pre><code># Most stacks copy the OpenAI API shape, which means the SAME client
+# code can point at either one — so this stays a config change, exactly
+# as in the Architecture note. Do not write provider-specific calls.
 vllm serve &lt;model&gt; \
   --quantization awq \
-  --max-model-len 8192 \        # cap context: this bounds the KV cache
+  --max-model-len 8192 \        # cap the context: this limits the KV cache
   --gpu-memory-utilization 0.90 \
-  --max-num-seqs 32             # cap concurrency: bounds it again
+  --max-num-seqs 32             # cap simultaneous requests: limits it again
 
 # Your code, unchanged apart from the base URL:
 #   baseURL: 'http://gpu-node.internal:8000/v1'</code></pre></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Serve behind the same <code>complete()</code> wrapper as everything else. Self-hosting should be one entry in a config file, so you can run a hosted model in development and your own in production, or fall back to a hosted provider when a GPU node dies. Keeping that switch cheap is what makes the decision reversible. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Serve it behind the same <code>complete()</code> wrapper as everything else. Self-hosting should be one line in a config file, so you can run a hosted model while developing and your own in production, or fall back to a hosted provider when a GPU node dies. Keeping that switch cheap is what keeps the decision reversible. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="quantisation.html">
@@ -106,7 +106,7 @@ vllm serve &lt;model&gt; \
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Running Models Yourself</a></div>
-  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>When to run a model yourself</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>Open weights, and what the licence actually says</a><a class="sib" href="memory.html"><span class="sib-n">03</span>Will it fit? The VRAM arithmetic</a><a class="sib" href="quantisation.html"><span class="sib-n">04</span>Quantisation</a><a class="sib is-current" href="serving.html"><span class="sib-n">05</span>Serving it properly</a><a class="sib" href="ops.html"><span class="sib-n">06</span>What you have just taken on</a></div>
+  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>When to run a model yourself</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>Open weights, and what the licence actually says</a><a class="sib" href="memory.html"><span class="sib-n">03</span>Will it fit? The VRAM sum</a><a class="sib" href="quantisation.html"><span class="sib-n">04</span>Quantisation</a><a class="sib is-current" href="serving.html"><span class="sib-n">05</span>Serving it properly</a><a class="sib" href="ops.html"><span class="sib-n">06</span>What you have just taken on</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

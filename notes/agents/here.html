@@ -57,23 +57,23 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 <div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> What building one on this stack actually looks like — where the loop lives, where the tools live, and what the limits are set to. </div></div>
 <p>Nothing here needs a framework. The pieces map onto what notes 03 and 04 already covered.</p>
 <div class="card-grid cols-2">
-<div class="card"><div class="card-title">The loop belongs on the server</div><p>An agent loop in the browser ships your API key to a stranger. It runs in Express, behind auth, exactly like any other route that touches money.</p></div>
-<div class="card"><div class="card-title">Tools are just functions you already have</div><p>Your existing service functions <em>are</em> the tools. Wrap them with a schema and a description; do not write a second implementation for the agent.</p></div>
-<div class="card"><div class="card-title">Long runs outlive the request</div><p>An agent that takes two minutes cannot live inside an HTTP handler. Start a job, return an id, stream progress &mdash; the same shape as any long task.</p></div>
-<div class="card"><div class="card-title">Traces are rows</div><p>You already have Postgres. One row per step, indexed by run id, is a better observability story than most purpose-built tools give you.</p></div>
+<div class="card"><div class="card-title">The loop belongs on the server</div><p>An agent loop running in the browser hands your API key to a stranger. It runs in Express, behind your login check, exactly like any other route that touches money.</p></div>
+<div class="card"><div class="card-title">Tools are just functions you already have</div><p>Your existing service functions <em>are</em> the tools. Wrap them with a schema and a description; do not write a second copy just for the agent.</p></div>
+<div class="card"><div class="card-title">Long runs outlive the request</div><p>An agent that takes two minutes cannot live inside an HTTP handler. Start a job, return an id, stream the progress &mdash; the same shape as any other long task.</p></div>
+<div class="card"><div class="card-title">Traces are just rows</div><p>You already have Postgres. One row per step, indexed by run id, gives you a better view of what happened than most purpose-built tools do.</p></div>
 </div>
 <div class="callout is-note is-practice"><span class="callout-icon">&#9654;</span><div class="callout-body"><div class="callout-title">Practice</div>
-<p>Build the smallest real agent: two tools &mdash; <code>list_files</code> and <code>read_file</code>, both scoped to one directory &mdash; and the task &ldquo;find where X is configured in this project and explain it&rdquo;. Cap it at eight steps.</p>
-<p>Then break it deliberately. Make <code>read_file</code> throw on one path and watch what the model does with the error. Change the error message from a stack trace to a sentence and watch it recover instead. That single experiment teaches more about tool design than any amount of reading.</p>
-<p>Finally, log every step to a file and read the trace end to end. You will find at least one step you did not expect.</p>
+<p>Build the smallest real agent you can: two tools &mdash; <code>list_files</code> and <code>read_file</code>, both limited to one folder &mdash; and the task "find where X is configured in this project and explain it". Cap it at eight steps.</p>
+<p>Then break it on purpose. Make <code>read_file</code> throw an error on one path and watch what the model does with that error. Change the error message from a stack trace into a plain sentence and watch it recover instead. That single experiment teaches more about tool design than any amount of reading.</p>
+<p>Finally, log every step to a file and read the whole trace from start to finish. You will find at least one step you did not expect.</p>
 </div></div>
 <div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul>
 <li>An agent is a loop where the model chooses the next step. If you can draw the flowchart, write the flowchart instead.</li>
-<li>The model never executes anything &mdash; it asks. Everything you can control sits between the asking and the doing.</li>
-<li>Your tool descriptions are your real prompt. Say when not to use each tool, not just what it does.</li>
-<li>Send all results from one turn back in a single user message, and never drop a failed one &mdash; mark it <code>is_error</code>.</li>
-<li>Iteration cap, cost budget, approval gates. An agent without exit conditions is an outage waiting for a quiet weekend.</li>
-<li>Prompts are files. Tools are files. Evals live next to them. Anything worth reviewing gets a diff.</li>
+<li>The model never runs anything &mdash; it asks. Everything you can control sits between the asking and the doing.</li>
+<li>Your tool descriptions are your real prompt. Say when not to use each tool, not only what it does.</li>
+<li>Send all the results from one turn back in a single user message, and never drop a failed one &mdash; mark it <code>is_error</code>.</li>
+<li>Step limit, cost budget, approval gates. An agent with no way to stop is an outage waiting for a quiet weekend.</li>
+<li>Prompts are files. Tools are files. Tests live next to them. Anything worth reviewing gets its own diff.</li>
 </ul></div>
 </div>
 <nav class="page-nav">
@@ -90,7 +90,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Agents &amp; Workflows</a></div>
-  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What an agent actually is</a><a class="sib" href="ladder.html"><span class="sib-n">02</span>The ladder: start at the bottom</a><a class="sib" href="workflows.html"><span class="sib-n">03</span>Five workflow patterns worth knowing by name</a><a class="sib" href="loop.html"><span class="sib-n">04</span>The agent loop, drawn</a><a class="sib" href="tools.html"><span class="sib-n">05</span>Designing the tool surface</a><a class="sib" href="context.html"><span class="sib-n">06</span>Context over a long run</a><a class="sib" href="structure.html"><span class="sib-n">07</span>A folder structure that survives contact</a><a class="sib" href="control.html"><span class="sib-n">08</span>Keeping it on a leash</a><a class="sib" href="mistakes.html"><span class="sib-n">09</span>Where agents actually go wrong</a><a class="sib is-current" href="here.html"><span class="sib-n">10</span>Building one on this stack</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What an agent actually is</a><a class="sib" href="ladder.html"><span class="sib-n">02</span>The ladder: start at the bottom</a><a class="sib" href="workflows.html"><span class="sib-n">03</span>Five workflow patterns worth knowing by name</a><a class="sib" href="loop.html"><span class="sib-n">04</span>The agent loop, drawn</a><a class="sib" href="tools.html"><span class="sib-n">05</span>Designing the set of tools</a><a class="sib" href="context.html"><span class="sib-n">06</span>Context over a long run</a><a class="sib" href="structure.html"><span class="sib-n">07</span>A folder structure that survives real use</a><a class="sib" href="control.html"><span class="sib-n">08</span>Keeping it on a leash</a><a class="sib" href="mistakes.html"><span class="sib-n">09</span>Where agents actually go wrong</a><a class="sib is-current" href="here.html"><span class="sib-n">10</span>Building one on this stack</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

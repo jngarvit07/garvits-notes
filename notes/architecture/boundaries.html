@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The six boundaries, and the trade at each — Architecture — Garvit's Notes</title>
-<meta name="description" content="Six places where a decision has to be made, what each choice buys, and what it costs you when you are wrong.">
+<meta name="description" content="Six places where a decision has to be made, what each choice buys you, and what it costs when you get it wrong.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -49,13 +49,13 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   <span class="eyebrow">Note 20 &middot; Architecture &middot; Topic 4 of 7</span>
   <h1>The six boundaries, and the trade at each</h1>
   <div class="page-meta">
-    <span>2 min read</span>
+    <span>3 min read</span>
     <span>Some experience helps</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A boundary is a place where two parts of the system meet and somebody has to decide how. Six of them come up every time. None of these decisions is hard on its own; the trouble is that they get made implicitly, by whoever wrote that bit first, and then become expensive to revisit. </div></div>
-<p> An architecture is really a set of choices at boundaries. These six cover most of what you will decide. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A boundary is a place where two parts of the system meet and somebody has to decide how they meet. Six of them come up every single time. None of these decisions is hard on its own; the trouble is that they get made silently, by whoever wrote that bit first, and then become expensive to change. </div></div>
+<p> An architecture is really just a set of choices made at boundaries. These six cover most of what you will have to decide. </p>
 <h3>1. Where does the model call live?</h3>
 <div class="compare">
 <div class="compare-pane is-bad"><div class="compare-head">Not this &middot; from the browser</div><pre><code>// Your API key is now public.
@@ -72,23 +72,23 @@ fetch('/api/assistant', {
   method: 'POST', body: JSON.stringify(input)
 });</code></pre></div>
 </div>
-<p> There is no version of the left-hand side that is acceptable in production. Everything else on this page is a genuine trade-off; this one is not. </p>
+<p> There is no version of the left-hand side that is acceptable in a real product. Everything else on this page is a genuine trade-off; this one is not a trade-off at all. </p>
 <h3>2. Streaming, or wait for the whole answer?</h3>
-<p> Streaming makes a ten-second answer feel like a one-second answer, which is a large perceived-quality win. It costs you the ability to validate before the user sees anything: once the first token is on screen you cannot unsend it. <strong>Stream prose to a human; do not stream a result another system will parse.</strong> </p>
+<p> Streaming makes a ten-second answer feel like a one-second answer, which is a big win in how good it feels. What it costs you is the chance to check the answer before the user sees any of it: once the first word is on screen, you cannot take it back. <strong>Stream writing to a human; never stream a result that another program has to read.</strong> </p>
 <h3>3. Synchronous or queued?</h3>
 <div class="table-wrap"><table><thead><tr><th></th><th>Synchronous</th><th>Queued</th></tr></thead><tbody>
-<tr><td>User experience</td><td>Answer arrives in the request</td><td>&ldquo;We'll email you&rdquo; / poll for it</td></tr>
-<tr><td>Holds a connection</td><td>Yes &mdash; for the whole call</td><td>No</td></tr>
-<tr><td>Retries</td><td>Awkward; the user is waiting</td><td>Natural &mdash; the job is retried</td></tr>
-<tr><td>Right for</td><td>Chat, autocomplete, anything under ~30s</td><td>Batch, long agent runs, document processing</td></tr>
+<tr><td>User experience</td><td>The answer comes back in the same request</td><td>&ldquo;We'll email you&rdquo;, or the page keeps checking for it</td></tr>
+<tr><td>Holds a connection</td><td>Yes &mdash; for the whole length of the call</td><td>No</td></tr>
+<tr><td>Retries</td><td>Awkward, because the user is sitting there waiting</td><td>Easy &mdash; the job just gets retried</td></tr>
+<tr><td>Right for</td><td>Chat, autocomplete, anything that finishes in about 30 seconds</td><td>Bulk work, long agent runs, processing documents</td></tr>
 </tbody></table></div>
 <h3>4. What is the unit of caching?</h3>
-<p> The cheapest model call is the one you do not make. Three levels, cheapest first: an exact-match cache on identical inputs; a semantic cache on <em>similar</em> inputs (fast, and occasionally wrong in ways that are hard to spot); and prompt caching offered by the provider, which reuses the expensive shared prefix of a long system prompt. The first and third are safe. The second needs a threshold you have actually tested. </p>
+<p> The cheapest model call is the one you never make. Three levels, cheapest first: an exact-match cache for identical inputs; a meaning-based cache for <em>similar</em> inputs (fast, and occasionally wrong in ways that are hard to spot); and the prompt caching the provider offers, which reuses the expensive unchanging opening block of a long system prompt. The first and the third are safe. The second one needs a cut-off value you have actually tested. </p>
 <h3>5. Where is the guardrail?</h3>
-<p> Input filtering, output filtering, or both. Output filtering is the one that matters, because it is the last thing between a wrong answer and a user. It also costs latency, and a filter that runs on a stream is a design problem of its own. </p>
+<p> You can filter the input, filter the output, or do both. Filtering the output is the one that matters, because it is the last thing standing between a wrong answer and a user. It also slows things down, and a filter that has to work on a live stream is a design problem all of its own. </p>
 <h3>6. What does the model touch directly?</h3>
-<p> This is the load-bearing wall. Give the model tools that are <em>narrow and specific</em> &mdash; <code>refund_order(order_id, reason)</code> &mdash; rather than broad and general &mdash; <code>run_sql(query)</code>. The narrow tool can be permission-checked, rate-limited, logged and reasoned about. The broad one is a bypass of every control you have. </p>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> A rule that ages well: <strong>anything irreversible gets a human in the loop, and the human sees what will happen before it happens.</strong> Not &ldquo;are you sure?&rdquo; &mdash; the actual diff, the actual amount, the actual recipient. Confirmation dialogues that do not show consequences get clicked through. </div></div>
+<p> This is one of those walls that holds up the roof. Give the model tools that are <em>narrow and specific</em> &mdash; <code>refund_order(order_id, reason)</code> &mdash; rather than broad and general &mdash; <code>run_sql(query)</code>. The narrow tool can have permissions checked, be rate-limited, be logged and be reasoned about. The broad one walks straight past every control you have. </p>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> A rule that stands the test of time: <strong>anything that cannot be undone gets a human involved, and that human sees exactly what will happen before it happens.</strong> Not &ldquo;are you sure?&rdquo; &mdash; the actual changes, the actual amount, the actual recipient. Confirmation boxes that do not show consequences just get clicked through. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="reference.html">

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Running them, and running them automatically — Evaluation — Garvit's Notes</title>
-<meta name="description" content="In plain English An eval set nobody runs is a document.">
+<meta name="description" content="In plain English A test set nobody runs is just a document.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -49,12 +49,12 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   <span class="eyebrow">Note 17 &middot; Evaluation &middot; Topic 5 of 5</span>
   <h1>Running them, and running them automatically</h1>
   <div class="page-meta">
-    <span>2 min read</span>
+    <span>3 min read</span>
     <span>Some experience helps</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> An eval set nobody runs is a document. The value appears when it runs automatically — on every change to a prompt, and on a schedule against production — so a regression is caught by a pipeline rather than by a customer. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A test set nobody runs is just a document. The value only appears when it runs automatically — on every change to a prompt, and on a schedule against the live system — so that a break is caught by your pipeline instead of by a customer. </div></div>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>evals/run.ts &mdash; small enough that it actually gets used</div><pre><code>import cases from './cases/support-qa.json';
 import { answer } from '../src/answer.js';
 import { judgeGrounded } from './graders.js';
@@ -103,24 +103,24 @@ if (failed.length &gt; 3) {
   console.error(`${failed.length} failures:`, failed.map((f) =&gt; f.id).join(', '));
   process.exit(1);
 }</code></pre></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>Run it on every change to a prompt, a model id, or the retrieval pipeline.</strong> Those three files are exactly as dangerous as a database migration and get a fraction of the scrutiny. Wiring the eval into CI is what turns &ldquo;we should test this&rdquo; into something that actually happens.</p></div></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p>Evals cost real money to run, because they make real API calls. Keep the CI set small and fast &mdash; thirty to fifty cases &mdash; and run the large set nightly. An eval suite too expensive to run is an eval suite nobody runs.</p></div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>Run it on every change to a prompt, a model id, or the retrieval pipeline.</strong> Those three files are every bit as dangerous as a database migration, and they get a fraction of the attention. Wiring the test set into CI is what turns &ldquo;we really should test this&rdquo; into something that actually happens.</p></div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p>Running these tests costs real money, because they make real API calls. Keep the CI set small and quick &mdash; thirty to fifty cases &mdash; and run the big set overnight. A test suite that is too expensive to run is a test suite nobody runs.</p></div></div>
 <details class="selfcheck"><summary><span class="sc-q">Your grounding score is 95% and users still complain the answers are wrong. What is the eval missing?</span><span class="sc-cue">Answer</span></summary><div class="sc-body">
-<p>Most likely retrieval, measured separately. Grounding asks &ldquo;is the answer supported by the retrieved context?&rdquo; &mdash; an answer can be perfectly grounded in the <em>wrong</em> chunk and score 95% while being useless. High grounding with unhappy users is the classic signature of a retrieval problem hiding behind a generation metric.</p>
-<p>The second candidate is missing refusal cases. If your set only contains answerable questions, you have never measured what happens when the corpus has nothing &mdash; and confidently inventing an answer there is what destroys trust fastest.</p>
+<p>Most likely the search step, measured on its own. Grounding only asks &ldquo;is this answer supported by the text we fetched?&rdquo; &mdash; and an answer can be perfectly supported by the <em>wrong</em> chunk, scoring 95% while being useless. A high grounding score together with unhappy users is the classic sign of a search problem hiding behind a writing score.</p>
+<p>The second suspect is having no refusal cases. If your set only has questions that can be answered, you have never measured what happens when your documents contain nothing &mdash; and confidently inventing an answer in that situation is what destroys trust fastest.</p>
 </div></details>
 <div class="callout is-note is-practice"><span class="callout-icon">&#9654;</span><div class="callout-body"><div class="callout-title">Practice</div>
-<p>Take any AI feature you have. Open the logs, pull thirty real inputs, and write down for each what a good answer would be. That is an afternoon, and it is the whole job.</p>
-<p>Now run your current system against them and count. Whatever number you get is your real baseline &mdash; almost certainly lower than you expected, and now you can improve it deliberately instead of guessing.</p>
+<p>Take any AI feature you already have. Open the logs, pull out thirty real inputs, and write down for each one what a good answer would look like. That is one afternoon of work, and it is the whole job.</p>
+<p>Now run your current system against all thirty and count the results. Whatever number comes out is your real starting point &mdash; almost certainly lower than you expected &mdash; and from now on you can improve it on purpose instead of guessing.</p>
 </div></div>
 <div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul>
-<li>Without evals, every prompt change is a gamble and every regression ships silently.</li>
-<li>Thirty real cases beat three hundred invented ones. Include the ambiguous, the hostile and the unanswerable.</li>
-<li>Add every reported bug as a case. That habit compounds into your most valuable asset.</li>
-<li>Use the simplest grader that works. Reach for an LLM judge last, and calibrate it against humans.</li>
-<li>For RAG, score retrieval and generation separately &mdash; one number cannot tell you which half is broken.</li>
-<li>For agents, score the trajectory: steps, tool choice, cost, gate hits &mdash; not only the final answer.</li>
-<li>Wire it into CI. Prompts and model ids are as dangerous as migrations and get a fraction of the review.</li>
+<li>Without a test set, every prompt change is a gamble and everything you break goes live quietly.</li>
+<li>Thirty real cases beat three hundred made-up ones. Include the unclear, the hostile and the unanswerable.</li>
+<li>Turn every reported bug into a case. That one habit builds up into your most valuable asset.</li>
+<li>Use the simplest marker that works. Reach for a model examiner last, and check it against human marks first.</li>
+<li>For RAG, score the search and the writing separately &mdash; one number cannot tell you which half is broken.</li>
+<li>For agents, score the whole path: steps taken, tools chosen, cost, gates hit &mdash; not only the final answer.</li>
+<li>Wire it into CI. Prompts and model ids are as dangerous as database migrations and get a fraction of the review.</li>
 </ul></div>
 </div>
 <nav class="page-nav">

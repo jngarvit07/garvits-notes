@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The rest of the risk surface — AI Security — Garvit's Notes</title>
-<meta name="description" content="In plain English Injection gets the attention, and it is not the whole surface.">
+<meta name="description" content="In plain English Injection gets all the attention, but it is not the whole picture.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -49,26 +49,26 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   <span class="eyebrow">Note 18 &middot; AI Security &middot; Topic 4 of 5</span>
   <h1>The rest of the risk surface</h1>
   <div class="page-meta">
-    <span>2 min read</span>
+    <span>3 min read</span>
     <span>Some experience helps</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Injection gets the attention, and it is not the whole surface. Data leaking through a model&rsquo;s output, denial of service by making it do expensive work, dependencies you did not audit, and information sitting in logs nobody set a retention period on. Less dramatic, and each one is a real incident that has happened to somebody. </div></div>
-<p>Injection dominates the conversation, and these are the ones that actually appear in incident reports alongside it.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Injection gets all the attention, but it is not the whole picture. Data leaking out through a model's answers, someone running up your bill by making it do expensive work, libraries nobody checked, and information sitting in logs where nobody ever set a deletion date. Less dramatic, and every one of them has actually happened to somebody. </div></div>
+<p>Injection takes over the conversation, but these are the ones that show up in real incident reports right beside it.</p>
 <div class="table-wrap"><table><thead><tr><th>Risk</th><th>What it looks like</th><th>What to do</th></tr></thead><tbody>
-<tr><td><strong>Sensitive data disclosure</strong></td><td>Secrets, other users&rsquo; records, or internal documents ending up in an answer &mdash; often because they were in the retrieval corpus at all.</td><td>Filter at indexing time, not answer time. Apply the user&rsquo;s permissions to retrieval, so they can only match what they may read.</td></tr>
-<tr><td><strong>Excessive agency</strong></td><td>An agent with broad credentials doing something drastic while correctly following a bad instruction.</td><td>Narrow tools, scoped credentials, confirmation gates, hard iteration caps.</td></tr>
-<tr><td><strong>Insecure output handling</strong></td><td>Model output rendered as HTML, executed as code, or concatenated into a query.</td><td>Escape on render. Parameterise queries. Never <code>eval</code>. Treat it exactly like form input.</td></tr>
-<tr><td><strong>Supply chain</strong></td><td>An MCP server, prompt template or model from an untrusted source. Tool descriptions the model obeys can change on an auto-update.</td><td>Pin versions, review what a connector can reach, prefer first-party sources.</td></tr>
-<tr><td><strong>Unbounded consumption</strong></td><td>Expensive requests in a loop &mdash; either an attack or a bug. The bill is the symptom.</td><td>Rate limit per user, cap tokens per request, cap steps per run, alert on spend.</td></tr>
-<tr><td><strong>Training on your data</strong></td><td>Inputs retained and used to improve a model.</td><td>Read the terms. Enterprise API terms generally differ from consumer product terms &mdash; check which you are actually on.</td></tr>
-<tr><td><strong>Overreliance</strong></td><td>People acting on confident output nobody verified. The most common real-world harm, and the least discussed.</td><td>Cite sources. Show what was retrieved. Make it easy to check, and make refusal an acceptable answer.</td></tr>
+<tr><td><strong>Sensitive data disclosure</strong></td><td>Secrets, other users' records, or internal documents turning up in an answer &mdash; usually because they were in the searchable pile of documents in the first place.</td><td>Filter when you index, not when you answer. Apply the user's permissions to the search itself, so they can only match documents they are allowed to read.</td></tr>
+<tr><td><strong>Excessive agency</strong></td><td>An agent with wide access doing something drastic while correctly following a bad instruction.</td><td>Narrow tools, limited credentials, confirmation gates, and hard limits on the number of steps.</td></tr>
+<tr><td><strong>Insecure output handling</strong></td><td>Model output shown as HTML, run as code, or glued into a query.</td><td>Escape it when you display it. Use query parameters. Never <code>eval</code> it. Treat it exactly like input from a form.</td></tr>
+<tr><td><strong>Supply chain</strong></td><td>An MCP server, prompt template or model from a source you do not trust. Tool descriptions that the model follows can change in an auto-update.</td><td>Pin versions, review what a connector can reach, prefer first-party sources.</td></tr>
+<tr><td><strong>Unbounded consumption</strong></td><td>Expensive requests running in a loop &mdash; either an attack or a bug. The bill is how you find out.</td><td>Rate limit per user, cap tokens per request, cap steps per run, and raise an alert on spending.</td></tr>
+<tr><td><strong>Training on your data</strong></td><td>Inputs retained and used to improve a model.</td><td>Read the terms. Business API terms are usually different from consumer app terms &mdash; check which one you are actually on.</td></tr>
+<tr><td><strong>Overreliance</strong></td><td>People acting on confident output that nobody checked. The most common real-world harm, and the least talked about.</td><td>Show the sources. Show what was fetched. Make it easy to check, and make "I don't know" an acceptable answer.</td></tr>
 </tbody></table></div>
 <details class="selfcheck"><summary><span class="sc-q">Your coding agent reads GitHub issues and can open pull requests. Which of the three ingredients are present, and what is the cheapest fix?</span><span class="sc-cue">Answer</span></summary><div class="sc-body">
-<p>All three. Issues are untrusted content that anyone can write. The agent has repository access &mdash; source, and quite possibly CI secrets. A pull request is an outbound channel, and so is any network call its code can make.</p>
-<p>The cheapest effective fix is the third ingredient: a pull request is already a human-reviewed gate, so make sure it genuinely is one &mdash; no auto-merge, no CI that runs untrusted code with real secrets, and secrets unavailable to workflows triggered by a fork. Restricting egress from the agent&rsquo;s environment is the next cheapest.</p>
-<p>What does <em>not</em> work is a system prompt telling it to be careful about issue text.</p>
+<p>All three. Issues are untrusted content that anybody can write. The agent has access to the repository &mdash; the source code, and quite possibly the CI secrets too. A pull request is a way out, and so is any network call the code it writes can make.</p>
+<p>The cheapest fix that works is the third ingredient: a pull request is already a human-reviewed gate, so make sure it really is one &mdash; no auto-merge, no CI that runs untrusted code with real secrets, and no secrets available to workflows started from a fork. Restricting what the agent's environment can reach on the network is the next cheapest.</p>
+<p>What does <em>not</em> work is a system prompt telling it to be careful about the text in issues.</p>
 </div></details>
 </div>
 <nav class="page-nav">

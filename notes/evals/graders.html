@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>How to score an answer — Evaluation — Garvit's Notes</title>
-<meta name="description" content="In plain English Four ways to score an answer, from cheap and rigid to expensive and flexible.">
+<meta name="description" content="In plain English There are four ways to score an answer, from cheap and strict to expensive and flexible.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -49,28 +49,28 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   <span class="eyebrow">Note 17 &middot; Evaluation &middot; Topic 3 of 5</span>
   <h1>How to score an answer</h1>
   <div class="page-meta">
-    <span>2 min read</span>
+    <span>3 min read</span>
     <span>Some experience helps</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Four ways to score an answer, from cheap and rigid to expensive and flexible. Exact match, when there is one right string. A rule or regular expression, when you can describe correctness. A human, which is the ground truth and does not scale. Or another model as judge — which works, provided you have checked the judge against human scores first. </div></div>
-<p>Four kinds of grader, cheapest and most reliable first. Use the simplest one that can actually judge your task &mdash; and use several together, because most tasks have both a checkable part and a judgeable part.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> There are four ways to score an answer, from cheap and strict to expensive and flexible. An exact match, when there is only one right answer. A rule or a pattern, when you can describe what correct looks like. A human, who is the real truth but cannot do thousands. Or another model as the examiner — which works, as long as you have first checked that the examiner agrees with the humans. </div></div>
+<p>Four kinds of marker, cheapest and most reliable first. Use the simplest one that can actually judge your task &mdash; and use several together, because most tasks have one part you can check exactly and one part that needs judgement.</p>
 <div class="table-wrap"><table><thead><tr><th>Grader</th><th>How it works</th><th>Good for</th><th>Watch out</th></tr></thead><tbody>
-<tr><td><strong>Exact / structural</strong></td><td>String match, JSON schema validation, a regex.</td><td>Classification, extraction, routing, anything with one right answer.</td><td>Nothing &mdash; use it wherever it applies. It is free and it never lies.</td></tr>
-<tr><td><strong>Programmatic</strong></td><td>Code that checks properties: does it parse, does it cite, is every cited id real, is it under the length limit.</td><td>Grounding, format compliance, safety rules, anything expressible as an assertion.</td><td>Only checks what you thought to check.</td></tr>
-<tr><td><strong>LLM-as-judge</strong></td><td>A model scores the answer against a written rubric.</td><td>Tone, helpfulness, reasoning quality &mdash; the genuinely subjective parts.</td><td>Biased, and noisier than people expect. See below.</td></tr>
-<tr><td><strong>Human</strong></td><td>A person reads and marks.</td><td>Calibrating the other three. The ground truth everything else approximates.</td><td>Slow and expensive &mdash; so spend it on calibration, not on volume.</td></tr>
+<tr><td><strong>Exact / structural</strong></td><td>A text match, a JSON schema check, a pattern.</td><td>Sorting, pulling out fields, routing, anything with one correct answer.</td><td>Nothing &mdash; use it wherever you can. It costs nothing and it never lies.</td></tr>
+<tr><td><strong>Programmatic</strong></td><td>Code that checks qualities: does it parse, does it cite sources, is every cited id a real one, is it within the length limit.</td><td>Whether it stuck to the sources, whether it followed the format, safety rules, and anything you can write as a simple check.</td><td>It only checks the things you remembered to check.</td></tr>
+<tr><td><strong>LLM-as-judge</strong></td><td>A model marks the answer against a written marking scheme.</td><td>Tone, helpfulness, quality of the reasoning &mdash; the parts that really are a matter of judgement.</td><td>It has its own biases, and it varies more than people expect. See below.</td></tr>
+<tr><td><strong>Human</strong></td><td>A person reads it and gives it a mark.</td><td>Checking that the other three are right. This is the real truth that all the others are trying to copy.</td><td>Slow and expensive &mdash; so spend it on checking the other markers, not on doing thousands of cases.</td></tr>
 </tbody></table></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Reach for the judge last, not first.</strong> &ldquo;Have a model grade it&rdquo; feels like the general solution, so it gets used for things a three-line assertion would check exactly. If the requirement is &ldquo;returns valid JSON with these five fields&rdquo;, that is <code>JSON.parse</code> and a schema, not a judgement call.</p></div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p><strong>Reach for the model examiner last, not first.</strong> &ldquo;Just get a model to mark it&rdquo; feels like the answer to everything, so it ends up being used for things a three-line check would settle exactly. If the requirement is &ldquo;returns valid JSON with these five fields&rdquo;, that is <code>JSON.parse</code> and a schema, not a matter of opinion.</p></div></div>
 <h3>Making an LLM judge trustworthy</h3>
 <div class="card-grid cols-2">
-<div class="card"><div class="card-title key-term">Write a real rubric</div><p>&ldquo;Rate helpfulness 1&ndash;10&rdquo; produces noise. Define what each score means, in sentences, with an example of the boundary between adjacent scores.</p></div>
-<div class="card"><div class="card-title key-term">Prefer binary questions</div><p>&ldquo;Is every factual claim supported by the provided context? Yes or no.&rdquo; is far more stable than any 1&ndash;10 scale, and far easier to act on.</p></div>
-<div class="card"><div class="card-title key-term">Show the criteria, not the answer key</div><p>Given a reference answer, judges drift towards rewarding similarity to it rather than correctness. Different wording is not a failure.</p></div>
-<div class="card"><div class="card-title key-term">Calibrate against humans</div><p>Mark fifty cases by hand and check the judge agrees. If it does not, fix the rubric before trusting a single score it produces.</p></div>
+<div class="card"><div class="card-title key-term">Write a real rubric</div><p>&ldquo;Rate helpfulness out of 10&rdquo; just gives you noise. Write down what each score means, in full sentences, with an example showing the line between one score and the next.</p></div>
+<div class="card"><div class="card-title key-term">Prefer binary questions</div><p>&ldquo;Is every fact in this answer supported by the given text? Yes or no.&rdquo; is far steadier than any out-of-10 scale, and far easier to act on.</p></div>
+<div class="card"><div class="card-title key-term">Show the criteria, not the answer key</div><p>If you show it the model answer, the examiner starts rewarding answers that look similar to it rather than answers that are correct. Different wording is not a mistake.</p></div>
+<div class="card"><div class="card-title key-term">Calibrate against humans</div><p>Mark fifty cases by hand and check whether the examiner agrees with you. If it does not, fix the marking scheme before you trust a single score it gives.</p></div>
 </div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>Known judge biases, all measurable: they prefer longer answers, they prefer answers that resemble their own style, and in pairwise comparisons the order you present the two options changes the winner. Randomise the order and check whether the result holds.</p></div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>Model examiners have known biases, and all of them can be measured: they prefer longer answers, they prefer answers written in their own style, and when comparing two options the order you show them in changes which one wins. Shuffle the order and check whether the result still holds.</p></div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="dataset.html">

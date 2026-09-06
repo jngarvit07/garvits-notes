@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>What this looks like in a repository — AI Governance — Garvit's Notes</title>
-<meta name="description" content="In plain English Governance sounds like a committee and mostly is not.">
+<meta name="description" content="In plain English Governance sounds like a committee, and mostly it is not one.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -49,20 +49,20 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   <span class="eyebrow">Note 19 &middot; AI Governance &middot; Topic 4 of 5</span>
   <h1>What this looks like in a repository</h1>
   <div class="page-meta">
-    <span>2 min read</span>
+    <span>3 min read</span>
     <span>No experience needed</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Governance sounds like a committee and mostly is not. In a repository it is a handful of files: what this feature does and for whom, what data it touches and for how long, what it is not to be used for, and what happens when it is wrong. One page per feature answers most of what anyone will ever ask. </div></div>
-<p>The practical translation. None of this needs a committee, and all of it is the evidence a review will ask for.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Governance sounds like a committee, and mostly it is not one. Inside a repository it is a handful of files: what this feature does and for whom, what data it touches and for how long, what it must not be used for, and what happens when it gets something wrong. One page for each feature answers most of what anybody will ever ask you. </div></div>
+<p>Here is what that means in practice. None of it needs a committee, and all of it is exactly the evidence a review will ask you for.</p>
 <div class="card-grid cols-2">
-<div class="card"><div class="card-title key-term">A system card</div><p>One page per AI feature: what it does, what it must not do, what data it touches, which model, who owns it, what happens when it fails. Kept in the repository, reviewed like code.</p></div>
-<div class="card"><div class="card-title key-term">Data lineage</div><p>What went into the index, where it came from, what basis you had, when it expires. &ldquo;We are not sure what is in there&rdquo; is the answer that ends a procurement conversation.</p></div>
-<div class="card"><div class="card-title key-term">Human oversight, specified</div><p>Which decisions require a person, what that person sees, and what they can actually change. Oversight that cannot alter the outcome is not oversight.</p></div>
-<div class="card"><div class="card-title key-term">Traces you can produce</div><p>For a given decision on a given day: the input, the retrieved context, the model version, the output. This is the difference between explaining an incident and apologising for one.</p></div>
-<div class="card"><div class="card-title key-term">Measured accuracy</div><p>Your eval scores, with dates, including the failures. &ldquo;It works well&rdquo; is not a claim anyone can accept; a tracked number with a method is.</p></div>
-<div class="card"><div class="card-title key-term">Disclosure</div><p>People told when they are talking to a machine, and generated content labelled. Cheap, increasingly required, and it protects trust more than it costs.</p></div>
+<div class="card"><div class="card-title key-term">A system card</div><p>One page for each AI feature: what it does, what it must never do, what data it touches, which model, who owns it, and what happens when it fails. Kept in the repository and reviewed like code.</p></div>
+<div class="card"><div class="card-title key-term">Data lineage</div><p>What went into the index, where it came from, what right you had to use it, and when it should be deleted. &ldquo;We are not really sure what is in there&rdquo; is the answer that ends a sales conversation with a big customer.</p></div>
+<div class="card"><div class="card-title key-term">Human oversight, specified</div><p>Which decisions need a person, what that person actually sees, and what they are able to change. Oversight that cannot change the outcome is not oversight at all.</p></div>
+<div class="card"><div class="card-title key-term">Traces you can produce</div><p>For one particular decision on one particular day: the input, the text that was fetched, the model version, the output. This is the difference between explaining an incident and just apologising for one.</p></div>
+<div class="card"><div class="card-title key-term">Measured accuracy</div><p>Your test scores, with dates, including the failures. &ldquo;It works well&rdquo; is not something anybody can accept; a tracked number with a stated method is.</p></div>
+<div class="card"><div class="card-title key-term">Disclosure</div><p>Tell people when they are talking to a machine, and label content that was generated. It is cheap, more places require it every year, and it protects trust far more than it costs.</p></div>
 </div>
 <div class="code-block"><div class="code-head"><span class="lang">md</span>docs/ai/support-assistant.md &mdash; a system card that fits on a page</div><pre><code># Support assistant
 
@@ -98,10 +98,10 @@ retrieval 94%, grounding 97%, correct refusal 100%.
 - Not in the corpus -> explicit refusal, escalate to a human.
 - Retrieval empty -> no draft offered at all, rather than a guess.
 - Provider outage -> feature hidden; the queue works as it did before.</code></pre></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>That page took twenty minutes and answers most of what any framework, auditor or enterprise customer will ask. The reason it is credible is that every claim in it points at something real &mdash; a scoped query, a pinned model id, an eval file with a number.</p></div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p>That page took twenty minutes to write and answers most of what any framework, auditor or large customer will ask. The reason it is believable is that every claim in it points at something real &mdash; a limited query, a pinned model id, a test file with an actual number in it.</p></div></div>
 <details class="selfcheck"><summary><span class="sc-q">Your CV-screening tool "only summarises" applications and a recruiter makes every decision. Is it high risk?</span><span class="sc-cue">Answer</span></summary><div class="sc-body">
-<p>Very likely yes, and &ldquo;a human decides&rdquo; is a weaker defence than it sounds. Employment is a listed high-risk domain, and what matters is whether the output <em>materially influences</em> the decision. A summary that determines which applications get read has already made the decision that matters most.</p>
-<p>The test for genuine human oversight is whether the person has the information, the time and the authority to reach a different conclusion. Someone reviewing 400 summaries an hour is not overseeing the system; they are ratifying it. If the answer is a rubber stamp, treat the system as making the decision, because in practice it is.</p>
+<p>Very likely yes, and &ldquo;but a human decides&rdquo; is a much weaker defence than it sounds. Employment is on the high-risk list, and what matters is whether the output <em>seriously influences</em> the decision. A summary that decides which applications ever get read has already made the decision that matters most.</p>
+<p>The test for real human oversight is whether that person has the information, the time and the authority to reach a different conclusion. Somebody going through 400 summaries an hour is not overseeing the system; they are just approving it. If it is a rubber stamp, then treat the system as making the decision, because in practice that is exactly what it is doing.</p>
 </div></details>
 </div>
 <nav class="page-nav">

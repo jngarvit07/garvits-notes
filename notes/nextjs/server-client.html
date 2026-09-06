@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Server Components vs Client Components — Next.js — Garvit's Notes</title>
-<meta name="description" content="In plain English Two places code can run, and the difference decides most of what you can do.">
+<meta name="description" content="In plain English There are two places your code can run, and the difference decides most of what you are able to do.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,7 +54,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Two places code can run, and the difference decides most of what you can do. On the <strong>server</strong>, the code runs once on a machine you control before the page is sent — so it can read the database and hold secrets, but it cannot react to a click, because by the time the user clicks, that code has finished and gone. In the <strong>browser</strong>, the code is shipped to the visitor and runs while they use the page — so it can respond to clicks, and everything it knows is public. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> There are two places your code can run, and the difference decides most of what you are able to do. On the <strong>server</strong>, the code runs once on a machine you control, before the page is sent out. So it can read the database and hold secrets. But it cannot react to a click, because by the time the user clicks anything, that code has already finished and gone. In the <strong>browser</strong>, the code is sent to the visitor and runs while they are using the page. So it can respond to clicks &mdash; and everything it knows is visible to anybody. </div></div>
 <p> This is the idea that makes the App Router different from everything before it, and the one worth reading twice. <strong>By default, your components run on the server only.</strong> They execute during the request, produce HTML, and their code is never sent to the browser. </p>
 <p> Adding <code>'use client'</code> at the top of a file opts that file — and everything it imports — into also running in the browser. That is what buys you state, effects and event handlers, and it is what costs you the download. </p>
 <div class="table-wrap"><table><thead><tr><th></th><th>Server Component (default)</th><th>Client Component ('use client')</th></tr></thead><tbody><tr><td>Runs</td><td>On the server, during the request</td><td>On the server once for the HTML, then in the browser</td></tr>

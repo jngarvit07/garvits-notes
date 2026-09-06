@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Transforming the question first — Advanced RAG — Garvit's Notes</title>
-<meta name="description" content="The question a user types is often a poor search query. Rewriting it before searching fixes follow-up questions, vague questions and questions containing several at once.">
+<meta name="description" content="The question a user types is often a poor search query. Rewriting it before searching fixes follow-up questions, vague questions, and questions that contain several at once.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,16 +54,16 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> People do not ask questions in the form documents are written in. They say &ldquo;what about the second one?&rdquo;, or ask two things at once, or use their own words for something your documentation calls something else. A short, cheap model call that rewrites the question into a good search query fixes all three, and it is one of the least appreciated steps in the pipeline. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> People do not ask questions in the way documents are written. They say "what about the second one?", or ask two things in one line, or use their own words for something your documentation calls by a different name. A short, cheap model call that rewrites the question into a proper search query fixes all three, and it is one of the most ignored steps in the whole pipeline. </div></div>
 <div class="table-wrap"><table><thead><tr><th>Technique</th><th>What it does</th><th>Fixes</th></tr></thead><tbody>
-<tr><td><strong>Contextualise</strong></td><td>Rewrite a follow-up into a standalone question using the conversation</td><td>&ldquo;And for annual plans?&rdquo; retrieving nothing. <strong>Essential for any chat interface.</strong></td></tr>
-<tr><td><strong>Decompose</strong></td><td>Split a multi-part question into separate searches</td><td>&ldquo;How do refunds and cancellations differ?&rdquo; &mdash; two topics, one query, neither retrieved well</td></tr>
-<tr><td><strong>Expand</strong></td><td>Generate two or three phrasings and search with all of them</td><td>Vocabulary mismatch between how users speak and how documents are written</td></tr>
-<tr><td><strong>HyDE</strong></td><td>Have the model write a <em>hypothetical answer</em>, then search using that</td><td>Short queries. An answer-shaped text matches answer-shaped chunks better than a question does.</td></tr>
-<tr><td><strong>Extract filters</strong></td><td>Pull dates, names, types out of the question into metadata filters</td><td>&ldquo;invoices from last March&rdquo; being answered semantically rather than by date</td></tr>
+<tr><td><strong>Contextualise</strong></td><td>Rewrite a follow-up into a complete standalone question, using the conversation</td><td>"And for annual plans?" finding nothing. <strong>Essential for any chat interface.</strong></td></tr>
+<tr><td><strong>Decompose</strong></td><td>Split a multi-part question into separate searches</td><td>"How do refunds and cancellations differ?" &mdash; two topics, one query, neither one found properly</td></tr>
+<tr><td><strong>Expand</strong></td><td>Write two or three different phrasings and search with all of them</td><td>Users saying it one way while the documents say it another way</td></tr>
+<tr><td><strong>HyDE</strong></td><td>Ask the model to write a <em>pretend answer</em>, then search using that</td><td>Very short queries. Text shaped like an answer matches answer-shaped chunks better than a question does.</td></tr>
+<tr><td><strong>Extract filters</strong></td><td>Pull dates, names and types out of the question and turn them into metadata filters</td><td>"invoices from last March" being answered by meaning instead of by date</td></tr>
 </tbody></table></div>
-<div class="code-block"><div class="code-head"><span class="lang">ts</span>Contextualising a follow-up &mdash; the one to implement first</div><pre><code>// Without this step, turn 2 searches for the literal words
-// "and for annual plans?" and retrieves nothing useful.
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>Contextualising a follow-up &mdash; the one to build first</div><pre><code>// Without this step, turn 2 searches for the literal words
+// "and for annual plans?" and finds nothing useful.
 const standalone = await cheapModel({
   system: `Rewrite the user's latest message as a standalone question,
 resolving every pronoun and reference from the conversation.
@@ -76,9 +76,9 @@ Output ONLY the rewritten question, nothing else.`,
 //  ->       "What is the refund window for annual plans?"
 
 const hits = await hybridSearch(standalone, { filter: { orgId } });</code></pre></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Use a small, fast model for this. It is a mechanical rewriting job, it runs on every single question, and it sits directly in the latency path. Spending your capable model on it buys nothing measurable and costs you on every request. </div></div>
-<details class="selfcheck"><summary><span class="sc-q">Your chat assistant answers the first question well and then falls apart on follow-ups. What is almost certainly missing?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Query contextualisation. The first question is self-contained, so it searches well. The second is &ldquo;what about enterprise?&rdquo; &mdash; which as a search query means nothing, retrieves noise, and the model then answers from noise. </p>
-<p> This is the single most common reason a RAG demo that looked excellent falls over in a real conversation, and it is perhaps twenty lines to fix. </p></div></details>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Use a small, fast model for this. It is a mechanical rewriting job, it runs on every single question, and the user is waiting while it happens. Spending your best model on it buys you nothing you can measure and costs you on every request. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Your chat assistant answers the first question well and then falls apart on follow-ups. What is almost certainly missing?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Query contextualisation. The first question stands on its own, so it searches well. The second one is "what about enterprise?" &mdash; which as a search query means nothing, brings back noise, and then the model answers from noise. </p>
+<p> This is the single most common reason a RAG demo that looked brilliant falls apart in a real conversation, and it is maybe twenty lines of code to fix. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="rerank.html">
@@ -94,7 +94,7 @@ const hits = await hybridSearch(standalone, { filter: { orgId } });</code></pre>
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Advanced RAG</a></div>
-  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why basic RAG disappoints</a><a class="sib" href="chunking.html"><span class="sib-n">02</span>Chunking: the decision you make once</a><a class="sib" href="hybrid.html"><span class="sib-n">03</span>Hybrid search: the highest-value upgrade</a><a class="sib" href="rerank.html"><span class="sib-n">04</span>Reranking</a><a class="sib is-current" href="query.html"><span class="sib-n">05</span>Transforming the question first</a><a class="sib" href="security.html"><span class="sib-n">06</span>Permissions and untrusted passages</a><a class="sib" href="measure.html"><span class="sib-n">07</span>Measuring retrieval on its own</a></div>
+  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why basic RAG disappoints</a><a class="sib" href="chunking.html"><span class="sib-n">02</span>Chunking: the decision you make once</a><a class="sib" href="hybrid.html"><span class="sib-n">03</span>Hybrid search: the biggest single upgrade</a><a class="sib" href="rerank.html"><span class="sib-n">04</span>Reranking</a><a class="sib is-current" href="query.html"><span class="sib-n">05</span>Transforming the question first</a><a class="sib" href="security.html"><span class="sib-n">06</span>Permissions and untrusted passages</a><a class="sib" href="measure.html"><span class="sib-n">07</span>Measuring retrieval on its own</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Five workflow patterns worth knowing by name — Agents &amp; Workflows — Garvit's Notes</title>
-<meta name="description" content="In plain English A workflow is a route you drew; an agent is a route the model chooses.">
+<meta name="description" content="In plain English A workflow is a route you drew on the map; an agent is a route the model works out as it drives.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,17 +54,17 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A workflow is a route you drew; an agent is a route the model chooses. Most problems people describe as needing an agent have a sequence of steps that is perfectly well known in advance — which means a workflow will be cheaper, faster, testable per branch, and far easier to debug at 3am. </div></div>
-<p>Rung three covers more ground than people expect. These five shapes solve most of what gets reached for an agent to solve, and every one of them is ordinary code you can unit-test.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A workflow is a route you drew on the map; an agent is a route the model works out as it drives. Most problems people describe as needing an agent have a set of steps that is perfectly well known in advance — which means a workflow will be cheaper, faster, testable branch by branch, and far easier to debug at 3am. </div></div>
+<p>Step three covers far more ground than people expect. These five shapes solve most of what people reach for an agent to solve, and every one of them is ordinary code you can unit-test.</p>
 <div class="table-wrap"><table><thead><tr><th>Pattern</th><th>Shape</th><th>Use it when</th></tr></thead><tbody>
-<tr><td><strong>Prompt chaining</strong></td><td>Output of call A becomes input of call B, with a check in between.</td><td>The task decomposes cleanly into fixed steps. Outline &rarr; draft &rarr; polish. Extract &rarr; validate &rarr; store.</td></tr>
-<tr><td><strong>Routing</strong></td><td>A cheap classifier picks which specialised prompt or model handles the input.</td><td>Inputs fall into distinct categories that want different handling. Refund vs. technical vs. sales, each with its own prompt and its own model tier.</td></tr>
-<tr><td><strong>Parallelisation</strong></td><td>Run several calls at once, then combine. Either the same task voted on, or different subtasks joined.</td><td>Latency matters and the pieces are independent. Or you want three opinions on a judgement call and a majority vote.</td></tr>
-<tr><td><strong>Orchestrator&ndash;worker</strong></td><td>One call plans the subtasks, workers do them, one call synthesises.</td><td>The number of subtasks is only known once you have looked at the input. Searching six sources; editing the files a change happens to touch.</td></tr>
-<tr><td><strong>Evaluator&ndash;optimiser</strong></td><td>Generate, critique against explicit criteria, revise. Loop with a hard cap.</td><td>Quality is judgeable and revision genuinely helps &mdash; translation, code that must pass tests, writing with a rubric.</td></tr>
+<tr><td><strong>Prompt chaining</strong></td><td>The output of call A becomes the input of call B, with a check in between.</td><td>The task splits cleanly into fixed steps. Outline &rarr; draft &rarr; polish. Extract &rarr; check &rarr; store.</td></tr>
+<tr><td><strong>Routing</strong></td><td>A cheap sorter decides which special prompt or model handles the input.</td><td>Inputs fall into clearly different types that want different handling. Refund vs technical vs sales, each with its own prompt and its own model tier.</td></tr>
+<tr><td><strong>Parallelisation</strong></td><td>Run several calls at the same time, then combine. Either the same task voted on, or different sub-tasks joined together.</td><td>Speed matters and the pieces do not depend on each other. Or you want three opinions on a judgement call and a majority vote.</td></tr>
+<tr><td><strong>Orchestrator&ndash;worker</strong></td><td>One call plans the sub-tasks, workers do them, one call puts the results together.</td><td>You only find out how many sub-tasks there are once you have looked at the input. Searching six sources; editing whichever files a change happens to touch.</td></tr>
+<tr><td><strong>Evaluator&ndash;optimiser</strong></td><td>Write, criticise against clear criteria, revise. Loop with a hard limit.</td><td>Quality can be judged and revising genuinely helps &mdash; translation, code that must pass tests, writing against a marking scheme.</td></tr>
 </tbody></table></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>Routing pays for itself faster than any other pattern.</strong> A small model classifying inbound messages, then only escalating the hard ones to a capable model, typically cuts the bill by most of it while <em>improving</em> quality on the narrow cases &mdash; a focused prompt beats a general one.</p></div></div>
-<div class="code-block"><div class="code-head"><span class="lang">ts</span>routing: cheap triage, expensive handling, only where needed</div><pre><code>import Anthropic from '@anthropic-ai/sdk';
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>Routing pays for itself faster than any other pattern.</strong> A small model sorting incoming messages, and only sending the hard ones up to a capable model, usually cuts most of the bill while <em>improving</em> quality on the narrow cases &mdash; a focused prompt beats a general one.</p></div></div>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>routing: cheap triage, expensive handling only where it is needed</div><pre><code>import Anthropic from '@anthropic-ai/sdk';
 
 const client = new Anthropic();
 
@@ -98,8 +98,8 @@ export async function handle(message: string) {
     messages: [{ role: 'user', content: message }],
   });
 }</code></pre></div>
-<details class="selfcheck"><summary><span class="sc-q">&ldquo;Read the support email, decide if it is billing or technical, and reply using the right template.&rdquo; Agent or workflow?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Workflow. You know every step before the email arrives: classify, then branch, then generate. Nothing needs planning, so nothing needs an agent. </p>
-<p> The signal that you genuinely need an agent is different: you cannot write down the steps because they depend on what is discovered partway through — as in &ldquo;find out why this customer was double-charged&rdquo;, where each answer changes what to look at next. </p></div></details>
+<details class="selfcheck"><summary><span class="sc-q">&ldquo;Read the support email, decide if it is billing or technical, and reply using the right template.&rdquo; Agent or workflow?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Workflow. You know every step before the email even arrives: sort it, then branch, then write the reply. Nothing needs planning, so nothing needs an agent. </p>
+<p> The sign that you genuinely need an agent is different: you cannot write down the steps because they depend on what gets discovered halfway through — as in "find out why this customer was charged twice", where every answer changes what you look at next. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="ladder.html">
@@ -115,7 +115,7 @@ export async function handle(message: string) {
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Agents &amp; Workflows</a></div>
-  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What an agent actually is</a><a class="sib" href="ladder.html"><span class="sib-n">02</span>The ladder: start at the bottom</a><a class="sib is-current" href="workflows.html"><span class="sib-n">03</span>Five workflow patterns worth knowing by name</a><a class="sib" href="loop.html"><span class="sib-n">04</span>The agent loop, drawn</a><a class="sib" href="tools.html"><span class="sib-n">05</span>Designing the tool surface</a><a class="sib" href="context.html"><span class="sib-n">06</span>Context over a long run</a><a class="sib" href="structure.html"><span class="sib-n">07</span>A folder structure that survives contact</a><a class="sib" href="control.html"><span class="sib-n">08</span>Keeping it on a leash</a><a class="sib" href="mistakes.html"><span class="sib-n">09</span>Where agents actually go wrong</a><a class="sib" href="here.html"><span class="sib-n">10</span>Building one on this stack</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What an agent actually is</a><a class="sib" href="ladder.html"><span class="sib-n">02</span>The ladder: start at the bottom</a><a class="sib is-current" href="workflows.html"><span class="sib-n">03</span>Five workflow patterns worth knowing by name</a><a class="sib" href="loop.html"><span class="sib-n">04</span>The agent loop, drawn</a><a class="sib" href="tools.html"><span class="sib-n">05</span>Designing the set of tools</a><a class="sib" href="context.html"><span class="sib-n">06</span>Context over a long run</a><a class="sib" href="structure.html"><span class="sib-n">07</span>A folder structure that survives real use</a><a class="sib" href="control.html"><span class="sib-n">08</span>Keeping it on a leash</a><a class="sib" href="mistakes.html"><span class="sib-n">09</span>Where agents actually go wrong</a><a class="sib" href="here.html"><span class="sib-n">10</span>Building one on this stack</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>What happens when you press send — Inside a Model — Garvit's Notes</title>
-<meta name="description" content="Why the first token is slow and the rest are fast, why long conversations cost more each turn, and what a provider's prompt cache is actually caching.">
+<meta name="description" content="Why the first word is slow and the rest are fast, why long conversations cost more every turn, and what a provider's prompt cache is really storing.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,25 +54,25 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Generating a response is two phases with very different characters. First the model reads your entire prompt &mdash; all at once, in parallel, fast. Then it writes the answer one token at a time, each one requiring a full pass through the network. That is why the first word takes a moment and the rest stream out smoothly, and it is why output tokens cost several times what input tokens cost. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Producing an answer happens in two phases that feel very different. First the model reads your whole prompt &mdash; all at once, in parallel, quickly. Then it writes the answer one token at a time, and each token needs a full pass through the network. That is why the first word takes a moment and the rest flow out smoothly, and it is why output tokens cost several times what input tokens cost. </div></div>
 <figure class="figure is-flow">
 <div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">One request, from send to last token</span><button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button></div>
 <div class="figure-stage"><ol class="flow flow-column">
-<li class="flow-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Prefill &mdash; reading your prompt</span><span class="flow-detail">Every token processed in parallel. Fast per token, and it is the whole reason time-to-first-token grows with prompt length.</span></div></li>
-<li class="flow-step" data-tone="accent" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">The KV cache is built</span><span class="flow-detail">What each token computed during attention is stored, so later tokens can reuse it instead of recomputing the whole history.</span></div></li>
-<li class="flow-step" data-tone="plain" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Decode &mdash; one token</span><span class="flow-detail">A full pass through every layer produces one token. Sequential by nature: token 40 cannot be computed before token 39.</span></div></li>
-<li class="flow-step" data-tone="plain" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">Append and repeat</span><span class="flow-detail">The new token joins the cache and step three runs again. This loop is the entire generation.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Prefill &mdash; reading your prompt</span><span class="flow-detail">Every token processed at the same time. Fast per token, and it is exactly why the wait for the first word grows with prompt length.</span></div></li>
+<li class="flow-step" data-tone="accent" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">The KV cache is built</span><span class="flow-detail">Whatever each token worked out during attention is saved, so later tokens can reuse it instead of redoing the whole history.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">Decode &mdash; one token</span><span class="flow-detail">A full pass through every layer produces one token. It has to happen in order: token 40 cannot be worked out before token 39.</span></div></li>
+<li class="flow-step" data-tone="plain" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">Add it on and repeat</span><span class="flow-detail">The new token joins the cache and step three runs again. This loop is the whole of generation.</span></div></li>
 <li class="flow-step" data-tone="plain" style="--i:4"><span class="flow-num">5</span><div class="flow-text"><span class="flow-label">Stop</span><span class="flow-detail">An end-of-text token, a stop string, or max_tokens. Whichever comes first.</span></div></li>
 </ol></div>
 </figure>
-<h3>Three consequences worth designing around</h3>
+<h3>Three results worth designing around</h3>
 <div class="card-grid cols-2">
-  <div class="card"><div class="card-title">Output costs more than input</div><p>Prefill is parallel; decode is one expensive pass per token. That is the cost difference, and it means &ldquo;be concise&rdquo; in a prompt is a genuine budget lever, not just a style preference.</p></div>
-  <div class="card"><div class="card-title">Long chats get slower every turn</div><p>Each turn re-reads the entire conversation. Turn twenty pays for turns one to nineteen again. Summarising old turns is not tidiness — it is the fix for a cost curve that only goes up.</p></div>
-  <div class="card"><div class="card-title">Prompt caching is caching the KV cache</div><p>Providers can keep the computed state for an unchanged prefix. Put your long, stable system prompt and your fixed examples <em>first</em> and the variable part last, and you stop paying to re-read them.</p></div>
-  <div class="card"><div class="card-title">Streaming changes the felt experience, not the total</div><p>The same tokens take the same time. Showing them as they arrive turns eight seconds of nothing into eight seconds of visible progress, which users rate very differently.</p></div>
+  <div class="card"><div class="card-title">Output costs more than input</div><p>Prefill happens all at once; decode is one expensive pass per token. That is where the price difference comes from, and it means "keep it short" in a prompt is a real budget lever, not just a matter of taste.</p></div>
+  <div class="card"><div class="card-title">Long chats get slower every turn</div><p>Each turn re-reads the whole conversation. Turn twenty pays for turns one to nineteen all over again. Summarising the old turns is not housekeeping — it is the fix for a cost curve that only climbs.</p></div>
+  <div class="card"><div class="card-title">Prompt caching is caching the KV cache</div><p>Providers can hold on to the worked-out state for an opening block that has not changed. Put your long, unchanging system prompt and fixed examples <em>first</em> and the changing part last, and you stop paying to re-read them.</p></div>
+  <div class="card"><div class="card-title">Streaming changes how it feels, not the total time</div><p>The same tokens take the same time. Showing them as they arrive turns eight seconds of nothing into eight seconds of visible progress, and users judge those two very differently.</p></div>
 </div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>A concrete prompt-caching layout.</strong> Order your messages as: system prompt, then long fixed instructions, then few-shot examples, then retrieved passages, then the user's question. Everything before the first thing that changes can be cached. Reversing that order &mdash; question first &mdash; makes the cache useless, and it is a one-line difference. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>A concrete prompt-caching layout.</strong> Order your messages like this: system prompt, then long fixed instructions, then your examples, then the fetched passages, then the user's question. Everything before the first thing that changes can be cached. Reversing that order &mdash; question first &mdash; makes the cache useless, and it is a one-line difference. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="sampling.html">

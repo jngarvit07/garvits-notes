@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Skills: instructions that load themselves — Skills &amp; Artifacts — Garvit's Notes</title>
-<meta name="description" content="In plain English A skill is a written procedure that loads itself when it becomes relevant, rather than sitting in the prompt all the time taking up room.">
+<meta name="description" content="In plain English A skill is a written set of steps that loads itself the moment it becomes relevant, instead of sitting in the prompt all the time and taking up">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -49,20 +49,20 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   <span class="eyebrow">Note 15 &middot; Skills &amp; Artifacts &middot; Topic 2 of 4</span>
   <h1>Skills: instructions that load themselves</h1>
   <div class="page-meta">
-    <span>3 min read</span>
+    <span>4 min read</span>
     <span>No experience needed</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A skill is a written procedure that loads itself when it becomes relevant, rather than sitting in the prompt all the time taking up room. Think of a shelf of reference cards: the model reaches for the one that matches the task instead of carrying every card at once. </div></div>
-<p>A skill is a folder. At its root is a <code>SKILL.md</code> whose front matter carries a name and a one-line description; below that is whatever the task needs &mdash; longer instructions, reference documents, scripts, templates.</p>
-<p>The mechanism that makes it useful is <strong>progressive disclosure</strong>. Only the description sits in context all the time. The model reads the full file &mdash; and any files it points to &mdash; only when a task actually calls for it.</p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A skill is a written set of steps that loads itself the moment it becomes relevant, instead of sitting in the prompt all the time and taking up space. Think of a rack of instruction cards on a wall: the model reaches for the one card that matches the job, instead of carrying all of them everywhere. </div></div>
+<p>A skill is just a folder. At the top of it sits a <code>SKILL.md</code> file whose header carries a name and a one-line description. Below that is whatever the task needs &mdash; longer instructions, reference documents, scripts, templates.</p>
+<p>What makes it useful is that it opens up in stages. Only the one-line description sits in the context all the time. The model reads the full file &mdash; and any files that file points to &mdash; only when a task actually needs it.</p>
 <figure class="figure is-flow"><div class="figure-head"><span class="figure-label">Flow</span><span class="figure-cap">Why a skill costs almost nothing until it is needed</span><button class="replay-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg> Replay</button></div><div class="figure-stage"><ol class="flow flow-column">
-<li class="flow-step dg-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Always in context: one line</span><span class="flow-detail">Just the name and description of every installed skill. Twenty skills cost a couple of hundred tokens in total.</span></div></li>
-<li class="flow-step dg-step" data-tone="accent" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">A relevant task arrives</span><span class="flow-detail">The model matches the request against those one-line descriptions. This is why the description is the highest-value line in the whole file.</span></div></li>
-<li class="flow-step dg-step" data-tone="accent" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">The body is read</span><span class="flow-detail">Now the full SKILL.md enters context — the procedure, the conventions, the worked example.</span></div></li>
-<li class="flow-step dg-step" data-tone="plain" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">Referenced files, only if needed</span><span class="flow-detail">A long reference document or a script is read only when the body points at it for this particular job.</span></div></li>
-</ol></div><div class="figure-caption">The alternative — putting all of it in the system prompt — costs the full amount on every request, relevant or not.</div></figure>
+<li class="flow-step dg-step" data-tone="plain" style="--i:0"><span class="flow-num">1</span><div class="flow-text"><span class="flow-label">Always in context: one line</span><span class="flow-detail">Only the name and description of each installed skill. Twenty skills together cost a couple of hundred tokens.</span></div></li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:1"><span class="flow-num">2</span><div class="flow-text"><span class="flow-label">A relevant task arrives</span><span class="flow-detail">The model matches the request against those one-line descriptions. This is why the description is the most important line in the whole file.</span></div></li>
+<li class="flow-step dg-step" data-tone="accent" style="--i:2"><span class="flow-num">3</span><div class="flow-text"><span class="flow-label">The body is read</span><span class="flow-detail">Now the full SKILL.md enters the context — the steps, the conventions, the worked example.</span></div></li>
+<li class="flow-step dg-step" data-tone="plain" style="--i:3"><span class="flow-num">4</span><div class="flow-text"><span class="flow-label">Referenced files, only if needed</span><span class="flow-detail">A long reference document or a script is read only when the main file points at it for this particular job.</span></div></li>
+</ol></div><div class="figure-caption">The other option — putting all of it into the system prompt — costs you the full amount on every single request, relevant or not.</div></figure>
 <div class="code-block"><div class="code-head"><span class="lang">md</span>skills/invoice-review/SKILL.md</div><pre><code>---
 name: invoice-review
 description: >
@@ -96,14 +96,14 @@ queries; "approve with caveats" is not one of the three options.
 - Do not adjust figures to make them match. Report the mismatch.</code></pre></div>
 <h3>What makes a skill good</h3>
 <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Why</th></tr></thead><tbody>
-<tr><td><strong>The description is a trigger, not a summary.</strong> Say when to use it, in the words someone would actually use.</td><td>It is the only part always in context. If it does not match how people phrase the request, the skill never loads and everything below it is wasted.</td></tr>
-<tr><td><strong>Write procedure, not background.</strong> Steps, order, decision points.</td><td>The model already knows what an invoice is. It does not know that you always recompute the total.</td></tr>
-<tr><td><strong>Say what not to do.</strong></td><td>Negative instructions prevent the confident, plausible, wrong action &mdash; which is the failure mode that costs you.</td></tr>
-<tr><td><strong>Push detail into referenced files.</strong></td><td>Keeps the always-read body short, and the rarely-needed reference out of context until the day it matters.</td></tr>
-<tr><td><strong>One skill, one job.</strong></td><td>A skill covering &ldquo;finance tasks&rdquo; matches everything and helps with nothing.</td></tr>
+<tr><td><strong>The description is a trigger, not a summary.</strong> Say when to use it, using the words a real person would actually type.</td><td>It is the only part that is always in the context. If it does not match the way people word the request, the skill never loads and everything below it is wasted effort.</td></tr>
+<tr><td><strong>Write the steps, not the background.</strong> What to do, in what order, and where the decisions are.</td><td>The model already knows what an invoice is. What it does not know is that your team always recalculates the total.</td></tr>
+<tr><td><strong>Say what not to do.</strong></td><td>Telling it what not to do is what prevents the confident, believable, wrong action &mdash; and that is the failure that actually costs you money.</td></tr>
+<tr><td><strong>Push the detail into separate files.</strong></td><td>It keeps the always-read part short, and keeps the rarely-needed reference out of the context until the day it matters.</td></tr>
+<tr><td><strong>One skill, one job.</strong></td><td>A skill that covers &ldquo;finance tasks&rdquo; matches everything and helps with nothing.</td></tr>
 </tbody></table></div>
 <h3>Using skills from the API</h3>
-<p>On the Messages API, skills run inside the code-execution container, so they are enabled through <code>container</code> alongside the code-execution tool. This is the path that produces real <code>.pptx</code>, <code>.xlsx</code> or <code>.docx</code> files.</p>
+<p>On the Messages API, skills run inside the code-execution container, so you switch them on through <code>container</code> next to the code-execution tool. This is the route that produces real <code>.pptx</code>, <code>.xlsx</code> or <code>.docx</code> files.</p>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>a skill that produces a real file</div><pre><code>const response = await client.beta.messages.create({
   model: 'claude-opus-5',
   max_tokens: 16000,
@@ -123,10 +123,10 @@ queries; "approve with caveats" is not one of the three options.
 // The file is written inside the container; the response carries a file id.
 // Fetch the bytes through the Files API.
 // const file = await client.files.download(fileId);</code></pre></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>Agent Skills are not Managed Agents.</strong> Both involve the word &ldquo;agent&rdquo; and they are unrelated surfaces. Skills go through <code>container</code> on a normal Messages call, as above. Managed Agents is a separate product where Anthropic runs the loop and hosts a session workspace. Reaching for <code>client.beta.agents</code> to generate a PowerPoint is a wrong turn that costs an afternoon.</p></div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>Agent Skills are not the same thing as Managed Agents.</strong> Both have the word &ldquo;agent&rdquo; in them and they are completely different things. Skills go through <code>container</code> on an ordinary Messages call, as shown above. Managed Agents is a separate product where Anthropic runs the loop and hosts a workspace for the session. Reaching for <code>client.beta.agents</code> to make a PowerPoint is a wrong turn that costs you an afternoon.</p></div></div>
 <details class="selfcheck"><summary><span class="sc-q">Your model keeps producing correct figures in the wrong report format, no matter how much you add to the system prompt. Skill, tool, or RAG?</span><span class="sc-cue">Answer</span></summary><div class="sc-body">
-<p>A skill. The facts are right, so retrieval is not the gap; nothing needs <em>doing</em>, so a tool is not the gap. What is missing is the procedure &mdash; your format, your section order, your conventions &mdash; which is exactly what a skill carries.</p>
-<p>The reason the system prompt is not working is usually length. Formatting rules added there compete with everything else for attention on every request. In a skill they arrive as the focused, relevant instruction at the moment the task calls for them.</p>
+<p>A skill. The facts are right, so retrieval is not the missing piece; nothing needs <em>doing</em>, so a tool is not it either. What is missing is the method &mdash; your format, your order of sections, your conventions &mdash; and that is exactly what a skill carries.</p>
+<p>The reason the system prompt is not working is usually that it is too long. Formatting rules added there have to compete with everything else for attention, on every single request. In a skill they arrive as one focused, relevant instruction at the exact moment the task needs them.</p>
 </div></details>
 </div>
 <nav class="page-nav">

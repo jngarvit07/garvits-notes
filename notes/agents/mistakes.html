@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Where agents actually go wrong — Agents &amp; Workflows — Garvit's Notes</title>
-<meta name="description" content="In plain English Agents fail in ways that are recognisable once you have seen them: looping on a tool that keeps failing, losing the thread across a long run, c">
+<meta name="description" content="In plain English Agents fail in ways you can recognise once you have seen them: looping on a tool that keeps failing, losing the thread over a long run, confide">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,18 +54,18 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Agents fail in ways that are recognisable once you have seen them: looping on a tool that keeps failing, losing the thread across a long run, confidently taking a wrong action, or being handed tools so broad that nothing can constrain them. Each has a specific fix, and none of them is a better prompt. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Agents fail in ways you can recognise once you have seen them: looping on a tool that keeps failing, losing the thread over a long run, confidently taking a wrong action, or being handed tools so broad that nothing can hold them back. Each one has a specific fix, and none of those fixes is "write a better prompt". </div></div>
 <div class="table-wrap"><table><thead><tr><th>Symptom</th><th>Usual cause</th><th>Fix</th></tr></thead><tbody>
-<tr><td>It loops on the same tool call.</td><td>The tool returns an error the model cannot act on &mdash; often a bare stack trace or an empty result with no explanation.</td><td>Return errors as sentences: what failed, and what to try instead. Cap iterations regardless.</td></tr>
-<tr><td>It picks the wrong tool.</td><td>Two tools with overlapping descriptions, or a description that says what the tool <em>is</em> rather than when to use it.</td><td>Rewrite the descriptions to say when <em>not</em> to use each. Merge tools that overlap.</td></tr>
-<tr><td>It gets slower every turn.</td><td>The transcript is growing and nothing prunes it. Often made worse by large tool results.</td><td>Trim tool results at the source, then add context editing or compaction.</td></tr>
-<tr><td>It works in testing, fails in production.</td><td>Test inputs were tidy. Real inputs contain other people&rsquo;s text &mdash; and other people&rsquo;s instructions.</td><td>See note 12. Treat every tool result as untrusted input, not just user messages.</td></tr>
-<tr><td>The bill is much larger than expected.</td><td>Cache hit rate near zero, capable model on every rung, no routing.</td><td>Check <code>cache_read_input_tokens</code> first &mdash; it is usually a changing prefix. Then route.</td></tr>
+<tr><td>It calls the same tool over and over.</td><td>The tool returns an error the model cannot act on &mdash; often a bare stack trace, or an empty result with no explanation.</td><td>Return errors as sentences: what failed, and what to try instead. Cap the steps anyway.</td></tr>
+<tr><td>It picks the wrong tool.</td><td>Two tools with overlapping descriptions, or a description that says what the tool <em>is</em> rather than when to use it.</td><td>Rewrite the descriptions to say when <em>not</em> to use each one. Merge tools that overlap.</td></tr>
+<tr><td>It gets slower every turn.</td><td>The transcript keeps growing and nothing trims it. Big tool results make it worse.</td><td>Trim tool results at the source, then add context editing or compaction.</td></tr>
+<tr><td>It works in testing and fails in production.</td><td>Your test inputs were tidy. Real inputs contain other people's text &mdash; and other people's instructions.</td><td>See note 12. Treat every tool result as untrusted input, not just the user's messages.</td></tr>
+<tr><td>The bill is far bigger than expected.</td><td>Cache hit rate near zero, the capable model on every step, no routing.</td><td>Check <code>cache_read_input_tokens</code> first &mdash; it is usually an opening block that keeps changing. Then add routing.</td></tr>
 <tr><td>Nobody can say why it did that.</td><td>No trace. Logging the final answer tells you nothing about a twelve-step run.</td><td>One structured record per step: model, input, tool, result, tokens, decision.</td></tr>
 </tbody></table></div>
-<details class="selfcheck"><summary><span class="sc-q">An agent that summarises support tickets starts taking 40 seconds and costing five times what it did last month. Nothing in the prompt changed. Where do you look first?</span><span class="sc-cue">Answer</span></summary><div class="sc-body">
-<p>At <code>usage.cache_read_input_tokens</code>, and at what sits in front of the request. The prompt did not change, but something in the cached prefix probably did &mdash; a tool list now assembled in a non-deterministic order, a &ldquo;today is&hellip;&rdquo; line in the system prompt, a retrieved-context block that moved above the stable content. The cost jump is the tell: you are paying full price for a prefix you used to get at a discount.</p>
-<p>Latency confirms it. A cache miss means the whole prefix is processed from scratch on every call. Look at the request shape before you look at the model.</p>
+<details class="selfcheck"><summary><span class="sc-q">An agent that summarises support tickets suddenly takes 40 seconds and costs five times what it did last month. Nothing in the prompt changed. Where do you look first?</span><span class="sc-cue">Answer</span></summary><div class="sc-body">
+<p>At <code>usage.cache_read_input_tokens</code>, and at whatever sits at the front of the request. The prompt did not change, but something in the cached opening block probably did &mdash; a tool list now assembled in a different order each time, a "today is..." line in the system prompt, a block of fetched context that moved above the unchanging part. The jump in cost is the giveaway: you are paying full price for an opening block you used to get at a discount.</p>
+<p>The slowness confirms it. A cache miss means the whole opening block is processed from scratch on every call. Look at the shape of the request before you start looking at the model.</p>
 </div></details>
 </div>
 <nav class="page-nav">
@@ -82,7 +82,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Agents &amp; Workflows</a></div>
-  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What an agent actually is</a><a class="sib" href="ladder.html"><span class="sib-n">02</span>The ladder: start at the bottom</a><a class="sib" href="workflows.html"><span class="sib-n">03</span>Five workflow patterns worth knowing by name</a><a class="sib" href="loop.html"><span class="sib-n">04</span>The agent loop, drawn</a><a class="sib" href="tools.html"><span class="sib-n">05</span>Designing the tool surface</a><a class="sib" href="context.html"><span class="sib-n">06</span>Context over a long run</a><a class="sib" href="structure.html"><span class="sib-n">07</span>A folder structure that survives contact</a><a class="sib" href="control.html"><span class="sib-n">08</span>Keeping it on a leash</a><a class="sib is-current" href="mistakes.html"><span class="sib-n">09</span>Where agents actually go wrong</a><a class="sib" href="here.html"><span class="sib-n">10</span>Building one on this stack</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What an agent actually is</a><a class="sib" href="ladder.html"><span class="sib-n">02</span>The ladder: start at the bottom</a><a class="sib" href="workflows.html"><span class="sib-n">03</span>Five workflow patterns worth knowing by name</a><a class="sib" href="loop.html"><span class="sib-n">04</span>The agent loop, drawn</a><a class="sib" href="tools.html"><span class="sib-n">05</span>Designing the set of tools</a><a class="sib" href="context.html"><span class="sib-n">06</span>Context over a long run</a><a class="sib" href="structure.html"><span class="sib-n">07</span>A folder structure that survives real use</a><a class="sib" href="control.html"><span class="sib-n">08</span>Keeping it on a leash</a><a class="sib is-current" href="mistakes.html"><span class="sib-n">09</span>Where agents actually go wrong</a><a class="sib" href="here.html"><span class="sib-n">10</span>Building one on this stack</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>What architecture actually means here — Architecture — Garvit's Notes</title>
-<meta name="description" content="Architecture is not a diagram. It is the set of decisions that are expensive to reverse — and drawing them is how you find out which ones you have already made by accident.">
+<meta name="description" content="Architecture is not a diagram. It is the set of decisions that are costly to undo — and drawing them is how you find out which ones you already made by accident.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,18 +54,18 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<p> Architecture is the small set of decisions that are <strong>expensive to change later</strong>. Everything else is just code, and code is cheap to move. The value of drawing a system is not the picture; it is that drawing forces you to name the decisions you have already made without noticing. </p>
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> When you build a house, moving a cupboard is easy and moving a load-bearing wall is not. Architecture is the load-bearing walls. Choosing which database, where the boundary between your code and the model sits, what happens when a dependency is down &mdash; those are walls. Which prompt wording you use is a cupboard. Teams get into trouble by arguing about cupboards while walls go up unexamined. </div></div>
+<p> Architecture is the small set of decisions that are <strong>costly to change later on</strong>. Everything else is just code, and code is cheap to move around. The value of drawing a system is not the picture itself; it is that drawing forces you to name the decisions you already made without noticing. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> When you build a house, shifting a cupboard is easy and shifting a wall that holds up the roof is not. Architecture is those walls that hold up the roof. Which database you choose, where the line sits between your code and the model, what happens when something you depend on goes down &mdash; those are walls. The exact wording of a prompt is a cupboard. Teams get into trouble by arguing about cupboards while the walls go up with nobody looking. </div></div>
 <h3>The test for an architectural decision</h3>
-<p> Ask: <em>if we changed our mind about this in six months, what would it cost?</em> </p>
+<p> Ask yourself: <em>if we change our mind about this in six months, what will it cost us?</em> </p>
 <div class="table-wrap"><table><thead><tr><th>Decision</th><th>Cost to reverse</th><th>Architectural?</th></tr></thead><tbody>
 <tr><td>Wording of a prompt</td><td>Minutes</td><td>No</td></tr>
-<tr><td>Which model you call</td><td>Hours &mdash; if you put it behind an interface</td><td>Only if you did not</td></tr>
-<tr><td>Whether retrieval happens before or inside the model call</td><td>Days</td><td>Yes</td></tr>
-<tr><td>Whether the system stores conversation history at all</td><td>Weeks, plus a legal conversation</td><td>Yes</td></tr>
-<tr><td>Whether the model can take actions with real effects</td><td>Everything downstream of it</td><td>Yes &mdash; the biggest one</td></tr>
+<tr><td>Which model you call</td><td>Hours &mdash; as long as you put it behind one function of your own</td><td>Only if you did not</td></tr>
+<tr><td>Whether the search happens before the model call or inside it</td><td>Days</td><td>Yes</td></tr>
+<tr><td>Whether the system stores conversation history at all</td><td>Weeks, plus a conversation with the legal team</td><td>Yes</td></tr>
+<tr><td>Whether the model can take actions with real effects</td><td>Everything downstream of it</td><td>Yes &mdash; and it is the biggest one</td></tr>
 </tbody></table></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Notice the second row. &ldquo;Which model&rdquo; feels like the most important choice and is usually the least architectural, <em>provided</em> you called it through one function of your own. The architecture is the interface; the model behind it is a configuration value. Getting that one right converts your biggest-looking decision into a small one. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Look at the second row. &ldquo;Which model&rdquo; feels like the most important choice and is usually the least architectural one &mdash; <em>as long as</em> you called it through one function of your own. The architecture is that function; the model behind it is just a setting. Getting that one thing right turns your biggest-looking decision into a small one. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="../../notes/governance/bias.html">

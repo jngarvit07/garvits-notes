@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>When the shape is right and the content is wrong — Structured Output — Garvit's Notes</title>
-<meta name="description" content="Structure will still fail sometimes. What you do on the second attempt decides whether that is a blip or an incident.">
+<meta name="description" content="Structure will still fail sometimes. What you do on the second attempt decides whether that is a small blip or a real incident.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,21 +54,21 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Two layers of checking, and they catch different things. The schema catches &ldquo;this is not the right shape&rdquo;. Your business rules catch &ldquo;this shape is fine and the values are impossible&rdquo;. Only the second one notices a refund larger than the order, or a date next century. Systems that stop at the schema fail in ways that look correct all the way to production. </div></div>
-<div class="code-block"><div class="code-head"><span class="lang">ts</span>Two layers, and a retry that carries the reason</div><pre><code>async function extract(doc: string, attempt = 0): Promise&lt;Invoice&gt; {
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Two layers of checking, and they catch different things. The schema catches "this is not the right shape". Your business rules catch "the shape is fine and the values are impossible". Only the second one notices a refund bigger than the order, or a date in the next century. Systems that stop at the schema fail in ways that look perfectly correct all the way into production. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>Two layers, and a retry that carries the reason with it</div><pre><code>async function extract(doc: string, attempt = 0): Promise&lt;Invoice&gt; {
   const raw = await model({ prompt: build(doc), schema: InvoiceSchema });
 
-  // Layer 1 — shape. With constrained decoding this rarely fails,
-  // and you check anyway because "rarely" is not "never".
+  // Layer 1 — the shape. With constrained decoding this rarely fails,
+  // and you check anyway, because "rarely" is not "never".
   const shape = InvoiceSchema.safeParse(raw);
   if (!shape.success) return retry(doc, attempt, String(shape.error));
 
-  // Layer 2 — sense. No schema can express these.
+  // Layer 2 — does it make sense. No schema can express any of these.
   const problems = [
     shape.data.total &lt; 0                        &amp;&amp; 'total is negative',
-    shape.data.total &gt; 1_000_000                &amp;&amp; 'total implausibly large',
+    shape.data.total &gt; 1_000_000                &amp;&amp; 'total unbelievably large',
     sum(shape.data.line_items) !== shape.data.total
-                                                &amp;&amp; 'line items do not sum to total',
+                                                &amp;&amp; 'line items do not add up to total',
     shape.data.due_date &amp;&amp; !isReasonableDate(shape.data.due_date)
                                                 &amp;&amp; 'due date out of range',
   ].filter(Boolean);
@@ -77,20 +77,20 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   return shape.data;
 }
 
-// The retry must TELL the model what was wrong. Sending the identical
-// prompt again is asking the same question and hoping for luck.
+// The retry must TELL the model what was wrong. Sending the same prompt
+// again is asking the same question and hoping for better luck.
 async function retry(doc: string, attempt: number, why: string) {
   metrics.count('extract.invalid', { why });
   if (attempt &gt;= 1) throw new NeedsHumanReview(why);   // two tries, then stop
   return extract(doc + `\n\nYour previous answer was rejected: ${why}`, attempt + 1);
 }</code></pre></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Cap the retries and count the failures.</strong> Unbounded retrying on a document the model genuinely cannot read turns one bad input into a cost spike and a hung request. Two attempts, then route to a human. And the <em>rate</em> of invalid results is a metric worth alerting on &mdash; it climbing is usually the first visible sign that an upstream format changed or a model was updated underneath you. </div></div>
-<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Once code consumes the output, you need a guaranteed shape &mdash; not a politely worded request for one.</li><li>Constrained decoding makes invalid output unreachable; tool calling is the well-supported alternative.</li><li>The schema is part of the prompt. Descriptive names, enums, nullable-not-optional, and always an escape hatch.</li><li>A tool call is a request. Your code checks permissions, validates arguments, and gates anything irreversible.</li><li>Narrow tools can be secured; general ones cannot. Return errors to the model so it can recover.</li><li>Validate shape <em>and</em> sense. Retry once with the reason attached, then hand it to a person.</li></ul></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>Cap the retries and count the failures.</strong> Retrying forever on a document the model genuinely cannot read turns one bad input into a cost spike and a request that never finishes. Two attempts, then send it to a person. And the <em>rate</em> of invalid results is a number worth alerting on &mdash; it going up is usually the first visible sign that a format upstream changed, or that a model was updated under your feet. </div></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Once code reads the output, you need a guaranteed shape &mdash; not a politely worded request for one.</li><li>Constrained decoding makes invalid output impossible; tool calling is the well-supported alternative.</li><li>The schema is part of the prompt. Descriptive names, enums, nullable-not-optional, and always a way out.</li><li>A tool call is a request. Your code checks permissions, checks arguments, and puts a gate on anything one-way.</li><li>Narrow tools can be made safe; general ones cannot. Send errors back to the model so it can recover.</li><li>Check the shape <em>and</em> whether it makes sense. Retry once with the reason attached, then hand it to a person.</li></ul></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="design.html">
   <span class="pn-dir">&larr; Previous</span>
-  <span class="pn-title">Designing the tool surface</span>
+  <span class="pn-title">Designing the set of tools</span>
   
 </a>
 <a class="pn-next" href="../../notes/agents/what.html">
@@ -101,7 +101,7 @@ async function retry(doc: string, attempt: number, why: string) {
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Structured Output</a></div>
-  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why shape matters more than wording</a><a class="sib" href="how.html"><span class="sib-n">02</span>The four levels of enforcement</a><a class="sib" href="schema.html"><span class="sib-n">03</span>Designing a schema the model reads well</a><a class="sib" href="tools.html"><span class="sib-n">04</span>Tool calling, precisely</a><a class="sib" href="design.html"><span class="sib-n">05</span>Designing the tool surface</a><a class="sib is-current" href="failure.html"><span class="sib-n">06</span>When the shape is right and the content is wrong</a></div>
+  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why shape matters more than wording</a><a class="sib" href="how.html"><span class="sib-n">02</span>The four levels of enforcement</a><a class="sib" href="schema.html"><span class="sib-n">03</span>Designing a schema the model reads well</a><a class="sib" href="tools.html"><span class="sib-n">04</span>Tool calling, precisely</a><a class="sib" href="design.html"><span class="sib-n">05</span>Designing the set of tools</a><a class="sib is-current" href="failure.html"><span class="sib-n">06</span>When the shape is right and the content is wrong</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

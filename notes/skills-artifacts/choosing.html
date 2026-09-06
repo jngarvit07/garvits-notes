@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Choosing between them — Skills &amp; Artifacts — Garvit's Notes</title>
-<meta name="description" content="In plain English Four options, and one question each.">
+<meta name="description" content="In plain English Four options, and one question for each.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,7 +54,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Four options, and one question each. Does it need to <em>do</em> something? A tool. Does it need to <em>know</em> something it was not trained on? Retrieval. Does it need to know <em>how you do things</em>? A skill. Does the output need to persist as a document? An artifact. Most confusion here dissolves once you ask which of those four you actually have. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Four options, and one question for each. Does it need to <em>do</em> something? A tool. Does it need to <em>know</em> something it was never trained on? Retrieval. Does it need to know <em>how your team does things</em>? A skill. Does the output need to stay around as a document? An artifact. Most of the confusion here clears up the moment you ask which of those four you actually have. </div></div>
 <figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">A decision tree that resolves most cases</span></div><div class="figure-stage"><pre class="ascii-art">  What is actually missing?
         |
         +-- The model lacks FACTS it was never trained on
@@ -76,15 +76,15 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   These compose. A real system usually has all four:
   tools to act, RAG to know, skills to know HOW, artifacts to deliver.</pre></div></figure>
 <div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul>
-<li>Tools add ability, RAG adds facts, skills add know-how, artifacts add a place to put the result. Different problems.</li>
-<li>If the facts are right but the procedure is wrong, no amount of retrieval will fix it. That is a skill.</li>
-<li>A skill&rsquo;s description is the only part always in context &mdash; write it as a trigger in the words people actually use.</li>
-<li>Progressive disclosure is the point: one line always, the body on demand, references only when needed.</li>
-<li>Agent Skills go through <code>container</code> on a normal Messages call. That is not Managed Agents.</li>
-<li>Output with an audience deserves a URL. Output that only lives in a transcript gets lost.</li>
+<li>Tools add ability, RAG adds facts, skills add know-how, artifacts add a place to put the result. Four different problems.</li>
+<li>If the facts are right but the steps are wrong, no amount of retrieval will fix it. That is a skill.</li>
+<li>A skill's description is the only part that is always in the context &mdash; write it as a trigger, in the words people actually use.</li>
+<li>Opening up in stages is the whole point: one line always, the main file on demand, the references only when they are needed.</li>
+<li>Agent Skills go through <code>container</code> on a normal Messages call. That is not the same thing as Managed Agents.</li>
+<li>Output that has readers deserves a link. Output that only lives inside a transcript gets lost.</li>
 </ul></div>
-<details class="selfcheck"><summary><span class="sc-q">Your assistant keeps formatting reports the wrong way, even though the correct format is written in a document it can retrieve. Which of the four do you need?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> A skill, not retrieval. Retrieval puts the format document in front of the model as <em>information</em>, and information competes with everything else in the context. A skill is procedural know-how that loads when the task matches and tells the model how to behave. </p>
-<p> The distinction is facts versus method. &ldquo;What is our refund policy&rdquo; is retrieval; &ldquo;how we write a report&rdquo; is a skill. </p></div></details>
+<details class="selfcheck"><summary><span class="sc-q">Your assistant keeps formatting reports the wrong way, even though the correct format is written in a document it can retrieve. Which of the four do you need?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> A skill, not retrieval. Retrieval puts the format document in front of the model as <em>information</em>, and information has to compete with everything else in the context. A skill is know-how about method: it loads when the task matches, and it tells the model how to behave. </p>
+<p> The difference is facts versus method. &ldquo;What is our refund policy&rdquo; is retrieval; &ldquo;how we write a report here&rdquo; is a skill. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="artifacts.html">

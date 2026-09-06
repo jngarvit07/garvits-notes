@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The agent loop, drawn — Agents &amp; Workflows — Garvit's Notes</title>
-<meta name="description" content="Every agent framework you will ever read about is this loop with decoration on top.">
+<meta name="description" content="Every agent framework you will ever read about is this one loop with decoration on top.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,8 +54,8 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<p>Every agent framework you will ever read about is this loop with decoration on top. Understanding it once means you can read any of them.</p>
-<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">The whole thing. There is no more to it.</span></div><div class="figure-stage"><pre class="ascii-art">   your code                              the model
+<p>Every agent framework you will ever read about is this one loop with decoration on top. Understand it once and you can read all of them.</p>
+<figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">The whole thing. There is nothing more to it.</span></div><div class="figure-stage"><pre class="ascii-art">   your code                              the model
    ---------                              ---------
 
    messages = [ the task ]
@@ -73,7 +73,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
         +-- "end_turn"  -->  done. return the answer.
         |
         +-- "tool_use"  -->  for each requested tool:
-                                validate the input
+                                check the input
                                 CHECK THE GATE  <---- where safety lives
                                 run it
                                 capture the result (or the error)
@@ -82,10 +82,10 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
                                 +---> back to the top, with more context
 
    Two things end the loop other than "end_turn":
-     - an iteration cap you set          (runaway protection)
-     - a token or cost budget you set    (bill protection)</pre></div><div class="figure-caption">Note where the gate sits: between the model asking and your code doing. The model never executes anything.</div></figure>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>The model cannot do anything.</strong> It emits a request &mdash; a name and some JSON. Your code decides whether that request runs. Every piece of agent security follows from taking that sentence seriously.</p></div></div>
-<div class="code-block"><div class="code-head"><span class="lang">ts</span>the loop, by hand, so you have seen it once</div><pre><code>import Anthropic from '@anthropic-ai/sdk';
+     - a step limit you set              (runaway protection)
+     - a token or cost budget you set    (bill protection)</pre></div><div class="figure-caption">Notice where the gate sits: between the model asking and your code doing. The model never runs anything itself.</div></figure>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>The model cannot do anything.</strong> It sends out a request &mdash; a name and some JSON. Your code decides whether that request runs. Every piece of agent security follows from taking that one sentence seriously.</p></div></div>
+<div class="code-block"><div class="code-head"><span class="lang">ts</span>the loop, written by hand, so you have seen it once</div><pre><code>import Anthropic from '@anthropic-ai/sdk';
 
 const client = new Anthropic();
 const MAX_STEPS = 12;   // never ship an agent without this
@@ -103,8 +103,9 @@ for (let step = 0; step &lt; MAX_STEPS; step++) {
 
   if (res.stop_reason === 'end_turn') return res;
 
-  // A server-side tool hit its internal limit. Hand the turn back and continue;
-  // do not add a "please continue" message, the API resumes on its own.
+  // A tool running on the provider's side hit its own limit. Hand the turn
+  // back and carry on; do not add a "please continue" message, because the
+  // API picks up again on its own.
   if (res.stop_reason === 'pause_turn') {
     messages.push({ role: 'assistant', content: res.content });
     continue;
@@ -116,8 +117,9 @@ for (let step = 0; step &lt; MAX_STEPS; step++) {
     (b): b is Anthropic.ToolUseBlock =&gt; b.type === 'tool_use',
   );
 
-  // All results go back in ONE user message. Splitting them across several
-  // messages quietly teaches the model to stop asking for tools in parallel.
+  // All the results go back in ONE user message. Splitting them across
+  // several messages quietly teaches the model to stop asking for tools
+  // in parallel.
   const results: Anthropic.ToolResultBlockParam[] = [];
   for (const call of calls) {
     try {
@@ -127,8 +129,8 @@ for (let step = 0; step &lt; MAX_STEPS; step++) {
         content: await runTool(call.name, call.input),
       });
     } catch (err) {
-      // Return the failure as a result. Never drop it — a missing tool_result
-      // for a requested tool_use is a malformed conversation.
+      // Send the failure back as a result. Never drop it — a tool_use with
+      // no matching tool_result is a broken conversation.
       results.push({
         type: 'tool_result',
         tool_use_id: call.id,
@@ -142,9 +144,9 @@ for (let step = 0; step &lt; MAX_STEPS; step++) {
 }
 
 throw new Error(`Agent did not finish within ${MAX_STEPS} steps`);</code></pre></div>
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>You have now seen the entire mechanism. In practice you would use the SDK&rsquo;s tool runner, which writes this loop for you and still lets you intervene each turn &mdash; but knowing what it is doing underneath is the difference between debugging an agent and rebooting it and hoping.</p></div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div><p>You have now seen the whole machine. In practice you would use the SDK's tool runner, which writes this loop for you and still lets you step in on each turn &mdash; but knowing what it is doing underneath is the difference between debugging an agent and restarting it and hoping for the best.</p></div></div>
 <details class="selfcheck"><summary><span class="sc-q">Your agent asks for three tools at once. You run them and send back three separate user messages, one result each. What breaks?</span><span class="sc-cue">Answer</span></summary><div class="sc-body">
-<p>Two things. First, the conversation is malformed: the API expects every <code>tool_use</code> in one assistant turn to be answered by <code>tool_result</code> blocks in <strong>one</strong> following user message. Second &mdash; and this is the one that bites quietly &mdash; even where it is tolerated, you are demonstrating to the model that parallel calls get handled serially, and it stops requesting them. Your agent gets slower over the course of a conversation and you will not find it in a log.</p>
+<p>Two things. First, the conversation is malformed: the API expects every <code>tool_use</code> in one assistant turn to be answered by <code>tool_result</code> blocks in <strong>one</strong> following user message. Second &mdash; and this is the one that bites you quietly &mdash; even where it is allowed, you are showing the model that parallel calls get handled one at a time, so it stops asking for them. Your agent gets slower over the course of a conversation and you will never find it in a log.</p>
 </div></details>
 </div>
 <nav class="page-nav">
@@ -155,13 +157,13 @@ throw new Error(`Agent did not finish within ${MAX_STEPS} steps`);</code></pre><
 </a>
 <a class="pn-next" href="tools.html">
   <span class="pn-dir">Next &rarr;</span>
-  <span class="pn-title">Designing the tool surface</span>
+  <span class="pn-title">Designing the set of tools</span>
   
 </a>
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Agents &amp; Workflows</a></div>
-  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What an agent actually is</a><a class="sib" href="ladder.html"><span class="sib-n">02</span>The ladder: start at the bottom</a><a class="sib" href="workflows.html"><span class="sib-n">03</span>Five workflow patterns worth knowing by name</a><a class="sib is-current" href="loop.html"><span class="sib-n">04</span>The agent loop, drawn</a><a class="sib" href="tools.html"><span class="sib-n">05</span>Designing the tool surface</a><a class="sib" href="context.html"><span class="sib-n">06</span>Context over a long run</a><a class="sib" href="structure.html"><span class="sib-n">07</span>A folder structure that survives contact</a><a class="sib" href="control.html"><span class="sib-n">08</span>Keeping it on a leash</a><a class="sib" href="mistakes.html"><span class="sib-n">09</span>Where agents actually go wrong</a><a class="sib" href="here.html"><span class="sib-n">10</span>Building one on this stack</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What an agent actually is</a><a class="sib" href="ladder.html"><span class="sib-n">02</span>The ladder: start at the bottom</a><a class="sib" href="workflows.html"><span class="sib-n">03</span>Five workflow patterns worth knowing by name</a><a class="sib is-current" href="loop.html"><span class="sib-n">04</span>The agent loop, drawn</a><a class="sib" href="tools.html"><span class="sib-n">05</span>Designing the set of tools</a><a class="sib" href="context.html"><span class="sib-n">06</span>Context over a long run</a><a class="sib" href="structure.html"><span class="sib-n">07</span>A folder structure that survives real use</a><a class="sib" href="control.html"><span class="sib-n">08</span>Keeping it on a leash</a><a class="sib" href="mistakes.html"><span class="sib-n">09</span>Where agents actually go wrong</a><a class="sib" href="here.html"><span class="sib-n">10</span>Building one on this stack</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

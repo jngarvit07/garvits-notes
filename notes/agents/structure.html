@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>A folder structure that survives contact — Agents &amp; Workflows — Garvit's Notes</title>
-<meta name="description" content="In plain English Agent code degenerates into one enormous function faster than most code, because everything is genuinely connected to everything.">
+<title>A folder structure that survives real use — Agents &amp; Workflows — Garvit's Notes</title>
+<meta name="description" content="In plain English Agent code turns into one giant function faster than most code, because everything really is connected to everything.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -44,54 +44,54 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
     <div class="tree" id="tree"></div>
   </nav>
   <main class="main" id="main"><article class="content">
-<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/agents/index.html">Agents &amp; Workflows</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">A folder structure that survives contact</span></nav>
+<nav class="crumbs" aria-label="Breadcrumb"><a href="../../index.html">Notes</a><span class="crumb-sep" aria-hidden="true">/</span><a href="../../notes/agents/index.html">Agents &amp; Workflows</a><span class="crumb-sep" aria-hidden="true">/</span><span aria-current="page">A folder structure that survives real use</span></nav>
 <header class="topic-head reveal">
   <span class="eyebrow">Note 13 &middot; Agents &amp; Workflows &middot; Topic 7 of 10</span>
-  <h1>A folder structure that survives contact</h1>
+  <h1>A folder structure that survives real use</h1>
   <div class="page-meta">
     <span>2 min read</span>
     <span>Some experience helps</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Agent code degenerates into one enormous function faster than most code, because everything is genuinely connected to everything. Separating the loop, the tools, the prompts and the limits into their own places is what keeps it possible to change one without breaking the others. </div></div>
-<p>Agent code sprawls faster than ordinary code, because prompts, tool implementations, schemas and evaluation data all want to live somewhere and none of them are obviously &ldquo;source&rdquo;. This layout has one rule behind it: <strong>anything you would want to diff in a review gets its own file.</strong></p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Agent code turns into one giant function faster than most code, because everything really is connected to everything. Splitting the loop, the tools, the prompts and the limits into their own places is what keeps it possible to change one without breaking the others. </div></div>
+<p>Agent code spreads faster than ordinary code, because prompts, tool code, schemas and test data all want a home and none of them are obviously "source code". This layout has one rule behind it: <strong>anything you would want to see in a code review gets its own file.</strong></p>
 <figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">A production agent, laid out</span></div><div class="figure-stage"><pre class="ascii-art">  agent/
   |
   +-- prompts/
-  |     system.md              the standing instructions, as prose
+  |     system.md              the standing instructions, in plain prose
   |     rubric.md              what "a good answer" means, for the evaluator
   |     README.md              why each prompt says what it says
   |
   +-- tools/
   |     index.ts               the registry: the ONLY place tools are assembled
   |     search-invoices.ts     one file per tool: schema + description + run()
-  |     send-email.ts          side effects live behind a gate, in here
-  |     _schema.ts             shared zod/JSON-schema helpers
+  |     send-email.ts          anything with side effects lives behind a gate here
+  |     _schema.ts             shared zod / JSON-schema helpers
   |
   +-- loop/
-  |     run.ts                 the agent loop, iteration cap, budget cap
+  |     run.ts                 the agent loop, step limit, budget limit
   |     gates.ts               approval policy: what needs a human, and when
   |     context.ts             compaction / editing / trimming policy
   |
   +-- memory/
   |     store.ts               read+write interface (files, rows, whatever)
-  |     policy.md              what is allowed to be remembered, and for how long
+  |     policy.md              what may be remembered, and for how long
   |
   +-- evals/
   |     cases/                 real inputs with known-good outcomes
   |     graders.ts             how each case is scored
-  |     run.ts                 the thing CI runs on every prompt change
+  |     run.ts                 what CI runs on every prompt change
   |
   +-- observability/
   |     trace.ts               one record per step: input, tool, result, tokens
   |
   +-- config.ts                model ids, limits, budgets — pinned, not guessed
-  +-- index.ts                 the public entry point your app calls</pre></div><div class="figure-caption">The shape that matters most: prompts are files, tools are files, and evals sit beside them in the same repository.</div></figure>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>Why prompts are files and not string literals.</strong> A prompt is the highest-leverage, most-frequently-edited artefact in the whole system. As a <code>.md</code> file it gets reviewed, blamed, and reverted like anything else. Buried in a template literal three levels deep, it gets edited by whoever is nearest and nobody notices the regression for a week.</p></div></div>
-<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">Why <code>tools/index.ts</code> is a single registry</span></div><div class="example-body">
-<p>Assembling the tool array in one place sounds like bureaucracy until the first incident. When the tool list is built inline at three different call sites, nobody can answer &ldquo;what could this agent actually do at 4pm on Tuesday?&rdquo; &mdash; and that is precisely the question a security review, a bug report and an audit all ask.</p>
-<p>It also protects your cache. The tool block is rendered first, so a tool list assembled in a different order per request invalidates the cached prefix on every single call. One registry, one order, one cache.</p>
+  +-- index.ts                 the public entry point your app calls</pre></div><div class="figure-caption">The shape that matters most: prompts are files, tools are files, and tests sit next to them in the same repository.</div></figure>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"><p><strong>Why prompts are files and not strings inside the code.</strong> A prompt is the highest-value, most-often-edited thing in the whole system. As a <code>.md</code> file it gets reviewed, blamed and reverted like anything else. Buried in a template string three levels deep, it gets edited by whoever is nearest and nobody notices the damage for a week.</p></div></div>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">Why <code>tools/index.ts</code> is one single registry</span></div><div class="example-body">
+<p>Building the tool list in one place sounds like unnecessary paperwork until your first incident. When the tool list is assembled inline at three different places in the code, nobody can answer "what could this agent actually do at 4pm on Tuesday?" &mdash; and that is exactly the question a security review, a bug report and an audit all ask.</p>
+<p>It also protects your cache. The tool block is sent first, so a tool list assembled in a different order on each request throws away the cached opening block on every single call. One registry, one order, one cache.</p>
 </div></div>
 </div>
 <nav class="page-nav">
@@ -108,7 +108,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Agents &amp; Workflows</a></div>
-  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What an agent actually is</a><a class="sib" href="ladder.html"><span class="sib-n">02</span>The ladder: start at the bottom</a><a class="sib" href="workflows.html"><span class="sib-n">03</span>Five workflow patterns worth knowing by name</a><a class="sib" href="loop.html"><span class="sib-n">04</span>The agent loop, drawn</a><a class="sib" href="tools.html"><span class="sib-n">05</span>Designing the tool surface</a><a class="sib" href="context.html"><span class="sib-n">06</span>Context over a long run</a><a class="sib is-current" href="structure.html"><span class="sib-n">07</span>A folder structure that survives contact</a><a class="sib" href="control.html"><span class="sib-n">08</span>Keeping it on a leash</a><a class="sib" href="mistakes.html"><span class="sib-n">09</span>Where agents actually go wrong</a><a class="sib" href="here.html"><span class="sib-n">10</span>Building one on this stack</a></div>
+  <div class="sib-row"><a class="sib" href="what.html"><span class="sib-n">01</span>What an agent actually is</a><a class="sib" href="ladder.html"><span class="sib-n">02</span>The ladder: start at the bottom</a><a class="sib" href="workflows.html"><span class="sib-n">03</span>Five workflow patterns worth knowing by name</a><a class="sib" href="loop.html"><span class="sib-n">04</span>The agent loop, drawn</a><a class="sib" href="tools.html"><span class="sib-n">05</span>Designing the set of tools</a><a class="sib" href="context.html"><span class="sib-n">06</span>Context over a long run</a><a class="sib is-current" href="structure.html"><span class="sib-n">07</span>A folder structure that survives real use</a><a class="sib" href="control.html"><span class="sib-n">08</span>Keeping it on a leash</a><a class="sib" href="mistakes.html"><span class="sib-n">09</span>Where agents actually go wrong</a><a class="sib" href="here.html"><span class="sib-n">10</span>Building one on this stack</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

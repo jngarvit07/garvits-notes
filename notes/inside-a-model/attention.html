@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Attention, explained properly — Inside a Model — Garvit's Notes</title>
-<meta name="description" content="The mechanism that made all of this work: every token gets to look at every other token and decide which ones matter. Explained without the mathematics.">
+<meta name="description" content="The idea that made all of this work: every token gets to look at every other token and decide which ones matter. Explained without the mathematics.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,7 +54,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Read this sentence: &ldquo;The trophy would not fit in the suitcase because <em>it</em> was too big.&rdquo; To understand &ldquo;it&rdquo;, you glanced back at &ldquo;trophy&rdquo; rather than &ldquo;suitcase&rdquo;. Attention is that glance, made mechanical: every token looks at every earlier token, scores how relevant each one is, and builds its own understanding as a weighted blend of them. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Read this sentence: "The trophy would not fit in the suitcase because <em>it</em> was too big." To understand "it", your eye went back to "trophy", not to "suitcase". Attention is that glance, turned into machinery: every token looks at every earlier token, gives each one a score for how relevant it is, and builds its own understanding as a mixture of them. </div></div>
 <figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">One attention step, for the token &ldquo;it&rdquo;</span></div><div class="figure-stage"><pre class="ascii-art">  The  trophy  would  not  fit  in  the  suitcase  because  [it]
    |     |       |     |    |    |   |      |         |       |
    |     |       |     |    |    |   |      |         |       |
@@ -65,22 +65,22 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
          0.02  0.71   0.01  0.01 0.02 0.01 0.02   0.18    0.02
                  ^                              ^
               trophy                         suitcase
-           strongest link                 considered, rejected
+           strongest link                 looked at, rejected
 
   The new understanding of "it" is mostly "trophy".
   Nobody wrote that rule. It was learned from text.</pre></div></figure>
 <h3>Why this was the breakthrough</h3>
-<p> Before attention, models read text in order, one word at a time, carrying a summary forward. Information from twenty words ago had to survive twenty hand-offs, and mostly did not. Attention lets any token reach any other token <strong>directly, in one step</strong>, no matter how far apart they are. That is what &ldquo;Transformer&rdquo; names, and it is the whole reason long-range understanding works. </p>
-<p> It also gave a second gift: because every token is scored against every other independently, the work parallelises across thousands of chips. Reading in order cannot be parallelised. The reason models got large enough to be surprising is as much this as it is the idea itself. </p>
-<h3>The cost, and why it shapes everything downstream</h3>
-<div class="code-block"><div class="code-head"><span class="lang">txt</span>Every token attends to every token</div><pre><code>   1,000 tokens  ->  1,000,000 pairs
+<p> Before attention, models read text in order, one word at a time, carrying a summary forward. Information from twenty words back had to survive twenty hand-offs, and mostly it did not. Attention lets any token reach any other token <strong>directly, in one step</strong>, however far apart they are. That is what the word "Transformer" refers to, and it is the whole reason models can follow long passages. </p>
+<p> It brought a second gift too. Because every token is scored against every other one separately, the work can be split across thousands of chips at the same time. Reading in order cannot be split that way. The reason models got big enough to surprise us is as much this as it is the idea itself. </p>
+<h3>The cost, and why it shapes everything after it</h3>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>Every token looks at every token</div><pre><code>   1,000 tokens  ->  1,000,000 pairs
   10,000 tokens  ->  100,000,000 pairs        100x the work for 10x the text
  100,000 tokens  ->  10,000,000,000 pairs
 
-Work grows with the SQUARE of the input.</code></pre></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>This is why long context is expensive rather than merely priced that way.</strong> Doubling your prompt does not double the cost of processing it. It is also why &ldquo;just put everything in the context window&rdquo; is not the free alternative to retrieval that it appears to be &mdash; you pay in latency and money on every single call, forever, for documents that were mostly irrelevant to that particular question. </div></div>
-<details class="selfcheck"><summary><span class="sc-q">Why can a model with a two-million-token context window not simply replace your retrieval system?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Three reasons, in increasing order of importance. Cost and latency scale badly, so every question pays for every document. Attention gets diluted &mdash; performance on finding a specific fact degrades as the surrounding material grows, which is the &ldquo;lost in the middle&rdquo; effect. And your corpus is usually far larger than any window anyway. </p>
-<p> The useful reframing is that long context and retrieval solve different problems. Retrieval decides <em>what is relevant</em>; context length decides <em>how much relevant material fits</em>. A big window makes retrieval more forgiving &mdash; you can send twenty passages instead of five &mdash; but it does not remove the need to choose. </p></div></details>
+The work grows with the SQUARE of the input.</code></pre></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>This is why long context is genuinely expensive, not just priced that way.</strong> Doubling your prompt does not double the work of reading it. It is also why "just put everything in the context window" is not the free alternative to retrieval that it looks like &mdash; you pay in waiting time and money on every single call, forever, for documents that had nothing to do with that particular question. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Why can a model with a two-million-token context window not simply replace your retrieval system?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Three reasons, from smallest to biggest. Cost and speed get much worse, so every question pays for every document. Attention gets spread thin &mdash; the model gets worse at finding one specific fact as the surrounding material grows, which is the "lost in the middle" problem. And your pile of documents is usually far bigger than any window anyway. </p>
+<p> The useful way to look at it is that long context and retrieval solve different problems. Retrieval decides <em>what is relevant</em>; the context length decides <em>how much of that relevant material fits</em>. A big window makes retrieval more forgiving &mdash; you can send twenty passages instead of five &mdash; but it does not remove the need to choose. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="vectors.html">

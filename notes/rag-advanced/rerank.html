@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reranking — Advanced RAG — Garvit's Notes</title>
-<meta name="description" content="Retrieve twenty cheaply, then spend real compute deciding which five actually answer the question. The step with the best return for its cost.">
+<meta name="description" content="Fetch twenty cheaply, then spend real computing power deciding which five actually answer the question. The step with the best return for its cost.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,30 +54,30 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A sift then a proper look. Vector search compares a question to a chunk without ever seeing them together &mdash; both were turned into numbers separately, long before the question existed. A reranker reads the question and the passage <em>side by side</em> and scores how well one answers the other. Far more accurate, far too slow to run over a million documents, and perfect for the twenty you just narrowed down to. </div></div>
-<div class="code-block"><div class="code-head"><span class="lang">txt</span>Why the two stages differ</div><pre><code>RETRIEVAL (bi-encoder)
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A quick sift, then a proper look. Vector search compares a question to a chunk without ever seeing the two together &mdash; both were turned into numbers separately, and the chunk's numbers were made long before your question existed. A reranker reads the question and the passage <em>side by side</em> and scores how well one answers the other. Much more accurate, far too slow to run over ten lakh documents, and perfect for the twenty you just shortlisted. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>Why the two stages are different</div><pre><code>RETRIEVAL (bi-encoder)
   embed(question)  ....compare....  embed(chunk)     [computed last week]
   The chunk's vector was made with NO knowledge of your question.
   Fast: millions of comparisons per second. Approximate.
 
 RERANKING (cross-encoder)
   score( question + chunk together, in one pass )
-  The model reads both at once and judges the actual match.
+  The model reads both at once and judges the real match.
   Slow: tens to hundreds per second. Accurate.
 
-  So: retrieve 20-50 the fast way, rerank to the best 3-5 the accurate way.</code></pre></div>
-<div class="table-wrap"><table><thead><tr><th>Approach</th><th>Quality</th><th>Latency</th><th>Notes</th></tr></thead><tbody>
-<tr><td>No reranking</td><td>Baseline</td><td>&mdash;</td><td>Fine for small, clean, well-structured corpora</td></tr>
-<tr><td>Hosted reranker API</td><td>Large improvement</td><td>~100&ndash;300ms</td><td>The usual starting point. One call, no infrastructure.</td></tr>
-<tr><td>Self-hosted cross-encoder</td><td>Similar</td><td>~50&ndash;200ms</td><td>A small model on a modest GPU. Cheaper at volume, and keeps data in-house.</td></tr>
-<tr><td>An LLM as judge</td><td>Best, sometimes</td><td>Seconds</td><td>Expensive and slow. Reasonable for offline evaluation, rarely for live traffic.</td></tr>
+  So: fetch 20-50 the fast way, rerank down to the best 3-5 the accurate way.</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>Approach</th><th>Quality</th><th>Speed</th><th>Notes</th></tr></thead><tbody>
+<tr><td>No reranking</td><td>Your starting point</td><td>&mdash;</td><td>Fine for small, clean, well-organised document sets</td></tr>
+<tr><td>A hosted reranker API</td><td>Big improvement</td><td>~100&ndash;300ms</td><td>The usual place to start. One call, no servers to run.</td></tr>
+<tr><td>Your own cross-encoder</td><td>Similar</td><td>~50&ndash;200ms</td><td>A small model on a modest GPU. Cheaper at volume, and keeps the data inside your walls.</td></tr>
+<tr><td>An LLM as the judge</td><td>Best, sometimes</td><td>Seconds</td><td>Expensive and slow. Fine for offline testing, rarely for live traffic.</td></tr>
 </tbody></table></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>More passages is not better.</strong> Sending fifteen chunks instead of five typically makes answers <em>worse</em>: the relevant one gets diluted, the model has more opportunity to blend two sources into a claim neither made, and you pay for all of it. Retrieve widely, then be ruthless about what actually reaches the prompt. Three excellent passages beat fifteen adequate ones. </div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>More passages does not mean better.</strong> Sending fifteen chunks instead of five usually makes the answers <em>worse</em>: the relevant one gets watered down, the model gets more chances to blend two sources into a claim neither of them made, and you pay for all of it. Fetch widely, then be strict about what actually reaches the prompt. Three excellent passages beat fifteen okay ones. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="hybrid.html">
   <span class="pn-dir">&larr; Previous</span>
-  <span class="pn-title">Hybrid search: the highest-value upgrade</span>
+  <span class="pn-title">Hybrid search: the biggest single upgrade</span>
   
 </a>
 <a class="pn-next" href="query.html">
@@ -88,7 +88,7 @@ RERANKING (cross-encoder)
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Advanced RAG</a></div>
-  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why basic RAG disappoints</a><a class="sib" href="chunking.html"><span class="sib-n">02</span>Chunking: the decision you make once</a><a class="sib" href="hybrid.html"><span class="sib-n">03</span>Hybrid search: the highest-value upgrade</a><a class="sib is-current" href="rerank.html"><span class="sib-n">04</span>Reranking</a><a class="sib" href="query.html"><span class="sib-n">05</span>Transforming the question first</a><a class="sib" href="security.html"><span class="sib-n">06</span>Permissions and untrusted passages</a><a class="sib" href="measure.html"><span class="sib-n">07</span>Measuring retrieval on its own</a></div>
+  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>Why basic RAG disappoints</a><a class="sib" href="chunking.html"><span class="sib-n">02</span>Chunking: the decision you make once</a><a class="sib" href="hybrid.html"><span class="sib-n">03</span>Hybrid search: the biggest single upgrade</a><a class="sib is-current" href="rerank.html"><span class="sib-n">04</span>Reranking</a><a class="sib" href="query.html"><span class="sib-n">05</span>Transforming the question first</a><a class="sib" href="security.html"><span class="sib-n">06</span>Permissions and untrusted passages</a><a class="sib" href="measure.html"><span class="sib-n">07</span>Measuring retrieval on its own</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

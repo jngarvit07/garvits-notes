@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>What you have just taken on — Running Models Yourself — Garvit's Notes</title>
-<meta name="description" content="Everything the API was quietly doing for you, that you now have to do yourself.">
+<meta name="description" content="Everything the API was quietly doing for you, that now becomes your job.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -49,27 +49,27 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   <span class="eyebrow">Note 11 &middot; Running Models Yourself &middot; Topic 6 of 6</span>
   <h1>What you have just taken on</h1>
   <div class="page-meta">
-    <span>2 min read</span>
+    <span>3 min read</span>
     <span>Some experience helps</span>
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The API was not only running the model. It was handling capacity, failover, upgrades, scaling and being awake at 3am. Self-hosting moves all of that onto your team, and the list is longer than it looks from the outside. This is not an argument against doing it &mdash; it is the list to price before you decide. </div></div>
-<div class="table-wrap"><table><thead><tr><th>Now yours</th><th>What it involves</th></tr></thead><tbody>
-<tr><td>Capacity planning</td><td>GPUs do not scale to zero and cannot be added in seconds. You provision for peak and pay for it at 4am.</td></tr>
-<tr><td>Cold starts</td><td>Loading tens of gigabytes of weights takes minutes. Autoscaling on demand is not realistic; you keep nodes warm.</td></tr>
-<tr><td>Failover</td><td>One node is a single point of failure. Two nodes plus a load balancer, or an accepted outage window.</td></tr>
-<tr><td>Version coherence</td><td>Driver, CUDA, framework and serving stack all have to agree. Upgrades break in ways that are tedious to unpick.</td></tr>
-<tr><td>Model upgrades</td><td>Download, quantise, evaluate, shadow, roll out. The <a href="../aiops/index.html">AI Ops</a> discipline applies unchanged.</td></tr>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The API was not only running the model. It was handling capacity, backups, upgrades, scaling and being awake at 3am. Self-hosting moves all of that onto your team, and the list is longer than it looks from outside. This is not an argument against doing it &mdash; it is the list to cost out before you decide. </div></div>
+<div class="table-wrap"><table><thead><tr><th>Now your job</th><th>What it involves</th></tr></thead><tbody>
+<tr><td>Capacity planning</td><td>GPUs cannot scale down to zero and cannot be added in seconds. You buy for your busiest hour and pay for it at 4am too.</td></tr>
+<tr><td>Cold starts</td><td>Loading tens of gigabytes of weights takes minutes. Scaling up on demand is not realistic; you keep nodes warm.</td></tr>
+<tr><td>Failover</td><td>One node is a single point of failure. Two nodes plus a load balancer, or an outage you have agreed to accept.</td></tr>
+<tr><td>Keeping versions matched</td><td>Driver, CUDA, framework and serving stack all have to agree with each other. Upgrades break in ways that are tedious to untangle.</td></tr>
+<tr><td>Model upgrades</td><td>Download, quantise, test, shadow, roll out. The <a href="../aiops/index.html">AI Ops</a> discipline applies exactly the same.</td></tr>
 <tr><td>The pager</td><td>A GPU node failing at 2am is now somebody's night.</td></tr>
-<tr><td>Observability</td><td>You still need tokens, latency, failures and cost per feature &mdash; and now GPU utilisation, memory pressure and queue depth too.</td></tr>
+<tr><td>Monitoring</td><td>You still need tokens, speed, failures and cost per feature &mdash; and now GPU usage, memory pressure and queue length as well.</td></tr>
 </tbody></table></div>
-<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">A pragmatic split most teams end up at</span></div><div class="example-body">
-<p> The common landing point is not all-or-nothing. High-volume narrow tasks &mdash; classification, extraction, embeddings, reranking &mdash; run on a small self-hosted model, because they are steady, they saturate a GPU, and a small model does them well. The hard, low-volume, quality-sensitive work &mdash; the final answer a user reads &mdash; goes to a hosted frontier model. </p>
-<p> That split gets most of the cost saving for a fraction of the operational burden: one small model on one node is a much smaller commitment than serving a 70B with redundancy. It also keeps the frontier model available as a fallback when the node is down. </p>
-<p> Embeddings in particular are worth calling out. They are high-volume, the models are small and fast, quality differences on your corpus are measurable in an afternoon, and self-hosting keeps your documents in your network. It is often the first thing a team brings in-house, and the easiest. </p>
+<div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">The practical split most teams end up with</span></div><div class="example-body">
+<p> The usual landing point is not all-or-nothing. The high-volume narrow tasks &mdash; sorting, extraction, embeddings, reranking &mdash; run on a small model you host yourself, because they are steady, they keep a GPU busy, and a small model does them well. The hard, low-volume, quality-sensitive work &mdash; the final answer a user reads &mdash; goes to a hosted top-tier model. </p>
+<p> That split gets you most of the cost saving for a small fraction of the operational headache: one small model on one node is a far smaller commitment than serving a 70B with a backup. It also keeps the hosted model available as a fallback when your node is down. </p>
+<p> Embeddings in particular are worth calling out. They are high-volume, the models are small and fast, quality differences on your own documents can be measured in an afternoon, and self-hosting keeps your documents inside your network. It is often the first thing a team brings in-house, and the easiest. </p>
 </div></div>
-<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Data residency, frozen weights and very high steady volume justify self-hosting. &ldquo;It will be cheaper&rdquo; usually does not.</li><li>Open weights is not open source, and the licence differences matter. Read it first.</li><li>VRAM = parameters &times; bytes + KV cache. The cache scales with context and concurrency, and it is what people forget.</li><li>INT8 is nearly free; INT4 is the usual production choice. A big quantised model beats a small pristine one at equal memory.</li><li>vLLM or TGI for production. Continuous batching and paged attention are most of the throughput.</li><li>Expose an OpenAI-compatible endpoint so the choice stays a config change.</li><li>Many teams self-host the small high-volume models and rent the frontier one. That split is usually the right shape.</li></ul></div>
+<div class="recap"><div class="recap-head">&#10003; Worth remembering</div><ul><li>Data that cannot leave, weights that must never change, and very high steady volume all justify self-hosting. "It will be cheaper" usually does not.</li><li>Open weights is not open source, and the licence differences matter. Read it first.</li><li>VRAM = parameters &times; bytes + KV cache. The cache grows with context and with simultaneous users, and it is what people forget.</li><li>INT8 is nearly free; INT4 is the usual production choice. A big squeezed model beats a small untouched one at the same memory.</li><li>Use vLLM or TGI for production. Continuous batching and paged attention give you most of the throughput.</li><li>Expose an OpenAI-compatible endpoint so the choice stays a config change.</li><li>Many teams host the small high-volume models themselves and rent the big one. That split is usually the right shape.</li></ul></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="serving.html">
@@ -85,7 +85,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 </nav>
 <nav class="siblings" aria-label="Other topics in this note">
   <div class="sib-head">More in <a href="index.html">Running Models Yourself</a></div>
-  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>When to run a model yourself</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>Open weights, and what the licence actually says</a><a class="sib" href="memory.html"><span class="sib-n">03</span>Will it fit? The VRAM arithmetic</a><a class="sib" href="quantisation.html"><span class="sib-n">04</span>Quantisation</a><a class="sib" href="serving.html"><span class="sib-n">05</span>Serving it properly</a><a class="sib is-current" href="ops.html"><span class="sib-n">06</span>What you have just taken on</a></div>
+  <div class="sib-row"><a class="sib" href="why.html"><span class="sib-n">01</span>When to run a model yourself</a><a class="sib" href="landscape.html"><span class="sib-n">02</span>Open weights, and what the licence actually says</a><a class="sib" href="memory.html"><span class="sib-n">03</span>Will it fit? The VRAM sum</a><a class="sib" href="quantisation.html"><span class="sib-n">04</span>Quantisation</a><a class="sib" href="serving.html"><span class="sib-n">05</span>Serving it properly</a><a class="sib is-current" href="ops.html"><span class="sib-n">06</span>What you have just taken on</a></div>
 </nav>
 </article></main>
   <aside class="toc" id="toc" aria-label="On this page"><div class="toc-title">On this page</div></aside>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Full, LoRA, QLoRA — Fine-tuning — Garvit's Notes</title>
-<meta name="description" content="Full fine-tuning, LoRA and QLoRA differ by how many numbers you change. That one difference decides the hardware, the cost and how many you can serve.">
+<meta name="description" content="Full fine-tuning, LoRA and QLoRA differ by how many numbers you change. That one difference decides the hardware, the cost and how many versions you can serve.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,19 +54,19 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A model is billions of numbers. Full fine-tuning adjusts all of them, which needs enormous hardware and produces an enormous new file. LoRA leaves them frozen and trains a small patch that sits alongside &mdash; typically under 1% the size &mdash; which turns out to work nearly as well for most tasks. It is the difference between reprinting a book and adding annotations to the margins. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A model is billions of numbers. Full fine-tuning changes all of them, which needs huge hardware and produces a huge new file. LoRA leaves them frozen and instead trains a small patch that sits alongside &mdash; usually under 1% of the size &mdash; and for most tasks that works almost as well. It is the difference between reprinting a whole book and writing notes in the margins. </div></div>
 <div class="table-wrap"><table><thead><tr><th></th><th>Full fine-tune</th><th>LoRA</th><th>QLoRA</th></tr></thead><tbody>
-<tr><td>What changes</td><td>Every parameter</td><td>Small added matrices; base frozen</td><td>Same, on a compressed base</td></tr>
-<tr><td>Trainable share</td><td>100%</td><td>~0.1&ndash;1%</td><td>~0.1&ndash;1%</td></tr>
+<tr><td>What changes</td><td>Every parameter</td><td>Small added matrices; the base stays frozen</td><td>Same, on a squeezed-down base</td></tr>
+<tr><td>Share that is trained</td><td>100%</td><td>~0.1&ndash;1%</td><td>~0.1&ndash;1%</td></tr>
 <tr><td>GPU memory, 7B model</td><td>~80GB+</td><td>~16GB</td><td>~6GB</td></tr>
-<tr><td>Artefact size</td><td>Tens of GB</td><td>~10&ndash;200MB</td><td>~10&ndash;200MB</td></tr>
-<tr><td>Serving many variants</td><td>A full copy each</td><td><strong>One base, many adapters, swapped per request</strong></td><td>Same</td></tr>
-<tr><td>Quality</td><td>Ceiling</td><td>Very close for most tasks</td><td>Slightly below LoRA</td></tr>
-<tr><td>Reach for it when</td><td>Rarely. A new language or domain shift.</td><td><strong>Almost always</strong></td><td>Limited hardware, or experimenting</td></tr>
+<tr><td>Size of what you get</td><td>Tens of GB</td><td>~10&ndash;200MB</td><td>~10&ndash;200MB</td></tr>
+<tr><td>Serving many versions</td><td>A full copy of everything, each time</td><td><strong>One base, many adapters, swapped per request</strong></td><td>Same</td></tr>
+<tr><td>Quality</td><td>The highest possible</td><td>Very close for most tasks</td><td>A little below LoRA</td></tr>
+<tr><td>Use it when</td><td>Rarely. A new language, or a completely different subject area.</td><td><strong>Almost always</strong></td><td>Limited hardware, or while experimenting</td></tr>
 </tbody></table></div>
-<div class="code-block"><div class="code-head"><span class="lang">txt</span>Why LoRA works, in one picture</div><pre><code>  A layer's weights are a big matrix W  (say 4096 x 4096 = 16.7M numbers)
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>Why LoRA works, in one picture</div><pre><code>  A layer's weights are a big grid W  (say 4096 x 4096 = 16.7M numbers)
 
-  FULL FINE-TUNE:   train a new W        16,700,000 numbers changed
+  FULL FINE-TUNE:   train a whole new W   16,700,000 numbers changed
 
   LoRA:             keep W frozen
                     train A (4096 x 8)   and   B (8 x 4096)
@@ -75,16 +75,16 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
                     32,768 + 32,768  =   65,536 numbers changed
                                           ~0.4% of the layer
 
-  The insight: the ADJUSTMENT a task needs is far simpler than
-  the knowledge already in W, so it compresses into a thin pair.</code></pre></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>The multi-tenant property is the one people miss.</strong> Because an adapter is small and the base is shared, one served model can carry dozens of adapters in memory and pick per request. A different tuned behaviour per customer becomes economically ordinary rather than absurd &mdash; with full fine-tuning it would be one entire model per customer. </div></div>
+  The key idea: the ADJUSTMENT a task needs is far simpler than the
+  knowledge already sitting in W, so it squeezes into a thin pair.</code></pre></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>The multi-customer benefit is the one people miss.</strong> Because an adapter is small and the base model is shared, one running model can hold dozens of adapters in memory and pick the right one per request. Having a different tuned behaviour for each customer becomes financially normal instead of ridiculous &mdash; with full fine-tuning it would mean one entire model per customer. </div></div>
 <h3>The knobs, and sensible starting values</h3>
 <div class="table-wrap"><table><thead><tr><th>Setting</th><th>Start at</th><th>What it does</th></tr></thead><tbody>
-<tr><td><code>rank</code> (r)</td><td>16</td><td>How much capacity the patch has. 8&ndash;16 for style and format; 32&ndash;64 for a genuinely new skill. Higher is not better by default.</td></tr>
+<tr><td><code>rank</code> (r)</td><td>16</td><td>How much room the patch has. 8&ndash;16 for style and format; 32&ndash;64 for a genuinely new skill. Higher is not automatically better.</td></tr>
 <tr><td><code>alpha</code></td><td>32 (2&times; rank)</td><td>How strongly the patch is applied.</td></tr>
-<tr><td><code>learning rate</code></td><td>1e-4 to 2e-4</td><td>Higher than full fine-tuning, because far fewer parameters are moving.</td></tr>
-<tr><td><code>epochs</code></td><td>2&ndash;3</td><td>More than 3 on a small set overfits reliably. Watch the validation loss, not the training loss.</td></tr>
-<tr><td>target modules</td><td>attention projections</td><td>Adding the feed-forward layers helps on harder tasks and costs memory.</td></tr>
+<tr><td><code>learning rate</code></td><td>1e-4 to 2e-4</td><td>Higher than for full fine-tuning, because far fewer numbers are moving.</td></tr>
+<tr><td><code>epochs</code></td><td>2&ndash;3</td><td>More than 3 on a small set will overfit, reliably. Watch the validation loss, not the training loss.</td></tr>
+<tr><td>target modules</td><td>attention projections</td><td>Adding the feed-forward layers helps on harder tasks and costs more memory.</td></tr>
 </tbody></table></div>
 </div>
 <nav class="page-nav">

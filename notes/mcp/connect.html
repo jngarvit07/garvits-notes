@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Connecting it up — MCP — Garvit's Notes</title>
-<meta name="description" content="In plain English Connecting a server is a small configuration file telling the host how to start it and what it needs.">
+<meta name="description" content="In plain English Connecting a server means writing a small config file that tells the host how to start it and what it needs.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,9 +54,9 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Connecting a server is a small configuration file telling the host how to start it and what it needs. This is also the step where most first attempts fail, almost always for the same two reasons: the path is wrong, or an environment variable the server needs was not passed through. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Connecting a server means writing a small config file that tells the host how to start it and what it needs. This is also the step where most first attempts fail, almost always for the same two reasons: the path is wrong, or an environment variable the server needs was not passed through. </div></div>
 <h3>To Claude Code, or any local host</h3>
-<p>A JSON file naming the command to run. Project-scoped config lives in <code>.mcp.json</code> at the repository root, which means the server travels with the codebase and every developer gets it.</p>
+<p>A JSON file that names the command to run. The project-level config lives in <code>.mcp.json</code> at the root of the repository, which means the server travels along with the code and every developer on the team gets it.</p>
 <div class="code-block"><div class="code-head"><span class="lang">json</span>.mcp.json</div><pre><code>{
   "mcpServers": {
     "invoices": {
@@ -69,7 +69,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   }
 }</code></pre></div>
 <h3>From the API, as a connector</h3>
-<p>A remote MCP server can be attached directly to a Messages request. Note the shape carefully &mdash; <strong>both halves are required</strong>, and supplying only the first is the single most common mistake here.</p>
+<p>A remote MCP server can be attached straight onto a Messages request. Look at the shape carefully &mdash; <strong>both halves are needed</strong>, and giving only the first one is the most common mistake here by far.</p>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>attaching a remote MCP server to a request</div><pre><code>const response = await client.beta.messages.create({
   model: 'claude-opus-5',
   max_tokens: 16000,
@@ -86,7 +86,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
 
   messages: [{ role: 'user', content: 'What did ACME buy in March?' }],
 });</code></pre></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p>Declaring <code>mcp_servers</code> without the matching <code>mcp_toolset</code> entry fails validation rather than silently doing nothing &mdash; which is the kinder failure, but the error message does not always make the cause obvious. If a connector request is rejected and the URL looks right, check that the <code>name</code> matches on both sides.</p></div></div>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><p>Declaring <code>mcp_servers</code> without the matching <code>mcp_toolset</code> entry fails the validation check rather than quietly doing nothing &mdash; which is the kinder of the two failures, but the error message does not always make the reason obvious. If a connector request is rejected and the URL looks right, check that the <code>name</code> matches on both sides.</p></div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="build.html">

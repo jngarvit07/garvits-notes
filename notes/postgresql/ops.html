@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Backups, connections and safety — PostgreSQL &amp; Prisma — Garvit's Notes</title>
-<meta name="description" content="In plain English The unglamorous half.">
+<meta name="description" content="In plain English The boring half.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,7 +54,7 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The unglamorous half. A backup you have never restored is not a backup — it is a hope. A connection pool sized wrongly takes an application down under exactly the load you built it for. Neither is interesting until the day it is the only thing that matters. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> The boring half. A backup you have never restored is not a backup — it is a hope. A connection pool sized wrongly takes an application down under exactly the load you built it for. Neither is interesting until the day it is the only thing that matters. </div></div>
 <div class="example"><div class="example-head"><span class="example-badge">Real world</span><span class="example-title">The bug that only appears with real data</span></div><div class="example-body"><p> An admin screen lists every user with their project count. In development, with fifty accounts, it answers instantly. In production it times out — because the code fetched all users, then ran one count query per user. Fifty round trips is nothing; fifty thousand is a page nobody can open. </p>
 <p> The fix is not a faster server. It is one grouped query, or a single Prisma call with the count included. Test on data the shape of production, or discover this on the day you cannot afford to. </p>
 </div></div>

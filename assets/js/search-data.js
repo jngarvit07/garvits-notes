@@ -198,7 +198,7 @@ window.GN_SECTIONS = [
   "note": "Next.js",
   "noteTitle": "Next.js",
   "section": "Server Components vs Client Components",
-  "text": "In plain English Two places code can run, and the difference decides most of what you can do. On the server , the code runs once on a machine you control before the page is sent — so it can read the database and hold secrets, but it cannot react to a click, because by the time the user clicks, that code has finished and gone. In the browser , the code is shipped to the visitor and runs while they use the page — so it can respond to clicks, and everything it knows is public. This is the idea that makes the App Router different from everything before it, and the one worth reading twice. By default, your components run on the server only. They execute during the request, produce HTML, and their"
+  "text": "In plain English There are two places your code can run, and the difference decides most of what you are able to do. On the server , the code runs once on a machine you control, before the page is sent out. So it can read the database and hold secrets. But it cannot react to a click, because by the time the user clicks anything, that code has already finished and gone. In the browser , the code is sent to the visitor and runs while they are using the page. So it can respond to clicks and everything it knows is visible to anybody. This is the idea that makes the App Router different from everything before it, and the one worth reading twice. By default, your components run on the server only."
  },
  {
   "slug": "nextjs",
@@ -302,7 +302,7 @@ window.GN_SECTIONS = [
   "note": "Node.js",
   "noteTitle": "Node.js",
   "section": "Modules, npm and package.json",
-  "text": "In plain English A module is one file that decides what it lets other files see. package.json is the list of every outside package your project depends on, and the lock file beside it records the exact versions that were actually installed — which is what makes the same code behave the same on your laptop and on a server. A file is a module. It shares things by exporting them and uses other files by importing them. There are two systems, and mixing them up produces the single most confusing class of Node error. CommonJS (older) ES Modules (current) Import const x = require('./x') import x from './x.js' Export module.exports = x export default x Turned on by The default \"type\": \"module\" in pa"
+  "text": "In plain English A module is one file that decides what it lets other files see. package.json is the list of every outside package your project needs. The lock file sitting next to it records the exact versions that actually got installed. That lock file is what makes the same code behave the same way on your laptop and on a server. A file is a module. It shares things by exporting them and uses other files by importing them. There are two systems, and mixing them up produces the single most confusing class of Node error. CommonJS (older) ES Modules (current) Import const x = require('./x') import x from './x.js' Export module.exports = x export default x Turned on by The default \"type\": \"mo"
  },
  {
   "slug": "nodejs",
@@ -382,7 +382,7 @@ window.GN_SECTIONS = [
   "note": "Express",
   "noteTitle": "Express",
   "section": "Routes and routers",
-  "text": "In plain English A route is one line in a directory: a GET to /projects is handled by this function . A router is a sheet of those lines that you can move around as a unit — all the project routes in one file, all the user routes in another — so a large API stays navigable instead of becoming one enormous file. A route is a method plus a path plus a handler. A router is a group of routes that can be mounted under a prefix, which is how an API stays navigable past about twenty endpoints. ts One router per resource, mounted under a prefix ! Order matters, and it is a real source of lost afternoons. Express takes the first route that matches. Register /projects/:id before /projects/export and a"
+  "text": "In plain English A route is one line in a directory: a GET to /projects is handled by this function . A router is a page of those lines that you can move around as one piece. All the project routes go in one file, all the user routes in another. That way a big API stays easy to find your way around, instead of turning into one enormous file. A route is a method plus a path plus a handler. A router is a group of routes that can be mounted under a prefix, which is how an API stays navigable past about twenty endpoints. ts One router per resource, mounted under a prefix ! Order matters, and it is a real source of lost afternoons. Express takes the first route that matches. Register /projects/:i"
  },
  {
   "slug": "express",
@@ -502,7 +502,7 @@ window.GN_SECTIONS = [
   "note": "PostgreSQL & Prisma",
   "noteTitle": "PostgreSQL & Prisma",
   "section": "What Postgres gives you beyond plain SQL",
-  "text": "In plain English Most databases speak roughly the same SQL. This topic is what Postgres gives you on top: proper JSON columns you can query into, full-text search without another service, real date and time handling, and extensions — pgvector among them, which is what lets one database serve both your rows and your embeddings. Feature What it is for jsonb Store a whole structure in one column — page content, settings — and still query inside it. This product keeps page structures this way, because their shape is defined by the editor, not by the schema. arrays A list in a column: tags, allowed origins. Simpler than a side table when the list is short and never joined against. enum types A co"
+  "text": "In plain English Most databases speak roughly the same SQL. This topic is about what Postgres gives you on top of that: proper JSON columns you can search inside, full-text search without running another service, real date and time handling, and extensions — pgvector among them, which is what lets one database serve both your rows and your embeddings. Feature What it is for jsonb Store a whole structure in one column — page content, settings — and still query inside it. This product keeps page structures this way, because their shape is defined by the editor, not by the schema. arrays A list in a column: tags, allowed origins. Simpler than a side table when the list is short and never joined"
  },
  {
   "slug": "postgresql",
@@ -526,7 +526,7 @@ window.GN_SECTIONS = [
   "note": "PostgreSQL & Prisma",
   "noteTitle": "PostgreSQL & Prisma",
   "section": "Backups, connections and safety",
-  "text": "In plain English The unglamorous half. A backup you have never restored is not a backup — it is a hope. A connection pool sized wrongly takes an application down under exactly the load you built it for. Neither is interesting until the day it is the only thing that matters. Real world The bug that only appears with real data An admin screen lists every user with their project count. In development, with fifty accounts, it answers instantly. In production it times out — because the code fetched all users, then ran one count query per user. Fifty round trips is nothing; fifty thousand is a page nobody can open. The fix is not a faster server. It is one grouped query, or a single Prisma call wi"
+  "text": "In plain English The boring half. A backup you have never restored is not a backup — it is a hope. A connection pool sized wrongly takes an application down under exactly the load you built it for. Neither is interesting until the day it is the only thing that matters. Real world The bug that only appears with real data An admin screen lists every user with their project count. In development, with fifty accounts, it answers instantly. In production it times out — because the code fetched all users, then ran one count query per user. Fifty round trips is nothing; fifty thousand is a page nobody can open. The fix is not a faster server. It is one grouped query, or a single Prisma call with th"
  },
  {
   "slug": "postgresql",
@@ -542,7 +542,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "AI, machine learning and language models",
-  "text": "Three words get used interchangeably and are not the same size. Artificial intelligence is the whole field. Machine learning is the part where a program learns patterns from examples instead of being given rules. A large language model — an LLM — is one kind of machine learning system: a very large pattern matcher trained on text. In plain English Ordinary software is a recipe: if this, do that, written by a person. Machine learning is shown ten million dishes and works out the recipe itself. Nobody can then read the recipe back — which is the whole trade, and the source of nearly every difficulty in this note. The one sentence to keep: an LLM predicts what text comes next . Given everything"
+  "text": "Three words get mixed up all the time, and they are not the same size. Artificial intelligence is the whole subject. Machine learning is one part of it, where a program learns patterns from examples instead of being given rules. A large language model — an LLM — is one type of machine learning system: a very big pattern matcher that has been trained on text. In plain English Normal software is like a recipe your mother wrote down: add this, then do that, step by step. Machine learning is different. You show the system ten lakh photos of food, and it works out the recipe on its own. The problem is that nobody can read that recipe afterwards. That is the deal you make, and almost every difficu"
  },
  {
   "slug": "ai",
@@ -550,7 +550,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "The wider AI family",
-  "text": "In plain English AI is a family name, not a technique. It covers a chess program from 1997, the thing that decides which post you see next, the system that reads a postcode off an envelope, and the model that writes you a paragraph. They share almost no machinery. Most confusing conversations about AI are two people using the family name for two different relatives. Language models are having the loud decade, and they are one branch of a much older tree. Knowing the other branches matters for a practical reason: a lot of problems people now throw an LLM at have a smaller, cheaper, more reliable answer that has existed for twenty years. Kind What it does Everyday example Classification Sorts "
+  "text": "In plain English \"AI\" is a family name, like \"Sharma\". It is not one technique. It covers the chess program that beat Kasparov in 1997, the thing that decides which reel you see next on Instagram, the machine that reads a PIN code off an envelope, and the model that writes you a paragraph. These share almost nothing inside. Most confusing arguments about AI happen because two people are using the family name for two different cousins. Language models are getting all the attention right now, but they are one branch of a much older tree. Knowing the other branches is useful for a very practical reason: many problems people now throw an LLM at have a smaller, cheaper, more reliable answer that "
  },
  {
   "slug": "ai",
@@ -558,7 +558,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "How a model actually works",
-  "text": "In plain English A language model does one thing: given the text so far, guess what comes next. Repeat, feeding its own guess back in, and paragraphs appear. That is genuinely the whole mechanism — there is no lookup, no database of facts, no reasoning step hiding behind it. Everything impressive and everything alarming about these systems follows from that one loop. Five ideas, and they explain almost every behaviour you will observe. Tokens. Text is chopped into pieces — roughly a word or a word-fragment. English averages about four characters per token, so 750 words is about 1,000 tokens. You are billed per token, in and out, and every limit is measured in them. Next-token prediction. The"
+  "text": "In plain English A language model does one thing: look at the text so far and guess what comes next. Do that again and again, feeding its own guess back in, and full paragraphs appear. That really is the whole machine. There is no lookup, no fact database, no hidden thinking step. Everything impressive and everything worrying about these systems comes out of that one loop. Five ideas, and they explain almost every behaviour you will see. Tokens. Text is cut into small pieces — roughly a word or part of a word. In English one token is about four letters, so 750 words is about 1,000 tokens. You are charged per token, going in and coming out, and every size limit is counted in tokens. Next-toke"
  },
  {
   "slug": "ai",
@@ -566,7 +566,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "How a model is made, and why that matters to you",
-  "text": "In plain English Two stages, and the difference explains most model behaviour. First it reads an enormous amount of text and learns to predict — that is where the knowledge and the cutoff date come from. Then it is taught to be useful and to decline certain things, which is a much smaller pass done afterwards. The first stage makes it capable; the second makes it a product. You will never train one. It is still worth knowing the stages, because each one explains a behaviour you will otherwise find inexplicable. Flow From raw text to the thing you call Replay 1 Pre-training Read an enormous amount of text and learn to predict what comes next. Months, and most of the cost. This is where knowle"
+  "text": "In plain English Two stages, and the difference explains most of what a model does. First it reads a huge amount of text and learns to predict — that is where its knowledge and its cut-off date come from. Then it is taught to be useful and to say no to certain things, which is a much smaller round of training done later. The first stage makes it capable; the second turns it into a product you can sell. You will never train one yourself. It is still worth knowing the stages, because each one explains a behaviour that will otherwise puzzle you. Flow From raw text to the thing you call Replay 1 Pre-training Read a huge amount of text and learn to predict what comes next. Takes months, and eats "
  },
  {
   "slug": "ai",
@@ -574,7 +574,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "Decoding: the settings on the request",
-  "text": "In plain English The model produces a ranked list of possible next words, and these settings decide how it picks from that list. Turn the randomness down and you get consistent, predictable, slightly flat output. Turn it up and you get variety and more mistakes. There is no universally right value — extraction wants one end, brainstorming wants the other. Generation picks one token at a time from a ranked list of candidates. The request parameters decide how that pick is made and when it stops — the cheapest quality lever you have, because changing them costs nothing. Setting What it controls Sensible use temperature Randomness in the pick. 0 is nearly deterministic; high is adventurous. Low"
+  "text": "In plain English The model makes a ranked list of possible next words, and these settings decide how it picks from that list. Turn the randomness down and you get steady, predictable, slightly boring output. Turn it up and you get variety along with more mistakes. There is no single right value — pulling data out of a document wants one end of the dial, brainstorming wants the other. The model picks one token at a time from a ranked list. The settings on your request decide how that pick happens and when it stops. This is the cheapest quality lever you have, because changing a setting costs nothing. Setting What it controls Sensible use temperature How random the pick is. 0 is almost always "
  },
  {
   "slug": "ai",
@@ -582,7 +582,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "Choosing a model",
-  "text": "In plain English Models come in sizes, and the honest framing is a trade rather than a ranking. Bigger ones handle harder reasoning and cost more and answer slower. Smaller ones are fast and cheap and perfectly good at the great majority of work. Using the largest model for everything is the equivalent of taking a lorry to fetch a pint of milk. Models differ on four axes that actually matter to a decision: how capable they are, how much context they hold, how fast they answer, and what they cost relative to each other. There is no best model there is a best model for one job at one budget. Tier Example Reach for it when Frontier claude-opus-5 Open-ended work where quality is visible to a cus"
+  "text": "In plain English Models come in sizes, and the honest way to look at it is a trade-off, not a ranking. Bigger ones handle harder thinking, cost more and answer slower. Smaller ones are fast and cheap and perfectly good for most of the work. Using the biggest model for everything is like booking a truck to bring one packet of milk from the shop next door. Models differ on four things that actually change your decision: how capable they are, how much text they can hold at once, how fast they answer, and what they cost compared to each other. There is no best model there is a best model for one job at one budget. Tier Example Use it when Top tier claude-opus-5 Open-ended work where the customer"
  },
  {
   "slug": "ai",
@@ -590,7 +590,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "Beyond text: images, documents and voice",
-  "text": "In plain English The same machinery, with images, documents and audio converted into something the model can read alongside text. Practically this means you can hand it a screenshot, a scanned invoice or a recording and ask about it. It also means anything hidden in an image — text in a picture, for instance — is input, which has consequences for security. Current models are multimodal : the same request can carry pictures and documents alongside the words. This collapses whole pipelines. “Read the total off this receipt” used to mean an OCR engine, a layout parser and a pile of regular expressions that broke on every new supplier; it is now one call with the image attached. Input Works well"
+  "text": "In plain English Same machine, except images, documents and audio are turned into something the model can read next to the words. In practice this means you can hand it a screenshot, a scanned bill or a recording and ask questions about it. It also means anything hidden inside an image — for example text written in the picture — counts as input, and that has security consequences. Today's models are multimodal : one request can carry pictures and documents along with the words. This removes whole pipelines. \"Read the total off this bill\" used to mean an OCR engine, a layout parser and a pile of pattern-matching rules that broke every time a new shop's bill arrived. Now it is one call with th"
  },
  {
   "slug": "ai",
@@ -598,7 +598,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "Prompting that actually works",
-  "text": "In plain English A prompt is a brief, and it is judged by the standard you would apply to briefing a capable new colleague who cannot ask you a follow-up question. Say what the job is, who it is for, what the output should look like, and show an example. Almost every prompt technique with a name is a formalisation of something you would already do when writing clear instructions for a person. A prompt is a specification. Most bad output is an under-specified request rather than an incapable model, and the fixes are unglamorous. Technique What it is Use when Be specific about the output Say the format, the length, the audience, and what to do when unsure. Always. This is the highest-value cha"
+  "text": "In plain English A prompt is a set of instructions, and you should judge it the way you would judge instructions given to a smart new joinee who cannot come back and ask you a doubt. Say what the job is, who it is for, what the answer should look like, and show one example. Almost every \"prompting technique\" with a fancy name is just a formal version of something you would already do while writing clear instructions for a person. A prompt is a specification. Most bad output comes from a half-written request, not from a weak model, and the fixes are boring. Technique What it is Use when Be exact about the output Say the format, the length, who will read it, and what to do when unsure. Always."
  },
  {
   "slug": "ai",
@@ -606,7 +606,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "Context engineering: what the model can see",
-  "text": "Once a feature is more than one question, the hard part stops being the wording of the prompt and becomes what goes into the context at all . Everything the model knows in a given call is what you put there — no more, no less — and that window has a size and a price. In plain English The model is a brilliant consultant with total amnesia. Every meeting starts from nothing. What you achieve is decided by the briefing document you hand over as they walk in — and you are charged by the page, every time. The budget, in rough order of importance: Goes in the context Typical size Notes System instructions Hundreds to a few thousand tokens Stable across calls — cache it, and put it first. Tool defi"
+  "text": "Once a feature is bigger than one question, the hard part is no longer the wording of the prompt. It becomes what goes into the context in the first place . Everything the model knows during a call is whatever you put there — nothing more, nothing less — and that window has a size limit and a price. In plain English Think of the model as a brilliant consultant who forgets everything the moment they walk out of the room. Every meeting starts from zero. What you get out of the meeting depends entirely on the file you hand them as they walk in — and you are charged by the page, every single time. Here is what fills the window, roughly in order of importance: Goes in the context Typical size Not"
  },
  {
   "slug": "ai",
@@ -614,7 +614,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "What models get wrong, and why",
-  "text": "In plain English The failures are systematic rather than random, which means they can be designed around. It invents citations because a plausible-looking citation is a good prediction. It is bad at arithmetic because digits are poor material for a next-token guess. It does not know what happened after its training data ended. None of these are fixed by asking it more nicely. Failure Why it happens What helps Hallucination — a confident, invented fact, citation or API Plausible continuation is the only objective. A fake reference is textually excellent. Supply the facts (see RAG), permit \"I do not know\", and verify anything checkable in code. Out-of-date answers Knowledge is frozen at the tr"
+  "text": "In plain English The mistakes follow a pattern instead of being random, which means you can design around them. It invents references because an invented reference looks like a very good guess. It is bad at arithmetic because digits are poor material for guessing the next word. It does not know what happened after its training data ended. None of this gets fixed by asking more politely. Failure Why it happens What helps Hallucination — a confident, made-up fact, reference or API Sounding likely is its only goal. A fake reference reads beautifully. Give it the facts (see RAG), allow \"I do not know\", and check anything checkable in code. Out-of-date answers Its knowledge stops at the training "
  },
  {
   "slug": "ai",
@@ -622,7 +622,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "Evaluation: what turns this into engineering",
-  "text": "Every team building with models goes through the same arc: a prompt that works, a change that seems better, a slow discovery that something else broke, and finally the realisation that nobody can tell whether the system is improving. Evaluation is what ends that. In plain English A test suite for something that never gives the same answer twice. You cannot assert equality, so you assert properties: did it find the right document, did it stay inside the sources, did it refuse when it should, is it under the length limit. Flow An evaluation loop that fits in an afternoon Replay 1 Collect real inputs Thirty to fifty, from actual users if you have them. Invented examples flatter you. 2 Write dow"
+  "text": "Every team building with models goes through the same story. A prompt that works. A change that looks better. A slow discovery that something else broke. And finally the realisation that nobody can actually say whether the system is getting better or worse. Proper testing is what ends that story. In plain English It is a test suite for something that never gives the same answer twice. You cannot check \"is the answer exactly this\", so you check qualities instead: did it find the right document, did it stick to the given sources, did it say no when it should have, is it within the length limit. Flow A testing loop you can finish in one afternoon Replay 1 Collect real inputs Thirty to fifty of "
  },
  {
   "slug": "ai",
@@ -630,7 +630,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "Embeddings and vector search",
-  "text": "An embedding turns a piece of text into a list of numbers — a few hundred to a few thousand of them — positioned so that texts with similar meaning end up close together. In plain English Imagine every sentence ever written placed on an enormous map. “How do I reset my password” and “I forgot my login” land beside each other despite sharing almost no words, because the map is arranged by meaning rather than spelling. An embedding is a set of coordinates on that map. That is what makes semantic search possible: embed the question, find the nearest stored chunks, and you have the passages that are about the question — not merely the ones containing its words. sql Vector search in Postgres — no"
+  "text": "An embedding turns a piece of text into a list of numbers — a few hundred to a few thousand of them — arranged so that texts with a similar meaning end up close to each other. In plain English Picture a huge map where every sentence ever written has a spot. \"How do I reset my password\" and \"I forgot my login\" land right next to each other even though they share almost no words, because the map is arranged by meaning, not by spelling. An embedding is just the coordinates of one sentence on that map. That is what makes semantic search possible: turn the question into coordinates, find the stored chunks nearest to it, and you get the passages that are about the question — not merely the ones th"
  },
  {
   "slug": "ai",
@@ -638,7 +638,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "RAG, in detail",
-  "text": "Retrieval-Augmented Generation is the standard way to make a model answer from knowledge it was never trained on — your documentation, your policies, your tickets. The idea is unremarkable and the execution is where all the difficulty lives: find the relevant passages, put them in the prompt, and ask the model to answer using only those. In plain English An open-book exam. The model is a well-read graduate who has never seen your company handbook. RAG is handing them the three relevant pages, opened, seconds before you ask the question — rather than expecting them to have memorised it. js The pipeline, and where each stage fails Flow Answering one question, and who is to blame at each stage "
+  "text": "Retrieval-Augmented Generation — RAG for short — is the standard way to make a model answer from knowledge it was never trained on: your documentation, your policies, your support tickets. The idea is simple and all the difficulty is in doing it well: find the relevant passages, put them into the prompt, and tell the model to answer using only those. In plain English It is an open-book exam. The model is a well-read topper who has never seen your company handbook. RAG means handing over the three relevant pages, already open, a second before you ask the question — instead of expecting the model to have learnt the handbook by heart. js The pipeline, and where each stage goes wrong Flow Answer"
  },
  {
   "slug": "ai",
@@ -646,7 +646,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "RAG, fine-tuning, or just a better prompt",
-  "text": "In plain English Three ways to make a model better at your problem, in increasing order of cost. Write a better prompt. Give it the right documents at the moment it answers. Or retrain it. Almost everyone reaches for the third, and almost everyone should have stopped at the first or second. Approach Changes Good for Cost Better prompt Nothing — instructions only Format, tone, following rules. Try this first, always. Minutes RAG What the model can see Knowledge it lacks: your docs, current data, per-customer facts Days, plus running a retrieval pipeline Tools What the model can do Live data, calculations, actions in other systems Days, plus a security review Fine-tuning The model itself A con"
+  "text": "In plain English Three ways to make a model better at your problem, from cheapest to costliest. Write a better prompt. Give it the right documents at the moment it answers. Or retrain it. Almost everyone jumps straight to the third, and almost everyone should have stopped at the first or the second. Approach Changes Good for Cost Better prompt Nothing — only the instructions Format, tone, following rules. Always try this first. Minutes RAG What the model can see Knowledge it does not have: your docs, today's data, facts about one customer Days, plus running a retrieval pipeline Tools What the model can do Live data, calculations, actions inside other systems Days, plus a security review Fine"
  },
  {
   "slug": "ai",
@@ -654,7 +654,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "Fine-tuning, when it is genuinely the answer",
-  "text": "In plain English Fine-tuning teaches a model a manner — a format, a tone, a specialised way of responding. It is poor at teaching it facts , because facts change and retraining is slow and expensive. If your problem is it does not know about our products , that is retrieval. If it is it will not answer in our house format no matter how I ask , that might genuinely be fine-tuning. The previous chapter says to try everything else first, and that stands. When you have, and a consistent format or voice at high volume is still out of reach, this is what the work actually looks like. Full fine-tuning Update every weight. Expensive, needs real infrastructure, and rarely what a product team wants. L"
+  "text": "In plain English Fine-tuning teaches a model a manner — a format, a tone, a particular way of replying. It is bad at teaching it facts , because facts change and retraining is slow and costly. If your problem is \"it does not know about our products\", that is a retrieval problem. If it is \"it will not answer in our company format no matter how I ask\", that might genuinely be fine-tuning. The previous section says to try everything else first, and that still holds. Once you have, and a steady format or voice at high volume is still out of reach, here is what the work actually involves. Full fine-tuning Update every weight in the model. Expensive, needs serious hardware, and rarely what a produ"
  },
  {
   "slug": "ai",
@@ -662,7 +662,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "Tools and agents",
-  "text": "In plain English A tool is a function you let the model call — look up an order, send an email, run a search. The model does not run it; it says which one it wants and with what arguments, your code decides whether to comply, runs it, and hands the result back. That decision point is where all your control lives. Tool use is how a model does something rather than merely saying something. You describe the functions available; when the model wants one it returns a structured request instead of text; your code executes it and passes the result back. The model never runs anything itself. prisma Defining a tool An agent is that loop left running: the model calls a tool, sees the result, decides w"
+  "text": "In plain English A tool is a function you allow the model to call — look up an order, send an email, run a search. The model does not run it. It says which one it wants and with what values; your code decides whether to allow it, runs it, and hands the result back. That decision point is where all your control sits. Tool use is how a model does something instead of only saying something. You describe the functions that are available. When the model wants one, it returns a neat request instead of text. Your code runs it and passes the result back. The model never runs anything by itself. prisma Defining a tool An agent is that loop left running: the model calls a tool, sees the result, decide"
  },
  {
   "slug": "ai",
@@ -670,15 +670,15 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "Agent patterns worth knowing by name",
-  "text": "In plain English A handful of shapes recur constantly, and knowing them by name saves you rediscovering them. Do one step then the next. Sort the request and send it down the right path. Split the work up and run it in parallel. Have one pass write and another critique. Most systems are one of these, or two of them stacked. “Agent” covers a dozen designs of very different cost and risk. These are the ones that recur, in ascending order of how much rope is involved. Pattern Shape Good for Chain Fixed steps your code controls: extract, then classify, then draft. Most tasks. Predictable, debuggable, cheap — and not really an agent. Router One cheap call decides which specialised prompt or model"
+  "text": "In plain English A handful of shapes come up again and again, and knowing their names saves you from reinventing them. Do one step, then the next. Sort the request and send it down the right path. Split the work and run the pieces together. Let one pass write and another one criticise. Most systems are one of these, or two of them stacked on top of each other. \"Agent\" covers a dozen designs with very different costs and risks. These are the ones that keep coming up, listed from the safest to the one that gives the model the most freedom. Pattern Shape Good for Chain Fixed steps controlled by your code: extract, then classify, then draft. Most tasks. Predictable, easy to debug, cheap — and no"
  },
  {
   "slug": "ai",
   "topic": "production",
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
-  "section": "Shipping it: the unglamorous half",
-  "text": "In plain English The demo is perhaps a fifth of the work. The rest is what happens when the provider is down, when the output is not the shape you asked for, when someone pastes in something hostile, when it is slow, and when you need to explain last Tuesday s answer to a customer. This is the part that decides whether a good demo becomes a good product. A demo is a prompt that worked once. A feature is a prompt that works ten thousand times, fails politely, costs what you predicted, and can be changed without breaking. The difference is almost entirely engineering you already know how to do. Stream long answers. A model writing a page of text takes many seconds. Streaming shows the first wo"
+  "section": "Shipping it: the boring half",
+  "text": "In plain English The demo is maybe one-fifth of the work. The rest is what happens when the provider is down, when the output is not the shape you asked for, when someone pastes in something nasty, when it is slow, and when you have to explain last Tuesday's answer to a customer. This part decides whether a good demo turns into a good product. A demo is a prompt that worked once. A feature is a prompt that works ten thousand times, fails politely, costs what you said it would, and can be changed without breaking. The difference is almost entirely engineering you already know how to do. Stream long answers. A model writing a full page takes many seconds. Streaming shows the first words straig"
  },
  {
   "slug": "ai",
@@ -686,7 +686,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "Cost and latency, engineered rather than hoped for",
-  "text": "In plain English Both cost and speed come mostly from one number: how much text goes in and comes out. That is genuinely encouraging, because it means the levers are concrete rather than mysterious. Send less, ask for less, use a smaller model where a smaller model is enough, and do not pay twice for the same answer. The bill is a function of tokens: what you send, how often, and what comes back. Every technique below reduces one of those three, and most improve latency at the same time. Flow Where the money actually goes Replay 1 System prompt Sent every call. Cache it: a stable prefix costs a fraction on repeats. 2 Retrieved context Usually the largest input. Four good chunks, not forty me"
+  "text": "In plain English Both your bill and your speed come mostly from one number: how much text goes in and how much comes out. That is actually good news, because it means the levers are simple and countable rather than mysterious. Send less, ask for less, use a smaller model where a smaller model is enough, and do not pay twice for the same answer. The bill is driven by tokens: what you send, how often you send it, and what comes back. Every technique below reduces one of those three, and most of them make it faster at the same time. Flow Where the money actually goes Replay 1 System prompt Sent on every call. Cache it: an unchanging opening block costs a fraction on repeat calls. 2 Fetched cont"
  },
  {
   "slug": "ai",
@@ -694,7 +694,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "AI security",
-  "text": "In plain English The core problem in one sentence: a model cannot reliably tell the difference between instructions from you and instructions hidden in the text it is reading. So a web page, an email or a document can carry a command, and the model may follow it. There is no complete fix, which makes it an architecture problem rather than a wording problem. The security model of an LLM feature is different from anything else in this stack, for one structural reason: the model cannot reliably distinguish your instructions from the text it is processing. Everything arrives as tokens in one stream. That is not a bug anyone has fixed; it is what the architecture is. 1. Prompt injection. Text tha"
+  "text": "In plain English The main problem in one sentence: a model cannot reliably tell the difference between instructions from you and instructions hidden inside the text it is reading. So a web page, an email or a document can carry an order, and the model may follow it. There is no complete fix. That makes it a problem of design, not a problem of wording. The security of an LLM feature works differently from everything else in this stack, for one basic reason: the model cannot reliably separate your instructions from the text it is reading. Everything reaches it as tokens in one single stream. This is not a bug that somebody forgot to fix; it is simply how the thing is built. 1. Prompt injection"
  },
  {
   "slug": "ai",
@@ -702,7 +702,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "Bias, law and telling people",
-  "text": "In plain English Three practical obligations rather than a philosophical position. Do not let the system make decisions about people that you could not explain or defend. Follow the law where you operate — which increasingly has specific things to say about AI. And tell people when they are talking to a machine, because most of the resentment these systems generate comes from having been fooled about that. These systems are trained on text written by people, and they reproduce what is in it — including the parts nobody would defend. This is not a moral aside; it is a product risk with legal consequences, and it shows up in ordinary features. Bias is inherited and invisible. A model asked to "
+  "text": "In plain English Three practical duties, not a philosophy lecture. Do not let the system make decisions about people that you could not explain or defend. Follow the law wherever you operate — and the law now has specific things to say about AI. And tell people when they are talking to a machine, because most of the anger these systems create comes from people feeling they were fooled about that. These systems are trained on text written by people, and they repeat what is in it — including the parts nobody would stand behind. This is not a side note about morals; it is a product risk with legal consequences, and it turns up in very ordinary features. Bias comes along for the ride, and you ca"
  },
  {
   "slug": "ai",
@@ -710,7 +710,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "Four case studies, with the part that goes wrong",
-  "text": "In plain English Four systems described the way they actually work, including the part that fails. Case studies that only describe the success are advertising — the useful detail is always the thing that went wrong and what it cost. Concrete systems, each leaning on a different chapter. The interesting part of each is not the architecture — it is the failure that is obvious only in hindsight. Real world 1. Support triage — classification, not conversation The system. Every incoming message is classified into a category and an urgency, then routed. One call, a small model, a strict schema, no conversation. What goes wrong. The categories are invented by the team rather than taken from what pe"
+  "text": "In plain English Four systems described the way they really work, including the part that fails. A case study that only describes the success is an advertisement — the useful detail is always the thing that went wrong and what it cost. Four real systems, each one leaning on a different section of this note. The interesting part of each is not the design — it is the failure that only looks obvious afterwards. Real world 1. Support triage — sorting, not conversation The system. Every incoming message is sorted into a category and an urgency level, then sent to the right queue. One call, a small model, a strict schema, no conversation. What goes wrong. The team invents the categories in a meeti"
  },
  {
   "slug": "ai",
@@ -718,7 +718,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "Building it here — a worked design",
-  "text": "In plain English Everything above, applied to one real feature end to end: what gets built, what deliberately does not, and the reason next to each decision. Suppose this product wanted an assistant that answers user questions about how to build a page, using the real documentation and component library. A defensible first version: Index the user guide and the component library descriptions into a doc_chunks table with pgvector — the database is already Postgres, so this is one extension and one table, not a new service. Chunk by heading , keeping the heading trail and the source path in metadata , so every answer can cite a page a user can actually open. Retrieve with hybrid search — vector"
+  "text": "In plain English Everything above, applied to one real feature from start to finish: what gets built, what deliberately does not get built, and the reason written next to each decision. Suppose this product wanted an assistant that answers user questions about how to build a page, using the real documentation and component library. Here is a first version you could defend in a review: Index the user guide and the component descriptions into a doc_chunks table using pgvector . The database is already Postgres, so this is one extension and one table, not a whole new service. Chunk by heading , keeping the heading path and the source file path in metadata , so every answer can cite a page the u"
  },
  {
   "slug": "ai",
@@ -726,7 +726,7 @@ window.GN_SECTIONS = [
   "note": "AI, RAG & Security",
   "noteTitle": "AI, Models, RAG & Security",
   "section": "The jargon, decoded",
-  "text": "In plain English The vocabulary, in one place. Much of the difficulty in this field is terminology rather than concept — the ideas are usually simpler than the words used for them, and once a term is decoded it often turns out you already understood the thing. Every term you will meet in a meeting about this, in one place. Nothing here is new — it is the vocabulary of the sections above, collected so this page can be used as a reference once it has been read as a lesson. Term What it means Token A piece of a word. The unit of both billing and every size limit. Roughly 750 English words per 1,000 tokens. Context window The total tokens one request may contain — instructions, history, document"
+  "text": "In plain English All the vocabulary in one place. Much of the difficulty in this field is the words, not the ideas — the ideas are usually simpler than the terms used for them, and once a term is explained you often find you already understood the thing. Every term you are likely to hear in a meeting about this, in one place. Nothing here is new — it is the vocabulary from the sections above, gathered together so this page can be used as a quick reference once you have read it as a lesson. Term What it means Token A piece of a word. The unit used for billing and for every size limit. Roughly 750 English words make 1,000 tokens. Context window The total tokens one request may hold — instructi"
  },
  {
   "slug": "inside-a-model",
@@ -734,7 +734,7 @@ window.GN_SECTIONS = [
   "note": "Inside a Model",
   "noteTitle": "Inside a Model",
   "section": "Tokens: what the model actually reads",
-  "text": "In plain English A model cannot read letters or words it only handles numbers. So text is first chopped into pieces from a fixed vocabulary of about a hundred thousand fragments, and each piece is swapped for its number in that list. A common word is one piece. An unusual one gets broken into several. Everything odd about how models handle spelling, numbers and non-English text starts here. txt The same sentence, as the model sees it What this explains The thing that looks like a bug The cause How many r's in strawberry? answered wrongly The model never saw the letters. It saw three tokens. Asking it to count characters is asking it to count something it cannot see. Arithmetic on long number"
+  "text": "In plain English A model cannot read letters or words it only handles numbers. So the text is first cut into pieces taken from a fixed list of about one lakh fragments, and each piece is swapped for its number in that list. A common word is one piece. An unusual word gets broken into several. Everything strange about how models handle spelling, numbers and non-English text starts right here. txt The same sentence, as the model sees it What this explains The thing that looks like a bug The reason \"How many r's in strawberry?\" answered wrongly The model never saw the letters. It saw three tokens. Asking it to count letters is asking it to count something it cannot see. Sums on long numbers goi"
  },
  {
   "slug": "inside-a-model",
@@ -742,7 +742,7 @@ window.GN_SECTIONS = [
   "note": "Inside a Model",
   "noteTitle": "Inside a Model",
   "section": "From tokens to meaning",
-  "text": "In plain English A token id is just a label number 976 tells you nothing about what The means. So each id is looked up in a large table and replaced by a long list of numbers, perhaps four thousand of them. That list is a position in a space, and the useful property is that tokens with related meanings end up near each other. Meaning becomes geometry. txt The same idea at three scales Two different things both called embeddings Token embeddings Text embeddings What it represents One token, before context is applied A whole passage, after the model has read it Where it lives Inside the model, at the input Output of a dedicated embedding model What you do with it Nothing it is internal machine"
+  "text": "In plain English A token id is only a label the number 976 tells you nothing about what \"The\" means. So each id is looked up in a big table and replaced by a long list of numbers, maybe four thousand of them. That list is a position in a space, and the useful part is that tokens with related meanings end up close to each other. Meaning turns into geometry. txt The same idea at three levels Two different things, both called embeddings Token embeddings Text embeddings What it stands for One token, before any context is applied A whole passage, after the model has read it Where it lives Inside the model, right at the input The output of a separate embedding model What you do with it Nothing it "
  },
  {
   "slug": "inside-a-model",
@@ -750,7 +750,7 @@ window.GN_SECTIONS = [
   "note": "Inside a Model",
   "noteTitle": "Inside a Model",
   "section": "Attention, explained properly",
-  "text": "In plain English Read this sentence: The trophy would not fit in the suitcase because it was too big. To understand it , you glanced back at trophy rather than suitcase . Attention is that glance, made mechanical: every token looks at every earlier token, scores how relevant each one is, and builds its own understanding as a weighted blend of them. Figure One attention step, for the token it Why this was the breakthrough Before attention, models read text in order, one word at a time, carrying a summary forward. Information from twenty words ago had to survive twenty hand-offs, and mostly did not. Attention lets any token reach any other token directly, in one step , no matter how far apart "
+  "text": "In plain English Read this sentence: \"The trophy would not fit in the suitcase because it was too big.\" To understand \"it\", your eye went back to \"trophy\", not to \"suitcase\". Attention is that glance, turned into machinery: every token looks at every earlier token, gives each one a score for how relevant it is, and builds its own understanding as a mixture of them. Figure One attention step, for the token it Why this was the breakthrough Before attention, models read text in order, one word at a time, carrying a summary forward. Information from twenty words back had to survive twenty hand-offs, and mostly it did not. Attention lets any token reach any other token directly, in one step , how"
  },
  {
   "slug": "inside-a-model",
@@ -758,7 +758,7 @@ window.GN_SECTIONS = [
   "note": "Inside a Model",
   "noteTitle": "Inside a Model",
   "section": "The Transformer, assembled",
-  "text": "In plain English One attention step is like one pass of editing: each word reconsiders itself in light of the others. Do it a hundred times, with a small amount of processing between each pass, and something remarkable happens early passes settle grammar and word sense, middle passes assemble facts and relationships, late passes decide what to actually say. Nobody assigned those jobs. They emerged. Figure One block, repeated many times Piece What it does Why it is there Positional information Tells each token where it sits Attention alone is order-blind. Without this, dog bites man and man bites dog are identical inputs. Residual connection Adds each layer's output to its input rather than r"
+  "text": "In plain English One attention step is like one round of editing: each word rethinks itself in the light of the others. Do that a hundred times, with a little processing between each round, and something remarkable happens early rounds settle the grammar and word meanings, middle rounds put together facts and relationships, late rounds decide what to actually say. Nobody handed out those jobs. They appeared on their own. Figure One block, repeated many times Piece What it does Why it is there Positional information Tells each token where it sits in the line Attention on its own is blind to order. Without this, \"dog bites man\" and \"man bites dog\" are the same input. Residual connection Adds e"
  },
  {
   "slug": "inside-a-model",
@@ -766,7 +766,7 @@ window.GN_SECTIONS = [
   "note": "Inside a Model",
   "noteTitle": "Inside a Model",
   "section": "How a word is actually chosen",
-  "text": "In plain English The model never picks a word. It produces a score for all hundred thousand tokens in its vocabulary, every single time. Turning that ranked list into one choice is a separate step that you control and the settings people treat as mysterious dials are all just different ways of deciding how far down the list you are willing to go. txt After The capital of France is Setting What it does Use it when temperature Flattens or sharpens the whole distribution The main dial. Low for extraction, classification and code; higher for drafting and ideas. top_p Keeps only the most likely tokens that together make up p of the probability A safety net it cuts off the long tail of nonsense th"
+  "text": "In plain English The model never picks a word. It produces a score for all one lakh tokens in its vocabulary, every single time. Turning that ranked list into one choice is a separate step that you control and the settings people treat as mysterious dials are all just different ways of deciding how far down the list you are willing to go. txt After The capital of France is Setting What it does Use it when temperature Flattens or sharpens the whole spread of scores The main dial. Low for pulling out data, sorting and code; higher for drafting and ideas. top_p Keeps only the most likely tokens that together add up to p of the chance A safety net it cuts off the long tail of nonsense that a hig"
  },
  {
   "slug": "inside-a-model",
@@ -774,7 +774,7 @@ window.GN_SECTIONS = [
   "note": "Inside a Model",
   "noteTitle": "Inside a Model",
   "section": "What happens when you press send",
-  "text": "In plain English Generating a response is two phases with very different characters. First the model reads your entire prompt all at once, in parallel, fast. Then it writes the answer one token at a time, each one requiring a full pass through the network. That is why the first word takes a moment and the rest stream out smoothly, and it is why output tokens cost several times what input tokens cost. Flow One request, from send to last token Replay 1 Prefill reading your prompt Every token processed in parallel. Fast per token, and it is the whole reason time-to-first-token grows with prompt length. 2 The KV cache is built What each token computed during attention is stored, so later tokens "
+  "text": "In plain English Producing an answer happens in two phases that feel very different. First the model reads your whole prompt all at once, in parallel, quickly. Then it writes the answer one token at a time, and each token needs a full pass through the network. That is why the first word takes a moment and the rest flow out smoothly, and it is why output tokens cost several times what input tokens cost. Flow One request, from send to last token Replay 1 Prefill reading your prompt Every token processed at the same time. Fast per token, and it is exactly why the wait for the first word grows with prompt length. 2 The KV cache is built Whatever each token worked out during attention is saved, s"
  },
  {
   "slug": "inside-a-model",
@@ -782,7 +782,7 @@ window.GN_SECTIONS = [
   "note": "Inside a Model",
   "noteTitle": "Inside a Model",
   "section": "Reasoning models and thinking time",
-  "text": "In plain English Asked a hard question, a person does better with a pencil and a minute than answering instantly. A reasoning model is that: it generates a long internal working-out before its visible answer, and the extra tokens are where the improvement comes from. You are buying accuracy with time and money, quite literally. txt The same question, two behaviours Worth the extra tokens Not worth them Multi-step maths and logic Classification into a few known buckets Debugging, planning a code change across files Extraction from a document Anything where being wrong is expensive to discover Rewriting or summarising Ambiguous problems needing a plan first Anything answered correctly by a che"
+  "text": "In plain English Given a hard question, a person does better with a rough sheet and one minute than by answering instantly. A reasoning model is exactly that: it writes out a long rough working before its visible answer, and those extra tokens are where the improvement comes from. You are buying accuracy with time and money, quite literally. txt The same question, two behaviours Worth the extra tokens Not worth them Multi-step maths and logic Sorting into a few known buckets Debugging, planning a code change across many files Pulling fields out of a document Anything where a mistake is expensive to spot later Rewriting or summarising Unclear problems that need a plan first Anything a cheap m"
  },
  {
   "slug": "rag-advanced",
@@ -790,7 +790,7 @@ window.GN_SECTIONS = [
   "note": "Advanced RAG",
   "noteTitle": "Advanced RAG",
   "section": "Why basic RAG disappoints",
-  "text": "In plain English Basic RAG is: chop the documents up, find the chunks most similar to the question, paste them in, ask. It takes an afternoon and it works impressively on the first ten questions you try. Then real users arrive and it is wrong perhaps a third of the time and almost every one of those failures happened before the model was even called. Split the failure before you fix anything The single most valuable habit in this whole subject: when an answer is wrong, find out which half failed. Figure Two failures that look identical to a user ! You cannot tell these apart without logging which chunks were retrieved. That one field the ids of the passages sent to the model is what turns de"
+  "text": "In plain English Basic RAG is: chop the documents up, find the chunks most similar to the question, paste them in, ask. It takes one afternoon and it works beautifully on the first ten questions you try. Then real users show up and it is wrong maybe one time in three and almost every one of those failures happened before the model was even called. Find out which half broke, before you fix anything The single most useful habit in this whole subject: when an answer is wrong, work out which half failed. Figure Two failures that look identical to a user ! You cannot tell these two apart unless you log which chunks were fetched. That one field the ids of the passages sent to the model turns debug"
  },
  {
   "slug": "rag-advanced",
@@ -798,15 +798,15 @@ window.GN_SECTIONS = [
   "note": "Advanced RAG",
   "noteTitle": "Advanced RAG",
   "section": "Chunking: the decision you make once",
-  "text": "In plain English A chunk is the unit of retrieval the smallest thing that can come back. Cut too small and an answer gets split across two pieces so neither is convincing on its own. Cut too large and one relevant sentence arrives wrapped in three pages of noise that dilutes it. Where you cut is not a tuning parameter; it decides what your system is capable of answering. Strategy How it cuts Good for Fails on Fixed size Every N tokens, with an overlap Nothing much. It is the default because it is easy. Cuts mid-sentence and mid-table. Ignores every structural clue the document gives you. Recursive Split on paragraphs; if still too big, sentences; then words The sensible baseline. Respects na"
+  "text": "In plain English A chunk is the unit of search the smallest thing that can come back. Cut too small and an answer gets split across two pieces, so neither one is convincing on its own. Cut too large and one useful sentence arrives wrapped in three pages of noise that drown it. Where you cut is not a small tuning knob; it decides what your system is even able to answer. Strategy How it cuts Good for Fails on Fixed size Every N tokens, with a small overlap Not much. It is the default only because it is easy. Cuts through the middle of sentences and tables. Ignores every clue the document's structure gives you. Recursive Split on paragraphs; if still too big, on sentences; then on words A sensi"
  },
  {
   "slug": "rag-advanced",
   "topic": "hybrid",
   "note": "Advanced RAG",
   "noteTitle": "Advanced RAG",
-  "section": "Hybrid search: the highest-value upgrade",
-  "text": "In plain English Vector search finds things that mean the same. Keyword search finds things that say the same. Each is blind where the other sees: ask for error P0420 and vector search happily returns passages about other error codes, because they are all semantically similar. Running both and merging the results fixes a whole category of failure at once. Query Vector search Keyword (BM25) how do I get my money back Finds the refund policy, which never uses those words Finds nothing error P0420 Returns assorted error codes all similar, mostly wrong Exact hit SKU-88231 stock level Vague neighbours Exact hit what did Dr. Okonkwo conclude Finds the conclusion if worded differently Finds the nam"
+  "section": "Hybrid search: the biggest single upgrade",
+  "text": "In plain English Vector search finds things that mean the same. Keyword search finds things that say the same. Each is blind exactly where the other can see: ask for \"error P0420\" and vector search happily hands you passages about other error codes, because in meaning they are all very similar. Running both and merging the results fixes a whole category of failure in one go. Query Vector search Keyword (BM25) \"how do I get my money back\" Finds the refund policy, which never uses those words Finds nothing \"error P0420\" Returns assorted error codes all similar, mostly wrong Exact hit \"SKU-88231 stock level\" Vaguely related things Exact hit \"what did Dr. Rao conclude\" Finds the conclusion even "
  },
  {
   "slug": "rag-advanced",
@@ -814,7 +814,7 @@ window.GN_SECTIONS = [
   "note": "Advanced RAG",
   "noteTitle": "Advanced RAG",
   "section": "Reranking",
-  "text": "In plain English A sift then a proper look. Vector search compares a question to a chunk without ever seeing them together both were turned into numbers separately, long before the question existed. A reranker reads the question and the passage side by side and scores how well one answers the other. Far more accurate, far too slow to run over a million documents, and perfect for the twenty you just narrowed down to. txt Why the two stages differ Approach Quality Latency Notes No reranking Baseline Fine for small, clean, well-structured corpora Hosted reranker API Large improvement ~100 300ms The usual starting point. One call, no infrastructure. Self-hosted cross-encoder Similar ~50 200ms A "
+  "text": "In plain English A quick sift, then a proper look. Vector search compares a question to a chunk without ever seeing the two together both were turned into numbers separately, and the chunk's numbers were made long before your question existed. A reranker reads the question and the passage side by side and scores how well one answers the other. Much more accurate, far too slow to run over ten lakh documents, and perfect for the twenty you just shortlisted. txt Why the two stages are different Approach Quality Speed Notes No reranking Your starting point Fine for small, clean, well-organised document sets A hosted reranker API Big improvement ~100 300ms The usual place to start. One call, no s"
  },
  {
   "slug": "rag-advanced",
@@ -822,7 +822,7 @@ window.GN_SECTIONS = [
   "note": "Advanced RAG",
   "noteTitle": "Advanced RAG",
   "section": "Transforming the question first",
-  "text": "In plain English People do not ask questions in the form documents are written in. They say what about the second one? , or ask two things at once, or use their own words for something your documentation calls something else. A short, cheap model call that rewrites the question into a good search query fixes all three, and it is one of the least appreciated steps in the pipeline. Technique What it does Fixes Contextualise Rewrite a follow-up into a standalone question using the conversation And for annual plans? retrieving nothing. Essential for any chat interface. Decompose Split a multi-part question into separate searches How do refunds and cancellations differ? two topics, one query, nei"
+  "text": "In plain English People do not ask questions in the way documents are written. They say \"what about the second one?\", or ask two things in one line, or use their own words for something your documentation calls by a different name. A short, cheap model call that rewrites the question into a proper search query fixes all three, and it is one of the most ignored steps in the whole pipeline. Technique What it does Fixes Contextualise Rewrite a follow-up into a complete standalone question, using the conversation \"And for annual plans?\" finding nothing. Essential for any chat interface. Decompose Split a multi-part question into separate searches \"How do refunds and cancellations differ?\" two to"
  },
  {
   "slug": "rag-advanced",
@@ -830,7 +830,7 @@ window.GN_SECTIONS = [
   "note": "Advanced RAG",
   "noteTitle": "Advanced RAG",
   "section": "Permissions and untrusted passages",
-  "text": "In plain English Two separate problems that both live here. First: a search across all documents will happily return a document this particular user is not allowed to see. Second: a retrieved passage is text from a document, and a document can contain instructions aimed at your model. Neither is theoretical, and both are cheap to get right at the start and expensive to retrofit. Not this filter afterwards Do this filter inside the query Retrieved text is untrusted input If your corpus contains anything a user can write into support tickets, uploaded files, wiki pages, scraped web content then a passage can carry an instruction. This is indirect prompt injection, and RAG is its most common de"
+  "text": "In plain English Two separate problems both live here. First: a search across \"all documents\" will cheerfully return a document that this particular user is not allowed to see. Second: a fetched passage is text from a document, and a document can contain instructions aimed at your model. Neither of these is theoretical, and both are cheap to get right at the start and expensive to fix later. Not this filter afterwards Do this filter inside the query Fetched text is untrusted input If your documents include anything a user can write into support tickets, uploaded files, wiki pages, content scraped off the web then a passage can carry an instruction. This is indirect prompt injection, and RAG "
  },
  {
   "slug": "rag-advanced",
@@ -838,7 +838,7 @@ window.GN_SECTIONS = [
   "note": "Advanced RAG",
   "noteTitle": "Advanced RAG",
   "section": "Measuring retrieval on its own",
-  "text": "In plain English If you only score the final answer, you cannot tell whether a change helped retrieval, helped generation, or helped one while hurting the other. Scoring retrieval separately is cheap, needs no model call, and gives you a number that moves when you change chunking which is the only way to know whether the change was an improvement. Metric Question it answers Care about it when Recall@k Was the right passage anywhere in the top k? Always. This is the ceiling if it is not retrieved, no model can use it. MRR How high up was the first correct one? You send few passages, so position matters nDCG@k Are the good ones ranked above the mediocre ones? Comparing rerankers Precision@k Wh"
+  "text": "In plain English If you only score the final answer, you cannot tell whether a change helped the search, helped the writing, or helped one while quietly hurting the other. Scoring the search separately is cheap, needs no model call, and gives you a number that moves when you change the chunking which is the only way to know whether the change was actually an improvement. Metric Question it answers Care about it when Recall@k Was the right passage anywhere in the top k? Always. This is your ceiling if it was never fetched, no model can use it. MRR How near the top was the first correct one? You send only a few passages, so position matters nDCG@k Are the good ones ranked above the average one"
  },
  {
   "slug": "fine-tuning",
@@ -846,7 +846,7 @@ window.GN_SECTIONS = [
   "note": "Fine-tuning",
   "noteTitle": "Fine-tuning & Model Adaptation",
   "section": "What fine-tuning can and cannot teach",
-  "text": "In plain English Fine-tuning is showing someone a thousand worked examples until they pick up the house style. It is very good at teaching how to respond the format, the tone, the shape of a good answer. It is poor at teaching what is true , because facts change and retraining is slow, expensive and cannot be done every Tuesday when a policy is updated. Your actual problem The answer Why It does not know about our products Retrieval Facts, and they change. Update a document, not a model. It will not stick to our output format Structured output first A schema enforces this for free. Try it before training anything. It ignores an instruction we keep repeating Prompt work first Usually an under"
+  "text": "In plain English Fine-tuning is like showing someone a thousand solved examples until they pick up the house style. It is very good at teaching how to reply the format, the tone, the shape of a good answer. It is bad at teaching what is true , because facts change and retraining is slow, costly, and cannot be done every Tuesday when a policy gets updated. Your actual problem The answer Why \"It does not know about our products\" Retrieval Those are facts, and facts change. Update a document, not a model. \"It will not stick to our output format\" Structured output first A schema forces this for free. Try that before you train anything. \"It ignores an instruction we keep repeating\" Prompt work fi"
  },
  {
   "slug": "fine-tuning",
@@ -854,7 +854,7 @@ window.GN_SECTIONS = [
   "note": "Fine-tuning",
   "noteTitle": "Fine-tuning & Model Adaptation",
   "section": "Full, LoRA, QLoRA",
-  "text": "In plain English A model is billions of numbers. Full fine-tuning adjusts all of them, which needs enormous hardware and produces an enormous new file. LoRA leaves them frozen and trains a small patch that sits alongside typically under 1% the size which turns out to work nearly as well for most tasks. It is the difference between reprinting a book and adding annotations to the margins. Full fine-tune LoRA QLoRA What changes Every parameter Small added matrices; base frozen Same, on a compressed base Trainable share 100% ~0.1 1% ~0.1 1% GPU memory, 7B model ~80GB+ ~16GB ~6GB Artefact size Tens of GB ~10 200MB ~10 200MB Serving many variants A full copy each One base, many adapters, swapped p"
+  "text": "In plain English A model is billions of numbers. Full fine-tuning changes all of them, which needs huge hardware and produces a huge new file. LoRA leaves them frozen and instead trains a small patch that sits alongside usually under 1% of the size and for most tasks that works almost as well. It is the difference between reprinting a whole book and writing notes in the margins. Full fine-tune LoRA QLoRA What changes Every parameter Small added matrices; the base stays frozen Same, on a squeezed-down base Share that is trained 100% ~0.1 1% ~0.1 1% GPU memory, 7B model ~80GB+ ~16GB ~6GB Size of what you get Tens of GB ~10 200MB ~10 200MB Serving many versions A full copy of everything, each t"
  },
  {
   "slug": "fine-tuning",
@@ -862,7 +862,7 @@ window.GN_SECTIONS = [
   "note": "Fine-tuning",
   "noteTitle": "Fine-tuning & Model Adaptation",
   "section": "The data is the whole job",
-  "text": "In plain English Fine-tuning copies whatever is in your examples, including the mistakes and the disagreements. If three people wrote your training data and they format dates differently, the model learns to be inconsistent about dates and it learns that faithfully. This is why quality beats quantity so heavily, and why most failed fine-tuning projects failed at the dataset rather than the training. jsonl The format, and the rule about system prompts How many do you need? 50 100 to tell whether it is going to help at all. 500 1,000 for solid results on format and tone. 5,000+ for a genuinely new skill. Adding more inconsistent examples past that point does not help and can hurt. Where they s"
+  "text": "In plain English Fine-tuning copies whatever is in your examples, including the mistakes and the disagreements. If three people wrote your training data and they each format dates differently, the model learns to be inconsistent about dates and it learns that very faithfully. This is why quality beats quantity so heavily, and why most failed fine-tuning projects failed at the dataset, not at the training. jsonl The format, and the rule about system prompts How many do you need? 50 100 to see whether it is going to help at all. 500 1,000 for solid results on format and tone. 5,000+ for a genuinely new skill. Adding more inconsistent examples beyond that does not help and can make things worse"
  },
  {
   "slug": "fine-tuning",
@@ -870,7 +870,7 @@ window.GN_SECTIONS = [
   "note": "Fine-tuning",
   "noteTitle": "Fine-tuning & Model Adaptation",
   "section": "Preference tuning: RLHF and DPO",
-  "text": "In plain English Ordinary fine-tuning needs one right answer per input. But for write a polite refusal there is no single right answer there are better and worse ones. Preference tuning trains on pairs : here are two responses, this one is better. It is how the raw text-predictor becomes an assistant that is helpful and declines sensibly, and it is a large part of what separates a base model from a chat model. jsonl A preference pair RLHF DPO How Train a reward model on preferences, then optimise against it with reinforcement learning Optimise directly on the pairs. No reward model, no RL loop. Moving parts Many. Notoriously fiddly to stabilise. Few. Close to ordinary supervised training. Co"
+  "text": "In plain English Ordinary fine-tuning needs one right answer for each input. But for \"write a polite refusal\" there is no single right answer there are only better and worse ones. Preference tuning trains on pairs : here are two replies, this one is better. It is how a raw text-predictor becomes an assistant that is helpful and says no sensibly, and it is a big part of what separates a base model from a chat model. jsonl A preference pair RLHF DPO How it works Train a scoring model on the preferences, then improve against it using reinforcement learning Train directly on the pairs. No scoring model, no reinforcement learning loop. Moving parts Many. Famously fiddly to keep stable. Few. Close"
  },
  {
   "slug": "fine-tuning",
@@ -878,7 +878,7 @@ window.GN_SECTIONS = [
   "note": "Fine-tuning",
   "noteTitle": "Fine-tuning & Model Adaptation",
   "section": "Distillation, and the case that actually pays",
-  "text": "In plain English Use the expensive model to do the job perfectly a few thousand times, then train a small cheap model on those answers. The small model will not match it in general but on that one narrow task it can get very close, at a fraction of the cost and a fraction of the latency. This is where fine-tuning most reliably makes financial sense. Flow Distilling one task down to a small model Replay 1 Ship on the big model first You cannot distil a task you have not defined. Get it working and get an eval set that proves it works. 2 Collect real inputs A few thousand from production. Real ones — the distribution is the point, and invented inputs are drawn from what you already thought of."
+  "text": "In plain English Use the expensive model to do the job perfectly a few thousand times, then train a small cheap model on those answers. The small model will not match it in general but on that one narrow task it can come very close, at a fraction of the cost and a fraction of the waiting time. This is where fine-tuning most reliably makes financial sense. Flow Shrinking one task down to a small model Replay 1 Ship on the big model first You cannot shrink a task you have not defined. Get it working, and get a test set that proves it works. 2 Collect real inputs A few thousand from live traffic. Real ones — the mix of real inputs is the whole point, and made-up inputs only cover what you alrea"
  },
  {
   "slug": "fine-tuning",
@@ -886,7 +886,7 @@ window.GN_SECTIONS = [
   "note": "Fine-tuning",
   "noteTitle": "Fine-tuning & Model Adaptation",
   "section": "Living with a fine-tuned model",
-  "text": "In plain English The training run is the short part. What follows is a permanent obligation: an artefact that has to be versioned, evaluated, served, monitored and eventually retrained when the task drifts or the base model is deprecated. A fine-tuned model is a dependency you now maintain, and that cost should be in the decision from the start. What Because Version the dataset alongside the model Which examples produced this behaviour? is unanswerable otherwise, and it is the first question when something is wrong. Record base model, hyperparameters, and the commit Reproducibility. A tuned model you cannot rebuild is a liability with a shelf life. Run the same eval set as the base model The"
+  "text": "In plain English The training run is the short part. What follows is a permanent duty: something that has to be versioned, tested, served, watched, and eventually retrained when the task drifts or the base model is retired. A fine-tuned model is a dependency you now maintain, and that cost should be part of the decision from the very start. What Because Version the dataset along with the model Otherwise \"which examples caused this behaviour?\" cannot be answered, and it is the first question when something goes wrong. Record the base model, the settings, and the commit So you can rebuild it. A tuned model you cannot rebuild is a liability with an expiry date. Run the same test set as the base"
  },
  {
   "slug": "self-hosting",
@@ -894,7 +894,7 @@ window.GN_SECTIONS = [
   "note": "Running Models Yourself",
   "noteTitle": "Running Models Yourself",
   "section": "When to run a model yourself",
-  "text": "In plain English Calling an API is renting. Running your own model is buying a machine and operating it. Renting is cheaper, faster to start and someone else is on call which is why it is the right answer for most teams most of the time. The cases where owning wins are real, and they are narrower and more specific than the enthusiasm around them suggests. Reason Does it hold up? Data cannot leave our network Yes. Regulatory or contractual, and no amount of provider assurance satisfies it. The strongest reason there is. Very high volume on one narrow task Yes , above a real threshold. A small model saturating a GPU around the clock beats per-token pricing. Below that, you are paying for an id"
+  "text": "In plain English Calling an API is like taking a taxi. Running your own model is like buying a car and maintaining it. The taxi is cheaper to start with, needs no effort, and somebody else worries about servicing which is why it is the right answer for most teams most of the time. The cases where owning wins are real, and they are narrower and more specific than all the excitement suggests. Reason Does it hold up? Data is not allowed to leave our network Yes. A legal or contract rule, and no promise from a provider will satisfy it. The strongest reason there is. Very high volume on one narrow task Yes , above a certain level. A small model keeping a GPU busy round the clock beats paying per "
  },
  {
   "slug": "self-hosting",
@@ -902,15 +902,15 @@ window.GN_SECTIONS = [
   "note": "Running Models Yourself",
   "noteTitle": "Running Models Yourself",
   "section": "Open weights, and what the licence actually says",
-  "text": "In plain English Open here usually means you can download the numbers and run them. It rarely means you know what they were trained on, and it does not always mean you can use them commercially. The terms vary a great deal between families, and the differences are the sort that matter to whoever signs off your product. Term What it means Open weights The parameters are downloadable. The training data and code usually are not. Open source Properly: weights, data, and training code, under an OSI licence. Genuinely rare. Permissive licence Apache 2.0 or MIT. Commercial use, modification and redistribution. The straightforward case. Custom / community licence Downloadable, with conditions user t"
+  "text": "In plain English \"Open\" here usually means you can download the numbers and run them. It rarely means you know what they were trained on, and it does not always mean you can use them in a business. The terms vary a lot between model families, and the differences are the kind that matter to whoever signs off on your product. Term What it means Open weights You can download the parameters. The training data and the training code usually are not included. Open source Properly: weights, data and training code, under a real open-source licence. Genuinely rare. Permissive licence Apache 2.0 or MIT. Commercial use, changes and redistribution all allowed. The easy case. Custom / community licence Do"
  },
  {
   "slug": "self-hosting",
   "topic": "memory",
   "note": "Running Models Yourself",
   "noteTitle": "Running Models Yourself",
-  "section": "Will it fit? The VRAM arithmetic",
-  "text": "In plain English A GPU has a fixed amount of fast memory, and the model has to live in it entirely. Each parameter takes a certain number of bytes depending on precision, so the calculation is: parameters times bytes, plus room for the conversation. Get this wrong and the model does not run slowly it does not run at all. txt The formula, and a worked example ! Size your hardware for concurrency, not for the model. A 7B model in 14GB looks like it fits a 24GB card until thirty people use it at once and the KV cache needs another 60GB. Batch size, context length and concurrency are the three numbers that actually determine what you must buy and they are the three that a single-user test on you"
+  "section": "Will it fit? The VRAM sum",
+  "text": "In plain English A GPU has a fixed amount of fast memory, and the whole model has to live inside it. Each parameter takes a certain number of bytes depending on how precisely you store it, so the sum is: parameters times bytes, plus room for the conversation. Get this wrong and the model does not run slowly it does not run at all. txt The formula, with a worked example ! Size your hardware for the number of simultaneous users, not for the model. A 7B model taking 14GB looks like it fits a 24GB card, right up until thirty people use it at once and the KV cache wants another 60GB. Batch size, context length and how many users at once are the three numbers that actually decide what you must buy"
  },
  {
   "slug": "self-hosting",
@@ -918,7 +918,7 @@ window.GN_SECTIONS = [
   "note": "Running Models Yourself",
   "noteTitle": "Running Models Yourself",
   "section": "Quantisation",
-  "text": "In plain English Every parameter is stored with a certain precision, like decimal places. Quantisation keeps fewer of them storing 0.7 instead of 0.7182 so the model takes less memory and moves through the chip faster. The remarkable finding is how little quality this costs: going from 16 bits to 8 is close to free, and 4 is usually a good trade. Precision Memory Quality Use it FP16 / BF16 Baseline Reference When memory is not the constraint INT8 ~50% Almost indistinguishable Sensible default. Nearly free. INT4 ~25% Small but measurable loss The usual production choice. Especially good on larger models. Below 4-bit 25% Noticeable degradation Experiments and very constrained devices i A large"
+  "text": "In plain English Every parameter is stored to a certain number of decimal places. Quantisation keeps fewer of them storing 0.7 instead of 0.7182 so the model takes less memory and moves through the chip faster. The surprising finding is how little quality this costs: going from 16 bits to 8 is nearly free, and 4 is usually a good deal. Precision Memory Quality Use it FP16 / BF16 The baseline The reference When memory is not your limit INT8 ~50% Almost impossible to tell apart A sensible default. Nearly free. INT4 ~25% Small but measurable loss The usual production choice. Especially good on bigger models. Below 4-bit 25% You can notice it getting worse Experiments and very small devices i A "
  },
  {
   "slug": "self-hosting",
@@ -926,7 +926,7 @@ window.GN_SECTIONS = [
   "note": "Running Models Yourself",
   "noteTitle": "Running Models Yourself",
   "section": "Serving it properly",
-  "text": "In plain English Loading a model and generating in a loop works for one user and collapses for twenty. A real serving stack does two things that transform throughput: it batches requests together so the GPU is never idle waiting, and it manages the KV cache in small pages so memory is not wasted on reserved-but-unused space. Those two ideas are most of the difference. Stack Best for Notes Ollama Laptops, prototypes, one user One command to run. Excellent for development, not built for production concurrency. llama.cpp CPU, Apple Silicon, edge devices Runs where there is no GPU at all. Very strong quantisation support. vLLM Production serving on GPUs Continuous batching and paged attention. T"
+  "text": "In plain English Loading a model and generating in a loop works for one user and falls apart for twenty. A real serving stack does two things that transform how much it can handle: it groups requests together so the GPU is never sitting idle, and it manages the KV cache in small pages so memory is not wasted on space that was booked but never used. Those two ideas are most of the difference. Stack Best for Notes Ollama Laptops, prototypes, one user One command and it runs. Excellent while developing, not built for many users at once. llama.cpp CPU, Apple Silicon, small devices Runs where there is no GPU at all. Very good support for quantisation. vLLM Real production serving on GPUs Continuo"
  },
  {
   "slug": "self-hosting",
@@ -934,7 +934,7 @@ window.GN_SECTIONS = [
   "note": "Running Models Yourself",
   "noteTitle": "Running Models Yourself",
   "section": "What you have just taken on",
-  "text": "In plain English The API was not only running the model. It was handling capacity, failover, upgrades, scaling and being awake at 3am. Self-hosting moves all of that onto your team, and the list is longer than it looks from the outside. This is not an argument against doing it it is the list to price before you decide. Now yours What it involves Capacity planning GPUs do not scale to zero and cannot be added in seconds. You provision for peak and pay for it at 4am. Cold starts Loading tens of gigabytes of weights takes minutes. Autoscaling on demand is not realistic; you keep nodes warm. Failover One node is a single point of failure. Two nodes plus a load balancer, or an accepted outage win"
+  "text": "In plain English The API was not only running the model. It was handling capacity, backups, upgrades, scaling and being awake at 3am. Self-hosting moves all of that onto your team, and the list is longer than it looks from outside. This is not an argument against doing it it is the list to cost out before you decide. Now your job What it involves Capacity planning GPUs cannot scale down to zero and cannot be added in seconds. You buy for your busiest hour and pay for it at 4am too. Cold starts Loading tens of gigabytes of weights takes minutes. Scaling up on demand is not realistic; you keep nodes warm. Failover One node is a single point of failure. Two nodes plus a load balancer, or an out"
  },
  {
   "slug": "structured-output",
@@ -942,7 +942,7 @@ window.GN_SECTIONS = [
   "note": "Structured Output",
   "noteTitle": "Structured Output & Tool Calling",
   "section": "Why shape matters more than wording",
-  "text": "In plain English When a person reads the output, a stray sentence of preamble is harmless. When your code reads it, Sure! Here's the JSON you asked for: in front of the data is a crash. The instant an AI call feeds another program, you stop needing good writing and start needing a guaranteed structure. Not this hoping and parsing Do this declare the schema ! A schema guarantees the shape and nothing else. You can get perfectly valid JSON containing an order_id that does not exist, a refund larger than the order, a date in 1847, or a confident extraction of a field the document never contained. Structured output eliminates parse errors. It does not eliminate wrong answers, and treating it as "
+  "text": "In plain English When a person reads the output, one extra line of introduction does no harm. When your code reads it, \"Sure! Here's the JSON you asked for:\" sitting in front of the data is a crash. The moment an AI call feeds another program, you stop needing good writing and start needing a guaranteed structure. Not this hope, then parse Do this declare the schema ! A schema guarantees the shape and nothing else. You can get perfectly valid JSON containing an order_id that does not exist, a refund bigger than the order, a date in 1847, or a confident extraction of a field the document never had. Structured output removes parse errors. It does not remove wrong answers, and treating it as if"
  },
  {
   "slug": "structured-output",
@@ -950,7 +950,7 @@ window.GN_SECTIONS = [
   "note": "Structured Output",
   "noteTitle": "Structured Output & Tool Calling",
   "section": "The four levels of enforcement",
-  "text": "Method Guarantee Verdict 1 Ask in the prompt None Works most of the time, which is the worst possible failure rate often enough to ship, rarely enough to page you. 2 Ask, plus few-shot examples None, but better Meaningfully more reliable. Still a hope. 3 Tool / function calling Strong The provider validates arguments against your schema. Well supported everywhere. 4 Constrained decoding Absolute Invalid tokens are removed from the choice at each step, so malformed output is not merely unlikely it is unreachable. How constrained decoding actually works Remember that the model produces a score for every token in the vocabulary, and something else picks from that list. Constrained decoding edit"
+  "text": "Method Guarantee Verdict 1 Ask for it in the prompt None Works most of the time, which is the worst possible failure rate often enough to ship, rarely enough that nobody wakes you up. 2 Ask, plus a few examples None, but better Noticeably more reliable. Still just a hope. 3 Tool / function calling Strong The provider checks the arguments against your schema. Well supported everywhere. 4 Constrained decoding Absolute Invalid tokens are removed from the choice at every step, so broken output is not merely unlikely it is impossible. How constrained decoding actually works Remember that the model produces a score for every token in its vocabulary, and a separate step picks from that list. Constr"
  },
  {
   "slug": "structured-output",
@@ -958,7 +958,7 @@ window.GN_SECTIONS = [
   "note": "Structured Output",
   "noteTitle": "Structured Output & Tool Calling",
   "section": "Designing a schema the model reads well",
-  "text": "In plain English The schema is not just a validator bolted on afterwards the model sees it, and reads it as part of the instructions. A field called d with no description gets filled in with a guess. A field called invoice_date described as the date on the invoice in YYYY-MM-DD, not today's date gets filled in correctly. Time spent on the schema is time not spent on prompt wording. ts A schema that does most of the prompting for you Name fields as you would for a colleague shipping_address_country , not c3 . The name is the strongest signal the model has about what belongs there. Enums over free strings Any field with a known set of valid values should be an enum. It removes normalisation wo"
+  "text": "In plain English The schema is not just a checker bolted on at the end the model sees it and reads it as part of your instructions. A field called d with no description gets filled in with a guess. A field called invoice_date described as \"the date printed on the invoice in YYYY-MM-DD, not today's date\" gets filled in correctly. Time spent on the schema is time you do not have to spend on prompt wording. ts A schema that does most of the prompting for you Name fields as you would for a colleague shipping_address_country , not c3 . The name is the strongest clue the model has about what belongs in there. Enums instead of free text Any field with a known set of valid values should be an enum. "
  },
  {
   "slug": "structured-output",
@@ -966,15 +966,15 @@ window.GN_SECTIONS = [
   "note": "Structured Output",
   "noteTitle": "Structured Output & Tool Calling",
   "section": "Tool calling, precisely",
-  "text": "In plain English The model cannot run anything. It never could. What it produces is a structured message saying I would like to call lookup_order with this order number and then your code decides whether to comply, runs it, and hands the result back. That decision point is not a formality. It is where every permission check, every rate limit and every audit log belongs. Flow One tool call, and who is responsible at each step Replay 1 You declare the tools Name, description and an argument schema for each. This is the model s only documentation, so it is doing real work. 2 The model asks It returns a tool-call message with arguments matching your schema. It has run nothing and changed nothing"
+  "text": "In plain English The model cannot run anything. It never could. What it produces is a neat message saying \"I would like to call lookup_order with this order number\" and then your code decides whether to allow it, runs it, and hands the result back. That decision point is not a formality. It is where every permission check, every rate limit and every audit log belongs. Flow One tool call, and who is responsible at each step Replay 1 You declare the tools A name, a description and an argument schema for each. This is the only documentation the model gets, so it is doing real work. 2 The model asks It returns a tool-call message with arguments matching your schema. It has run nothing and change"
  },
  {
   "slug": "structured-output",
   "topic": "design",
   "note": "Structured Output",
   "noteTitle": "Structured Output & Tool Calling",
-  "section": "Designing the tool surface",
-  "text": "In plain English Every tool you expose is a permission you have granted to a system that can be talked into things. The design question is not what would be convenient but what is the smallest capability that does the job . A tool that runs arbitrary SQL is a convenient way to bypass every control you have ever written. Not this general purpose Do this one job each Rule Why The description is the documentation It is the only thing the model has when deciding whether to reach for this tool. Say what it does, when to use it, when not to, and what it returns. Fewer tools, better chosen Selection accuracy falls as the list grows. Past roughly fifteen or twenty, route to a subset first rather tha"
+  "section": "Designing the set of tools",
+  "text": "In plain English Every tool you offer is a permission you have handed to a system that can be talked into things. The design question is not \"what would be convenient\" but \"what is the smallest ability that does this job\". A tool that runs any SQL you like is a convenient way to walk straight past every control you have ever written. Not this general purpose Do this one job each Rule Why The description is the documentation It is the only thing the model has when deciding whether to reach for this tool. Say what it does, when to use it, when not to, and what it gives back. Fewer tools, better chosen The model picks less accurately as the list grows. Past roughly fifteen or twenty, route to a"
  },
  {
   "slug": "structured-output",
@@ -982,7 +982,7 @@ window.GN_SECTIONS = [
   "note": "Structured Output",
   "noteTitle": "Structured Output & Tool Calling",
   "section": "When the shape is right and the content is wrong",
-  "text": "In plain English Two layers of checking, and they catch different things. The schema catches this is not the right shape . Your business rules catch this shape is fine and the values are impossible . Only the second one notices a refund larger than the order, or a date next century. Systems that stop at the schema fail in ways that look correct all the way to production. ts Two layers, and a retry that carries the reason ! Cap the retries and count the failures. Unbounded retrying on a document the model genuinely cannot read turns one bad input into a cost spike and a hung request. Two attempts, then route to a human. And the rate of invalid results is a metric worth alerting on it climbing"
+  "text": "In plain English Two layers of checking, and they catch different things. The schema catches \"this is not the right shape\". Your business rules catch \"the shape is fine and the values are impossible\". Only the second one notices a refund bigger than the order, or a date in the next century. Systems that stop at the schema fail in ways that look perfectly correct all the way into production. ts Two layers, and a retry that carries the reason with it ! Cap the retries and count the failures. Retrying forever on a document the model genuinely cannot read turns one bad input into a cost spike and a request that never finishes. Two attempts, then send it to a person. And the rate of invalid resul"
  },
  {
   "slug": "agents",
@@ -990,7 +990,7 @@ window.GN_SECTIONS = [
   "note": "Agents & Workflows",
   "noteTitle": "Agents & Workflows",
   "section": "What an agent actually is",
-  "text": "The word has been stretched until it means almost nothing. Strip the marketing away and an agent is one specific thing: a loop where a model decides what to do next, your code does it, and the result goes back into the model s context repeating until the model says it is finished. In plain English A normal API call is a vending machine: you put a prompt in, an answer comes out, the transaction is over. An agent is closer to hiring a contractor. You describe the outcome, they decide the steps, they ask you for tools and materials as they go, and they tell you when they are done. You do not know in advance how many trips to the hardware shop it will take. That last point is the whole differenc"
+  "text": "The word has been stretched until it means almost nothing. Take the marketing away and an agent is one specific thing: a loop where a model decides what to do next, your code does it, and the result goes back into the model's context repeating until the model says it has finished. In plain English A normal API call is like a vending machine: put a prompt in, an answer comes out, done. An agent is more like hiring a contractor to renovate your kitchen. You describe what you want at the end, they decide the steps, they keep asking you for tools and materials as they go, and they tell you when it is finished. You do not know in advance how many trips to the hardware shop it will take. That last"
  },
  {
   "slug": "agents",
@@ -998,7 +998,7 @@ window.GN_SECTIONS = [
   "note": "Agents & Workflows",
   "noteTitle": "Agents & Workflows",
   "section": "The ladder: start at the bottom",
-  "text": "In plain English There is a ladder from ask the model once to let the model decide what to do next, repeatedly . Every rung buys capability and costs predictability. The discipline is to start at the bottom and climb only when the rung you are on has visibly failed at the actual job — not when the one above sounds more impressive. There are four rungs between one API call and an agent . Each is cheaper, faster and easier to reason about than the one above it. Climb only when the rung you are on genuinely cannot do the job. Flow Four rungs climb only when forced Replay 1 One call Classify, summarise, extract, rewrite, answer. One request, one response. Testable, cheap, instant. Most productio"
+  "text": "In plain English There is a ladder from \"ask the model once\" up to \"let the model decide what to do next, again and again\". Every step up buys you more ability and costs you predictability. The discipline is to start at the bottom and climb only when the step you are standing on has clearly failed at the real job — not when the one above sounds more impressive. There are four steps between \"one API call\" and \"an agent\". Each one is cheaper, faster and easier to think about than the one above it. Climb only when the step you are on genuinely cannot do the job. Flow Four steps climb only when you have to Replay 1 One call Sort, summarise, extract, rewrite, answer. One request, one response. Te"
  },
  {
   "slug": "agents",
@@ -1006,7 +1006,7 @@ window.GN_SECTIONS = [
   "note": "Agents & Workflows",
   "noteTitle": "Agents & Workflows",
   "section": "Five workflow patterns worth knowing by name",
-  "text": "In plain English A workflow is a route you drew; an agent is a route the model chooses. Most problems people describe as needing an agent have a sequence of steps that is perfectly well known in advance — which means a workflow will be cheaper, faster, testable per branch, and far easier to debug at 3am. Rung three covers more ground than people expect. These five shapes solve most of what gets reached for an agent to solve, and every one of them is ordinary code you can unit-test. Pattern Shape Use it when Prompt chaining Output of call A becomes input of call B, with a check in between. The task decomposes cleanly into fixed steps. Outline draft polish. Extract validate store. Routing A ch"
+  "text": "In plain English A workflow is a route you drew on the map; an agent is a route the model works out as it drives. Most problems people describe as needing an agent have a set of steps that is perfectly well known in advance — which means a workflow will be cheaper, faster, testable branch by branch, and far easier to debug at 3am. Step three covers far more ground than people expect. These five shapes solve most of what people reach for an agent to solve, and every one of them is ordinary code you can unit-test. Pattern Shape Use it when Prompt chaining The output of call A becomes the input of call B, with a check in between. The task splits cleanly into fixed steps. Outline draft polish. E"
  },
  {
   "slug": "agents",
@@ -1014,15 +1014,15 @@ window.GN_SECTIONS = [
   "note": "Agents & Workflows",
   "noteTitle": "Agents & Workflows",
   "section": "The agent loop, drawn",
-  "text": "Every agent framework you will ever read about is this loop with decoration on top. Understanding it once means you can read any of them. Figure The whole thing. There is no more to it. Note where the gate sits: between the model asking and your code doing. The model never executes anything. i The model cannot do anything. It emits a request a name and some JSON. Your code decides whether that request runs. Every piece of agent security follows from taking that sentence seriously. ts the loop, by hand, so you have seen it once In plain English You have now seen the entire mechanism. In practice you would use the SDK s tool runner, which writes this loop for you and still lets you intervene e"
+  "text": "Every agent framework you will ever read about is this one loop with decoration on top. Understand it once and you can read all of them. Figure The whole thing. There is nothing more to it. Notice where the gate sits: between the model asking and your code doing. The model never runs anything itself. i The model cannot do anything. It sends out a request a name and some JSON. Your code decides whether that request runs. Every piece of agent security follows from taking that one sentence seriously. ts the loop, written by hand, so you have seen it once In plain English You have now seen the whole machine. In practice you would use the SDK's tool runner, which writes this loop for you and stil"
  },
  {
   "slug": "agents",
   "topic": "tools",
   "note": "Agents & Workflows",
   "noteTitle": "Agents & Workflows",
-  "section": "Designing the tool surface",
-  "text": "In plain English Tool design is API design for a reader who cannot ask you a question. The name and description are the entire documentation, and they are what the model uses to decide when to reach for it. A vague description produces a tool called at the wrong moment, and no amount of prompt tuning elsewhere fixes that. The tools you expose are your agent s design. A vague tool set produces a confused agent no prompt can rescue, and the most common cause of a bad agent is not the model it is fifteen overlapping tools with descriptions written as an afterthought. Write the description for a competent new colleague The description is not documentation, it is the instruction the model actuall"
+  "section": "Designing the set of tools",
+  "text": "In plain English Designing tools is like designing an API for a reader who cannot ask you a single question. The name and the description are the entire manual, and they are what the model uses to decide when to pick it up. A vague description gives you a tool that gets called at the wrong moment, and no amount of prompt tuning elsewhere will fix that. The tools you offer are your agent's design. A vague set of tools produces a confused agent that no prompt can rescue, and the most common cause of a bad agent is not the model it is fifteen overlapping tools with descriptions written as an afterthought. Write the description for a capable new colleague The description is not documentation, it"
  },
  {
   "slug": "agents",
@@ -1030,15 +1030,15 @@ window.GN_SECTIONS = [
   "note": "Agents & Workflows",
   "noteTitle": "Agents & Workflows",
   "section": "Context over a long run",
-  "text": "In plain English An agent that runs for twenty steps accumulates twenty steps of history, and there is a hard limit on how much it can hold. So you have to decide what to keep, what to summarise and what to throw away — and doing that badly is why long runs get slower, more expensive and confused as they go. An agent that runs for forty steps has a problem a single call never has: the transcript grows on every turn, you pay for all of it on every request, and eventually it does not fit. Three different mechanisms address three different versions of that problem, and they are routinely confused. Context editing Prunes. Clears stale tool results and old thinking blocks out of the transcript. W"
+  "text": "In plain English An agent that runs for twenty steps collects twenty steps of history, and there is a hard limit on how much it can hold. So you have to decide what to keep, what to summarise and what to throw away — and doing that badly is why long runs get slower, costlier and more confused as they go on. An agent that runs for forty steps has a problem a single call never has: the transcript grows on every turn, you pay for all of it on every request, and eventually it stops fitting. Three different mechanisms solve three different versions of that problem, and people mix them up all the time. Context editing Trims. Clears out stale tool results and old thinking blocks from the transcript"
  },
  {
   "slug": "agents",
   "topic": "structure",
   "note": "Agents & Workflows",
   "noteTitle": "Agents & Workflows",
-  "section": "A folder structure that survives contact",
-  "text": "In plain English Agent code degenerates into one enormous function faster than most code, because everything is genuinely connected to everything. Separating the loop, the tools, the prompts and the limits into their own places is what keeps it possible to change one without breaking the others. Agent code sprawls faster than ordinary code, because prompts, tool implementations, schemas and evaluation data all want to live somewhere and none of them are obviously source . This layout has one rule behind it: anything you would want to diff in a review gets its own file. Figure A production agent, laid out The shape that matters most: prompts are files, tools are files, and evals sit beside th"
+  "section": "A folder structure that survives real use",
+  "text": "In plain English Agent code turns into one giant function faster than most code, because everything really is connected to everything. Splitting the loop, the tools, the prompts and the limits into their own places is what keeps it possible to change one without breaking the others. Agent code spreads faster than ordinary code, because prompts, tool code, schemas and test data all want a home and none of them are obviously \"source code\". This layout has one rule behind it: anything you would want to see in a code review gets its own file. Figure A production agent, laid out The shape that matters most: prompts are files, tools are files, and tests sit next to them in the same repository. i W"
  },
  {
   "slug": "agents",
@@ -1046,7 +1046,7 @@ window.GN_SECTIONS = [
   "note": "Agents & Workflows",
   "noteTitle": "Agents & Workflows",
   "section": "Keeping it on a leash",
-  "text": "In plain English An agent decides its own steps, which means without limits it can loop forever, spend without bound, or take an action nobody sanctioned. The leash is not one thing: a cap on iterations, a cap on spend, a whitelist of what it may touch, and a human approval on anything irreversible. Every one of them will eventually be the one that saves you. An agent is a loop with a model in it. Loops need exit conditions, and a model is not one. Control What it stops Sensible default Iteration cap A model that keeps calling tools forever, usually because a tool keeps failing in the same way. 10 20 steps. If real work needs more, raise it deliberately do not remove it. Cost budget The bill"
+  "text": "In plain English An agent decides its own steps, which means that without limits it can loop forever, spend without any ceiling, or take an action nobody approved. The leash is not one thing: a limit on steps, a limit on spending, a list of what it may touch, and a human approval on anything that cannot be undone. Every one of them will one day be the one that saves you. An agent is a loop with a model inside it. Loops need a way to stop, and a model is not one. Control What it stops Sensible default Step limit A model that keeps calling tools forever, usually because a tool keeps failing in the same way. 10 20 steps. If real work needs more, raise it on purpose do not remove it. Cost budget"
  },
  {
   "slug": "agents",
@@ -1054,7 +1054,7 @@ window.GN_SECTIONS = [
   "note": "Agents & Workflows",
   "noteTitle": "Agents & Workflows",
   "section": "Where agents actually go wrong",
-  "text": "In plain English Agents fail in ways that are recognisable once you have seen them: looping on a tool that keeps failing, losing the thread across a long run, confidently taking a wrong action, or being handed tools so broad that nothing can constrain them. Each has a specific fix, and none of them is a better prompt. Symptom Usual cause Fix It loops on the same tool call. The tool returns an error the model cannot act on often a bare stack trace or an empty result with no explanation. Return errors as sentences: what failed, and what to try instead. Cap iterations regardless. It picks the wrong tool. Two tools with overlapping descriptions, or a description that says what the tool is rather"
+  "text": "In plain English Agents fail in ways you can recognise once you have seen them: looping on a tool that keeps failing, losing the thread over a long run, confidently taking a wrong action, or being handed tools so broad that nothing can hold them back. Each one has a specific fix, and none of those fixes is \"write a better prompt\". Symptom Usual cause Fix It calls the same tool over and over. The tool returns an error the model cannot act on often a bare stack trace, or an empty result with no explanation. Return errors as sentences: what failed, and what to try instead. Cap the steps anyway. It picks the wrong tool. Two tools with overlapping descriptions, or a description that says what the"
  },
  {
   "slug": "agents",
@@ -1062,7 +1062,7 @@ window.GN_SECTIONS = [
   "note": "Agents & Workflows",
   "noteTitle": "Agents & Workflows",
   "section": "Building one on this stack",
-  "text": "In plain English What building one on this stack actually looks like — where the loop lives, where the tools live, and what the limits are set to. Nothing here needs a framework. The pieces map onto what notes 03 and 04 already covered. The loop belongs on the server An agent loop in the browser ships your API key to a stranger. It runs in Express, behind auth, exactly like any other route that touches money. Tools are just functions you already have Your existing service functions are the tools. Wrap them with a schema and a description; do not write a second implementation for the agent. Long runs outlive the request An agent that takes two minutes cannot live inside an HTTP handler. Start"
+  "text": "In plain English What building one on this stack actually looks like — where the loop lives, where the tools live, and what the limits are set to. Nothing here needs a framework. The pieces map onto what notes 03 and 04 already covered. The loop belongs on the server An agent loop running in the browser hands your API key to a stranger. It runs in Express, behind your login check, exactly like any other route that touches money. Tools are just functions you already have Your existing service functions are the tools. Wrap them with a schema and a description; do not write a second copy just for the agent. Long runs outlive the request An agent that takes two minutes cannot live inside an HTTP"
  },
  {
   "slug": "mcp",
@@ -1070,7 +1070,7 @@ window.GN_SECTIONS = [
   "note": "MCP",
   "noteTitle": "MCP — Model Context Protocol",
   "section": "The problem MCP solves",
-  "text": "Before MCP, every combination of AI application and data source needed its own integration. Your Postgres connector for one chat app did not work in another. Ten applications and ten data sources meant a hundred bespoke integrations, each maintained separately, each subtly different. In plain English MCP is a plug shape. Before USB, every device had its own connector and its own cable; the cable that charged your camera was useless for your phone. USB did not make devices better it made them interchangeable. The Model Context Protocol does the same thing for the connection between a model and the tools or data it uses: write the server once, and every application that speaks MCP can use it. "
+  "text": "Before MCP, every pairing of an AI application with a data source needed its own custom integration. The Postgres connector you wrote for one chat app did not work in another one. Ten applications and ten data sources meant a hundred hand-built integrations, each looked after separately, each slightly different from the rest. In plain English MCP is a plug shape. Think of the old days when every mobile phone had a different charger, and your friend's charger was useless for your phone. Then USB-C arrived. It did not make phones better it made the chargers interchangeable. The Model Context Protocol does the same for the connection between a model and the tools or data it uses: write the serv"
  },
  {
   "slug": "mcp",
@@ -1078,7 +1078,7 @@ window.GN_SECTIONS = [
   "note": "MCP",
   "noteTitle": "MCP — Model Context Protocol",
   "section": "Host, client, server",
-  "text": "In plain English Three roles that are easy to mix up. The host is the application a person uses. The client is the piece inside it that speaks the protocol. The server is your integration — the thing that actually knows how to read those files or query that system. You write servers; you rarely write the other two. Three words that get used loosely, and the confusion costs people an afternoon. They are precise. Host The application the human is using Claude Code, Claude Desktop, your own app. It owns the model conversation and decides what the model is allowed to reach. Client The connector living inside the host, one per server. It speaks the protocol and keeps the connection. You rarely wr"
+  "text": "In plain English Three roles that are easy to mix up. The host is the application a person uses. The client is the piece inside it that speaks the protocol. The server is your integration — the thing that actually knows how to read those files or query that system. You write servers; you rarely write the other two. Three words that people use loosely, and that confusion costs beginners an afternoon. They actually have exact meanings. Host The application the person is actually using Claude Code, Claude Desktop, your own app. It owns the conversation with the model and decides what the model is allowed to reach. Client The connector that lives inside the host, one for each server. It speaks t"
  },
  {
   "slug": "mcp",
@@ -1086,7 +1086,7 @@ window.GN_SECTIONS = [
   "note": "MCP",
   "noteTitle": "MCP — Model Context Protocol",
   "section": "The three things a server can expose",
-  "text": "In plain English A server can expose three kinds of thing, and the distinction is about who decides to use them. Tools are actions the model can choose to take. Resources are data the application can read. Prompts are templates the user can pick. Most servers are mostly tools, and knowing the other two exist stops you forcing everything into that shape. Primitive What it is Who decides to use it Example Tools Actions with side effects, or lookups with arguments. The workhorse. The model , during a conversation. create_invoice , search_orders , deploy_branch Resources Readable data identified by a URI. Passive no side effects, no arguments beyond the URI. The host or the user , usually by att"
+  "text": "In plain English A server can offer three kinds of thing, and the difference is about who decides to use them. Tools are actions the model can choose to take. Resources are data the application can read. Prompts are templates the user can pick. Most servers are mostly tools, and knowing the other two exist stops you from squeezing everything into that one shape. Primitive What it is Who decides to use it Example Tools Actions that change something, or lookups that take values. The workhorse. The model , during a conversation. create_invoice , search_orders , deploy_branch Resources Data you can read, named by a URI. It just sits there it changes nothing and takes no values beyond the URI. Th"
  },
  {
   "slug": "mcp",
@@ -1094,7 +1094,7 @@ window.GN_SECTIONS = [
   "note": "MCP",
   "noteTitle": "MCP — Model Context Protocol",
   "section": "How it gets across the wire",
-  "text": "In plain English Two ways the messages travel. Over standard input and output, when the server runs as a process on the same machine as the application — simple, and nothing is exposed to a network. Or over HTTP, when the server is remote — which means authentication, transport security and everything else that comes with being reachable. Two transports, and the choice is mostly decided for you by where the server needs to run. stdio Streamable HTTP Shape The host launches your server as a child process and talks over stdin/stdout. Your server is a web service; the host connects to a URL. Runs On the user s own machine. Anywhere shared by many users. Auth Whatever the local process already h"
+  "text": "In plain English There are two ways the messages travel. One is over standard input and output, when the server runs as a program on the same machine as the application — simple, and nothing is opened up to a network. The other is over HTTP, when the server is somewhere else — which brings login checks, secure connections and everything else that comes with being reachable from outside. Two ways to travel, and the choice is mostly made for you by where the server needs to run. stdio Streamable HTTP Shape The host starts your server as a child program and talks to it over stdin and stdout. Your server is a web service; the host connects to a URL. Runs On the user s own machine. Anywhere share"
  },
  {
   "slug": "mcp",
@@ -1102,7 +1102,7 @@ window.GN_SECTIONS = [
   "note": "MCP",
   "noteTitle": "MCP — Model Context Protocol",
   "section": "Building a server",
-  "text": "In plain English Building a server is smaller than it sounds. You declare what your tools are called, what arguments they take and what they do, then write an ordinary function for each. The protocol handles the conversation; you are really just writing well-described functions. Smaller than you think. This is a complete, working stdio server exposing two tools over your existing Prisma database. ts mcp/invoices/src/index.ts a whole server i The SDK s exact registration API has changed once or twice as MCP has matured older examples use server.tool(...) . Check the version you have installed rather than trusting any snippet, this one included. The shape is stable: a name, a description, a sc"
+  "text": "In plain English Building a server is a smaller job than it sounds. You state what your tools are called, what values they take and what they do, then write an ordinary function for each one. The protocol handles the conversation; you are really just writing well-described functions. Smaller than you think. Below is a complete, working stdio server offering two tools over your existing Prisma database. ts mcp/invoices/src/index.ts a whole server i The exact registration API in the SDK has changed once or twice as MCP has grown up older examples use server.tool(...) . Check the version you actually have installed rather than trusting any code snippet, including this one. The shape stays the s"
  },
  {
   "slug": "mcp",
@@ -1110,7 +1110,7 @@ window.GN_SECTIONS = [
   "note": "MCP",
   "noteTitle": "MCP — Model Context Protocol",
   "section": "Connecting it up",
-  "text": "In plain English Connecting a server is a small configuration file telling the host how to start it and what it needs. This is also the step where most first attempts fail, almost always for the same two reasons: the path is wrong, or an environment variable the server needs was not passed through. To Claude Code, or any local host A JSON file naming the command to run. Project-scoped config lives in .mcp.json at the repository root, which means the server travels with the codebase and every developer gets it. json .mcp.json From the API, as a connector A remote MCP server can be attached directly to a Messages request. Note the shape carefully both halves are required , and supplying only t"
+  "text": "In plain English Connecting a server means writing a small config file that tells the host how to start it and what it needs. This is also the step where most first attempts fail, almost always for the same two reasons: the path is wrong, or an environment variable the server needs was not passed through. To Claude Code, or any local host A JSON file that names the command to run. The project-level config lives in .mcp.json at the root of the repository, which means the server travels along with the code and every developer on the team gets it. json .mcp.json From the API, as a connector A remote MCP server can be attached straight onto a Messages request. Look at the shape carefully both ha"
  },
  {
   "slug": "mcp",
@@ -1118,7 +1118,7 @@ window.GN_SECTIONS = [
   "note": "MCP",
   "noteTitle": "MCP — Model Context Protocol",
   "section": "Designing a server people can actually use",
-  "text": "In plain English A server people can use is mostly a matter of restraint. Few tools rather than many, each doing one clearly-named thing. Errors that say what to do rather than what failed. Descriptions written for a reader who has no other documentation — because they have none. The protocol is the easy part. What separates a useful server from an annoying one is the same judgement as tool design in note 07, with one addition: your server will be used by hosts you did not write, in conversations you cannot see. Do Because Bound every result. Take 20, not all. An unbounded query fills the context window with rows nobody reads, and you pay for every one of them on every subsequent turn. Retur"
+  "text": "In plain English A server that people can actually use is mostly about holding back. A few tools rather than many, each doing one clearly named thing. Errors that say what to do next rather than only what broke. Descriptions written for a reader who has no other manual — because they really do not have one. The protocol is the easy part. What separates a useful server from an annoying one is the same judgement as tool design in note 07, with one extra point: your server will be used by applications you did not write, in conversations you will never see. Do Because Bound every result. Take 20, not all. A query with no limit fills the context window with rows nobody reads, and you pay for ever"
  },
  {
   "slug": "mcp",
@@ -1126,7 +1126,7 @@ window.GN_SECTIONS = [
   "note": "MCP",
   "noteTitle": "MCP — Model Context Protocol",
   "section": "MCP security — read this part twice",
-  "text": "In plain English An MCP server is code you are letting a model drive. Everything from the AI Security note applies here in its sharpest form: the model deciding to call your tool may be acting on text it read somewhere, so the server has to check permissions itself rather than trusting that it was called for a good reason. MCP does not introduce new categories of vulnerability; it makes the existing ones much easier to reach. Installing a server is closer to installing a browser extension than to adding a library it runs with your permissions and can act on your behalf. Untrusted server A server you did not write can expose whatever tools it likes, with whatever descriptions it likes. The de"
+  "text": "In plain English An MCP server is code that you are letting a model drive. Everything from the AI Security note applies here in its sharpest form: the model that decided to call your tool may be acting on text it read somewhere, so the server has to check permissions for itself rather than assuming it was called for a good reason. MCP does not create new kinds of security hole; it makes the existing ones much easier to reach. Installing a server is closer to installing a browser extension than to adding a library it runs with your permissions and can act in your name. Untrusted server A server you did not write can offer whatever tools it likes, with whatever descriptions it likes. Those des"
  },
  {
   "slug": "mcp",
@@ -1134,7 +1134,7 @@ window.GN_SECTIONS = [
   "note": "MCP",
   "noteTitle": "MCP — Model Context Protocol",
   "section": "When MCP is worth it",
-  "text": "In plain English MCP is worth it when more than one application needs the same integration, or when someone else will use what you build. For a single tool used by a single app you control, a plain function is less work and there is no shame in it. The protocol earns its overhead through reuse. Situation Verdict One application, one integration, no plans to reuse it. Skip it. A plain tool definition in your own agent loop is less machinery and less to secure. The same capability is needed in Claude Code, Claude Desktop and your app. Use it. This is precisely the case it exists for write once, three hosts. You want your product usable from AI tools you did not build. Use it. A public MCP serv"
+  "text": "In plain English MCP is worth it when more than one application needs the same integration, or when somebody else will use what you build. For one tool used by one app that you control, a plain function is less work and there is nothing wrong with that. The protocol earns its extra effort through being reused. Situation Verdict One application, one integration, no plans to reuse it. Skip it. A plain tool definition in your own agent loop means less machinery and less to make secure. The same capability is needed in Claude Code, Claude Desktop and your app. Use it. This is exactly the case it was made for write it once, use it in three places. You want your product usable from AI tools you di"
  },
  {
   "slug": "skills-artifacts",
@@ -1142,7 +1142,7 @@ window.GN_SECTIONS = [
   "note": "Skills & Artifacts",
   "noteTitle": "Skills & Artifacts",
   "section": "Four ways to extend a model, and how they differ",
-  "text": "By this point in the notes you have met several things that all sound like giving the model more abilities . They are genuinely different mechanisms, and choosing wrongly is the most common architectural mistake in applied AI. Mechanism What it adds Who invokes it Lives where Tools The ability to do something read a row, send an email, run a query. The model, mid-conversation. Your code, or an MCP server. RAG Knowledge the model was never trained on, retrieved per question. Your code, before the call. A vector store you own. Skills Know-how procedures, conventions, and files for doing a task properly. The model, when the task calls for it. A folder with a SKILL.md . Artifacts A place to put "
+  "text": "By this point in the notes you have met several things that all sound like giving the model more abilities . They are genuinely different mechanisms, and picking the wrong one is the most common design mistake people make when building with AI. Mechanism What it adds Who invokes it Lives where Tools The ability to do something read a row, send an email, run a query. The model, mid-conversation. Your code, or an MCP server. RAG Knowledge the model was never trained on, fetched fresh for each question. Your code, before the call. A vector store you own. Skills Know-how the steps, the conventions, and the files needed to do a task properly. The model, when the task calls for it. A folder with a"
  },
  {
   "slug": "skills-artifacts",
@@ -1150,7 +1150,7 @@ window.GN_SECTIONS = [
   "note": "Skills & Artifacts",
   "noteTitle": "Skills & Artifacts",
   "section": "Skills: instructions that load themselves",
-  "text": "In plain English A skill is a written procedure that loads itself when it becomes relevant, rather than sitting in the prompt all the time taking up room. Think of a shelf of reference cards: the model reaches for the one that matches the task instead of carrying every card at once. A skill is a folder. At its root is a SKILL.md whose front matter carries a name and a one-line description; below that is whatever the task needs longer instructions, reference documents, scripts, templates. The mechanism that makes it useful is progressive disclosure . Only the description sits in context all the time. The model reads the full file and any files it points to only when a task actually calls for "
+  "text": "In plain English A skill is a written set of steps that loads itself the moment it becomes relevant, instead of sitting in the prompt all the time and taking up space. Think of a rack of instruction cards on a wall: the model reaches for the one card that matches the job, instead of carrying all of them everywhere. A skill is just a folder. At the top of it sits a SKILL.md file whose header carries a name and a one-line description. Below that is whatever the task needs longer instructions, reference documents, scripts, templates. What makes it useful is that it opens up in stages. Only the one-line description sits in the context all the time. The model reads the full file and any files tha"
  },
  {
   "slug": "skills-artifacts",
@@ -1158,7 +1158,7 @@ window.GN_SECTIONS = [
   "note": "Skills & Artifacts",
   "noteTitle": "Skills & Artifacts",
   "section": "Artifacts: output that is a document, not a message",
-  "text": "In plain English Some output is a reply and some output is a thing — a document, a page, a spreadsheet. A reply scrolls away; a thing has somewhere to live, can be reopened, revised and shared. Artifacts are the second kind, and choosing between them is really a question about what the person is going to do with what you produce. An artifact is substantial output rendered as its own thing a page, a document, an app instead of scrolling past in a conversation. It has a URL, it persists, it can be revised in place, and it can be shared. The distinction that matters is not technical, it is about audience . Not an artifact advice for you, now An artifact work with an audience i The test: does an"
+  "text": "In plain English Some output is a reply, and some output is a thing — a document, a page, a spreadsheet. A reply scrolls away and is gone; a thing has an address, and can be reopened, edited and shared. Artifacts are the second kind, and choosing between the two is really a question about what the person is going to do with what you gave them. An artifact is a big piece of output shown as its own thing a page, a document, an app instead of scrolling past inside a conversation. It has a link, it stays there, it can be edited in place, and it can be shared. The difference that matters is not technical at all. It is about who is going to read it . Not an artifact advice for you, now An artifact"
  },
  {
   "slug": "skills-artifacts",
@@ -1166,7 +1166,7 @@ window.GN_SECTIONS = [
   "note": "Skills & Artifacts",
   "noteTitle": "Skills & Artifacts",
   "section": "Choosing between them",
-  "text": "In plain English Four options, and one question each. Does it need to do something? A tool. Does it need to know something it was not trained on? Retrieval. Does it need to know how you do things ? A skill. Does the output need to persist as a document? An artifact. Most confusion here dissolves once you ask which of those four you actually have. Figure A decision tree that resolves most cases Worth remembering Tools add ability, RAG adds facts, skills add know-how, artifacts add a place to put the result. Different problems. If the facts are right but the procedure is wrong, no amount of retrieval will fix it. That is a skill. A skill s description is the only part always in context write i"
+  "text": "In plain English Four options, and one question for each. Does it need to do something? A tool. Does it need to know something it was never trained on? Retrieval. Does it need to know how your team does things ? A skill. Does the output need to stay around as a document? An artifact. Most of the confusion here clears up the moment you ask which of those four you actually have. Figure A decision tree that resolves most cases Worth remembering Tools add ability, RAG adds facts, skills add know-how, artifacts add a place to put the result. Four different problems. If the facts are right but the steps are wrong, no amount of retrieval will fix it. That is a skill. A skill's description is the on"
  },
  {
   "slug": "model-landscape",
@@ -1174,7 +1174,7 @@ window.GN_SECTIONS = [
   "note": "The Model Landscape",
   "noteTitle": "The Model Landscape",
   "section": "First, sort out what is actually being compared",
-  "text": "Most confusing conversations about AI happen because two people are comparing things at different layers. Is Copilot better than Claude? is a bit like asking whether a car is better than an engine. Figure Three layers, routinely mistaken for one When someone says we use Copilot , that is layer 3, and it tells you almost nothing about layer 2. In plain English A model is the engine. A platform is the dealership and the service contract. A product is the finished car. GitHub Copilot is a car; Claude and GPT are engines it has been fitted with at various points. Comparing them directly produces an answer to a question nobody asked."
+  "text": "Most confusing conversations about AI happen because two people are comparing things at completely different levels. Asking is Copilot better than Claude? is a bit like asking whether a car is better than an engine. Figure Three layers, routinely mistaken for one When somebody says we use Copilot , that is layer 3, and it tells you almost nothing about layer 2. In plain English A model is the engine. A platform is the showroom and the service centre. A product is the finished car you drive. GitHub Copilot is a car; Claude and GPT are engines that have been fitted into it at different times. Comparing them directly gives you an answer to a question nobody asked."
  },
  {
   "slug": "model-landscape",
@@ -1182,7 +1182,7 @@ window.GN_SECTIONS = [
   "note": "The Model Landscape",
   "noteTitle": "The Model Landscape",
   "section": "The model families",
-  "text": "In plain English A handful of organisations train the models nearly everything is built on, and each family has a recognisable character rather than a rank. What actually differs between them is context length, tool-calling behaviour, how they handle refusals, availability in your region, and licensing. Those are the things worth comparing, because they change what you can build. Four groups matter in practice. Every one of them ships new versions on a cadence of months, so treat this as the shape of the landscape rather than a snapshot of who is ahead this week. Family Who Character Typically strongest at Claude Anthropic Tiered by capability Opus, Sonnet, Haiku sharing one API. Long contex"
+  "text": "In plain English A handful of companies train the models that nearly everything else is built on. Each family has its own personality rather than a fixed rank. What actually differs between them is how much text they can hold, how they behave when calling tools, how they handle saying no, whether they are available in your country, and what the licence allows. Those are the things worth comparing, because they change what you can build. Four groups matter in practice. Every one of them releases new versions every few months, so treat this as the general shape of things rather than a snapshot of who is ahead this week. Family Who Character Typically strongest at Claude Anthropic Split into le"
  },
  {
   "slug": "model-landscape",
@@ -1190,7 +1190,7 @@ window.GN_SECTIONS = [
   "note": "The Model Landscape",
   "noteTitle": "The Model Landscape",
   "section": "Where Copilot fits, and why the name confuses everyone",
-  "text": "Copilot is a brand Microsoft applies across several unrelated products. It is not a model, and the products sharing the name differ enormously. Product What it actually is GitHub Copilot A coding assistant in your editor completions, chat, and agent modes. Runs on models from several vendors, and in recent versions you can pick which one. Microsoft 365 Copilot An assistant inside Word, Excel, Outlook and Teams, grounded in your organisation s own documents and mail. Copilot Studio A low-code builder for making your own assistants and connecting them to business systems. Windows Copilot The assistant built into the operating system. i The practical consequence: when a colleague says Copilot g"
+  "text": "Copilot is a brand name Microsoft puts on several completely unrelated products. It is not a model, and the products sharing that name are very different from each other. Product What it actually is GitHub Copilot A coding assistant inside your editor completions, chat, and agent modes. It runs on models from several different companies, and in recent versions you can choose which one. Microsoft 365 Copilot An assistant inside Word, Excel, Outlook and Teams, working from your own organisation's documents and mail. Copilot Studio A drag-and-drop builder for making your own assistants and connecting them to business systems. Windows Copilot The assistant built into the operating system. i What"
  },
  {
   "slug": "model-landscape",
@@ -1198,7 +1198,7 @@ window.GN_SECTIONS = [
   "note": "The Model Landscape",
   "noteTitle": "The Model Landscape",
   "section": "Choosing, without the horse race",
-  "text": "In plain English Choosing without a horse race. Benchmarks measure general ability on somebody else s problems, and the model that ranks third overall is regularly first on the narrow thing you actually do. Your own small eval set, on your own real cases, beats any leaderboard for the only question that matters — which is better here . The question which model is best has no answer. These do. Flow Picking a model for one job Replay 1 Is there a hard constraint? Data residency, an air-gapped network, a procurement rule, an existing cloud commitment. Constraints decide this before quality does — and often the answer is open weights, or whichever family your cloud already sells. 2 Write thirty "
+  "text": "In plain English Choose without treating it as a race. Benchmarks measure general ability on somebody else's problems, and the model that ranks third overall is very often first on the narrow thing you actually do. Your own small test set, built from your own real cases, beats any leaderboard on the only question that matters — which one is better for this . The question which model is best has no answer at all. These questions do. Flow Picking a model for one job Replay 1 Is there a hard constraint? A rule about which country the data may sit in, a network with no internet access, a purchasing rule, a cloud contract you already signed. Hard limits decide this before quality gets a look in —"
  },
  {
   "slug": "model-landscape",
@@ -1206,7 +1206,7 @@ window.GN_SECTIONS = [
   "note": "The Model Landscape",
   "noteTitle": "The Model Landscape",
   "section": "Staying portable",
-  "text": "In plain English The models change every few months. The way to survive that is not to pick correctly — it is to make the choice cheap to revisit. One function in your codebase that every model call goes through turns switch provider from a rewrite into a configuration change, and it costs you about twenty lines. Models improve, prices move, vendors change terms, and the best choice today is not the best choice in eighteen months. The goal is not to pick correctly forever it is to make being wrong cheap. Practice What it buys you Model ids in config, never inline in code. Switching is a deploy, not a refactor. It also lets you pin a version in production and test a new one alongside. Prompts"
+  "text": "In plain English The models change every few months. The way to survive that is not to pick the right one — it is to make the choice cheap to change later. One function in your codebase that every model call passes through turns switch provider from a rewrite into a config change, and it costs you about twenty lines of code. Models get better, prices move, companies change their terms, and the best choice today will not be the best choice in eighteen months. The goal is not to choose correctly forever it is to make being wrong cheap to fix. Practice What it buys you Model ids in config, never inline in code. Switching becomes a deploy, not a rewrite. It also lets you lock a version in produc"
  },
  {
   "slug": "evals",
@@ -1214,7 +1214,7 @@ window.GN_SECTIONS = [
   "note": "Evaluation",
   "noteTitle": "Evaluating AI Systems",
   "section": "Why you cannot ship without this",
-  "text": "Ordinary code is deterministic: the same input gives the same output, so a test that passed yesterday means something today. A model gives you a distribution of outputs, and the distribution shifts when you change the prompt, the model version, the retrieval, or nothing at all. In plain English Testing normal code is checking a calculator: 2 + 2 must be 4 every time. Testing a model is closer to marking exam papers you cannot check for one exact string, you have to decide whether an answer is good , and you need enough papers that one lucky guess does not fool you. An eval is that marking scheme, automated: a set of real inputs, a definition of a good outcome, and a score you can watch over "
+  "text": "Ordinary code is predictable: the same input gives the same output, so a test that passed yesterday still means something today. A model gives you a range of possible outputs, and that range shifts when you change the prompt, the model version, the retrieval or when you change nothing at all. In plain English Testing normal code is like checking a calculator: 2 + 2 must give 4 every single time. Testing a model is much more like correcting exam papers you cannot look for one exact sentence, you have to judge whether an answer is good , and you need enough papers that one lucky guess does not fool you. An eval is that marking scheme, done automatically: a set of real inputs, a clear descripti"
  },
  {
   "slug": "evals",
@@ -1222,7 +1222,7 @@ window.GN_SECTIONS = [
   "note": "Evaluation",
   "noteTitle": "Evaluating AI Systems",
   "section": "Building the set — the part that matters",
-  "text": "In plain English An eval set is a collection of real cases with an agreed answer for each. This is the part people skip because it is unglamorous, and it is the part that determines whether any of it works. Twenty cases taken from things users actually asked are worth more than five hundred you invented, because invented cases are drawn from what you already thought of. Almost all the value is here, and almost all the effort goes to the wrong place: people build elaborate scoring machinery on top of twelve examples they invented at their desk. Flow How to get a set worth having Replay 1 Take real inputs From your logs, your support queue, your actual users. Invented examples are always tidie"
+  "text": "In plain English A test set is a collection of real cases with an agreed answer for each one. This is the part people skip because it is boring, and it is the part that decides whether any of the rest works. Twenty cases taken from things users actually asked are worth more than five hundred you made up yourself, because made-up cases only cover what you had already thought of. Almost all the value sits here, and almost all the effort goes somewhere else: people build fancy scoring machinery on top of twelve examples they made up at their desk. Flow How to get a set worth having Replay 1 Take real inputs From your logs, your support queue, your real users. Made-up examples are always neater "
  },
  {
   "slug": "evals",
@@ -1230,7 +1230,7 @@ window.GN_SECTIONS = [
   "note": "Evaluation",
   "noteTitle": "Evaluating AI Systems",
   "section": "How to score an answer",
-  "text": "In plain English Four ways to score an answer, from cheap and rigid to expensive and flexible. Exact match, when there is one right string. A rule or regular expression, when you can describe correctness. A human, which is the ground truth and does not scale. Or another model as judge — which works, provided you have checked the judge against human scores first. Four kinds of grader, cheapest and most reliable first. Use the simplest one that can actually judge your task and use several together, because most tasks have both a checkable part and a judgeable part. Grader How it works Good for Watch out Exact / structural String match, JSON schema validation, a regex. Classification, extractio"
+  "text": "In plain English There are four ways to score an answer, from cheap and strict to expensive and flexible. An exact match, when there is only one right answer. A rule or a pattern, when you can describe what correct looks like. A human, who is the real truth but cannot do thousands. Or another model as the examiner — which works, as long as you have first checked that the examiner agrees with the humans. Four kinds of marker, cheapest and most reliable first. Use the simplest one that can actually judge your task and use several together, because most tasks have one part you can check exactly and one part that needs judgement. Grader How it works Good for Watch out Exact / structural A text m"
  },
  {
   "slug": "evals",
@@ -1238,7 +1238,7 @@ window.GN_SECTIONS = [
   "note": "Evaluation",
   "noteTitle": "Evaluating AI Systems",
   "section": "Evaluating RAG and agents specifically",
-  "text": "RAG: score retrieval and generation separately This is the single most useful idea in this note. Almost every disappointing RAG system fails at retrieval and gets blamed on the model and one combined score cannot tell you which half is broken. Stage Question How to score it Retrieval Did the chunk containing the answer come back at all? Mark the correct chunk id per case; check whether it appears in the top k. Programmatic, exact, no judgement needed. Grounding Is every claim in the answer supported by what was retrieved? A judge, with the retrieved context in front of it. Binary, per claim. Refusal When the answer genuinely is not in the corpus, does it say so? Cases with no answer, and an "
+  "text": "RAG: score retrieval and generation separately This is the single most useful idea in this note. Almost every disappointing RAG system fails at the search step and gets the blame put on the model and one combined score cannot tell you which half is broken. Stage Question How to score it Retrieval Did the chunk containing the answer come back at all? Write down the correct chunk id for each case, then check whether it turns up in the top k. Done by code, exact, no judgement needed. Grounding Is every claim in the answer supported by what was retrieved? A model examiner, with the fetched text in front of it. A yes-or-no answer for each claim. Refusal When the answer genuinely is not in the cor"
  },
  {
   "slug": "evals",
@@ -1246,7 +1246,7 @@ window.GN_SECTIONS = [
   "note": "Evaluation",
   "noteTitle": "Evaluating AI Systems",
   "section": "Running them, and running them automatically",
-  "text": "In plain English An eval set nobody runs is a document. The value appears when it runs automatically — on every change to a prompt, and on a schedule against production — so a regression is caught by a pipeline rather than by a customer. ts evals/run.ts small enough that it actually gets used i Run it on every change to a prompt, a model id, or the retrieval pipeline. Those three files are exactly as dangerous as a database migration and get a fraction of the scrutiny. Wiring the eval into CI is what turns we should test this into something that actually happens. ! Evals cost real money to run, because they make real API calls. Keep the CI set small and fast thirty to fifty cases and run the"
+  "text": "In plain English A test set nobody runs is just a document. The value only appears when it runs automatically — on every change to a prompt, and on a schedule against the live system — so that a break is caught by your pipeline instead of by a customer. ts evals/run.ts small enough that it actually gets used i Run it on every change to a prompt, a model id, or the retrieval pipeline. Those three files are every bit as dangerous as a database migration, and they get a fraction of the attention. Wiring the test set into CI is what turns we really should test this into something that actually happens. ! Running these tests costs real money, because they make real API calls. Keep the CI set smal"
  },
  {
   "slug": "ai-security",
@@ -1254,7 +1254,7 @@ window.GN_SECTIONS = [
   "note": "AI Security",
   "noteTitle": "AI Security",
   "section": "The threat model in one sentence",
-  "text": "The AI, Models, RAG Security note introduced the central problem. This note takes it seriously, because once a model has tools, the stakes change completely. ! A language model cannot reliably distinguish instructions from data. Everything in its context window is the same kind of thing: text. Your system prompt, the user s question, a retrieved document, a tool result, the contents of a web page it just fetched all of it arrives as text, and any of it can read as an instruction. In plain English Imagine an assistant who follows any instruction written on any piece of paper placed on their desk including a note slipped inside a customer s letter. You can tell them to be careful. You cannot m"
+  "text": "The AI, Models, RAG Security note introduced the main problem. This note takes it seriously, because the moment a model gets tools, what is at risk changes completely. ! A language model cannot reliably tell instructions apart from data. Everything inside its context window is the same kind of thing: text. Your system prompt, the user's question, a document you fetched, a tool result, the contents of a web page it just read all of it arrives as plain text, and any of it can look like an instruction. In plain English Imagine an office assistant who obeys any instruction written on any piece of paper that lands on their desk including a slip somebody tucked inside a customer's letter. You can "
  },
  {
   "slug": "ai-security",
@@ -1262,7 +1262,7 @@ window.GN_SECTIONS = [
   "note": "AI Security",
   "noteTitle": "AI Security",
   "section": "The combination that causes real damage",
-  "text": "In plain English A prompt injection on its own is a curiosity. It becomes an incident when three things are true at once: the model reads something untrusted, it has access to something valuable, and it can send information outwards. Remove any one of the three and the attack has nowhere to go — which is why this is a design decision rather than a filtering problem. Injection on its own is a curiosity. It becomes an incident when three things are true at once. Figure Three ingredients remove any one and the attack fails Real world The support-ticket agent An agent triages incoming tickets. It can read the ticket, look up the customer s account, and post a reply. Reasonable, useful, and shipp"
+  "text": "In plain English A prompt injection on its own is just a curiosity. It turns into a real incident when three things are true at the same time: the model reads something untrusted, it has access to something valuable, and it has a way to send information out. Take away any one of the three and the attack has nowhere to go — which is why this is a design decision, not a filtering problem. Injection on its own is a curiosity. It becomes an incident when all three of these are true at the same time. Figure Three ingredients remove any one and the attack fails Real world The support-ticket agent An agent sorts incoming tickets. It can read the ticket, look up the customer's account, and post a re"
  },
  {
   "slug": "ai-security",
@@ -1270,7 +1270,7 @@ window.GN_SECTIONS = [
   "note": "AI Security",
   "noteTitle": "AI Security",
   "section": "Defences that actually hold",
-  "text": "In plain English The defences that hold are structural, not linguistic. Instructing the model to ignore instructions in the content it reads is a request, and requests can be talked around. Limiting what the model is permitted to touch is a constraint, and constraints cannot. Every reliable defence in this topic is a version of that distinction. Ordered by how much they are worth. The first three are architecture; the rest reduce noise. Flow Defence in depth, strongest first Replay 1 Least privilege on the tools The agent can only do what its tools allow. A read-only agent cannot be talked into a write. This is the one defence that holds no matter what the model does. 2 Identity from the ses"
+  "text": "In plain English The defences that hold are built into the structure, not into the words. Telling the model to ignore instructions in the content it reads is a request, and requests can be argued around. Limiting what the model is allowed to touch is a hard limit, and hard limits cannot be argued with. Every reliable defence in this subject is a version of that same difference. Listed by how much they are worth. The first three are design decisions; the rest only reduce the odds. Flow Defence in depth, strongest first Replay 1 Least privilege on the tools The agent can only do what its tools allow it to do. A read-only agent cannot be talked into writing anything. This is the one defence tha"
  },
  {
   "slug": "ai-security",
@@ -1278,7 +1278,7 @@ window.GN_SECTIONS = [
   "note": "AI Security",
   "noteTitle": "AI Security",
   "section": "The rest of the risk surface",
-  "text": "In plain English Injection gets the attention, and it is not the whole surface. Data leaking through a model s output, denial of service by making it do expensive work, dependencies you did not audit, and information sitting in logs nobody set a retention period on. Less dramatic, and each one is a real incident that has happened to somebody. Injection dominates the conversation, and these are the ones that actually appear in incident reports alongside it. Risk What it looks like What to do Sensitive data disclosure Secrets, other users records, or internal documents ending up in an answer often because they were in the retrieval corpus at all. Filter at indexing time, not answer time. Apply"
+  "text": "In plain English Injection gets all the attention, but it is not the whole picture. Data leaking out through a model's answers, someone running up your bill by making it do expensive work, libraries nobody checked, and information sitting in logs where nobody ever set a deletion date. Less dramatic, and every one of them has actually happened to somebody. Injection takes over the conversation, but these are the ones that show up in real incident reports right beside it. Risk What it looks like What to do Sensitive data disclosure Secrets, other users' records, or internal documents turning up in an answer usually because they were in the searchable pile of documents in the first place. Filte"
  },
  {
   "slug": "ai-security",
@@ -1286,7 +1286,7 @@ window.GN_SECTIONS = [
   "note": "AI Security",
   "noteTitle": "AI Security",
   "section": "Testing your defences",
-  "text": "In plain English Attack your own system, on purpose, on a schedule. Keep the attempts that worked as test cases so a future change cannot quietly reopen them. This is the same discipline as a regression test, applied to a category of bug where the input is adversarial rather than accidental. Security you have not attacked is security you are guessing about. This belongs in the same eval harness as note 11 the cases are just adversarial ones. Test What you are checking Put an injection in every input channel you have ticket body, uploaded PDF, file name, code comment, web page. Whether indirect injection reaches the model at all, and what it manages to do when it does. Ask for another user s "
+  "text": "In plain English Attack your own system, on purpose, on a regular schedule. Keep the attempts that worked as test cases, so a future change cannot quietly open them up again. It is the same habit as any regression test, applied to a kind of bug where the input is hostile rather than accidental. Security you have never attacked is security you are only guessing about. This belongs in the same test runner as note 11 the cases are simply hostile ones. Test What you are checking Put an injection into every input route you have the ticket body, an uploaded PDF, a file name, a code comment, a web page. Whether an indirect injection reaches the model at all, and what it manages to do when it does. "
  },
  {
   "slug": "governance",
@@ -1294,7 +1294,7 @@ window.GN_SECTIONS = [
   "note": "AI Governance",
   "noteTitle": "AI Governance",
   "section": "Why a developer should care about this",
-  "text": "Governance sounds like somebody else s job legal s, compliance s, a committee s. It arrives as your problem for a simple reason: the obligations attach to the system, and you are the one who knows what the system does. Nobody else can tell an auditor what data went into the retrieval index or what the model is allowed to act on. In plain English Governance is the paperwork that proves you were careful, and the process that makes you actually be careful. Most of it is not a legal question at all it is writing down what the system does, what it must not do, who decided that, and how you would know if it stopped being true. i The good news: if you have done notes 11 and 12 an eval set, a threat"
+  "text": "Governance sounds like somebody else's job the legal team's, the compliance team's, some committee's. It lands on your desk for one simple reason: the duties attach to the system, and you are the only person who knows what the system actually does. Nobody else can tell an auditor what data went into the search index, or what the model is allowed to act on. In plain English Governance is the paperwork that proves you were careful, plus the routine that makes you actually be careful. Most of it is not a legal question at all it is simply writing down what the system does, what it must never do, who decided that, and how you would find out if it stopped being true. i The good news: if you have "
  },
  {
   "slug": "governance",
@@ -1302,7 +1302,7 @@ window.GN_SECTIONS = [
   "note": "AI Governance",
   "noteTitle": "AI Governance",
   "section": "Risk tiers: the idea behind every framework",
-  "text": "In plain English Every framework, whatever its name, is built on one idea: obligations should scale with how much harm the system could do. A model suggesting a playlist and a model screening job applications are not owed the same scrutiny. Working out which tier you are in is most of the work, and it usually takes about ten minutes. Regulations differ in detail and agree on the core move: obligations scale with potential harm, not with technical sophistication. A model deciding what music to play and a model deciding who gets a loan are treated very differently, however similar the code. Figure The shape every framework shares ! The tier is set by the use case, not the technology. The same "
+  "text": "In plain English Every framework, whatever it is called, is built on one idea: the rules should get stricter as the possible harm gets bigger. A model suggesting the next song and a model screening job applications do not deserve the same level of checking. Working out which level you are in is most of the work, and it usually takes about ten minutes. The rules differ in their details and agree on the main point: the duties grow with the possible harm, not with how clever the technology is. A model deciding which song plays next and a model deciding who gets a home loan are treated very differently, no matter how similar the code looks. Figure The shape every framework shares ! The level is "
  },
  {
   "slug": "governance",
@@ -1310,7 +1310,7 @@ window.GN_SECTIONS = [
   "note": "AI Governance",
   "noteTitle": "AI Governance",
   "section": "The frameworks you will hear named",
-  "text": "In plain English You will hear three names. The EU AI Act is law, and it sorts systems by risk tier. NIST AI RMF is a voluntary framework in the US describing a sensible process. GDPR is not AI-specific but applies the moment you process personal data — which most AI features do. Knowing which one someone means is half of understanding the question. Framework What it is Applies when EU AI Act Binding law with the risk tiers above. Phased in over several years, with real penalties. You place a system on the EU market or its output is used in the EU regardless of where you are. NIST AI RMF A voluntary US framework organised around four functions: Govern, Map, Measure, Manage. Useful anywhere a"
+  "text": "In plain English You will hear three names. The EU AI Act is actual law, and it sorts systems into risk levels. NIST AI RMF is a voluntary framework in the US that describes a sensible way of working. GDPR is not about AI at all, but it applies the moment you handle personal data — which most AI features do. Knowing which one somebody means is half of understanding the question. Framework What it is Applies when EU AI Act Real, binding law using the risk levels above. It comes in stage by stage over several years, with real penalties. You sell a system in the EU, or its output is used in the EU no matter where you yourself are sitting. NIST AI RMF A voluntary US framework built around four a"
  },
  {
   "slug": "governance",
@@ -1318,7 +1318,7 @@ window.GN_SECTIONS = [
   "note": "AI Governance",
   "noteTitle": "AI Governance",
   "section": "What this looks like in a repository",
-  "text": "In plain English Governance sounds like a committee and mostly is not. In a repository it is a handful of files: what this feature does and for whom, what data it touches and for how long, what it is not to be used for, and what happens when it is wrong. One page per feature answers most of what anyone will ever ask. The practical translation. None of this needs a committee, and all of it is the evidence a review will ask for. A system card One page per AI feature: what it does, what it must not do, what data it touches, which model, who owns it, what happens when it fails. Kept in the repository, reviewed like code. Data lineage What went into the index, where it came from, what basis you h"
+  "text": "In plain English Governance sounds like a committee, and mostly it is not one. Inside a repository it is a handful of files: what this feature does and for whom, what data it touches and for how long, what it must not be used for, and what happens when it gets something wrong. One page for each feature answers most of what anybody will ever ask you. Here is what that means in practice. None of it needs a committee, and all of it is exactly the evidence a review will ask you for. A system card One page for each AI feature: what it does, what it must never do, what data it touches, which model, who owns it, and what happens when it fails. Kept in the repository and reviewed like code. Data lin"
  },
  {
   "slug": "governance",
@@ -1326,7 +1326,7 @@ window.GN_SECTIONS = [
   "note": "AI Governance",
   "noteTitle": "AI Governance",
   "section": "Bias, and why it is an engineering problem",
-  "text": "In plain English Bias is not a moral failing in the model, it is a measurable property of its outputs — and that framing is what makes it an engineering problem. If the system behaves differently for two groups who should be treated the same, that difference can be tested for, and a test can be run on every release. A model learns from text people wrote, and reproduces the patterns in it including the ones nobody wanted. This is not fixed by intent, and it is not detected by reading the code. Where it enters What to do about it Training data reflects historical patterns. You cannot change this. You can decide not to use a model for decisions where it matters, or measure the disparity and act"
+  "text": "In plain English Bias is not a moral failing inside the model. It is something measurable in the outputs — and looking at it that way is what turns it into an engineering problem. If the system behaves differently for two groups who should be treated the same, that difference can be tested for, and that test can run on every single release. A model learns from text that people wrote, and it repeats the patterns in that text including the ones nobody wanted. Good intentions do not fix this, and reading the code will not reveal it. Where it enters What to do about it Training data reflects historical patterns. You cannot change this. What you can do is decide not to use a model for decisions w"
  },
  {
   "slug": "architecture",
@@ -1334,7 +1334,7 @@ window.GN_SECTIONS = [
   "note": "Architecture",
   "noteTitle": "AI System Architecture",
   "section": "What architecture actually means here",
-  "text": "Architecture is the small set of decisions that are expensive to change later . Everything else is just code, and code is cheap to move. The value of drawing a system is not the picture; it is that drawing forces you to name the decisions you have already made without noticing. In plain English When you build a house, moving a cupboard is easy and moving a load-bearing wall is not. Architecture is the load-bearing walls. Choosing which database, where the boundary between your code and the model sits, what happens when a dependency is down those are walls. Which prompt wording you use is a cupboard. Teams get into trouble by arguing about cupboards while walls go up unexamined. The test for "
+  "text": "Architecture is the small set of decisions that are costly to change later on . Everything else is just code, and code is cheap to move around. The value of drawing a system is not the picture itself; it is that drawing forces you to name the decisions you already made without noticing. In plain English When you build a house, shifting a cupboard is easy and shifting a wall that holds up the roof is not. Architecture is those walls that hold up the roof. Which database you choose, where the line sits between your code and the model, what happens when something you depend on goes down those are walls. The exact wording of a prompt is a cupboard. Teams get into trouble by arguing about cupboar"
  },
  {
   "slug": "architecture",
@@ -1342,7 +1342,7 @@ window.GN_SECTIONS = [
   "note": "Architecture",
   "noteTitle": "AI System Architecture",
   "section": "The five layers every AI feature has",
-  "text": "In plain English Every AI feature has the same five layers whether or not anyone drew them. Naming them gives you the most useful diagnostic question there is: when something goes wrong, which layer was it? Teams that cannot answer that end up rewriting prompts to fix retrieval problems. Every AI system, from a weekend prototype to a product with a compliance team, has the same five layers. You do not choose whether to have them; you only choose whether they are deliberate. Figure The five layers, and what belongs in each Layer 3 is where quality lives Almost every the AI gave a bad answer bug is a context bug: the right passage was not retrieved, the history was truncated, the system prompt"
+  "text": "In plain English Every AI feature has the same five layers, whether or not anybody drew them. Naming them gives you the most useful question there is when something breaks: which layer was it? Teams that cannot answer that end up rewriting prompts to fix search problems. Every AI system, from a weekend hobby project to a product with its own compliance team, has these same five layers. You do not get to choose whether you have them; you only choose whether you built them on purpose. Figure The five layers, and what belongs in each Layer 3 is where quality lives Almost every the AI gave a bad answer bug is a context bug: the right passage was never fetched, the history got cut short, the syst"
  },
  {
   "slug": "architecture",
@@ -1350,7 +1350,7 @@ window.GN_SECTIONS = [
   "note": "Architecture",
   "noteTitle": "AI System Architecture",
   "section": "Four reference architectures",
-  "text": "In plain English Four shapes cover nearly every AI product there is. Recognising which one you are building — and which one you are being talked into — turns a long design argument into a short one, because the question stops being how should we build this and becomes which of these four, and why not the simpler one . Nearly every AI product is one of four shapes, or a composition of them. Knowing the four by name shortens most design conversations to which of these, and why . A The single call txt Shape A Summarise this. Classify that. Rewrite this in a friendlier tone. No retrieval, no tools, no memory. Start here always. A surprising share of shipped AI features never need to leave this s"
+  "text": "In plain English Four shapes cover nearly every AI product there is. Recognising which one you are building — and which one somebody is talking you into — turns a long design argument into a short one, because the question stops being how should we build this and becomes which of these four, and why not the simpler one . Nearly every AI product is one of four shapes, or a mix of them. Knowing all four by name shortens most design conversations down to which of these, and why . A The single call txt Shape A Summarise this. Sort that. Rewrite this in a friendlier tone. No searching, no tools, no memory. Always start here. A surprising number of shipped AI features never need to go beyond this "
  },
  {
   "slug": "architecture",
@@ -1358,7 +1358,7 @@ window.GN_SECTIONS = [
   "note": "Architecture",
   "noteTitle": "AI System Architecture",
   "section": "The six boundaries, and the trade at each",
-  "text": "In plain English A boundary is a place where two parts of the system meet and somebody has to decide how. Six of them come up every time. None of these decisions is hard on its own; the trouble is that they get made implicitly, by whoever wrote that bit first, and then become expensive to revisit. An architecture is really a set of choices at boundaries. These six cover most of what you will decide. 1. Where does the model call live? Not this from the browser Do this through your own server There is no version of the left-hand side that is acceptable in production. Everything else on this page is a genuine trade-off; this one is not. 2. Streaming, or wait for the whole answer? Streaming make"
+  "text": "In plain English A boundary is a place where two parts of the system meet and somebody has to decide how they meet. Six of them come up every single time. None of these decisions is hard on its own; the trouble is that they get made silently, by whoever wrote that bit first, and then become expensive to change. An architecture is really just a set of choices made at boundaries. These six cover most of what you will have to decide. 1. Where does the model call live? Not this from the browser Do this through your own server There is no version of the left-hand side that is acceptable in a real product. Everything else on this page is a genuine trade-off; this one is not a trade-off at all. 2. "
  },
  {
   "slug": "architecture",
@@ -1366,7 +1366,7 @@ window.GN_SECTIONS = [
   "note": "Architecture",
   "noteTitle": "AI System Architecture",
   "section": "Drawing it so people agree",
-  "text": "In plain English A diagram is not documentation, it is an argument. Its job is to make people disagree with you early, while disagreeing is still cheap. A diagram everyone nods along to has usually failed — it means nobody found the thing they actually disagree about. The point of a diagram is to make disagreement visible early, while it is still cheap. A diagram everyone nods at has usually failed, because agreement that easy means nobody found the thing they disagree about. 1. Context diagram Your system as one box in the middle. Around it: every human and every other system that talks to it, with an arrow each. Nothing about the inside. Takes ten minutes and settles most scope arguments. "
+  "text": "In plain English A diagram is not documentation, it is an argument. Its job is to make people disagree with you early, while disagreeing is still cheap. A diagram everybody nods along to has usually failed — it means nobody found the thing they actually disagree about. The point of a diagram is to bring disagreement out into the open early, while it is still cheap to fix. A diagram everybody nods at has usually failed, because agreement that easy means nobody found the thing they really disagree about. 1. Context diagram Your system as one box in the middle. Around it: every person and every other system that talks to it, with one arrow each. Nothing at all about the inside. Takes ten minute"
  },
  {
   "slug": "architecture",
@@ -1374,7 +1374,7 @@ window.GN_SECTIONS = [
   "note": "Architecture",
   "noteTitle": "AI System Architecture",
   "section": "Designing for the failure you will actually have",
-  "text": "In plain English A model provider is a third party with variable latency and a real error rate. Every ordinary dependency lesson applies — timeouts, retries, fallbacks — plus two failures ordinary dependencies do not have: an answer that is confidently wrong, and an answer that is not in the shape you asked for. Both need designing for, not hoping about. A model provider is a third-party dependency with variable latency and a non-zero error rate. Treat it exactly like any other one, plus two failure modes normal dependencies do not have. Failure What the user sees if you did nothing The design that handles it Provider is down A spinner, then a 500 Timeout, then a fallback: a second provider,"
+  "text": "In plain English A model provider is an outside company with unpredictable speed and a real failure rate. Every normal lesson about depending on somebody else applies — timeouts, retries, fallbacks — plus two failures normal dependencies never have: an answer that is confidently wrong, and an answer that is not in the shape you asked for. Both of those need designing for, not hoping about. A model provider is something outside your control, with unpredictable speed and a real failure rate. Treat it exactly like any other outside dependency, plus two extra kinds of failure that normal ones do not have. Failure What the user sees if you did nothing The design that handles it Provider is down A"
  },
  {
   "slug": "architecture",
@@ -1382,7 +1382,7 @@ window.GN_SECTIONS = [
   "note": "Architecture",
   "noteTitle": "AI System Architecture",
   "section": "A worked architecture, end to end",
-  "text": "In plain English One system designed all the way down, with the reasoning next to each decision and an explicit list of what is deliberately left out. The omissions are the more useful half — knowing what you are not building, and why, is what keeps a first version shippable. Real world Ask a question about your own documents the full design A team uploads their documents and asks questions about them in natural language. Answers must cite their sources. This is the most common AI product shape there is, and it is worth designing all the way down once. Figure Two pipelines: one runs when a document arrives, one when a question is asked Every decision, and why Decision Choice Why this one Sha"
+  "text": "In plain English One system designed all the way down, with the reasoning written next to each decision and a clear list of what has been left out on purpose. The things left out are the more useful half — knowing what you are not building, and why, is what keeps a first version small enough to actually ship. Real world Ask a question about your own documents the full design A team uploads their documents and then asks questions about them in ordinary language. Every answer must show its sources. This is the most common AI product shape there is, and it is worth designing all the way down at least once. Figure Two pipelines: one runs when a document arrives, one when a question is asked Ever"
  },
  {
   "slug": "cloud-gcp",
@@ -1446,7 +1446,7 @@ window.GN_SECTIONS = [
   "note": "Cloud & GCP",
   "noteTitle": "Cloud & GCP Deployment",
   "section": "Keeping the bill honest",
-  "text": "In plain English A cloud bill goes wrong in exactly two ways: something scaled that you never bounded, or something has been quietly running for months that nobody uses. Both are prevented in an afternoon, and neither is preventable retrospectively — which is why the four things in this topic belong on day one. Cloud bills go wrong in one of two ways: something scaled that you did not bound, or something has been running for months that nobody uses. Both are preventable in an afternoon. 1. A budget with alerts Set one per project on the day you create it. Alerts at 50%, 90% and 100% of what you expect. It costs nothing and is the difference between noticing on the 3rd and noticing on the 30t"
+  "text": "In plain English A cloud bill goes wrong in exactly two ways: something scaled that you never bounded, or something has been quietly running for months that nobody uses. Both can be prevented in one afternoon, and neither can be prevented after the fact — which is exactly why the four things in this topic belong on day one. Cloud bills go wrong in one of two ways: something scaled that you did not bound, or something has been running for months that nobody uses. Both are preventable in an afternoon. 1. A budget with alerts Set one per project on the day you create it. Alerts at 50%, 90% and 100% of what you expect. It costs nothing and is the difference between noticing on the 3rd and notici"
  },
  {
   "slug": "cloud-gcp",
@@ -1462,7 +1462,7 @@ window.GN_SECTIONS = [
   "note": "AI Ops",
   "noteTitle": "AI Ops — Running It in Production",
   "section": "Why this is not normal ops",
-  "text": "You already know how to run a service: watch the error rate, watch latency, page someone when a graph goes the wrong way. All of that still applies. The problem is that it is no longer sufficient, because an AI system has a failure mode ordinary software does not. In plain English A broken tap either runs or it does not, and you can tell instantly. An AI system is a tap that always runs but the water is sometimes slightly the wrong temperature, and nobody complains for three weeks. Every dial on your existing dashboard reads normal the entire time. A normal service An AI system Failure looks like A 500, a stack trace, a timeout A 200 with a wrong answer Same input, same output? Yes No and th"
+  "text": "You already know how to run a service: watch the error rate, watch the speed, wake somebody up when a graph goes the wrong way. All of that still applies. The problem is that it is no longer enough, because an AI system can fail in a way ordinary software never does. In plain English A broken tap either runs or it does not, and you know straight away. An AI system is a tap that always runs but the water is sometimes a little bit the wrong temperature, and nobody says anything for three weeks. Every reading on your existing dashboard looks perfectly normal the whole time. A normal service An AI system Failure looks like A 500, a stack trace, a timeout A 200 with a wrong answer Same input, sam"
  },
  {
   "slug": "aiops",
@@ -1470,7 +1470,7 @@ window.GN_SECTIONS = [
   "note": "AI Ops",
   "noteTitle": "AI Ops — Running It in Production",
   "section": "What to log on every call",
-  "text": "In plain English This is the highest-value habit in the note, because it is the one thing you cannot add retrospectively. Every question you will later want to answer — why was this answer wrong, what does this feature cost, when did quality drop — is only answerable if the data was written down at the time. This is the highest-value thing in the note. Everything downstream debugging, cost analysis, evaluation, incident response is possible only if the data was captured at the time. You cannot go back and add it. ts One structured line per model call i prompt_ver and feature are the two fields teams add late and wish they had added first. Without feature , your token spend is one undifferent"
+  "text": "In plain English This is the most valuable habit in the whole note, because it is the one thing you cannot go back and add later. Every question you will want to answer afterwards — why was this answer wrong, what does this feature cost, when did the quality drop — can only be answered if somebody wrote the data down at the time. This is the most valuable thing in the note. Everything that comes after it debugging, working out costs, testing, handling an incident is only possible if the data was captured at the time. You cannot go back and add it later. ts One structured line per model call i prompt_ver and feature are the two fields teams add late and wish they had added first. Without feat"
  },
  {
   "slug": "aiops",
@@ -1582,7 +1582,7 @@ window.GN_SECTIONS = [
   "note": "Building with AI",
   "noteTitle": "Building a Full Project with AI",
   "section": "The backend and API, built with AI",
-  "text": "In plain English The useful prompt is never \"build the backend.\" It's \"here is the schema, here is how the existing routes are written, add exactly this one endpoint.\" The model isn't inventing a design — it's extending one you already committed to, which is why the result matches the rest of the codebase instead of looking like it came from a different project. prisma schema.prisma — given to the model as context, not guessed at The prompt for one slice: \"Add POST /api/boards/:id/tasks . Validate title is a non-empty string. Confirm the board exists and belongs to the signed-in user before creating anything. Return 201 with the created row, matching the error-handling style in routes/boards"
+  "text": "In plain English The useful prompt is never \"build the backend.\" It is \"here is the schema, here is how the existing routes are written, now add exactly this one endpoint.\" The model is not inventing a design. It is extending one you already decided on. That is why the result matches the rest of your code, instead of looking like it came from somebody else's project. prisma schema.prisma — given to the model as context, not guessed at The prompt for one slice: \"Add POST /api/boards/:id/tasks . Validate title is a non-empty string. Confirm the board exists and belongs to the signed-in user before creating anything. Return 201 with the created row, matching the error-handling style in routes/b"
  },
  {
   "slug": "ai-project",
@@ -1630,7 +1630,7 @@ window.GN_SECTIONS = [
   "note": "What to Learn Next",
   "noteTitle": "What to Learn Next",
   "section": "The foundations worth filling in",
-  "text": "In plain English Some fundamentals keep paying out no matter which framework is fashionable: how HTTP actually works, what a database is doing, how to read a stack trace, git beyond commit and push, and how to write something down so another person can follow it. These age far better than any library. You can build a great deal without these. They are what separates someone who can wire an API from someone who can debug why the wiring is not working. Topic Why it earns its time Depth needed Python The ecosystem is Python-first. Every paper, notebook, evaluation harness and data tool assumes it, even when your product is TypeScript. Enough to read a notebook and modify it. Not a second career"
+  "text": "In plain English Some basics keep paying you back no matter which framework is in fashion. How HTTP actually works. What a database is really doing. How to read a stack trace. Git beyond just commit and push. And how to write something down so that another person can follow it. These last far longer than any library. You can build a great deal without these. They are what separates someone who can wire an API from someone who can debug why the wiring is not working. Topic Why it earns its time Depth needed Python The ecosystem is Python-first. Every paper, notebook, evaluation harness and data tool assumes it, even when your product is TypeScript. Enough to read a notebook and modify it. Not"
  },
  {
   "slug": "roadmap",
@@ -1638,7 +1638,7 @@ window.GN_SECTIONS = [
   "note": "What to Learn Next",
   "noteTitle": "What to Learn Next",
   "section": "Where to go deeper, once the basics hold",
-  "text": "Direction What it involves Suits you if AI engineering Building the products. Retrieval quality, agent design, evals, cost, latency, reliability. You like shipping things people use. This is the closest step from where you are, and the widest job market. AI infrastructure Serving models, GPUs, inference optimisation, running open-weight models at scale. You enjoy systems and performance work. Deep, specialised, well paid, fewer roles. Data engineering for AI Pipelines that keep a corpus fresh, permissioned and versioned. Unglamorous, and it decides whether the product is any good. You already like databases. the PostgreSQL Prisma note is genuinely half of this. AI security Red-teaming agents"
+  "text": "Direction What it involves Suits you if AI engineering Building the products. Retrieval quality, agent design, evals, cost, latency, reliability. You like shipping things people use. This is the closest step from where you are, and the widest job market. AI infrastructure Serving models, GPUs, inference optimisation, running open-weight models at scale. You enjoy systems and performance work. Deep, specialised, well paid, fewer roles. Data engineering for AI Pipelines that keep a corpus fresh, permissioned and versioned. Boring work, and it decides whether the product is any good at all. You already like databases. the PostgreSQL Prisma note is genuinely half of this. AI security Red-teaming"
  },
  {
   "slug": "roadmap",

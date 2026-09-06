@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Designing for the failure you will actually have — Architecture — Garvit's Notes</title>
-<meta name="description" content="What happens when the model provider is slow, wrong, down, or expensive — designed once, rather than discovered at 3am.">
+<meta name="description" content="What happens when the model provider is slow, wrong, down or expensive — decided once, instead of discovered at 3am.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,14 +54,14 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A model provider is a third party with variable latency and a real error rate. Every ordinary dependency lesson applies — timeouts, retries, fallbacks — plus two failures ordinary dependencies do not have: an answer that is confidently wrong, and an answer that is not in the shape you asked for. Both need designing for, not hoping about. </div></div>
-<p> A model provider is a third-party dependency with variable latency and a non-zero error rate. Treat it exactly like any other one, plus two failure modes normal dependencies do not have. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A model provider is an outside company with unpredictable speed and a real failure rate. Every normal lesson about depending on somebody else applies — timeouts, retries, fallbacks — plus two failures normal dependencies never have: an answer that is confidently wrong, and an answer that is not in the shape you asked for. Both of those need designing for, not hoping about. </div></div>
+<p> A model provider is something outside your control, with unpredictable speed and a real failure rate. Treat it exactly like any other outside dependency, plus two extra kinds of failure that normal ones do not have. </p>
 <div class="table-wrap"><table><thead><tr><th>Failure</th><th>What the user sees if you did nothing</th><th>The design that handles it</th></tr></thead><tbody>
-<tr><td>Provider is down</td><td>A spinner, then a 500</td><td>Timeout, then a fallback: a second provider, a smaller model, or an honest &ldquo;this is unavailable&rdquo; with the non-AI path still working.</td></tr>
-<tr><td>Rate limited</td><td>Random failures under load</td><td>A queue with backoff. Never retry immediately in a tight loop &mdash; that is how a small limit becomes an outage.</td></tr>
-<tr><td>Very slow response</td><td>A hung request holding a connection</td><td>A hard timeout below your own request timeout, and a streaming interface so slow still feels alive.</td></tr>
-<tr><td>Confidently wrong answer</td><td>The user believes it</td><td>Citations, a visible confidence signal, and a design where being wrong is recoverable. This one has no technical fix.</td></tr>
-<tr><td>Output is not the shape you asked for</td><td>A parse error, or worse, a silent one</td><td>Validate against a schema; on failure, retry once with the error text, then fall back. Never <code>JSON.parse</code> a model's output unguarded.</td></tr>
+<tr><td>Provider is down</td><td>A spinning wheel, then an error page</td><td>A timeout, then a fallback: a second provider, a smaller model, or an honest &ldquo;this is not available right now&rdquo; with the non-AI route still working.</td></tr>
+<tr><td>Rate limited</td><td>Failures that come and go under heavy use</td><td>A queue that waits longer between attempts. Never retry straight away in a tight loop &mdash; that is how a small limit turns into a full outage.</td></tr>
+<tr><td>Very slow response</td><td>A stuck request holding a connection open</td><td>A hard timeout set below your own request timeout, plus streaming, so that slow at least still feels alive.</td></tr>
+<tr><td>Confidently wrong answer</td><td>The user believes it</td><td>Show the sources, show how confident it is, and design so that being wrong can be recovered from. There is no technical fix for this one.</td></tr>
+<tr><td>Output is not the shape you asked for</td><td>A parse error, or worse, a quiet one nobody notices</td><td>Check it against a schema; if it fails, retry once with the error message included, then fall back. Never run <code>JSON.parse</code> on a model's output without protection.</td></tr>
 </tbody></table></div>
 <div class="code-block"><div class="code-head"><span class="lang">ts</span>The wrapper every AI system should have exactly one of</div><pre><code>// One function. Every model call in the codebase goes through it.
 // This is what turns "which provider" from a wall into a cupboard.
@@ -86,8 +86,8 @@ export async function complete(input: Input): Promise&lt;Result&gt; {
     return fallback(input);        // degraded, not broken
   }
 }</code></pre></div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>&ldquo;Degraded, not broken&rdquo; is a product decision, not an engineering one.</strong> Decide in advance what your feature does when the model is unavailable, and make sure someone outside engineering agrees with the answer. A search box that falls back to keyword search is fine. A checkout that silently skips fraud checking is not. </div></div>
-<details class="selfcheck"><summary><span class="sc-q">Why validate the model's output shape even when you asked for JSON and the provider supports a structured-output mode?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because the schema guarantees the <em>shape</em>, never the <em>content</em>. You can get valid JSON with an <code>order_id</code> that does not exist, a refund amount larger than the order, or a date in the wrong century. Structured output removes parse errors; it does not remove wrong answers. The validation you need is the business-rule kind, on top of the schema kind. </p></div></details>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>&ldquo;Working, but reduced&rdquo; is a product decision, not an engineering one.</strong> Decide in advance what your feature does when the model is not available, and make sure somebody outside the engineering team agrees with that answer. A search box that falls back to keyword search is fine. A checkout that quietly skips the fraud check is not. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">Why validate the model's output shape even when you asked for JSON and the provider supports a structured-output mode?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Because the schema promises you the <em>shape</em>, never the <em>content</em>. You can get perfectly valid JSON with an <code>order_id</code> that does not exist, a refund bigger than the order, or a date in the wrong century. Structured output removes parse errors; it does not remove wrong answers. The checking you actually need is the business-rule kind, sitting on top of the schema kind. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="diagrams.html">

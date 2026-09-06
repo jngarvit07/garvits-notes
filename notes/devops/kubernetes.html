@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kubernetes: running many containers reliably — CI/CD, Docker &amp; Kubernetes — Garvit's Notes</title>
-<meta name="description" content="Pods, Deployments, Services and Ingress — the four objects that do almost everything, and a real manifest for a two-service app.">
+<meta name="description" content="Pods, Deployments, Services and Ingress — the four things that do almost everything, plus a real config file for a two-service app.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -118,7 +118,7 @@ spec:
 <tr><td>Good for</td><td>Almost everything — one or a few services</td><td>Many services, complex internal networking, a platform team to run it</td></tr>
 <tr><td>Setup for "hello world"</td><td>Minutes</td><td>Hours, and there is a cluster to keep patched afterwards</td></tr>
 </tbody></table></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Teams often reach for Kubernetes because it is the well-known name, then spend the first few months operating a cluster instead of building the product. It earns its complexity once you have enough services that the orchestration itself becomes the hard problem — until then, a managed platform gives you the same "many containers, restarted automatically" guarantee for a fraction of the operational cost. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> Teams often reach for Kubernetes because it is the well-known name, then spend the first few months operating a cluster instead of building the product. It becomes worth its complexity once you have so many services that co-ordinating them is itself the hard problem. Until then, a managed platform gives you the same "many containers, restarted automatically" promise for a fraction of the running cost. </div></div>
 <details class="selfcheck"><summary><span class="sc-q">A Deployment says <code>replicas: 3</code>, but you only ever create or delete a Pod directly during testing. Two minutes later, three Pods are running again. Why?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> The Deployment is not describing what to do once — it is continuously reconciling reality against the desired state you gave it. Delete a Pod, and the Deployment notices the count dropped below 3 and starts a replacement immediately. This is the core idea of Kubernetes: you declare the end state, and a controller keeps making it true, indefinitely, without anyone re-running a command. </p></div></details>
 </div>
 <nav class="page-nav">

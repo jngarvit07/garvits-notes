@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Preference tuning: RLHF and DPO — Fine-tuning — Garvit's Notes</title>
-<meta name="description" content="Teaching a model which answer is better, rather than which answer is correct — and why that needs a different technique entirely.">
+<meta name="description" content="Teaching a model which answer is better, rather than which answer is correct — and why that needs a completely different technique.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,22 +54,22 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Ordinary fine-tuning needs one right answer per input. But for &ldquo;write a polite refusal&rdquo; there is no single right answer &mdash; there are better and worse ones. Preference tuning trains on <em>pairs</em>: here are two responses, this one is better. It is how the raw text-predictor becomes an assistant that is helpful and declines sensibly, and it is a large part of what separates a base model from a chat model. </div></div>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Ordinary fine-tuning needs one right answer for each input. But for "write a polite refusal" there is no single right answer &mdash; there are only better and worse ones. Preference tuning trains on <em>pairs</em>: here are two replies, this one is better. It is how a raw text-predictor becomes an assistant that is helpful and says no sensibly, and it is a big part of what separates a base model from a chat model. </div></div>
 <div class="code-block"><div class="code-head"><span class="lang">jsonl</span>A preference pair</div><pre><code>{"prompt":  "A customer is angry their order is late. Reply.",
  "chosen":  "I'm really sorry — that's frustrating. I can see it left our warehouse on the 3rd and is delayed in transit. I've requested an update and will email you within 24 hours. If you'd rather not wait, I can refund it now.",
  "rejected":"Unfortunately delays can occur due to circumstances beyond our control. Please consult our shipping policy for further information."}
 
-Both are on-topic and grammatical. One is much better.
-That judgement is what you are teaching, and it is very hard
-to write down as a rule — which is exactly why pairs work.</code></pre></div>
+Both are on-topic and grammatically fine. One is far better.
+That judgement is what you are teaching, and it is very hard to
+write down as a rule — which is exactly why pairs work so well.</code></pre></div>
 <div class="table-wrap"><table><thead><tr><th></th><th>RLHF</th><th>DPO</th></tr></thead><tbody>
-<tr><td>How</td><td>Train a reward model on preferences, then optimise against it with reinforcement learning</td><td>Optimise directly on the pairs. No reward model, no RL loop.</td></tr>
-<tr><td>Moving parts</td><td>Many. Notoriously fiddly to stabilise.</td><td>Few. Close to ordinary supervised training.</td></tr>
-<tr><td>Compute</td><td>High</td><td>Moderate</td></tr>
-<tr><td>Results</td><td>The established approach at frontier labs</td><td>Comparable on most tasks, far less machinery</td></tr>
+<tr><td>How it works</td><td>Train a scoring model on the preferences, then improve against it using reinforcement learning</td><td>Train directly on the pairs. No scoring model, no reinforcement learning loop.</td></tr>
+<tr><td>Moving parts</td><td>Many. Famously fiddly to keep stable.</td><td>Few. Close to ordinary supervised training.</td></tr>
+<tr><td>Computing power</td><td>High</td><td>Moderate</td></tr>
+<tr><td>Results</td><td>The established approach at the big labs</td><td>About the same on most tasks, with far less machinery</td></tr>
 <tr><td>For you</td><td>Almost certainly not</td><td><strong>Start here</strong> if you need preference tuning at all</td></tr>
 </tbody></table></div>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>You probably have preference data already.</strong> Every thumbs-up and thumbs-down, every time a user edited a generated draft before sending it, every time a support agent rewrote a suggested reply. The edited version is <code>chosen</code> and the original is <code>rejected</code>. Capturing that from the start costs almost nothing and is worth a great deal later &mdash; see the <a href="../aiops/index.html">AI Ops</a> note on feedback signals. </div></div>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>You probably already have preference data.</strong> Every thumbs-up and thumbs-down, every time a user edited a generated draft before sending it, every time a support agent rewrote a suggested reply. The edited version is the <code>chosen</code> one and the original is <code>rejected</code>. Capturing that from day one costs almost nothing and is worth a great deal later &mdash; see the <a href="../aiops/index.html">AI Ops</a> note on feedback signals. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="data.html">

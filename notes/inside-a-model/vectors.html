@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>From tokens to meaning — Inside a Model — Garvit's Notes</title>
-<meta name="description" content="Every token becomes a long list of numbers positioned in a space where nearness means similar meaning. This is the representation everything else operates on.">
+<meta name="description" content="Every token becomes a long list of numbers placed in a space where being close means having a similar meaning. Everything else works on top of this.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,27 +54,27 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A token id is just a label &mdash; number 976 tells you nothing about what &ldquo;The&rdquo; means. So each id is looked up in a large table and replaced by a long list of numbers, perhaps four thousand of them. That list is a position in a space, and the useful property is that tokens with related meanings end up near each other. Meaning becomes geometry. </div></div>
-<div class="code-block"><div class="code-head"><span class="lang">txt</span>The same idea at three scales</div><pre><code>token id     976                     a label, meaningless on its own
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> A token id is only a label &mdash; the number 976 tells you nothing about what "The" means. So each id is looked up in a big table and replaced by a long list of numbers, maybe four thousand of them. That list is a position in a space, and the useful part is that tokens with related meanings end up close to each other. Meaning turns into geometry. </div></div>
+<div class="code-block"><div class="code-head"><span class="lang">txt</span>The same idea at three levels</div><pre><code>token id     976                     a label, meaningless on its own
                 |
   embedding table lookup
                 v
 vector       [0.12, -0.83, 1.44, ... ]   ~4000 numbers = a POSITION
 
-  Nearness in that space is similarity of meaning:
+  Being close in that space means being close in meaning:
 
      king - man + woman  lands very close to  queen
      Paris - France + Italy  lands very close to  Rome
 
-  These are not tricks. They fall out of learning to predict text.</code></pre></div>
-<h3>Two different things both called &ldquo;embeddings&rdquo;</h3>
+  These are not tricks. They simply fall out of learning to predict text.</code></pre></div>
+<h3>Two different things, both called &ldquo;embeddings&rdquo;</h3>
 <div class="table-wrap"><table><thead><tr><th></th><th>Token embeddings</th><th>Text embeddings</th></tr></thead><tbody>
-<tr><td>What it represents</td><td>One token, before context is applied</td><td>A whole passage, after the model has read it</td></tr>
-<tr><td>Where it lives</td><td>Inside the model, at the input</td><td>Output of a dedicated embedding model</td></tr>
+<tr><td>What it stands for</td><td>One token, before any context is applied</td><td>A whole passage, after the model has read it</td></tr>
+<tr><td>Where it lives</td><td>Inside the model, right at the input</td><td>The output of a separate embedding model</td></tr>
 <tr><td>What you do with it</td><td>Nothing &mdash; it is internal machinery</td><td>Store it, and search by similarity. This is what RAG runs on</td></tr>
 </tbody></table></div>
-<p> The word is used for both, which causes real confusion. When somebody says &ldquo;we store embeddings&rdquo;, they mean the second: one vector per chunk of text, produced by a model whose only job is to place passages sensibly in a space. </p>
-<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>Embeddings are model-specific and not interchangeable.</strong> A vector from one embedding model is meaningless to another &mdash; the spaces have different shapes. Changing your embedding model means re-embedding every document you have. Budget for that before you choose one, because it is the migration people discover at the worst moment. </div></div>
+<p> The same word is used for both, which causes real confusion. When somebody says "we store embeddings", they mean the second one: one vector per chunk of text, produced by a model whose only job is to place passages sensibly in that space. </p>
+<div class="callout is-note"><span class="callout-icon">i</span><div class="callout-body"> <strong>Embeddings belong to one model and cannot be swapped between models.</strong> A vector from one embedding model means nothing to another one &mdash; the two spaces are shaped differently. Changing your embedding model means re-embedding every document you have. Plan for that before you pick one, because it is the migration people discover at the worst possible moment. </div></div>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="tokens.html">

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The five layers every AI feature has — Architecture — Garvit's Notes</title>
-<meta name="description" content="Every AI feature has the same five layers whether or not anyone drew them. Naming them tells you where your bugs are coming from.">
+<meta name="description" content="Every AI feature has the same five layers, whether or not anybody drew them. Naming them tells you where your bugs are coming from.">
 <meta name="color-scheme" content="light dark">
 <script>(function(){var d=document.documentElement;
 try{var t=localStorage.getItem('gn-theme');if(t)d.setAttribute('data-theme',t);
@@ -54,8 +54,8 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   </div>
 </header>
 <div class="topic-body">
-<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Every AI feature has the same five layers whether or not anyone drew them. Naming them gives you the most useful diagnostic question there is: when something goes wrong, which layer was it? Teams that cannot answer that end up rewriting prompts to fix retrieval problems. </div></div>
-<p> Every AI system, from a weekend prototype to a product with a compliance team, has the same five layers. You do not choose whether to have them; you only choose whether they are deliberate. </p>
+<div class="callout is-tip"><span class="callout-icon">&#128161;</span><div class="callout-body"><div class="callout-title">In plain English</div> Every AI feature has the same five layers, whether or not anybody drew them. Naming them gives you the most useful question there is when something breaks: which layer was it? Teams that cannot answer that end up rewriting prompts to fix search problems. </div></div>
+<p> Every AI system, from a weekend hobby project to a product with its own compliance team, has these same five layers. You do not get to choose whether you have them; you only choose whether you built them on purpose. </p>
 <figure class="figure is-ascii"><div class="figure-head"><span class="figure-label">Figure</span><span class="figure-cap">The five layers, and what belongs in each</span></div><div class="figure-stage"><pre class="ascii-art">  +---------------------------------------------------+
   |  1. INTERFACE      what the person types and sees  |
   |     chat box, a button, an API endpoint, a cron    |
@@ -85,11 +85,11 @@ var z=localStorage.getItem('gn-size');if(z==='sm'||z==='lg')d.setAttribute('data
   running alongside all five:
   observability  .  evaluation  .  guardrails  .  cost</pre></div></figure>
 <div class="card-grid cols-2">
-  <div class="card"><div class="card-title">Layer 3 is where quality lives</div><p>Almost every &ldquo;the AI gave a bad answer&rdquo; bug is a context bug: the right passage was not retrieved, the history was truncated, the system prompt did not mention a rule. Fix context before you touch the prompt wording.</p></div>
-  <div class="card"><div class="card-title">Layer 4 is where risk lives</div><p>A model that can only read is a quality problem when it is wrong. A model that can write, send, pay or delete is an incident. Every capability you add multiplies the consequence of every context bug.</p></div>
+  <div class="card"><div class="card-title">Layer 3 is where quality lives</div><p>Almost every &ldquo;the AI gave a bad answer&rdquo; bug is a context bug: the right passage was never fetched, the history got cut short, the system prompt never mentioned the rule. Fix the context before you touch a single word of the prompt.</p></div>
+  <div class="card"><div class="card-title">Layer 4 is where risk lives</div><p>A model that can only read is just a quality problem when it gets things wrong. A model that can write, send, pay or delete is an incident. Every new ability you add multiplies the damage every context bug can do.</p></div>
 </div>
-<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>The single most useful diagnostic question:</strong> when something goes wrong, which layer was it? Teams that cannot answer this end up rewriting prompts to fix retrieval bugs, and swapping models to fix orchestration bugs. Logging enough to answer it &mdash; see the AI Ops note &mdash; is worth more than any framework. </div></div>
-<details class="selfcheck"><summary><span class="sc-q">A support bot confidently states a refund policy that was changed last month. Which layer failed?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Layer 3, context &mdash; almost certainly. Either the retrieval index still holds the old policy document, or it holds both and the old one ranked higher. Neither the model nor the prompt is at fault, and changing either would be a plausible-looking action that fixes nothing. The repair is in the indexing pipeline: how documents get in, and how superseded ones get out. </p></div></details>
+<div class="callout is-warn"><span class="callout-icon">!</span><div class="callout-body"><strong>The single most useful question when something breaks:</strong> which layer was it? Teams that cannot answer this end up rewriting prompts to fix search bugs, and swapping models to fix control-flow bugs. Logging enough to be able to answer it &mdash; see the AI Ops note &mdash; is worth more than any framework. </div></div>
+<details class="selfcheck"><summary><span class="sc-q">A support bot confidently states a refund policy that was changed last month. Which layer failed?</span><span class="sc-cue">Answer</span></summary><div class="sc-body"><p> Layer 3, the context &mdash; almost certainly. Either the search index still holds the old policy document, or it holds both and the old one ranked higher. Neither the model nor the prompt is at fault, and changing either one would look like sensible action while fixing nothing. The repair is in the indexing pipeline: how documents get in, and how replaced ones get taken out. </p></div></details>
 </div>
 <nav class="page-nav">
 <a class="pn-prev" href="what.html">
